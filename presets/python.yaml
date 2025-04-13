@@ -1,0 +1,8 @@
+description: "Python programming language"
+
+depends_on:
+  - core-shell
+
+homebrew:
+  packages:
+    - python

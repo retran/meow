@@ -1,0 +1,8 @@
+description: "Notion productivity app"
+
+depends_on:
+  - macos-desktop
+
+homebrew:
+  packages:
+    - notion-app

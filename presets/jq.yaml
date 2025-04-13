@@ -1,0 +1,8 @@
+description: "jq JSON processor"
+
+depends_on:
+  - core-shell
+
+homebrew:
+  packages:
+    - jq

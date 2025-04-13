@@ -1,0 +1,9 @@
+description: "VS Code PowerShell development extensions"
+
+depends_on:
+  - vscode
+  - powershell
+
+vscode:
+  packages:
+    - powershell

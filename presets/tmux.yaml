@@ -1,0 +1,15 @@
+description: "Tmux terminal multiplexer"
+
+depends_on:
+  - core-shell
+  - fonts-jetbrains
+  - zsh
+
+homebrew:
+  packages:
+    - tmux
+
+symlinks:
+  - tmux
+
+script: setup-tmux.sh

@@ -1,0 +1,16 @@
+description: "Toggl Track time tracking"
+
+depends_on:
+  - python
+  - macos-desktop
+
+mas:
+  packages:
+    - toggl-track
+
+pipx:
+  packages:
+    - toggl-track
+
+symlinks:
+  - toggl-track

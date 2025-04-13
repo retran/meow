@@ -1,0 +1,18 @@
+description: "Neovim text editor with LSP tools"
+
+depends_on:
+  - core-shell
+  - git
+  - fonts-jetbrains
+  - fzf
+  - ripgrep
+  - fd
+  - lua
+  - shell-tools
+
+homebrew:
+  packages:
+    - neovim
+
+symlinks:
+  - neovim

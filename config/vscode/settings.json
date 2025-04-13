@@ -1,0 +1,18 @@
+{
+    "editor.fontSize": 15,
+    "github.copilot.chat.codesearch.enabled": true,
+    "editor.fontFamily": "JetBrainsMono Nerd Font Mono",
+    "workbench.colorTheme": "Tokyo Night",
+    "files.autoSave": "afterDelay",
+    "files.trimFinalNewlines": true,
+    "files.trimTrailingWhitespace": true,
+    "githubPullRequests.createOnPublishBranch": "never",
+    "editor.renderWhitespace": "all",
+    "files.simpleDialog.enable": true,
+    "extensions.showRecommendationsOnlyOnDemand": true,
+    "redhat.telemetry.enabled": true,
+    "editor.cursorSmoothCaretAnimation": "on",
+    "window.customTitleBarVisibility": "never",
+    "window.commandCenter": false,
+    "workbench.layoutControl.enabled": false
+}

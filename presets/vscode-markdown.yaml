@@ -1,0 +1,8 @@
+description: "VS Code Markdown extensions"
+
+depends_on:
+  - vscode
+
+vscode:
+  packages:
+    - markdown

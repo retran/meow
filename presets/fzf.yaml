@@ -1,0 +1,10 @@
+description: "fzf fuzzy finder"
+
+depends_on:
+  - core-shell
+  - fd
+  - ripgrep
+
+homebrew:
+  packages:
+    - fzf

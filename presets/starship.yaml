@@ -1,0 +1,12 @@
+description: "Starship shell prompt"
+
+depends_on:
+  - core-shell
+  - fonts-jetbrains
+
+homebrew:
+  packages:
+    - starship
+
+symlinks:
+  - starship

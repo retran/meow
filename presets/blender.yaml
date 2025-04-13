@@ -1,0 +1,8 @@
+description: "Blender 3D creation suite"
+
+depends_on:
+  - macos-desktop
+
+homebrew:
+  packages:
+    - blender

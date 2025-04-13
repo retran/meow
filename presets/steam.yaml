@@ -1,0 +1,8 @@
+description: "Steam gaming platform"
+
+depends_on:
+  - macos-desktop
+
+homebrew:
+  packages:
+    - steam

@@ -1,0 +1,8 @@
+description: "Notion Calendar scheduling app"
+
+depends_on:
+  - macos-desktop
+
+homebrew:
+  packages:
+    - notion-calendar

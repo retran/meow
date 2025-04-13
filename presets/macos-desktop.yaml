@@ -1,0 +1,10 @@
+description: "macOS desktop foundation"
+
+depends_on:
+  - core-shell
+
+homebrew:
+  packages:
+    - macos-desktop
+
+script: setup-macos.sh

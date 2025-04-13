@@ -1,0 +1,2 @@
+- source: "$DOTFILES_DIR/config/neovide"
+  target: "$HOME/.config/neovide"

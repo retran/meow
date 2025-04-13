@@ -1,0 +1,11 @@
+description: "Hammerspoon automation tool"
+
+depends_on:
+  - macos-desktop
+
+homebrew:
+  packages:
+    - hammerspoon
+
+symlinks:
+  - hammerspoon

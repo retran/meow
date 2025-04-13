@@ -1,0 +1,12 @@
+[user]
+	name = Andrew Vasilyev
+	email = me@retran.me
+[filter "lfs"]
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
+	clean = git-lfs clean -- %f
+[oh-my-zsh]
+	git-commit-alias = 959b6cf5eed78f108dc6e0f46b53816f5168dd3a
+[core]
+	editor = nvim

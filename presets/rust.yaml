@@ -1,0 +1,8 @@
+description: "Rust programming language"
+
+depends_on:
+  - core-shell
+
+homebrew:
+  packages:
+    - rust

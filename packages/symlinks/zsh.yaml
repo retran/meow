@@ -1,0 +1,6 @@
+- source: "$DOTFILES_DIR/config/shells/zsh/.zshrc"
+  target: "$HOME/.zshrc"
+- source: "$DOTFILES_DIR/config/shells/zsh/.zprofile"
+  target: "$HOME/.zprofile"
+- source: "$DOTFILES_DIR/config/secrets/.secrets"
+  target: "$HOME/.secrets"

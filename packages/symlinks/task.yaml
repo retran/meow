@@ -1,0 +1,2 @@
+- source: "$DOTFILES_DIR/config/task/.taskrc"
+  target: "$HOME/.taskrc"

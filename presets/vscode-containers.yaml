@@ -1,0 +1,8 @@
+description: "VS Code container and Docker development extensions"
+
+depends_on:
+  - vscode
+
+vscode:
+  packages:
+    - containers

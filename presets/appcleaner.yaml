@@ -1,0 +1,8 @@
+description: "AppCleaner uninstaller utility"
+
+depends_on:
+  - macos-desktop
+
+homebrew:
+  packages:
+    - appcleaner

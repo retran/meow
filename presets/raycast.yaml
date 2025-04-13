@@ -1,0 +1,8 @@
+description: "Raycast launcher and productivity tool"
+
+depends_on:
+  - macos-desktop
+
+homebrew:
+  packages:
+    - raycast

@@ -1,0 +1,8 @@
+description: "Node.js runtime"
+
+depends_on:
+  - core-shell
+
+homebrew:
+  packages:
+    - node

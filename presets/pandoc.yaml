@@ -1,0 +1,9 @@
+description: "Pandoc markup converter"
+
+depends_on:
+  - core-shell
+  - basictex
+
+homebrew:
+  packages:
+    - pandoc

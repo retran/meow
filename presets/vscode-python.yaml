@@ -1,0 +1,9 @@
+description: "VS Code Python development extensions"
+
+depends_on:
+  - vscode
+  - python
+
+vscode:
+  packages:
+    - python

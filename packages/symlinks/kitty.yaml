@@ -1,0 +1,2 @@
+- source: "$DOTFILES_DIR/config/kitty"
+  target: "$HOME/.config/kitty"

@@ -1,0 +1,9 @@
+description: "Xcode development tools"
+
+depends_on:
+  - macos-desktop
+  - git
+
+mas:
+  packages:
+    - xcode

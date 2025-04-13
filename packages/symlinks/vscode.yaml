@@ -1,0 +1,2 @@
+- source: "$DOTFILES_DIR/config/vscode/settings.json"
+  target: "$HOME/Library/Application Support/Code/User/settings.json"
