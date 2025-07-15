@@ -1,9 +1,0 @@
-description: "VS Code Node.js development extensions"
-
-depends_on:
-  - vscode
-  - node
-
-vscode:
-  packages:
-    - node

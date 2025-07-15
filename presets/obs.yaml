@@ -1,8 +1,0 @@
-description: "OBS Studio recording software"
-
-depends_on:
-  - macos-desktop
-
-homebrew:
-  packages:
-    - obs

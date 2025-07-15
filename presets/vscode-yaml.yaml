@@ -1,8 +1,0 @@
-description: "VS Code YAML support extensions"
-
-depends_on:
-  - vscode
-
-vscode:
-  packages:
-    - yaml

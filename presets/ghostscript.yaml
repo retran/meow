@@ -1,0 +1,8 @@
+description: "Ghostscript PostScript and PDF language interpreter"
+
+depends_on:
+  - core-shell
+
+homebrew:
+  packages:
+    - ghostscript

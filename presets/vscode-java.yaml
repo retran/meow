@@ -1,9 +1,0 @@
-description: "VS Code Java development extensions"
-
-depends_on:
-  - vscode
-  - java
-
-vscode:
-  packages:
-    - java

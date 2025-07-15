@@ -1,8 +1,0 @@
-description: "VS Code GitHub integration extensions"
-
-depends_on:
-  - vscode
-
-vscode:
-  packages:
-    - github

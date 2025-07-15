@@ -1,8 +1,0 @@
-description: "Telegram messaging app"
-
-depends_on:
-  - macos-desktop
-
-homebrew:
-  packages:
-    - telegram

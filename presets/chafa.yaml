@@ -1,0 +1,8 @@
+description: "chafa image viewer for terminal"
+
+depends_on:
+  - core-shell
+
+homebrew:
+  packages:
+    - chafa
