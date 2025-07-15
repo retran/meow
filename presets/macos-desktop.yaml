@@ -1,10 +1,4 @@
-description: "macOS desktop foundation"
+description: "macOS desktop foundation (deprecated - use desktop-essential)"
 
 depends_on:
-  - core-shell
-
-homebrew:
-  packages:
-    - macos-desktop
-
-script: setup-macos.sh
+  - desktop-essential

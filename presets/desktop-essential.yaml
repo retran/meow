@@ -1,0 +1,18 @@
+description: "Essential desktop tools, fonts, browser, and utilities for macOS"
+
+depends_on:
+  - shell-essential
+
+homebrew:
+  packages:
+    - desktop-essential
+
+mas:
+  packages:
+    - desktop-essential
+
+symlinks:
+  - hammerspoon
+  - vscode
+
+script: setup-macos.sh

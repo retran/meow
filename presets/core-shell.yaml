@@ -1,11 +1,4 @@
-description: "Essential command-line tools and core productivity"
+description: "Essential command-line tools and core productivity (deprecated - use shell-essential)"
 
 depends_on:
-  - macos-desktop
-
-homebrew:
-  packages:
-    - core-shell
-
-symlinks:
-  - hammerspoon
+  - shell-essential
