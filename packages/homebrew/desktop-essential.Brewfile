@@ -1,9 +1,4 @@
-# Essential desktop tools, fonts, and utilities for macOS
-
-# Fonts
-cask "font-fira-sans"
-cask "font-jetbrains-mono"
-cask "font-jetbrains-mono-nerd-font"
+# Essential desktop tools and utilities for macOS
 
 # Browser
 cask "google-chrome"

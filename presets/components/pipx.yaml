@@ -1,0 +1,9 @@
+description: "Python pipx package manager and tools"
+
+homebrew:
+  packages:
+    - pipx
+
+pipx:
+  packages:
+    - pipx

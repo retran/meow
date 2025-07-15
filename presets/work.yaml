@@ -2,7 +2,6 @@ description: "Work setup focused on Go development"
 
 depends_on:
   - desktop-essential
-  - go-development  # Go-focused development for work
-  - work-communication  # Work communication (Slack, Zoom)
-  - productivity  # Work productivity tools
-  - fonts  # Professional appearance
+  - components/go-development  # Go-focused development for work
+  - components/work-communication  # Work communication (Slack, Zoom)
+  - components/productivity  # Work productivity tools

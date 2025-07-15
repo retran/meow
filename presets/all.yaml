@@ -6,20 +6,18 @@ depends_on:
   - desktop-essential
   
   # Development tools (grouped by language/purpose)
-  - core-development
-  - go-development  
-  - dotnet-development
-  - kotlin-development
-  - game-development
+  - components/core-development
+  - components/go-development  
+  - components/dotnet-development
+  - components/kotlin-development
+  - components/game-development
   
   # Communication (grouped by context)
-  - work-communication
-  - home-communication
+  - components/work-communication
+  - components/home-communication
   
   # Logical groupings
-  - media-graphics
-  - productivity
-  - gaming
-  - fonts
-  - mas
-  - pipx
+  - components/media-graphics
+  - components/productivity
+  - components/gaming
+  - components/mas

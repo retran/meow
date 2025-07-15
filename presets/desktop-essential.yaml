@@ -2,6 +2,7 @@ description: "Essential desktop tools, fonts, browser, and utilities for macOS"
 
 depends_on:
   - shell-essential
+  - components/fonts
 
 homebrew:
   packages:

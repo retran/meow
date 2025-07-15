@@ -1,8 +1,5 @@
 description: "Font packages"
 
-depends_on:
-  - desktop-essential
-
 homebrew:
   packages:
     - fonts

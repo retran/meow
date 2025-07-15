@@ -2,11 +2,10 @@ description: "Home setup with C#, Kotlin, and game development"
 
 depends_on:
   - desktop-essential
-  - dotnet-development  # C# development for home projects
-  - kotlin-development  # Kotlin development
-  - game-development  # Godot game development
-  - home-communication  # Personal communication (Telegram, Discord)
-  - media-graphics  # Creative work
-  - productivity  # Personal productivity
-  - gaming  # Entertainment
-  - fonts  # For better appearance
+  - components/dotnet-development  # C# development for home projects
+  - components/kotlin-development  # Kotlin development
+  - components/game-development  # Godot game development
+  - components/home-communication  # Personal communication (Telegram, Discord)
+  - components/media-graphics  # Creative work
+  - components/productivity  # Personal productivity
+  - components/gaming  # Entertainment

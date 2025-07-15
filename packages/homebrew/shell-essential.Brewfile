@@ -40,7 +40,6 @@ brew "starship"
 brew "reattach-to-user-namespace"
 
 # Development tools
-brew "pipx"
 brew "pyenv"
 brew "go"
 brew "go-task"

@@ -1,7 +1,7 @@
 description: "Media and graphics tools"
 
 depends_on:
-  - desktop-essential
+  - ../desktop-essential
 
 homebrew:
   packages:

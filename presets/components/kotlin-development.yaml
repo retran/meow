@@ -7,10 +7,6 @@ homebrew:
   packages:
     - kotlin-development
 
-mas:
-  packages:
-    - kotlin-development
-
 vscode:
   packages:
     - kotlin-development
