@@ -1,0 +1,8 @@
+description: "Font packages"
+
+depends_on:
+  - macos-desktop
+
+homebrew:
+  packages:
+    - fonts

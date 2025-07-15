@@ -3,6 +3,8 @@ description: "Zsh shell and plugins"
 depends_on:
   - core-shell
   - starship
+  - zsh-autosuggestions
+  - zsh-syntax-highlighting
 
 homebrew:
   packages:

@@ -1,0 +1,2 @@
+# Productivity Pipx packages
+pipx install toggl-cli

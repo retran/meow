@@ -1,4 +1,7 @@
-name: zsh-autosuggestions
+description: "Zsh autosuggestions plugin"
+
+depends_on:
+  - core-shell
 
 homebrew:
   packages:

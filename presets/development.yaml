@@ -1,0 +1,14 @@
+description: "Development tools and programming languages"
+
+depends_on:
+  - core-shell
+
+homebrew:
+  packages:
+    - development
+
+symlinks:
+  - git
+  - neovim
+
+script: setup-development.sh

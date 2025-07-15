@@ -1,0 +1,8 @@
+description: "Visual Studio Code extensions"
+
+depends_on:
+  - vscode
+
+vscode:
+  packages:
+    - vscode-extensions

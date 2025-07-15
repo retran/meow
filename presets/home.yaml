@@ -1,0 +1,10 @@
+description: "Home setup with personal applications"
+
+depends_on:
+  - core-shell
+  - development  # Programming for personal projects
+  - communication  # Personal communication
+  - media-graphics  # Creative work
+  - productivity  # Personal productivity
+  - gaming  # Entertainment
+  - fonts  # For better appearance

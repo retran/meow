@@ -1,0 +1,8 @@
+description: "Work setup with professional applications"
+
+depends_on:
+  - core-shell
+  - development  # Professional development tools
+  - communication  # Work communication (Slack, Zoom)
+  - productivity  # Work productivity tools
+  - fonts  # Professional appearance

@@ -1,0 +1,8 @@
+description: "Gaming applications"
+
+depends_on:
+  - macos-desktop
+
+homebrew:
+  packages:
+    - gaming

@@ -1,0 +1,12 @@
+description: "Media and graphics tools"
+
+depends_on:
+  - macos-desktop
+
+homebrew:
+  packages:
+    - media-graphics
+
+mas:
+  packages:
+    - media-graphics
