@@ -1,4 +1,5 @@
-description: "Corporate laptop setup focused on Go development and work productivity"
+description: >-
+  Corporate laptop setup focused on Go development and work productivity
 
 depends_on:
   - desktop-essential

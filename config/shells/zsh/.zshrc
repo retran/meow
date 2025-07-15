@@ -2,11 +2,23 @@
 
 # config/shells/zsh/.zshrc - Zsh configuration file
 
-. "$HOME/.meow/config/env/env.sh"
+# Source environment configuration (use symlink if available, fallback to direct)
+if [[ -f "$HOME/.env.sh" ]]; then
+  . "$HOME/.env.sh"
+else
+  . "$HOME/.meow/config/env/env.sh"
+fi
+
 . "$DOTFILES_DIR/lib/core/colors.sh"
 . "$DOTFILES_DIR/lib/core/ui.sh"
 . "$DOTFILES_DIR/lib/greeting/greeting.sh"
-. "$DOTFILES_DIR/config/aliases/aliases.sh"
+
+# Source aliases (use symlink if available, fallback to direct)
+if [[ -f "$HOME/.aliases.sh" ]]; then
+  . "$HOME/.aliases.sh"
+else
+  . "$DOTFILES_DIR/config/aliases/aliases.sh"
+fi
 
 ZSH_THEME="robbyrussell"
 

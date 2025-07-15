@@ -1,4 +1,5 @@
-description: "Essential shell tools that can be installed on systems without GUI"
+description: >-
+  Essential shell tools that can be installed on systems without GUI
 
 homebrew:
   packages:
