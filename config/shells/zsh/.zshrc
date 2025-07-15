@@ -74,18 +74,6 @@ if [[ "$(basename -- "${(%):-%N}")" != "_toggl" ]]; then
   compdef _toggl toggl
 fi
 
-# Task Warrior completion
-local completions_dir="$HOME/.zsh/completions"
-local task_completion="$completions_dir/_task"
-
-if [[ ! -d "$completions_dir" ]]; then
-  mkdir -p "$completions_dir"
-fi
-
-if [[ ! -f "$task_completion" ]] && command -v task &>/dev/null; then
-  task _zsh > "$task_completion" 2>/dev/null && success "Created Task Warrior completion file: $task_completion"
-fi
-
 # starship prompt initialization
 eval "$(starship init zsh)"
 
