@@ -16,7 +16,7 @@ brew "bash-language-server"
 brew "shellcheck"
 brew "shfmt"
 
-# Git tools
+# Version Control
 brew "git"
 brew "git-extras"
 brew "git-lfs"
