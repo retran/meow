@@ -2,7 +2,6 @@ description: "Tmux terminal multiplexer"
 
 depends_on:
   - core-shell
-  - fonts-jetbrains
   - zsh
 
 homebrew:
