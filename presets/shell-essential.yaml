@@ -11,7 +11,5 @@ symlinks:
   - starship
   - shells
   - nvim
-  - aliases
-  - env
 
 script: setup-shell-essential.sh
