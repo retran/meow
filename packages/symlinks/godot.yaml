@@ -1,0 +1,2 @@
+- source: "$DOTFILES_DIR/config/godot"
+  target: "$HOME/.config/godot"

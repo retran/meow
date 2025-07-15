@@ -14,6 +14,7 @@ mas:
 
 symlinks:
   - hammerspoon
+  - kitty
   - vscode
   - neovide
 

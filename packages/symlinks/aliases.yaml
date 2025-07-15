@@ -1,0 +1,2 @@
+- source: "$DOTFILES_DIR/config/aliases/aliases.sh"
+  target: "$HOME/.aliases"

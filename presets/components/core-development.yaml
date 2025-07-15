@@ -12,8 +12,7 @@ pipx:
     - core-development
 
 symlinks:
-  - git
-  - neovim
+  - nvim
 
 vscode:
   packages:
