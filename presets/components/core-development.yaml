@@ -1,7 +1,7 @@
 description: "Core development tools common to all programming"
 
 depends_on:
-  - ../shell-essential
+  - shell-essential
 
 homebrew:
   packages:

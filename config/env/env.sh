@@ -36,8 +36,12 @@ fi
 
 export PYENV_ROOT="$HOME/.pyenv"
 [[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
-eval "$(pyenv init - zsh)"
+if command -v pyenv &>/dev/null; then
+  eval "$(pyenv init - zsh)"
+fi
 export PATH="$PATH:$HOME/.local/bin"
 
-export GOPATH="${GOPATH:-$(go env GOPATH)}"
-export PATH="$GOPATH/bin:$PATH"
+if command -v go &>/dev/null; then
+  export GOPATH="${GOPATH:-$(go env GOPATH)}"
+  export PATH="$GOPATH/bin:$PATH"
+fi
