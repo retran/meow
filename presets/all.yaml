@@ -45,7 +45,6 @@ depends_on:
   - slack
   - starship
   - steam
-  - task
   - telegram
   - tmux
   - toggl-track
