@@ -1,8 +1,0 @@
-description: "Hidden Bar menu bar manager"
-
-depends_on:
-  - desktop-essential
-
-mas:
-  packages:
-    - hidden-bar

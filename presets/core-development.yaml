@@ -7,6 +7,14 @@ homebrew:
   packages:
     - core-development
 
+pipx:
+  packages:
+    - core-development
+
 symlinks:
   - git
   - neovim
+
+vscode:
+  packages:
+    - core-development

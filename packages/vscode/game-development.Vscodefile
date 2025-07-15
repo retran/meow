@@ -1,0 +1,4 @@
+# Game Development Extensions
+extension "alfish.godot-files"
+extension "geequlim.godot-tools"
+extension "pollywoggames.pico8-ls"

@@ -19,6 +19,10 @@ brew "1password-cli"
 # System utilities
 cask "appcleaner"
 
+# Essential applications
+cask "kitty"
+cask "neovide-app"
+
 # Development GUI tools
 cask "basictex"
 cask "visual-studio-code"

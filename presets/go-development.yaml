@@ -6,3 +6,7 @@ depends_on:
 homebrew:
   packages:
     - go-development
+
+vscode:
+  packages:
+    - go-development

@@ -1,8 +1,0 @@
-description: "24 Hour Wallpaper dynamic wallpaper"
-
-depends_on:
-  - desktop-essential
-
-mas:
-  packages:
-    - wallpaper-24hour

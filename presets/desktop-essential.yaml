@@ -14,5 +14,6 @@ mas:
 symlinks:
   - hammerspoon
   - vscode
+  - neovide
 
 script: setup-macos.sh

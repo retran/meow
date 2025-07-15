@@ -1,8 +1,0 @@
-description: "RunCat system monitor"
-
-depends_on:
-  - desktop-essential
-
-mas:
-  packages:
-    - runcat

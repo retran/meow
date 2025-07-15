@@ -6,3 +6,7 @@ depends_on:
 homebrew:
   packages:
     - dotnet-development
+
+vscode:
+  packages:
+    - dotnet-development

@@ -7,5 +7,9 @@ homebrew:
   packages:
     - game-development
 
+vscode:
+  packages:
+    - game-development
+
 symlinks:
   - godot

@@ -1,8 +1,0 @@
-description: "Xcode development tools"
-
-depends_on:
-  - desktop-essential
-
-mas:
-  packages:
-    - xcode

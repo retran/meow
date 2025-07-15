@@ -1,8 +1,0 @@
-description: "Kindle eBook reader"
-
-depends_on:
-  - desktop-essential
-
-mas:
-  packages:
-    - kindle
