@@ -214,7 +214,7 @@ list_presets() {
         local preset_name
         preset_name=$(basename "$file" .yaml)
         # Exclude all presets within the components directory, including nested ones
-        if [[ "$file" == "$PRESETS_DIR/components/*" ]]; then
+        if [[ "$file" == "$PRESETS_DIR/components/"* ]]; then
           continue
         fi
         list_item_msg 1 "- $preset_name"
