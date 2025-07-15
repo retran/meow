@@ -1,8 +1,0 @@
-description: "Home communication tools"
-
-depends_on:
-  - ../desktop-essential
-
-homebrew:
-  packages:
-    - home-communication

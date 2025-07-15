@@ -3,5 +3,5 @@ description: "Corporate laptop setup focused on Go development and work producti
 depends_on:
   - desktop-essential
   - components/go-development  # Go-focused development for work
-  - components/work-communication  # Work communication (Slack, Zoom)
+  - components/corporate-communication  # Corporate communication (Slack, Zoom)
   - components/productivity  # Work productivity tools

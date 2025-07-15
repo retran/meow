@@ -1,8 +1,0 @@
-description: "Work communication tools"
-
-depends_on:
-  - ../desktop-essential
-
-homebrew:
-  packages:
-    - work-communication

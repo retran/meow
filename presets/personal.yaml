@@ -13,8 +13,8 @@ depends_on:
   - components/game-development
   
   # Communication (both personal and work for flexibility)
-  - components/work-communication
-  - components/home-communication
+  - components/corporate-communication
+  - components/personal-communication
   
   # Full productivity and entertainment suite
   - components/media-graphics
