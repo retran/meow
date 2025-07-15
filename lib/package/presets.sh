@@ -214,6 +214,9 @@ list_presets() {
         local preset_name
         preset_name=$(basename "$file" .yaml)
         # Only show top-level presets (exclude components subdirectory)
+        if [[ "$(dirname "$file")" == "$PRESETS_DIR/components" ]]; then
+          continue
+        fi
         list_item_msg 1 "- $preset_name"
         count=$((count + 1))
       fi
