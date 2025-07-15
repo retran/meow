@@ -1,0 +1,9 @@
+description: "VS Code Lua development extensions"
+
+depends_on:
+  - vscode
+  - lua
+
+vscode:
+  packages:
+    - lua

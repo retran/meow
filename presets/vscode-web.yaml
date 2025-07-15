@@ -1,0 +1,5 @@
+name: vscode-web
+
+vscode:
+  packages:
+    - web

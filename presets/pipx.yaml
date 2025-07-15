@@ -1,0 +1,5 @@
+name: pipx
+
+homebrew:
+  packages:
+    - pipx

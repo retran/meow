@@ -1,0 +1,8 @@
+description: ".NET development framework"
+
+depends_on:
+  - core-shell
+
+homebrew:
+  packages:
+    - dotnet

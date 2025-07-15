@@ -1,0 +1,8 @@
+description: "JetBrains Mono fonts"
+
+depends_on:
+  - macos-desktop
+
+homebrew:
+  packages:
+    - fonts-jetbrains

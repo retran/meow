@@ -1,0 +1,5 @@
+name: mas
+
+homebrew:
+  packages:
+    - mas

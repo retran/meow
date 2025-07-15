@@ -1,0 +1,9 @@
+description: "VS Code Godot development extensions"
+
+depends_on:
+  - vscode
+  - godot
+
+vscode:
+  packages:
+    - godot

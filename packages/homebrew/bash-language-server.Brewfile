@@ -1,0 +1,1 @@
+brew "bash-language-server"

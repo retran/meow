@@ -1,25 +1,114 @@
 description: "Installs all available presets for required packages"
 
 depends_on:
-  - chafa
+  # Core shell and system tools
   - core-shell
+  - shell-tools
+  - macos-desktop
+  
+  # Homebrew formulaes
+  - bash-language-server
+  - chafa
+  - coreutils
+  - curl
+  - direnv
   - fd
   - ffmpeg
+  - findutils
   - fzf
+  - gh
   - ghostscript
   - git
+  - git-extras
+  - git-lfs
   - go
   - go-task
+  - htop
   - imagemagick
   - jq
-  - lua
-  - macos-desktop
+  - lua-language-server
+  - luacheck
+  - luarocks
+  - mas
   - pandoc
-  - python
+  - pipx
+  - pyenv
+  - reattach-to-user-namespace
   - ripgrep
   - rust
-  - shell-tools
+  - shellcheck
+  - shfmt
   - starship
+  - stylua
   - tmux
+  - tree
+  - watch
+  - wget
   - yq
   - zsh
+  - zsh-autosuggestions
+  - zsh-syntax-highlighting
+  
+  # Homebrew casks
+  - 1password
+  - 1password-cli
+  - appcleaner
+  - basictex
+  - blender
+  - chrome
+  - discord
+  - dotnet
+  - fonts-jetbrains
+  - font-fira-sans
+  - geforce-now
+  - godot
+  - hammerspoon
+  - intellij
+  - java
+  - kitty
+  - krita
+  - linear-linear
+  - neovide
+  - notion
+  - notion-calendar
+  - obs
+  - powershell
+  - raycast
+  - slack
+  - steam
+  - telegram
+  - vscode
+  - whatsapp
+  - zoom
+  
+  # Pipx packages
+  - codespell
+  - toggl
+  - yamllint
+  
+  # VSCode extensions
+  - vscode-containers
+  - vscode-dotnet
+  - vscode-github
+  - vscode-go
+  - vscode-godot
+  - vscode-java
+  - vscode-json
+  - vscode-lua
+  - vscode-markdown
+  - vscode-powershell
+  - vscode-python
+  - vscode-rust
+  - vscode-shell
+  - vscode-themes
+  - vscode-web
+  - vscode-yaml
+  
+  # MAS apps
+  - garageband
+  - hidden-bar
+  - kindle
+  - runcat
+  - toggl-track
+  - wallpaper-24hour
+  - xcode

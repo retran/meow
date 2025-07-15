@@ -1,0 +1,5 @@
+name: krita
+
+homebrew:
+  packages:
+    - krita

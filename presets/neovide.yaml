@@ -1,0 +1,12 @@
+description: "Neovide"
+
+depends_on:
+  - macos-desktop
+  - neovim
+
+homebrew:
+  packages:
+    - neovide
+
+symlinks:
+  - neovide

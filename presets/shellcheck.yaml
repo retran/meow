@@ -1,0 +1,5 @@
+name: shellcheck
+
+homebrew:
+  packages:
+    - shellcheck

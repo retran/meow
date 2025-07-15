@@ -1,0 +1,8 @@
+description: "Godot game engine"
+
+depends_on:
+  - macos-desktop
+
+homebrew:
+  packages:
+    - godot

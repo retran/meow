@@ -1,0 +1,8 @@
+description: "Google Chrome browser"
+
+depends_on:
+  - macos-desktop
+
+homebrew:
+  packages:
+    - chrome

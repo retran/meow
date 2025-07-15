@@ -1,0 +1,5 @@
+name: toggl
+
+pipx:
+  packages:
+    - toggl

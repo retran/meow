@@ -1,0 +1,5 @@
+name: coreutils
+
+homebrew:
+  packages:
+    - coreutils

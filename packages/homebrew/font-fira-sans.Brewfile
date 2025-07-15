@@ -1,0 +1,1 @@
+cask "font-fira-sans"

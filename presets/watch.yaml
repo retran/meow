@@ -1,0 +1,5 @@
+name: watch
+
+homebrew:
+  packages:
+    - watch

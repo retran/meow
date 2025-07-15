@@ -1,0 +1,8 @@
+description: "PowerShell scripting environment"
+
+depends_on:
+  - dotnet
+
+homebrew:
+  packages:
+    - powershell

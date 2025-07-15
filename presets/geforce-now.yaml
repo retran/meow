@@ -1,0 +1,8 @@
+description: "NVIDIA GeForce Now cloud gaming"
+
+depends_on:
+  - macos-desktop
+
+homebrew:
+  packages:
+    - geforce-now

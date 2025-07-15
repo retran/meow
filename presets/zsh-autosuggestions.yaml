@@ -1,0 +1,5 @@
+name: zsh-autosuggestions
+
+homebrew:
+  packages:
+    - zsh-autosuggestions

@@ -1,0 +1,5 @@
+name: pyenv
+
+homebrew:
+  packages:
+    - pyenv

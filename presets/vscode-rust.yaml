@@ -1,0 +1,9 @@
+description: "VS Code Rust development extensions"
+
+depends_on:
+  - vscode
+  - rust
+
+vscode:
+  packages:
+    - rust

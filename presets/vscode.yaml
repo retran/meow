@@ -1,0 +1,13 @@
+description: "Visual Studio Code editor"
+
+depends_on:
+  - macos-desktop
+  - git
+  - fonts-jetbrains
+
+homebrew:
+  packages:
+    - vscode
+
+symlinks:
+  - vscode

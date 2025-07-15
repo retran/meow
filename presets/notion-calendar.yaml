@@ -1,0 +1,5 @@
+name: notion-calendar
+
+homebrew:
+  packages:
+    - notion-calendar

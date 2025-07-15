@@ -1,0 +1,5 @@
+name: bash-language-server
+
+homebrew:
+  packages:
+    - bash-language-server

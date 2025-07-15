@@ -1,0 +1,5 @@
+name: font-fira-sans
+
+homebrew:
+  packages:
+    - font-fira-sans

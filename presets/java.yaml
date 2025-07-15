@@ -1,0 +1,8 @@
+description: "Java development tools"
+
+depends_on:
+  - core-shell
+
+homebrew:
+  packages:
+    - java

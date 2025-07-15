@@ -1,0 +1,1 @@
+brew "temurin@21"

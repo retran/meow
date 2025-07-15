@@ -1,0 +1,8 @@
+description: "Zoom video conferencing"
+
+depends_on:
+  - macos-desktop
+
+homebrew:
+  packages:
+    - zoom
