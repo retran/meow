@@ -213,8 +213,8 @@ list_presets() {
       if [[ -f "$file" ]]; then
         local preset_name
         preset_name=$(basename "$file" .yaml)
-        # Only show top-level presets (exclude components subdirectory)
-        if [[ "$(dirname "$file")" == "$PRESETS_DIR/components" ]]; then
+        # Exclude all presets within the components directory, including nested ones
+        if [[ "$file" == "$PRESETS_DIR/components/*" ]]; then
           continue
         fi
         list_item_msg 1 "- $preset_name"
