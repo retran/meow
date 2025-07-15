@@ -1,23 +1,22 @@
-description: "Installs all available presets for required packages"
+description: "Personal laptop setup with all packages - C#, Kotlin, Go, game development, and full productivity suite"
 
 depends_on:
   # Essential foundations
   - shell-essential
   - desktop-essential
   
-  # Development tools (grouped by language/purpose)
+  # Development tools (all languages for personal projects)
   - components/core-development
   - components/go-development  
   - components/dotnet-development
   - components/kotlin-development
   - components/game-development
   
-  # Communication (grouped by context)
+  # Communication (both personal and work for flexibility)
   - components/work-communication
   - components/home-communication
   
-  # Logical groupings
+  # Full productivity and entertainment suite
   - components/media-graphics
   - components/productivity
   - components/gaming
-  - components/mas

@@ -1,8 +1,5 @@
 description: "Essential shell tools that can be installed on systems without GUI"
 
-depends_on:
-  - components/pipx
-
 homebrew:
   packages:
     - shell-essential

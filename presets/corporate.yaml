@@ -1,4 +1,4 @@
-description: "Work setup focused on Go development"
+description: "Corporate laptop setup focused on Go development and work productivity"
 
 depends_on:
   - desktop-essential
