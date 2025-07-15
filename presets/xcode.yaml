@@ -1,8 +1,7 @@
 description: "Xcode development tools"
 
 depends_on:
-  - macos-desktop
-  - git
+  - desktop-essential
 
 mas:
   packages:

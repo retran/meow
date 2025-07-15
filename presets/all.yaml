@@ -1,10 +1,9 @@
 description: "Installs all available presets for required packages"
 
 depends_on:
-  # Core system tools
-  - core-shell
-  - shell-tools
-  - macos-desktop
+  # Essential foundations
+  - shell-essential
+  - desktop-essential
   
   # Development tools (grouped by language/purpose)
   - core-development
@@ -26,43 +25,10 @@ depends_on:
   - mas
   - pipx
   
-  # Individual packages not yet grouped
-  - chafa
-  - fd
-  - ffmpeg
-  - fzf
-  - ghostscript
-  - go-task
-  - imagemagick
-  - jq
-  - pandoc
-  - reattach-to-user-namespace
-  - ripgrep
-  - starship
-  - tmux
-  - yq
-  - zsh
-  - zsh-autosuggestions
-  - zsh-syntax-highlighting
-  
-  # Individual casks not yet grouped
-  - 1password
-  - 1password-cli
-  - appcleaner
-  - basictex
-  - blender
-  - chrome
+  # Individual packages that remain standalone
   - kitty
-  - krita
-  - linear-linear
-  - notion
-  - notion-calendar
-  - obs
-  - powershell
-  
-  # Individual pipx packages
+  - toggl-track
   - codespell
-  - toggl
   - yamllint
   
   # Individual MAS apps
@@ -70,6 +36,5 @@ depends_on:
   - hidden-bar
   - kindle
   - runcat
-  - toggl-track
   - wallpaper-24hour
   - xcode

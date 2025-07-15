@@ -9,6 +9,8 @@ DOTFILES_DIR="$2"
 INDENT_LEVEL="${3:-0}"
 
 source "${DOTFILES_DIR}/lib/core/ui.sh"
+source "${DOTFILES_DIR}/lib/system/tmux.sh"
+source "${DOTFILES_DIR}/lib/system/zsh.sh"
 
 main() {
   local indent_level="$INDENT_LEVEL"
@@ -18,13 +20,13 @@ main() {
   # Set up tmux
   if command -v tmux >/dev/null 2>&1; then
     info_msg "$indent_level" "Setting up tmux..."
-    "${DOTFILES_DIR}/scripts/setup-tmux.sh" "$PRESET" "$DOTFILES_DIR" "$((indent_level + 1))" || true
+    configure_tmux "$((indent_level + 1))" || true
   fi
 
   # Set up zsh
   if command -v zsh >/dev/null 2>&1; then
     info_msg "$indent_level" "Setting up zsh..."
-    "${DOTFILES_DIR}/scripts/setup-zsh.sh" "$PRESET" "$DOTFILES_DIR" "$((indent_level + 1))" || true
+    configure_zsh "$((indent_level + 1))" || true
   fi
 
   success_tick_msg "$indent_level" "Essential shell environment setup complete"

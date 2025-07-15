@@ -1,8 +1,7 @@
 description: "Toggl Track time tracking"
 
 depends_on:
-  - python
-  - macos-desktop
+  - desktop-essential
 
 mas:
   packages:

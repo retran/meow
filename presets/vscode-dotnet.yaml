@@ -1,9 +1,0 @@
-description: "VS Code .NET development extensions"
-
-depends_on:
-  - vscode
-  - dotnet
-
-vscode:
-  packages:
-    - dotnet

@@ -1,8 +1,0 @@
-description: "VS Code shell scripting extensions"
-
-depends_on:
-  - vscode
-
-vscode:
-  packages:
-    - shell

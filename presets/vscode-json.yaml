@@ -1,8 +1,0 @@
-description: "VS Code JSON support extensions"
-
-depends_on:
-  - vscode
-
-vscode:
-  packages:
-    - json

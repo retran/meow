@@ -1,7 +1,7 @@
 description: "Visual Studio Code extensions"
 
 depends_on:
-  - vscode
+  - desktop-essential
 
 vscode:
   packages:

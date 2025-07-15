@@ -1,9 +1,0 @@
-description: "go-task task runner and build tool"
-
-depends_on:
-  - core-shell
-  - go
-
-homebrew:
-  packages:
-    - go-task

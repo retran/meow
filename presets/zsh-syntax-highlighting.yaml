@@ -1,8 +1,0 @@
-description: "Zsh syntax highlighting plugin"
-
-depends_on:
-  - core-shell
-
-homebrew:
-  packages:
-    - zsh-syntax-highlighting

@@ -1,4 +1,0 @@
-description: "Essential command-line tools and core productivity (deprecated - use shell-essential)"
-
-depends_on:
-  - shell-essential

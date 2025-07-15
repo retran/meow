@@ -1,5 +1,0 @@
-name: notion
-
-homebrew:
-  packages:
-    - notion

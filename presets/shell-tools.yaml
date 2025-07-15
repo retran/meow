@@ -1,8 +1,0 @@
-description: "Shell development tools (bash LSP, shellcheck, shfmt)"
-
-depends_on:
-  - core-shell
-
-homebrew:
-  packages:
-    - shell-tools

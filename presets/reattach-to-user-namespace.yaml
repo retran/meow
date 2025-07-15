@@ -1,5 +1,0 @@
-name: reattach-to-user-namespace
-
-homebrew:
-  packages:
-    - reattach-to-user-namespace

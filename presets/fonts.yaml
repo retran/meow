@@ -1,7 +1,7 @@
 description: "Font packages"
 
 depends_on:
-  - macos-desktop
+  - desktop-essential
 
 homebrew:
   packages:

@@ -1,4 +1,0 @@
-description: "macOS desktop foundation (deprecated - use desktop-essential)"
-
-depends_on:
-  - desktop-essential

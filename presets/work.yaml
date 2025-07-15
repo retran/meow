@@ -1,7 +1,7 @@
 description: "Work setup focused on Go development"
 
 depends_on:
-  - core-shell
+  - desktop-essential
   - go-development  # Go-focused development for work
   - work-communication  # Work communication (Slack, Zoom)
   - productivity  # Work productivity tools

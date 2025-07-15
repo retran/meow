@@ -1,9 +1,7 @@
 description: "Kitty terminal emulator"
 
 depends_on:
-  - macos-desktop
-  - fonts-jetbrains
-  - zsh
+  - desktop-essential
 
 homebrew:
   packages:

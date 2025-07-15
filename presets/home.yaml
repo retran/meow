@@ -1,7 +1,7 @@
 description: "Home setup with C#, Kotlin, and game development"
 
 depends_on:
-  - core-shell
+  - desktop-essential
   - dotnet-development  # C# development for home projects
   - kotlin-development  # Kotlin development
   - game-development  # Godot game development

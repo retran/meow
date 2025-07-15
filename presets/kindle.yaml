@@ -1,7 +1,7 @@
 description: "Kindle eBook reader"
 
 depends_on:
-  - macos-desktop
+  - desktop-essential
 
 mas:
   packages:

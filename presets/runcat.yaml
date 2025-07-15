@@ -1,7 +1,7 @@
 description: "RunCat system monitor"
 
 depends_on:
-  - macos-desktop
+  - desktop-essential
 
 mas:
   packages:

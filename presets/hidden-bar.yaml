@@ -1,7 +1,7 @@
 description: "Hidden Bar menu bar manager"
 
 depends_on:
-  - macos-desktop
+  - desktop-essential
 
 mas:
   packages:
