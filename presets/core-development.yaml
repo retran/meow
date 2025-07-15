@@ -1,0 +1,12 @@
+description: "Core development tools common to all programming"
+
+depends_on:
+  - core-shell
+
+homebrew:
+  packages:
+    - core-development
+
+symlinks:
+  - git
+  - neovim

@@ -1,5 +1,11 @@
-description: "Essential command-line tools"
+description: "Essential command-line tools and core productivity"
+
+depends_on:
+  - macos-desktop
 
 homebrew:
   packages:
     - core-shell
+
+symlinks:
+  - hammerspoon

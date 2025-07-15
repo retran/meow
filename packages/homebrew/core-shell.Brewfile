@@ -7,3 +7,7 @@ brew "findutils"
 
 brew "htop"
 brew "tree"
+
+# Core productivity tools
+cask "hammerspoon"
+cask "raycast"

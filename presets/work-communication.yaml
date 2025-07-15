@@ -1,0 +1,8 @@
+description: "Work communication tools"
+
+depends_on:
+  - macos-desktop
+
+homebrew:
+  packages:
+    - work-communication

@@ -1,110 +1,71 @@
 description: "Installs all available presets for required packages"
 
 depends_on:
-  # Core shell and system tools
+  # Core system tools
   - core-shell
   - shell-tools
   - macos-desktop
   
-  # Homebrew formulaes
-  - bash-language-server
+  # Development tools (grouped by language/purpose)
+  - core-development
+  - go-development  
+  - dotnet-development
+  - kotlin-development
+  - game-development
+  
+  # Communication (grouped by context)
+  - work-communication
+  - home-communication
+  
+  # Logical groupings
+  - media-graphics
+  - productivity
+  - gaming
+  - fonts
+  - vscode-extensions
+  - mas
+  - pipx
+  
+  # Individual packages not yet grouped
   - chafa
-  - coreutils
-  - curl
-  - direnv
   - fd
   - ffmpeg
-  - findutils
   - fzf
-  - gh
   - ghostscript
-  - git
-  - git-extras
-  - git-lfs
-  - go
   - go-task
-  - htop
   - imagemagick
   - jq
-  - lua-language-server
-  - luacheck
-  - luarocks
-  - mas
   - pandoc
-  - pipx
-  - pyenv
   - reattach-to-user-namespace
   - ripgrep
-  - rust
-  - shellcheck
-  - shfmt
   - starship
-  - stylua
   - tmux
-  - tree
-  - watch
-  - wget
   - yq
   - zsh
   - zsh-autosuggestions
   - zsh-syntax-highlighting
   
-  # Homebrew casks
+  # Individual casks not yet grouped
   - 1password
   - 1password-cli
   - appcleaner
   - basictex
   - blender
   - chrome
-  - discord
-  - dotnet
-  - fonts-jetbrains
-  - font-fira-sans
-  - geforce-now
-  - godot
-  - hammerspoon
-  - intellij
-  - java
   - kitty
   - krita
   - linear-linear
-  - neovide
   - notion
   - notion-calendar
   - obs
   - powershell
-  - raycast
-  - slack
-  - steam
-  - telegram
-  - vscode
-  - whatsapp
-  - zoom
   
-  # Pipx packages
+  # Individual pipx packages
   - codespell
   - toggl
   - yamllint
   
-  # VSCode extensions
-  - vscode-containers
-  - vscode-dotnet
-  - vscode-github
-  - vscode-go
-  - vscode-godot
-  - vscode-java
-  - vscode-json
-  - vscode-lua
-  - vscode-markdown
-  - vscode-powershell
-  - vscode-python
-  - vscode-rust
-  - vscode-shell
-  - vscode-themes
-  - vscode-web
-  - vscode-yaml
-  
-  # MAS apps
+  # Individual MAS apps
   - garageband
   - hidden-bar
   - kindle

@@ -1,8 +1,0 @@
-description: "Communication applications"
-
-depends_on:
-  - macos-desktop
-
-homebrew:
-  packages:
-    - communication

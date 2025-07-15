@@ -1,5 +1,0 @@
-name: shfmt
-
-homebrew:
-  packages:
-    - shfmt

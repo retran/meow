@@ -1,0 +1,8 @@
+description: "Go development tools and environment"
+
+depends_on:
+  - core-development
+
+homebrew:
+  packages:
+    - go-development

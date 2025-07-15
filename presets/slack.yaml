@@ -1,8 +1,0 @@
-description: "Slack messaging app"
-
-depends_on:
-  - macos-desktop
-
-homebrew:
-  packages:
-    - slack

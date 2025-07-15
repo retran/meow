@@ -1,9 +1,0 @@
-description: "IntelliJ IDEA Java IDE"
-
-depends_on:
-  - java
-  - fonts-jetbrains
-
-homebrew:
-  packages:
-    - intellij

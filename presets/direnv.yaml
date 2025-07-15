@@ -1,5 +1,0 @@
-name: direnv
-
-homebrew:
-  packages:
-    - direnv

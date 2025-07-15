@@ -1,9 +1,11 @@
-description: "Home setup with personal applications"
+description: "Home setup with C#, Kotlin, and game development"
 
 depends_on:
   - core-shell
-  - development  # Programming for personal projects
-  - communication  # Personal communication
+  - dotnet-development  # C# development for home projects
+  - kotlin-development  # Kotlin development
+  - game-development  # Godot game development
+  - home-communication  # Personal communication (Telegram, Discord)
   - media-graphics  # Creative work
   - productivity  # Personal productivity
   - gaming  # Entertainment

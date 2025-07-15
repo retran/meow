@@ -1,5 +1,0 @@
-name: wget
-
-homebrew:
-  packages:
-    - wget

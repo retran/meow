@@ -1,8 +1,0 @@
-description: "Go programming language"
-
-depends_on:
-  - core-shell
-
-homebrew:
-  packages:
-    - go

@@ -1,5 +1,0 @@
-name: tree
-
-homebrew:
-  packages:
-    - tree

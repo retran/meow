@@ -1,0 +1,11 @@
+description: "Game development tools and environment"
+
+depends_on:
+  - core-development
+
+homebrew:
+  packages:
+    - game-development
+
+symlinks:
+  - godot

@@ -1,5 +1,0 @@
-name: lua-language-server
-
-homebrew:
-  packages:
-    - lua-language-server

@@ -1,5 +1,0 @@
-name: raycast
-
-homebrew:
-  packages:
-    - raycast

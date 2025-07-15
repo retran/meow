@@ -1,5 +1,0 @@
-name: stylua
-
-homebrew:
-  packages:
-    - stylua

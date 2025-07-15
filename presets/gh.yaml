@@ -1,5 +1,0 @@
-name: gh
-
-homebrew:
-  packages:
-    - gh

@@ -1,5 +1,0 @@
-name: htop
-
-homebrew:
-  packages:
-    - htop

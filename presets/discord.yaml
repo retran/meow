@@ -1,8 +1,0 @@
-description: "Discord messaging app"
-
-depends_on:
-  - macos-desktop
-
-homebrew:
-  packages:
-    - discord

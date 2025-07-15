@@ -1,8 +1,8 @@
-description: "Work setup with professional applications"
+description: "Work setup focused on Go development"
 
 depends_on:
   - core-shell
-  - development  # Professional development tools
-  - communication  # Work communication (Slack, Zoom)
+  - go-development  # Go-focused development for work
+  - work-communication  # Work communication (Slack, Zoom)
   - productivity  # Work productivity tools
   - fonts  # Professional appearance

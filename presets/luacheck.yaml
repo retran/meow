@@ -1,5 +1,0 @@
-name: luacheck
-
-homebrew:
-  packages:
-    - luacheck
