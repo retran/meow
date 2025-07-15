@@ -2,6 +2,11 @@
 
 # config/shells/zsh/.zshrc - Zsh configuration file
 
+# Ensure DOTFILES_DIR is set
+if [[ -z "$DOTFILES_DIR" ]]; then
+  echo "Error: DOTFILES_DIR is not set. Please define it before sourcing this file."
+  return 1
+fi
 # Source environment configuration
 . "$DOTFILES_DIR/config/env/env.sh"
 
