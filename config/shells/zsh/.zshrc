@@ -7,7 +7,7 @@
 
 . "$DOTFILES_DIR/lib/core/colors.sh"
 . "$DOTFILES_DIR/lib/core/ui.sh"
-. "$DOTFILES_DIR/lib/greeting/greeting.sh"
+. "$DOTFILES_DIR/lib/motd/motd.sh"
 
 # Source aliases
 . "$DOTFILES_DIR/config/aliases/aliases.sh"
@@ -80,7 +80,7 @@ fi
 # starship prompt initialization
 eval "$(starship init zsh)"
 
-# Only show greeting in the first tmux pane
+# Only show motd in the first tmux pane
 if [[ "$TMUX_PANE" == "%0" ]]; then
-  show_greeting
+  show_motd
 fi

@@ -1,0 +1,28 @@
+ram:
+  base:
+    - "whiskers need more!"
+    - "needs more RAM to chase all those thoughts!"
+    - "more RAM, more purr-ower!"
+    - "RAM is like catnip for your programs!"
+    - "the digital playground for your processes!"
+    - "memory is where the magic happens!"
+    - "your computer's short-term memory looks good!"
+
+  gb_plenty:
+    - "Plenty of RAM for all the zoomies!"
+    - "Your computer has room to stretch its digital legs!"
+    - "Abundant memory for all your coding adventures!"
+    - "Like a vast savanna for your applications to roam!"
+
+  mb_low:
+    - "RAM is a bit tight, perhaps close some unused scratching posts (apps)?"
+    - "Memory looking a bit crowded, time to clean up some applications!"
+    - "Your computer might be getting memory-hungry, comrade!"
+    - "Like a cramped cat carrier - maybe free up some space?"
+
+  fallback:
+    - "your computer's thinking space"
+    - "how much scratch space your system has"
+    - "the playground for your active processes"
+    - "your system's short-term memory"
+    - "important for keeping your computer purring along"

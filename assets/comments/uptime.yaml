@@ -1,0 +1,41 @@
+uptime:
+  base:
+    - "such endurance!"
+    - "running longer than a cat nap!"
+    - "a true marathon runner!"
+    - "your system has stamina!"
+    - "keeping the digital heart beating!"
+    - "reliability at its finest!"
+    - "your machine doesn't need much rest!"
+    - "steadfast like a sentinel cat!"
+
+  days_many:
+    - "This machine has seen many moons! Maybe consider a restart soon?"
+    - "Impressive uptime - but even servers need catnaps eventually!"
+    - "Your system has been awake longer than a cat on catnip!"
+    - "That's an impressive streak - your system is very dedicated!"
+
+  days_week:
+    - "This machine has seen many sunrises!"
+    - "Over a week without a nap? Impressive dedication!"
+    - "Your system has been purring along for quite some time!"
+    - "A week of uptime is like a year in cat time!"
+
+  days_few:
+    - "A few days of solid uptime - good foundation!"
+    - "Your system is well-rested and ready for anything!"
+    - "Fresh enough to be spry, stable enough to be reliable!"
+    - "Just the right amount of uptime - like a cat after a perfect nap!"
+
+  hours:
+    - "Recently awakened from its slumber!"
+    - "Fresh and ready for a productive session!"
+    - "Just started its day - like a cat after a good nap!"
+    - "Bright-eyed and bushy-tailed after that recent restart!"
+
+  fallback:
+    - "your system's awake time"
+    - "how long your digital companion has been running"
+    - "your computer's stamina stat"
+    - "your system's marathon record"
+    - "a measure of digital persistence"

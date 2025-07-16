@@ -41,24 +41,20 @@ git submodule update
 ./bin/install.sh personal
 ```
 
-**🏢 corporate** - Work-focused Go development environment  
+**🏢 corporate** - Work-focused Go development environment
 ```bash
 ./bin/install.sh corporate
-```
-
-**🐚 shell-essential** - Minimal setup for servers (Git, Tmux, Starship, Neovim)
-```bash
-./bin/install.sh shell-essential
-```
-
-**🖥️ desktop-essential** - GUI foundation without specific dev tools
-```bash
-./bin/install.sh desktop-essential
 ```
 
 ## 🧩 Development Components
 
 The system includes modular development components that can be composed together:
+
+### Essentials
+
+-- **🐚 shell-essential** - Minimal setup for shell (Git, Tmux, Starship, Neovim)
+
+-- **🖥️ desktop-essential** - GUI foundation without specific dev tools
 
 ### Core Development
 - **🛠️ core-development** - Core development tools common to all programming
@@ -71,7 +67,7 @@ The system includes modular development components that can be composed together
 - **🦄 dotnet-development** - .NET development tools and SDK
 
 ### Frontend & Web Development
-- **⚛️ react** - React development extending JavaScript component  
+- **⚛️ react** - React development extending JavaScript component
 - **🌐 web** - Complete frontend development with CSS, build tools, deployment
 
 ### Specialized Development
@@ -116,7 +112,7 @@ git clone --recurse-submodules https://github.com/retran/meow.git ~/.meow && cd 
 
 - `config/` - Application configurations
 - `config/nvim/` - Custom Neovim configuration (meowvim submodule)
-- `presets/` - Preset definitions and components  
+- `presets/` - Preset definitions and components
 - `packages/` - Package manager integrations
 
 ## 🤝 Contributing
@@ -124,7 +120,7 @@ git clone --recurse-submodules https://github.com/retran/meow.git ~/.meow && cd 
 Found a bug? Want to add a new preset? Here's how to help:
 
 1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/your-feature-name`  
+2. Create a feature branch: `git checkout -b feature/your-feature-name`
 3. Test your changes with different presets
 4. Submit a pull request
 

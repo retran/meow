@@ -2,8 +2,8 @@ description: >-
   Corporate laptop setup focused on Go development and work productivity
 
 depends_on:
-  - shell-essential
-  - desktop-essential
+  - components/shell-essential
+  - components/desktop-essential
 
   - components/media
 

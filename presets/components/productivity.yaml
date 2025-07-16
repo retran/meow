@@ -1,7 +1,7 @@
 description: "Productivity applications"
 
 depends_on:
-  - desktop-essential
+  - components/desktop-essential
 
 homebrew:
   packages:
