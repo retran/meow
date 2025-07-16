@@ -61,7 +61,7 @@ build_greeting_functional() {
       time_comment="Hope you have a purr-ductive time!"
   fi
 
-  result_lines+=("${SECONDARY}${greeting}, сomrade ${DATA}$(whoami)${SECONDARY}!${RESET}")
+  result_lines+=("${SECONDARY}${greeting}, comrade ${DATA}$(whoami)${SECONDARY}!${RESET}")
   result_lines+=("${SECONDARY}${time_comment}${RESET}")
   result_lines+=("")
   result_lines+=("${INFO}Calendar shows ${DATA}${date_full}${NORMAL}.${RESET}")
