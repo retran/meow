@@ -3,8 +3,8 @@ description: >-
   and full productivity suite
 
 depends_on:
-  - shell-essential
-  - desktop-essential
+  - components/shell-essential
+  - components/desktop-essential
 
   - components/media
 
