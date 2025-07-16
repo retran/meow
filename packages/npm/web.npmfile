@@ -1,9 +1,4 @@
-# CSS frameworks and tools
 sass
 tailwindcss
-
-# Web performance
 lighthouse
-
-# Basic deployment
 netlify-cli

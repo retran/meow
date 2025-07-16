@@ -1,2 +1,3 @@
-# Game Development Tools
 cask "godot"
+cask "blender"
+cask "krita"

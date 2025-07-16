@@ -1,9 +1,4 @@
-# Essential markdown tools
 markdownlint-cli
 @mermaid-js/mermaid-cli
-
-# Documentation generators
 docsify-cli
-
-# Spell checking
 cspell

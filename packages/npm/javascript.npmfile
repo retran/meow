@@ -1,14 +1,7 @@
-# Essential global JavaScript/TypeScript tools
 typescript
 ts-node
-
-# Code quality and formatting (global configs)
 eslint
 prettier
-
-# Language servers for editors
 typescript-language-server
 vscode-langservers-extracted
-
-# Essential global utilities
 npm-check-updates

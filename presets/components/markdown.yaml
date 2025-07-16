@@ -5,10 +5,6 @@ description: >-
 depends_on:
   - components/core-development
 
-homebrew:
-  packages:
-    - productivity  # includes pandoc
-
 npm:
   packages:
     - markdown

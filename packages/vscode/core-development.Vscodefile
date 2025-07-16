@@ -1,4 +1,3 @@
-# Core Development Extensions
 extension "bradlc.vscode-tailwindcss"
 extension "enkia.tokyo-night"
 extension "esbenp.prettier-vscode"

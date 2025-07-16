@@ -4,7 +4,16 @@ description: >-
 depends_on:
   - shell-essential
   - desktop-essential
+
+  - components/media
+
   - components/core-development
-  - components/go-development  # Go-focused development for work
-  - components/corporate-communication  # Corporate communication (Slack, Zoom)
-  - components/productivity  # Work productivity tools
+  - components/go-development
+  - components/javascript
+  - components/react
+  - components/web
+
+  - components/markdown
+
+  - components/corporate-communication
+  - components/productivity
