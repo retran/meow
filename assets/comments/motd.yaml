@@ -1,4 +1,4 @@
-greeting:
+motd:
   morning_early:
     - "Wow, you're up early! Even cats sleep more than that!"
     - "The early bird catches the worm, but the early cat catches the best code!"
