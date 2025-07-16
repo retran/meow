@@ -74,6 +74,7 @@ install_npm_packages() {
         "Successfully verified $package_name." \
         "Failed to verify $package_name." \
         "$package_name is already correctly installed." \
+        --pattern "(up to date|already installed)" \
         npm install -g "$package_name"
       verify_status=$?
 
@@ -89,7 +90,7 @@ install_npm_packages() {
         "Installing $package_name" \
         "Successfully installed $package_name." \
         "Failed to install $package_name." \
-        "" \
+        "$package_name is already installed." \
         npm install -g "$package_name"
       install_status=$?
 
@@ -188,6 +189,7 @@ update_npm_packages() {
         "Successfully upgraded $package_name." \
         "Failed to upgrade $package_name." \
         "$package_name is already up to date." \
+        --pattern "(up to date|already at the latest version)" \
         npm update -g "$package_name"
       upgrade_status=$?
 
@@ -241,43 +243,3 @@ setup_npm() {
   return 0
 }
 
-# Function to run package operations with consistent error handling
-run_package_operation() {
-  local indent_level="$1"
-  local package_name="$2"
-  local operation="$3"
-  local action_message="$4"
-  local success_message="$5"
-  local error_message="$6"
-  local skip_message="$7"
-  shift 7
-  local command=("$@")
-
-  action_msg "$indent_level" "$action_message"
-
-  if [[ -n "$skip_message" && "$operation" == "verify" ]]; then
-    indented_info "$((indent_level+1))" "$skip_message"
-    return 100  # Special exit code for "already installed"
-  fi
-
-  local output
-  local exit_code
-  
-  # Capture both stdout and stderr
-  output=$("${command[@]}" 2>&1)
-  exit_code=$?
-
-  if [[ $exit_code -eq 0 ]]; then
-    success_tick_msg "$((indent_level+1))" "$success_message"
-    return 0
-  else
-    indented_error_msg "$((indent_level+1))" "$error_message"
-    if [[ -n "$output" ]]; then
-      # Only show the first few lines of error output to avoid spam
-      echo "$output" | head -3 | while IFS= read -r line; do
-        indented_error_msg "$((indent_level+2))" "$line"
-      done
-    fi
-    return 1
-  fi
-}
