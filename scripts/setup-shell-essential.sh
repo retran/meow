@@ -19,13 +19,13 @@ main() {
 
   # Set up tmux
   if command -v tmux >/dev/null 2>&1; then
-    info_msg "$indent_level" "Setting up tmux..."
+    info "$indent_level" "Setting up tmux..."
     configure_tmux "$((indent_level + 1))" || true
   fi
 
   # Set up zsh
   if command -v zsh >/dev/null 2>&1; then
-    info_msg "$indent_level" "Setting up zsh..."
+    info "$indent_level" "Setting up zsh..."
     configure_zsh "$((indent_level + 1))" || true
   fi
 
