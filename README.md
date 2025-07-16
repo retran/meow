@@ -24,16 +24,15 @@ meow automates the tedious task of configuring a new machine by applying predefi
 
 ```bash
 # Clone and install
-# Verify the repository URL is accessible
-curl -I https://github.com/retran/meow.git
-
-# Clone using HTTPS (default)
-git clone https://github.com/retran/meow.git ~/.meow
-
-# Alternatively, clone using SSH (requires SSH key setup)
-git clone git@github.com:retran/meow.git ~/.meow
+git clone --recurse-submodules https://github.com/retran/meow.git ~/.meow
 cd ~/.meow
 ./bin/install.sh PRESET_NAME
+```
+
+If you've already cloned without submodules:
+```bash
+git submodule init
+git submodule update
 ```
 
 ### Presets
@@ -73,17 +72,18 @@ cd ~/.meow
 
 **New personal machine:**
 ```bash
-git clone https://github.com/retran/meow.git ~/.meow && cd ~/.meow && ./bin/install.sh personal
+git clone --recurse-submodules https://github.com/retran/meow.git ~/.meow && cd ~/.meow && ./bin/install.sh personal
 ```
 
 **Remote server:**
 ```bash
-git clone https://github.com/retran/meow.git ~/.meow && cd ~/.meow && ./bin/install.sh shell-essential
+git clone --recurse-submodules https://github.com/retran/meow.git ~/.meow && cd ~/.meow && ./bin/install.sh shell-essential
 ```
 
 ## 📚 Documentation
 
 - `config/` - Application configurations
+- `config/nvim/` - Custom Neovim configuration (meowvim submodule)
 - `presets/` - Preset definitions and components  
 - `packages/` - Package manager integrations
 
