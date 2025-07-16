@@ -1,5 +1,4 @@
-# React development tools and utilities
-# React development framework
+# React development tools
 create-react-app
 create-next-app
 create-vite
@@ -9,12 +8,9 @@ eslint-plugin-react
 eslint-plugin-react-hooks
 eslint-plugin-jsx-a11y
 
-# State management and routing
+# State management and debugging
 @reduxjs/toolkit
-
-# Development and debugging tools
 react-devtools
-storybook
 
 # Testing for React
 @testing-library/react
@@ -24,7 +20,3 @@ storybook
 # Build and deployment
 vercel
 netlify-cli
-
-# React Native (if needed)
-@react-native-cli/cli
-expo-cli

@@ -1,43 +1,29 @@
-# Modern web development tools and utilities
-# CSS preprocessors and tools
+# CSS preprocessors and frameworks
 sass
-less
 postcss-cli
 autoprefixer
 tailwindcss
 
-# CSS frameworks and utilities
+# Modern CSS frameworks
 @unocss/cli
-windicss
 
-# Frontend build tools
-parcel-bundler
-snowpack
-
-# Development servers and tools
+# Development servers
 live-server
-http-server
 browser-sync
-lite-server
 
 # Web performance and optimization
 lighthouse
-web-vitals-cli
-bundlesize
 webpack-bundle-analyzer
 
 # Progressive Web App tools
 workbox-cli
 
 # GraphQL tools
-graphql-cli
 @graphql-codegen/cli
 
-# API development and testing
+# API development
 json-server
-swagger-codegen
 
-# Modern deployment and hosting
+# Modern deployment
 surge
-now
 firebase-tools

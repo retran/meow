@@ -1,9 +1,9 @@
 description: >-
-  React development environment extending JavaScript preset with React-specific
+  React development environment extending JavaScript component with React-specific
   tools, testing utilities, and development frameworks
 
 depends_on:
-  - javascript
+  - components/javascript
 
 npm:
   packages:
@@ -11,4 +11,4 @@ npm:
 
 vscode:
   packages:
-    - frontend-development
+    - react

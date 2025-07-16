@@ -3,12 +3,12 @@ description: >-
   language servers, and formatters for modern development workflows
 
 depends_on:
-  - shell-essential
+  - core-development
 
 npm:
   packages:
     - javascript
 
-symlinks:
-  - git
-  - nvim
+vscode:
+  packages:
+    - javascript
