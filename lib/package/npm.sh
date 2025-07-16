@@ -75,7 +75,7 @@ install_npm_packages() {
         "Failed to verify $package_name." \
         "$package_name is already correctly installed." \
         --pattern "(up to date|already installed)" \
-        npm install -g "$package_name"
+        npm install -g --dry-run "$package_name"
       verify_status=$?
 
       if [ $verify_status -eq 0 ] || [ $verify_status -eq 100 ]; then
