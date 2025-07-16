@@ -8,7 +8,7 @@ meow automates the tedious task of configuring a new machine by applying predefi
 
 - 🎯 Four presets: personal, corporate, shell-essential, desktop-essential
 - 📦 Package management via Homebrew, pipx, and Mac App Store
-- 🔧 Pre-configured development environments (Go, .NET, Kotlin)
+- 🔧 Pre-configured development environments (Go, .NET, Kotlin, Godot, ...)
 - 🐾 Cat-themed terminal greetings and customizations
 - 🔗 Automatic dotfile linking
 - 🧩 Mix and match components for custom setups
@@ -17,7 +17,6 @@ meow automates the tedious task of configuring a new machine by applying predefi
 
 - **Operating System**: macOS (primary), Linux/Unix systems (shell-essential preset)
 - **Shell**: Bash or Zsh
-- **Package Manager**: Homebrew (for macOS package installations)
 - **Git**: For cloning the repository and version control integration
 
 ## 🛠️ Installation
