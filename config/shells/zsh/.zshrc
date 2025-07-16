@@ -2,11 +2,6 @@
 
 # config/shells/zsh/.zshrc - Zsh configuration file
 
-# Ensure DOTFILES_DIR is set
-if [[ -z "$DOTFILES_DIR" ]]; then
-  echo "Error: DOTFILES_DIR is not set. Please define it before sourcing this file."
-  return 1
-fi
 # Source environment configuration
 . "$DOTFILES_DIR/config/env/env.sh"
 
@@ -70,7 +65,6 @@ fi
 
 source "$ZSH/oh-my-zsh.sh"
 
-. "/opt/homebrew/opt/zsh-vi-mode/share/zsh-vi-mode/zsh-vi-mode.plugin.zsh"
 . "/opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
 . "/opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
 
