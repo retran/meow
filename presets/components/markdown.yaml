@@ -1,0 +1,14 @@
+description: >-
+  Markdown writing and technical documentation tools with linting,
+  spell checking, presentation tools, and static site generators
+
+depends_on:
+  - components/core-development
+
+npm:
+  packages:
+    - markdown
+
+vscode:
+  packages:
+    - markdown

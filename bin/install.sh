@@ -22,7 +22,13 @@ show_help() {
   msg 0 "Usage: $0 PRESET"
   msg 0 ""
   msg 0 "Arguments:"
-  msg 0 "  PRESET            Apply a specific preset (personal, corporate, shell-essential, desktop-essential)"
+  msg 0 "  PRESET            Apply a specific preset"
+  msg 0 ""
+  msg 0 "Available presets:"
+  msg 0 "  personal          Complete development setup with all packages"
+  msg 0 "  corporate         Work-focused Go development environment"
+  msg 0 "  shell-essential   Minimal setup for servers (Git, Tmux, Starship, Neovim)"
+  msg 0 "  desktop-essential GUI foundation without specific dev tools"
   msg 0 ""
   msg 0 "Options:"
   msg 0 "  --help            Show this help message"
@@ -30,7 +36,6 @@ show_help() {
   msg 0 "Examples:"
   msg 0 "  $0 personal"
   msg 0 "  $0 corporate"
-  msg 0 "  $0 shell-essential"
   msg 0 ""
 }
 

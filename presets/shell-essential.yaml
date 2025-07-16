@@ -9,7 +9,7 @@ symlinks:
   - git
   - tmux
   - starship
-  - shells
+  - zsh
   - nvim
 
 script: setup-shell-essential.sh

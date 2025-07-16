@@ -1,20 +1,11 @@
-# Core Development Tools
-brew "bash-language-server"
-brew "direnv"
 brew "gh"
-brew "git"
 brew "git-extras"
 brew "git-lfs"
+
 brew "lua-language-server"
 brew "luacheck"
 brew "luarocks"
-brew "neovim"
-brew "pyenv"
-brew "rust"
-brew "shellcheck"
+
+brew "bash-language-server"
 brew "shfmt"
 brew "stylua"
-
-# Essential development casks
-cask "basictex"
-cask "visual-studio-code"

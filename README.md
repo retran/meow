@@ -6,9 +6,9 @@ meow automates the tedious task of configuring a new machine by applying predefi
 
 ## ✨ Features
 
-- 🎯 Four presets: personal, corporate, shell-essential, desktop-essential
-- 📦 Package management via Homebrew, pipx, and Mac App Store
-- 🔧 Pre-configured development environments (Go, .NET, Kotlin, Godot, ...)
+- 🎯 Four main presets: personal, corporate, shell-essential, desktop-essential
+- 📦 Package management via Homebrew, pipx, npm, and Mac App Store
+- 🔧 Pre-configured development environments (Go, .NET, Kotlin, Godot, JavaScript, React, ...)
 - 🐾 Cat-themed terminal greetings and customizations
 - 🔗 Automatic dotfile linking
 - 🧩 Mix and match components for custom setups
@@ -55,6 +55,39 @@ git submodule update
 ```bash
 ./bin/install.sh desktop-essential
 ```
+
+## 🧩 Development Components
+
+The system includes modular development components that can be composed together:
+
+### Core Development
+- **🛠️ core-development** - Core development tools common to all programming
+- **🎨 fonts** - Essential fonts for development and design
+
+### Language-Specific Development
+- **🐹 go-development** - Go development tools and environment
+- **⚡ javascript** - JavaScript/TypeScript development with modern tooling
+- **🗾 kotlin-development** - Kotlin development environment
+- **🦄 dotnet-development** - .NET development tools and SDK
+
+### Frontend & Web Development
+- **⚛️ react** - React development extending JavaScript component  
+- **🌐 web** - Complete frontend development with CSS, build tools, deployment
+
+### Specialized Development
+- **🎮 game-development** - Game development tools and engines
+- **📝 markdown** - Technical writing and documentation workflow
+
+### Communication & Productivity
+- **💼 corporate-communication** - Corporate communication tools
+- **👥 personal-communication** - Personal messaging and social apps
+- **📋 productivity** - Productivity applications and utilities
+
+### Entertainment & Media
+- **🎮 gaming** - Gaming applications and platforms
+- **🎨 media-graphics** - Media editing and graphics tools
+
+Components are automatically included when using the personal preset, or can be referenced in custom preset definitions.
 
 ## 📖 Usage
 

@@ -5,8 +5,8 @@ depends_on:
 
 homebrew:
   packages:
-    - media-graphics
+    - media
 
 mas:
   packages:
-    - media-graphics
+    - media

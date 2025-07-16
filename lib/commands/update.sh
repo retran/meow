@@ -10,6 +10,7 @@ _LIB_COMMANDS_UPDATE_SOURCED=1
 source "${DOTFILES_DIR}/lib/core/ui.sh"
 source "${DOTFILES_DIR}/lib/package/presets.sh"
 source "${DOTFILES_DIR}/lib/package/homebrew.sh"
+source "${DOTFILES_DIR}/lib/package/npm.sh"
 
 declare -g UPDATED_PRESETS=""
 
@@ -132,6 +133,7 @@ update_preset_packages() {
   _update_homebrew_packages "$preset" "$indent_level" || return 1
   _update_pipx_packages "$preset" "$indent_level" || return 1
   _update_mas_packages "$preset" "$indent_level" || return 1
+  _update_npm_packages "$preset" "$indent_level" || return 1
   _update_vscode_extensions "$preset" "$indent_level" || return 1
 }
 
@@ -195,6 +197,13 @@ _update_mas_packages() {
   local indent_level="$2"
 
   _update_package_type "$preset" "$indent_level" "mas" "mas" "Masfile" "update_mas_packages"
+}
+
+_update_npm_packages() {
+  local preset="$1"
+  local indent_level="$2"
+
+  _update_package_type "$preset" "$indent_level" "npm" "npm" "npmfile" "update_npm_packages"
 }
 
 _update_vscode_extensions() {
