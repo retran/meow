@@ -3,7 +3,7 @@ description: >-
   language servers, and formatters for modern development workflows
 
 depends_on:
-  - core-development
+  - components/core-development
 
 homebrew:
   packages:

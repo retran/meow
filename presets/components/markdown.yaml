@@ -3,7 +3,7 @@ description: >-
   spell checking, presentation tools, and static site generators
 
 depends_on:
-  - core-development
+  - components/core-development
 
 homebrew:
   packages:
