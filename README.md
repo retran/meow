@@ -24,7 +24,14 @@ meow automates the tedious task of configuring a new machine by applying predefi
 
 ```bash
 # Clone and install
+# Verify the repository URL is accessible
+curl -I https://github.com/retran/meow.git
+
+# Clone using HTTPS (default)
 git clone https://github.com/retran/meow.git ~/.meow
+
+# Alternatively, clone using SSH (requires SSH key setup)
+git clone git@github.com:retran/meow.git ~/.meow
 cd ~/.meow
 ./bin/install.sh PRESET_NAME
 ```
