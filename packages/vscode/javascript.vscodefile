@@ -1,7 +1,3 @@
 # JavaScript/TypeScript Development Extensions
-ms-vscode.vscode-typescript-next
-esbenp.prettier-vscode
 dbaeumer.vscode-eslint
-ms-vscode.vscode-json
 christian-kohler.path-intellisense
-bradlc.vscode-tailwindcss

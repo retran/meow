@@ -1,22 +1,7 @@
-# React development tools
+# React scaffolding tools
 create-react-app
 create-next-app
-create-vite
 
-# React-specific linting and tools
+# React-specific linting
 eslint-plugin-react
 eslint-plugin-react-hooks
-eslint-plugin-jsx-a11y
-
-# State management and debugging
-@reduxjs/toolkit
-react-devtools
-
-# Testing for React
-@testing-library/react
-@testing-library/jest-dom
-@testing-library/user-event
-
-# Build and deployment
-vercel
-netlify-cli

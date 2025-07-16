@@ -1,25 +1,9 @@
-# Markdown linting and validation
+# Essential markdown tools
 markdownlint-cli
-markdown-link-check
-remark-cli
-write-good
-
-# Documentation generators and tools
 @mermaid-js/mermaid-cli
+
+# Documentation generators
 docsify-cli
-@marp-team/marp-cli
 
-# Presentation tools
-reveal-md
-@slidev/cli
-
-# Spell checking and grammar
+# Spell checking
 cspell
-alex
-
-# Static site generators
-@11ty/eleventy
-@docusaurus/init
-
-# Technical writing tools
-textlint

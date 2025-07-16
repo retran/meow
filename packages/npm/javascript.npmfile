@@ -1,30 +1,14 @@
-# Core JavaScript/TypeScript tools
+# Essential global JavaScript/TypeScript tools
 typescript
 ts-node
-@typescript-eslint/eslint-plugin
-@typescript-eslint/parser
 
-# Essential development tools
-nodemon
-concurrently
-cross-env
-dotenv-cli
-
-# Code quality and formatting
+# Code quality and formatting (global configs)
 eslint
 prettier
-
-# Modern build tools
-vite
-esbuild
-
-# Testing framework
-jest
-
-# Package management
-npm-check-updates
-pnpm
 
 # Language servers for editors
 typescript-language-server
 vscode-langservers-extracted
+
+# Essential global utilities
+npm-check-updates

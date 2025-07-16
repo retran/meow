@@ -1,29 +1,9 @@
-# CSS preprocessors and frameworks
+# CSS frameworks and tools
 sass
-postcss-cli
-autoprefixer
 tailwindcss
 
-# Modern CSS frameworks
-@unocss/cli
-
-# Development servers
-live-server
-browser-sync
-
-# Web performance and optimization
+# Web performance
 lighthouse
-webpack-bundle-analyzer
 
-# Progressive Web App tools
-workbox-cli
-
-# GraphQL tools
-@graphql-codegen/cli
-
-# API development
-json-server
-
-# Modern deployment
-surge
-firebase-tools
+# Basic deployment
+netlify-cli
