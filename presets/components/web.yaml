@@ -5,6 +5,10 @@ description: >-
 depends_on:
   - components/react
 
+homebrew:
+  packages:
+    - web
+
 npm:
   packages:
     - web

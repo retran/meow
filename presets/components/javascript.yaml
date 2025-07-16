@@ -5,6 +5,10 @@ description: >-
 depends_on:
   - core-development
 
+homebrew:
+  packages:
+    - javascript
+
 npm:
   packages:
     - javascript

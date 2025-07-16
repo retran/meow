@@ -1,9 +1,7 @@
 # JavaScript/TypeScript Development Extensions
 ms-vscode.vscode-typescript-next
-bradlc.vscode-tailwindcss
 esbenp.prettier-vscode
 dbaeumer.vscode-eslint
 ms-vscode.vscode-json
-formulahendry.auto-rename-tag
 christian-kohler.path-intellisense
 bradlc.vscode-tailwindcss

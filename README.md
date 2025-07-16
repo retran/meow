@@ -6,7 +6,7 @@ meow automates the tedious task of configuring a new machine by applying predefi
 
 ## ✨ Features
 
-- 🎯 Eight presets: personal, corporate, shell-essential, desktop-essential, javascript, react, web, markdown
+- 🎯 Four main presets: personal, corporate, shell-essential, desktop-essential
 - 📦 Package management via Homebrew, pipx, npm, and Mac App Store
 - 🔧 Pre-configured development environments (Go, .NET, Kotlin, Godot, JavaScript, React, ...)
 - 🐾 Cat-themed terminal greetings and customizations
@@ -56,25 +56,16 @@ git submodule update
 ./bin/install.sh desktop-essential
 ```
 
-**⚡ javascript** - JavaScript/TypeScript development with modern tooling
-```bash
-./bin/install.sh javascript
-```
+## 🧩 Development Components
 
-**⚛️ react** - React development extending JavaScript preset
-```bash
-./bin/install.sh react
-```
+The system includes modular development components that can be composed together:
 
-**🌐 web** - Complete frontend development with CSS, build tools, deployment
-```bash
-./bin/install.sh web
-```
+- **⚡ javascript** - JavaScript/TypeScript development with modern tooling
+- **⚛️ react** - React development extending JavaScript component  
+- **🌐 web** - Complete frontend development with CSS, build tools, deployment
+- **📝 markdown** - Technical writing and documentation workflow
 
-**📝 markdown** - Technical writing and documentation workflow
-```bash
-./bin/install.sh markdown
-```
+Components are automatically included when using the personal preset, or can be referenced in custom preset definitions.
 
 ## 📖 Usage
 
