@@ -60,10 +60,32 @@ git submodule update
 
 The system includes modular development components that can be composed together:
 
+### Core Development
+- **🛠️ core-development** - Core development tools common to all programming
+- **🎨 fonts** - Essential fonts for development and design
+
+### Language-Specific Development
+- **🐹 go-development** - Go development tools and environment
 - **⚡ javascript** - JavaScript/TypeScript development with modern tooling
+- **🗾 kotlin-development** - Kotlin development environment
+- **🦄 dotnet-development** - .NET development tools and SDK
+
+### Frontend & Web Development
 - **⚛️ react** - React development extending JavaScript component  
 - **🌐 web** - Complete frontend development with CSS, build tools, deployment
+
+### Specialized Development
+- **🎮 game-development** - Game development tools and engines
 - **📝 markdown** - Technical writing and documentation workflow
+
+### Communication & Productivity
+- **💼 corporate-communication** - Corporate communication tools
+- **👥 personal-communication** - Personal messaging and social apps
+- **📋 productivity** - Productivity applications and utilities
+
+### Entertainment & Media
+- **🎮 gaming** - Gaming applications and platforms
+- **🎨 media-graphics** - Media editing and graphics tools
 
 Components are automatically included when using the personal preset, or can be referenced in custom preset definitions.
 
