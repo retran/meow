@@ -3,6 +3,14 @@ description: "Go development tools and environment"
 depends_on:
   - components/core-development
 
+go:
+  packages:
+    - core-development
+    - web-development
+    - testing
+    - cli-tools
+    - build-tools
+
 vscode:
   packages:
     - go-development
