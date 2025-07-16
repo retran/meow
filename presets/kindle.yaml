@@ -1,8 +1,0 @@
-description: "Kindle eBook reader"
-
-depends_on:
-  - macos-desktop
-
-mas:
-  packages:
-    - kindle

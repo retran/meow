@@ -10,7 +10,7 @@ _LIB_CORE_COLORS_SOURCED=1
 if [ -t 1 ]; then
   # Tokyo Night color palette using tput with RGB values
   # Check if terminal supports RGB colors
-  if [[ "${COLORTERM}" == "truecolor" ]] || [[ "${COLORTERM}" == "24bit" ]]; then
+  if [[ "${COLORTERM:-}" == "truecolor" ]] || [[ "${COLORTERM:-}" == "24bit" ]]; then
     # Use RGB colors for better Tokyo Night accuracy
     NORMAL="\033[38;2;192;202;245m"      # #c0caf5 - Tokyo Night foreground
     RED="\033[38;2;247;118;142m"         # #f7768e - Tokyo Night red

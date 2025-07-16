@@ -1,5 +1,0 @@
-description: "Essential command-line tools"
-
-homebrew:
-  packages:
-    - core-shell

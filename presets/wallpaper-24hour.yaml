@@ -1,8 +1,0 @@
-description: "24 Hour Wallpaper dynamic wallpaper"
-
-depends_on:
-  - macos-desktop
-
-mas:
-  packages:
-    - wallpaper-24hour

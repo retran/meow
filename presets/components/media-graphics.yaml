@@ -1,0 +1,12 @@
+description: "Media and graphics tools"
+
+depends_on:
+  - desktop-essential
+
+homebrew:
+  packages:
+    - media-graphics
+
+mas:
+  packages:
+    - media-graphics

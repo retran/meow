@@ -1,8 +1,0 @@
-description: "BasicTeX distribution"
-
-depends_on:
-  - core-shell
-
-homebrew:
-  packages:
-    - basictex

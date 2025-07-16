@@ -91,8 +91,8 @@ install_vscode_extensions() {
     # Skip empty lines and comments
     [[ -z "$line" || "$line" =~ ^[[:space:]]*# ]] && continue
 
-    # Extract extension ID
-    extension_id=$(echo "$line" | tr -d '"'"'" | xargs)
+    # Extract extension ID (remove "extension" prefix and quotes)
+    extension_id=$(echo "$line" | sed 's/^[[:space:]]*extension[[:space:]]*["'"'"']*\([^"'"'"']*\)["'"'"']*.*/\1/' | xargs)
 
     if is_vscode_extension_installed "$extension_id"; then
       info_italic_msg "$((indent_level+1))" "$extension_id already installed, skipping"
@@ -190,7 +190,7 @@ update_vscode_extensions() {
   while IFS= read -r line || [[ -n "$line" ]]; do
     [[ -z "$line" || "$line" =~ ^[[:space:]]*# ]] && continue
 
-    extension_id=$(echo "$line" | tr -d '"'"'" | xargs)
+    extension_id=$(echo "$line" | sed 's/^[[:space:]]*extension[[:space:]]*["'"'"']*\([^"'"'"']*\)["'"'"']*.*/\1/' | xargs)
 
     if ! is_vscode_extension_installed "$extension_id"; then
       info_italic_msg "$((indent_level+1))" "$extension_id not installed, skipping"

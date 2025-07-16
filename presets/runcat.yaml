@@ -1,8 +1,0 @@
-description: "RunCat system monitor"
-
-depends_on:
-  - macos-desktop
-
-mas:
-  packages:
-    - runcat

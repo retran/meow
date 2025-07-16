@@ -1,0 +1,10 @@
+description: >-
+  Corporate laptop setup focused on Go development and work productivity
+
+depends_on:
+  - shell-essential
+  - desktop-essential
+  - components/core-development
+  - components/go-development  # Go-focused development for work
+  - components/corporate-communication  # Corporate communication (Slack, Zoom)
+  - components/productivity  # Work productivity tools

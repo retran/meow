@@ -1,0 +1,19 @@
+description: "Productivity applications"
+
+depends_on:
+  - desktop-essential
+
+homebrew:
+  packages:
+    - productivity
+
+pipx:
+  packages:
+    - productivity
+
+mas:
+  packages:
+    - productivity
+
+symlinks:
+  - toggl-track

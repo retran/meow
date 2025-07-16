@@ -1,0 +1,8 @@
+description: "Corporate communication tools"
+
+depends_on:
+  - desktop-essential
+
+homebrew:
+  packages:
+    - corporate-communication

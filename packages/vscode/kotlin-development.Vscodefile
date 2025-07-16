@@ -1,0 +1,6 @@
+# Java/Kotlin Development Extensions
+extension "redhat.java"
+extension "vscjava.vscode-java-debug"
+extension "vscjava.vscode-java-dependency"
+extension "vscjava.vscode-java-test"
+extension "vscjava.vscode-maven"

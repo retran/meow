@@ -1,0 +1,15 @@
+description: >-
+  Essential shell tools that can be installed on systems without GUI
+
+homebrew:
+  packages:
+    - shell-essential
+
+symlinks:
+  - git
+  - tmux
+  - starship
+  - shells
+  - nvim
+
+script: setup-shell-essential.sh

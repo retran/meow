@@ -1,0 +1,12 @@
+description: "Go development tools and environment"
+
+depends_on:
+  - components/core-development
+
+homebrew:
+  packages:
+    - go-development
+
+vscode:
+  packages:
+    - go-development

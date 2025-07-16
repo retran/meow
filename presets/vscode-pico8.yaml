@@ -1,9 +1,0 @@
-description: "VS Code PICO-8 development extensions"
-
-depends_on:
-  - vscode
-  - pico8
-
-vscode:
-  packages:
-    - pico8

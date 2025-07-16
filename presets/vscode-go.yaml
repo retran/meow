@@ -1,9 +1,0 @@
-description: "VS Code Go development extensions"
-
-depends_on:
-  - vscode
-  - go
-
-vscode:
-  packages:
-    - go

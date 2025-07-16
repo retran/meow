@@ -1,0 +1,12 @@
+description: "Kotlin/Java development tools and environment"
+
+depends_on:
+  - components/core-development
+
+homebrew:
+  packages:
+    - kotlin-development
+
+vscode:
+  packages:
+    - kotlin-development

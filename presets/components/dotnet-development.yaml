@@ -1,0 +1,12 @@
+description: ".NET development tools and environment"
+
+depends_on:
+  - components/go-development
+
+homebrew:
+  packages:
+    - dotnet-development
+
+vscode:
+  packages:
+    - dotnet-development

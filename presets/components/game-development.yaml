@@ -1,0 +1,15 @@
+description: "Game development tools and environment"
+
+depends_on:
+  - components/core-development
+
+homebrew:
+  packages:
+    - game-development
+
+vscode:
+  packages:
+    - game-development
+
+symlinks:
+  - godot

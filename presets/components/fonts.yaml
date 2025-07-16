@@ -1,0 +1,5 @@
+description: "Font packages"
+
+homebrew:
+  packages:
+    - fonts

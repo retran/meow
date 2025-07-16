@@ -1,0 +1,21 @@
+description: "Essential desktop tools, fonts, browser, and utilities for macOS"
+
+depends_on:
+  - shell-essential
+  - components/fonts
+
+homebrew:
+  packages:
+    - desktop-essential
+
+mas:
+  packages:
+    - desktop-essential
+
+symlinks:
+  - hammerspoon
+  - kitty
+  - vscode
+  - neovide
+
+script: setup-macos.sh

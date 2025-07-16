@@ -1,0 +1,8 @@
+description: "Gaming applications"
+
+depends_on:
+  - desktop-essential
+
+homebrew:
+  packages:
+    - gaming

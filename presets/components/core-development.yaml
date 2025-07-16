@@ -1,0 +1,19 @@
+description: "Core development tools common to all programming"
+
+depends_on:
+  - shell-essential
+
+homebrew:
+  packages:
+    - core-development
+
+pipx:
+  packages:
+    - core-development
+
+symlinks:
+  - nvim
+
+vscode:
+  packages:
+    - core-development

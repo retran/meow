@@ -2,10 +2,14 @@
 
 # config/shells/zsh/.zshrc - Zsh configuration file
 
-. "$HOME/.meow/config/env/env.sh"
+# Source environment configuration
+. "$DOTFILES_DIR/config/env/env.sh"
+
 . "$DOTFILES_DIR/lib/core/colors.sh"
 . "$DOTFILES_DIR/lib/core/ui.sh"
 . "$DOTFILES_DIR/lib/greeting/greeting.sh"
+
+# Source aliases
 . "$DOTFILES_DIR/config/aliases/aliases.sh"
 
 ZSH_THEME="robbyrussell"
@@ -61,7 +65,6 @@ fi
 
 source "$ZSH/oh-my-zsh.sh"
 
-. "/opt/homebrew/opt/zsh-vi-mode/share/zsh-vi-mode/zsh-vi-mode.plugin.zsh"
 . "/opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
 . "/opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
 

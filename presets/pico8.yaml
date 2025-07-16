@@ -1,9 +1,0 @@
-description: "PICO-8 fantasy console"
-
-depends_on:
-  - lua
-  - macos-desktop
-
-homebrew:
-  packages:
-    - pico8
