@@ -1,0 +1,43 @@
+disk:
+  base:
+    - "room for toys"
+    - "plenty of space for digital yarn balls!"
+    - "enough room to swing a digital cat!"
+    - "space for all your code kittens to grow!"
+    - "storage looking healthy and happy!"
+    - "your digital storage basket isn't overflowing!"
+    - "plenty of room for your bits and bytes!"
+    - "a spacious digital playground!"
+
+  tb:
+    - "So much space, it's like an infinite digital meadow!"
+    - "With that much space, you could store every cat picture on the internet!"
+    - "Terabytes of free space? That's like having an entire digital country!"
+    - "Your storage is vast like the steppes of digital Russia!"
+
+  gb_plenty:
+    - "So much space, like a vast digital field to roam!"
+    - "Plenty of room for your digital treasures!"
+    - "Your disk has more free space than a cat has lives!"
+    - "A generous amount of space for your creative endeavors!"
+
+  gb_low:
+    - "Getting a bit cozy in there - might want to clean up soon!"
+    - "Your disk could use some grooming before it gets too crowded!"
+    - "Still room to play, but the digital toy box is filling up!"
+    - "Consider some spring cleaning before space gets too tight!"
+
+  mb:
+    - "Hmm, space is getting a bit snug, like a cozy box!"
+    - "Your disk space is tighter than a cat in a shoebox!"
+    - "Running out of room to stretch those digital paws!"
+    - "Time for some serious cleanup - your disk is almost full!"
+    - "Storage alert: Digital hoarding detected!"
+
+  fallback:
+    - "your digital storage status"
+    - "space for your digital adventures"
+    - "room for your code to breathe"
+    - "storage for your digital treasures"
+    - "disk space - important for any digital cat"
+    - "the foundation of your digital home"

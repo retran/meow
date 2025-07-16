@@ -1,0 +1,33 @@
+package:
+  base:
+    - "Your digital territory needs grooming!"
+    - "Time to sharpen those claws on these updates!"
+    - "A clean system is a happy system, da?"
+    - "Updates waiting like mice behind the digital furniture!"
+    - "Fresh packages, fresh possibilities!"
+    - "Updates are like fresh treats for your system!"
+    - "Your package manager is meowing for attention!"
+
+  many:
+    - "So many updates, it's like a field of digital catnip!"
+    - "Wow, that's a lot of packages! Like a yarn shop exploded!"
+    - "Your system is practically begging for updates!"
+    - "That's quite the collection of outdated packages, comrade!"
+
+  some:
+    - "Quite a few updates to pounce on!"
+    - "A decent hunting ground of updates awaits you!"
+    - "Time for some serious package maintenance, comrade!"
+    - "Those packages won't update themselves, you know!"
+
+  few:
+    - "Just a few quick updates, easy peasy!"
+    - "Almost done, just a couple more to go!"
+    - "A small treat of updates awaits you!"
+    - "Just a tiny bit of housekeeping needed!"
+
+  fallback:
+    - "keeping your system up-to-date is important"
+    - "updates are like digital vitamins for your computer"
+    - "staying current with updates is good practice"
+    - "updates often contain important security fixes"

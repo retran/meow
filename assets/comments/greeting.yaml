@@ -1,0 +1,55 @@
+greeting:
+  morning_early:
+    - "Wow, you're up early! Even cats sleep more than that!"
+    - "The early bird catches the worm, but the early cat catches the best code!"
+    - "Early coding sessions are often the most productive!"
+
+  morning:
+    - "Early cat catches the digital mouse!"
+    - "A fresh mind makes for elegant solutions!"
+    - "Morning is the perfect time to tackle complex problems!"
+
+  morning_late:
+    - "Perfect time for a productive morning coding session!"
+    - "The day is young and full of possibilities!"
+    - "Morning energy channeled into code is a beautiful thing!"
+
+  afternoon:
+    - "Afternoon energy is purrfect for coding!"
+    - "Midday is great for making progress on big projects!"
+    - "The sun is high and so is your potential right now!"
+
+  afternoon_mid:
+    - "Avoiding the post-lunch coding dip? Good strategy!"
+    - "Fighting through the afternoon lull shows true dedication!"
+    - "A second wind of productivity incoming!"
+
+  afternoon_late:
+    - "The day is winding down, but your productivity doesn't have to!"
+    - "Late afternoon focus can lead to great breakthroughs!"
+    - "Squeeze in a bit more productivity before evening!"
+
+  evening:
+    - "Evening coding sessions can be the most productive!"
+    - "The quiet of evening creates the perfect coding atmosphere!"
+    - "As the day winds down, your focus can ramp up!"
+
+  evening_late:
+    - "Night owl coding? Sometimes the best ideas come after dark!"
+    - "Burning the midnight oil on your projects - dedication!"
+    - "The nighttime quiet helps concentrate on complex problems!"
+
+  night:
+    - "Midnight coding? Your dedication is impressive, comrade!"
+    - "Night owls often make the best programmers!"
+    - "The world sleeps while you build it!"
+
+  night_late:
+    - "The quietest hours are best for deep work... and for cats prowling!"
+    - "In the depths of night, the most elegant solutions emerge!"
+    - "Solving problems while the world sleeps - truly dedicated!"
+
+  night_predawn:
+    - "Even the most nocturnal cats take breaks, remember to rest soon!"
+    - "Pre-dawn coding - when determination meets inspiration!"
+    - "Soon the sun will rise on your accomplishments!"

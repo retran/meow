@@ -24,6 +24,10 @@ commentary_lines=()
 art=()
 
 show_greeting() {
+  # Clear global arrays to prevent duplication
+  commentary_lines=()
+  art=()
+  
   load_art
   get_system_info
   build_system_stats
