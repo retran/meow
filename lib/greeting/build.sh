@@ -35,6 +35,40 @@ build_greeting() {
   commentary_lines+=("")
 }
 
+# Functional version that takes system info as parameters
+build_greeting_functional() {
+  local hour_num="$1"
+  local date_full="$2"
+  local time_current="$3"
+  local -n result_lines=$4  # nameref to output array
+  
+  local greeting="Meowvelous day"
+  local time_collection_key="greeting_morning"
+
+  if (( hour_num >= 5 && hour_num < 12 )); then
+    time_collection_key="greeting_morning"
+  elif (( hour_num >= 12 && hour_num < 18 )); then
+    time_collection_key="greeting_afternoon"
+  elif (( hour_num >= 18 && hour_num < 22 )); then
+    time_collection_key="greeting_evening"
+  else
+    time_collection_key="greeting_night"
+  fi
+
+  local time_comment
+  time_comment=$(get_random_comment "$time_collection_key")
+  if [[ -z "$time_comment" || "$time_comment" == "No comments available for "* || "$time_comment" == "No usable comments in "* ]]; then
+      time_comment="Hope you have a purr-ductive time!"
+  fi
+
+  result_lines+=("${SECONDARY}${greeting}, сomrade ${DATA}$(whoami)${SECONDARY}!${RESET}")
+  result_lines+=("${SECONDARY}${time_comment}${RESET}")
+  result_lines+=("")
+  result_lines+=("${INFO}Calendar shows ${DATA}${date_full}${NORMAL}.${RESET}")
+  result_lines+=("${INFO}Clock purrs at ${DATA}${time_current}${NORMAL}.${RESET}")
+  result_lines+=("")
+}
+
 build_system_stats() {
   init_comment_collections
   build_greeting

@@ -21,3 +21,22 @@ load_art() {
   IFS="$old_ifs"
   art+=('')
 }
+
+# Functional version that takes art file path and returns art array
+load_art_functional() {
+  local art_file="$1"
+  local -n result_art=$2  # nameref to output array
+  
+  if [[ ! -f "$art_file" ]]; then
+    result_art+=("ASCII art file not found: $art_file")
+    return
+  fi
+
+  local old_ifs="$IFS"
+  IFS=$'\n'
+  while IFS= read -r line || [[ -n "$line" ]]; do
+    result_art+=("${ART}${line}${RESET}")
+  done < "$art_file"
+  IFS="$old_ifs"
+  result_art+=('')
+}
