@@ -1,0 +1,38 @@
+# Essential npm packages for JavaScript/TypeScript development
+# Language servers and type checking
+typescript
+ts-node
+@typescript-eslint/eslint-plugin
+@typescript-eslint/parser
+
+# Development tools
+nodemon
+concurrently
+cross-env
+dotenv-cli
+
+# Code quality and formatting
+eslint
+prettier
+jshint
+
+# Build tools and bundlers
+vite
+esbuild
+rollup
+webpack-cli
+
+# Testing frameworks
+jest
+vitest
+mocha
+
+# Package management
+npm-check-updates
+npm-run-all
+pnpm
+yarn
+
+# Language servers for editors
+typescript-language-server
+vscode-langservers-extracted

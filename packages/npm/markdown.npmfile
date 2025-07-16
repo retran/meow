@@ -1,0 +1,39 @@
+# Markdown writing and documentation tools
+# Markdown linting and validation
+markdownlint-cli
+markdownlint-cli2
+markdown-link-check
+remark-cli
+write-good
+
+# Documentation generators and tools
+@mermaid-js/mermaid-cli
+docsify-cli
+gitbook-cli
+@marp-team/marp-cli
+@vuepress/cli
+
+# Presentation tools
+reveal-md
+@slidev/cli
+
+# Spell checking and grammar
+cspell
+alex
+
+# Static site generators
+@11ty/eleventy
+gatsby-cli
+@gridsome/cli
+
+# Publishing and conversion
+markdown-pdf
+pandoc-filter
+
+# Blog and content management
+hexo-cli
+@docusaurus/init
+
+# Technical writing tools
+textlint
+vale-cli

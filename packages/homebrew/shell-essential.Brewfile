@@ -45,6 +45,7 @@ brew "go"
 brew "go-task"
 brew "rust"
 brew "neovim"
+brew "node"
 
 # Media and document processing (command line)
 brew "chafa"

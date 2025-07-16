@@ -1,0 +1,14 @@
+description: >-
+  Complete web development environment extending React preset with CSS preprocessors,
+  build tools, development servers, and deployment utilities for modern frontend development
+
+depends_on:
+  - react
+
+npm:
+  packages:
+    - web
+
+homebrew:
+  packages:
+    - media-graphics
