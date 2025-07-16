@@ -1,7 +1,7 @@
 description: ".NET development tools and environment"
 
 depends_on:
-  - core-development
+  - components/go-development
 
 homebrew:
   packages:
