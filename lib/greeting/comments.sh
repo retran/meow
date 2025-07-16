@@ -7,8 +7,6 @@ if [[ "${BASH_SOURCE[0]}" != "${0}" ]] && [[ -n "${_LIB_GREETING_COMMENTS_SOURCE
 fi
 _LIB_GREETING_COMMENTS_SOURCED=1
 
-declare -A COMMENT_COLLECTIONS
-
 # Load comments from YAML files
 load_yaml_comments() {
   local category="$1"
@@ -26,62 +24,20 @@ load_yaml_comments() {
   fi
 }
 
+# Backward compatibility - now just a no-op
 init_comment_collections() {
-  # Map old collection names to new YAML structure
-  local -A comment_mapping=(
-    ["uptime_base"]="uptime base"
-    ["uptime_days_many"]="uptime days_many"
-    ["uptime_days_week"]="uptime days_week"
-    ["uptime_days_few"]="uptime days_few"
-    ["uptime_hours"]="uptime hours"
-    ["uptime_fallback"]="uptime fallback"
-    ["disk_base"]="disk base"
-    ["disk_tb"]="disk tb"
-    ["disk_gb_plenty"]="disk gb_plenty"
-    ["disk_gb_low"]="disk gb_low"
-    ["disk_mb"]="disk mb"
-    ["disk_fallback"]="disk fallback"
-    ["ram_base"]="ram base"
-    ["ram_gb_plenty"]="ram gb_plenty"
-    ["ram_mb_low"]="ram mb_low"
-    ["ram_fallback"]="ram fallback"
-    ["package_base"]="package base"
-    ["package_many"]="package many"
-    ["package_some"]="package some"
-    ["package_few"]="package few"
-    ["package_fallback"]="package fallback"
-    ["greeting_morning_early"]="greeting morning_early"
-    ["greeting_morning"]="greeting morning"
-    ["greeting_morning_late"]="greeting morning_late"
-    ["greeting_afternoon"]="greeting afternoon"
-    ["greeting_afternoon_mid"]="greeting afternoon_mid"
-    ["greeting_afternoon_late"]="greeting afternoon_late"
-    ["greeting_evening"]="greeting evening"
-    ["greeting_evening_late"]="greeting evening_late"
-    ["greeting_night"]="greeting night"
-    ["greeting_night_late"]="greeting night_late"
-    ["greeting_night_predawn"]="greeting night_predawn"
-  )
-
-  for collection_key in "${!comment_mapping[@]}"; do
-    local mapping="${comment_mapping[$collection_key]}"
-    local category="${mapping%% *}"
-    local section="${mapping#* }"
-
-    local comments
-    comments=$(load_yaml_comments "$category" "$section")
-    if [[ $? -eq 0 && -n "$comments" ]]; then
-      COMMENT_COLLECTIONS["$collection_key"]="$comments"
-    fi
-  done
+  return 0
 }
 
 get_random_comment() {
-  local collection_name="$1"
-  local collection_content="${COMMENT_COLLECTIONS[$collection_name]}"
+  local category="$1"
+  local section="$2"
 
-  if [[ -z "$collection_content" ]]; then
-    echo "No comments available for $collection_name"
+  # Load comments directly from YAML
+  local collection_content
+  collection_content=$(load_yaml_comments "$category" "$section")
+  if [[ $? -ne 0 || -z "$collection_content" ]]; then
+    echo "No comments available for ${category}.${section}"
     return 1
   fi
 
@@ -98,7 +54,7 @@ get_random_comment() {
   IFS="$old_ifs"
 
   if [[ ${#lines[@]} -eq 0 ]]; then
-    echo "No usable comments in $collection_name"
+    echo "No usable comments in ${category}.${section}"
     return 1
   fi
 
@@ -109,8 +65,16 @@ get_comment_collection() {
   local result=()
   local line
 
-  for collection_name in "$@"; do
-    if [[ -n "${COMMENT_COLLECTIONS[$collection_name]}" ]]; then
+  # Process arguments in pairs: category section category section ...
+  while [[ $# -ge 2 ]]; do
+    local category="$1"
+    local section="$2"
+    shift 2
+
+    # Load comments directly from YAML
+    local collection_content
+    collection_content=$(load_yaml_comments "$category" "$section")
+    if [[ $? -eq 0 && -n "$collection_content" ]]; then
       local old_ifs="$IFS"
       IFS=$'\n'
       while IFS= read -r line || [[ -n "$line" ]]; do
@@ -118,7 +82,7 @@ get_comment_collection() {
           if [[ -n "$line" ]]; then
             result+=("$line")
           fi
-      done <<< "${COMMENT_COLLECTIONS[$collection_name]}"
+      done <<< "$collection_content"
       IFS="$old_ifs"
     fi
   done
