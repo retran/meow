@@ -12,13 +12,13 @@ declare -A COMMENT_COLLECTIONS
 # Load comments from YAML files
 load_yaml_comments() {
   local category="$1"
-  local section="$2" 
+  local section="$2"
   local yaml_file="${ASSETS_DIR}/comments/${category}.yaml"
-  
+
   if [[ ! -f "$yaml_file" ]]; then
     return 1
   fi
-  
+
   if command -v yq >/dev/null 2>&1; then
     yq ".${category}.${section}[]" "$yaml_file" 2>/dev/null | sed 's/^"//; s/"$//'
   else
@@ -50,13 +50,6 @@ init_comment_collections() {
     ["package_some"]="package some"
     ["package_few"]="package few"
     ["package_fallback"]="package fallback"
-    ["task_base"]="task base"
-    ["task_morning"]="task morning"
-    ["task_midday"]="task midday"
-    ["task_afternoon"]="task afternoon"
-    ["task_evening"]="task evening"
-    ["task_night"]="task night"
-    ["task_fallback"]="task fallback"
     ["greeting_morning_early"]="greeting morning_early"
     ["greeting_morning"]="greeting morning"
     ["greeting_morning_late"]="greeting morning_late"
@@ -69,12 +62,12 @@ init_comment_collections() {
     ["greeting_night_late"]="greeting night_late"
     ["greeting_night_predawn"]="greeting night_predawn"
   )
-  
+
   for collection_key in "${!comment_mapping[@]}"; do
     local mapping="${comment_mapping[$collection_key]}"
     local category="${mapping%% *}"
     local section="${mapping#* }"
-    
+
     local comments
     comments=$(load_yaml_comments "$category" "$section")
     if [[ $? -eq 0 && -n "$comments" ]]; then
