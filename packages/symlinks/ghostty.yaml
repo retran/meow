@@ -1,0 +1,2 @@
+- source: "$DOTFILES_DIR/config/ghostty"
+  target: "$HOME/.config/ghostty"

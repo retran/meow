@@ -10,7 +10,7 @@ brew "1password-cli"
 
 cask "appcleaner"
 
-cask "kitty"
+cask "ghostty"
 cask "neovide-app"
 
 cask "visual-studio-code"

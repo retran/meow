@@ -1,0 +1,52 @@
+# Ghostty Configuration
+# Migrated from Kitty terminal emulator
+
+# Window settings
+window-decoration = false
+window-width = 120
+window-height = 40
+
+# Font configuration
+font-family = "JetBrainsMono Nerd Font Mono"
+font-size = 15
+
+# Tokyo Night Theme Colors
+background = 222436
+foreground = c0caf5
+cursor-color = c0caf5
+cursor-text = 1a1b26
+selection-background = 283457
+selection-foreground = c0caf5
+
+# ANSI Colors (Tokyo Night)
+# Black
+palette = 0=#15161e
+palette = 8=#414868
+
+# Red  
+palette = 1=#f7768e
+palette = 9=#ff899d
+
+# Green
+palette = 2=#9ece6a
+palette = 10=#9fe044
+
+# Yellow
+palette = 3=#e0af68
+palette = 11=#faba4a
+
+# Blue
+palette = 4=#7aa2f7
+palette = 12=#8db0ff
+
+# Magenta
+palette = 5=#bb9af7
+palette = 13=#c7a9ff
+
+# Cyan
+palette = 6=#7dcfff
+palette = 14=#a4daff
+
+# White
+palette = 7=#a9b1d6
+palette = 15=#c0caf5
