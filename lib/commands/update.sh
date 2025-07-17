@@ -105,15 +105,27 @@ update_preset_with_dependencies() {
   local indent_level="${2:-0}"
   local preset_file="${DOTFILES_DIR}/presets/${preset}.yaml"
   local child_indent=$((indent_level + 1))
+  local had_updates=false
 
-  _check_preset_already_updated "$preset" "$indent_level" && return 0
+  _check_preset_already_updated "$preset" "$indent_level" && return 100
   _validate_preset_file "$preset_file" "$indent_level" || return 1
   _ensure_yq_available "$child_indent" || return 1
 
   step_header "$indent_level" "Updating preset: $preset"
 
+  # Update dependencies first
   _update_preset_dependencies "$preset" "$preset_file" "$child_indent"
+
+  # Update packages for this preset
+  local package_status
   update_preset_packages "$preset" "$child_indent"
+  package_status=$?
+
+  if [[ $package_status -eq 0 ]]; then
+    had_updates=true
+  elif [[ $package_status -eq 1 ]]; then
+    return 1  # Error occurred
+  fi
 
   # Execute custom script if specified (for updates)
   local script_name
@@ -124,19 +136,81 @@ update_preset_with_dependencies() {
   fi
 
   UPDATED_PRESETS="${UPDATED_PRESETS}|$preset|"
-  success_tick_msg "$indent_level" "Preset '$preset' updated successfully"
+  
+  if [[ $had_updates == true ]]; then
+    success_tick_msg "$indent_level" "Preset '$preset' updated successfully"
+    return 0
+  else
+    success_tick_msg "$indent_level" "Preset '$preset' is up-to-date"
+    return 100
+  fi
 }
 
 update_preset_packages() {
   local preset="$1"
   local indent_level="${2:-1}"
+  local had_updates=false
+  local had_error=false
 
-  _update_homebrew_packages "$preset" "$indent_level" || return 1
-  _update_pipx_packages "$preset" "$indent_level" || return 1
-  _update_mas_packages "$preset" "$indent_level" || return 1
-  _update_npm_packages "$preset" "$indent_level" || return 1
-  _update_go_packages "$preset" "$indent_level" || return 1
-  _update_vscode_extensions "$preset" "$indent_level" || return 1
+  # Track status for each package type
+  local homebrew_status pipx_status mas_status npm_status go_status vscode_status
+
+  _update_homebrew_packages "$preset" "$indent_level"
+  homebrew_status=$?
+  if [[ $homebrew_status -eq 0 ]]; then
+    had_updates=true
+  elif [[ $homebrew_status -eq 1 ]]; then
+    had_error=true
+  fi
+
+  _update_pipx_packages "$preset" "$indent_level"
+  pipx_status=$?
+  if [[ $pipx_status -eq 0 ]]; then
+    had_updates=true
+  elif [[ $pipx_status -eq 1 ]]; then
+    had_error=true
+  fi
+
+  _update_mas_packages "$preset" "$indent_level"
+  mas_status=$?
+  if [[ $mas_status -eq 0 ]]; then
+    had_updates=true
+  elif [[ $mas_status -eq 1 ]]; then
+    had_error=true
+  fi
+
+  _update_npm_packages "$preset" "$indent_level"
+  npm_status=$?
+  if [[ $npm_status -eq 0 ]]; then
+    had_updates=true
+  elif [[ $npm_status -eq 1 ]]; then
+    had_error=true
+  fi
+
+  _update_go_packages "$preset" "$indent_level"
+  go_status=$?
+  if [[ $go_status -eq 0 ]]; then
+    had_updates=true
+  elif [[ $go_status -eq 1 ]]; then
+    had_error=true
+  fi
+
+  _update_vscode_extensions "$preset" "$indent_level"
+  vscode_status=$?
+  if [[ $vscode_status -eq 0 ]]; then
+    had_updates=true
+  elif [[ $vscode_status -eq 1 ]]; then
+    had_error=true
+  fi
+
+  # Return appropriate status code
+  if [[ $had_error == true ]]; then
+    return 1  # Error occurred
+  elif [[ $had_updates == true ]]; then
+    return 0  # Updates were applied
+  else
+    return 100  # No updates needed
+  fi
 }
 
 _update_package_type() {
@@ -166,14 +240,22 @@ _update_package_type() {
   local package_file="${package_dir}/${preset}.${file_extension}"
 
   if ! command -v "$command_name" &>/dev/null || [[ ! -f "$package_file" ]]; then
-    return 0
+    return 100  # No updates needed (command not available or no packages)
   fi
 
   local capitalized_type
   capitalized_type=$(echo "$package_type" | sed 's/^./\U&/')
 
-  if "$update_function" "$preset" "$indent_level"; then
-    success_tick_msg "$indent_level" "${capitalized_type} packages for '$preset' updated successfully"
+  local update_status
+  "$update_function" "$preset" "$indent_level"
+  update_status=$?
+
+  if [[ $update_status -eq 0 ]]; then
+    # Updates were applied - this message is now handled by the individual update functions
+    return 0
+  elif [[ $update_status -eq 100 ]]; then
+    # No updates needed - this message is now handled by the individual update functions
+    return 100
   else
     indented_error_msg "$indent_level" "Failed to update ${package_type} packages for '$preset'"
     return 1
@@ -228,6 +310,7 @@ _process_presets() {
   local preset_count_var="$3"
   local successful_updates_var="$4"
   local failed_updates_var="$5"
+  local uptodate_updates_var="$6"
 
   while IFS= read -r preset; do
     [[ -z "$preset" ]] && continue
@@ -240,8 +323,14 @@ _process_presets() {
 
     eval "$preset_count_var=\$((\$$preset_count_var + 1))"
 
-    if update_preset_with_dependencies "$preset" $((indent + 1)); then
+    local update_status
+    update_preset_with_dependencies "$preset" $((indent + 1))
+    update_status=$?
+
+    if [[ $update_status -eq 0 ]]; then
       eval "$successful_updates_var=\$((\$$successful_updates_var + 1))"
+    elif [[ $update_status -eq 100 ]]; then
+      eval "$uptodate_updates_var=\$((\$$uptodate_updates_var + 1))"
     else
       eval "$failed_updates_var=\$((\$$failed_updates_var + 1))"
     fi
@@ -266,14 +355,23 @@ _report_update_results() {
   local preset_count="$2"
   local successful_updates="$3"
   local failed_updates="$4"
+  local uptodate_updates="$5"
 
   if [[ $preset_count -eq 0 ]]; then
     indented_warning "$indent" "No installed presets found to update"
     return 1
   elif [[ $failed_updates -eq 0 ]]; then
-    success_tick_msg "$indent" "All $successful_updates installed presets updated successfully"
+    if [[ $successful_updates -gt 0 ]]; then
+      if [[ $uptodate_updates -gt 0 ]]; then
+        success_tick_msg "$indent" "Processed $preset_count installed presets: $successful_updates updated, $uptodate_updates already up-to-date"
+      else
+        success_tick_msg "$indent" "All $successful_updates installed presets updated successfully"
+      fi
+    else
+      success_tick_msg "$indent" "All $uptodate_updates installed presets are already up-to-date"
+    fi
   else
-    indented_warning "$indent" "Updated $successful_updates presets successfully, $failed_updates failed"
+    indented_warning "$indent" "Processed $preset_count presets: $successful_updates updated, $uptodate_updates up-to-date, $failed_updates failed"
     return 1
   fi
 }
@@ -294,11 +392,12 @@ update_installed_presets() {
   local preset_count=0
   local successful_updates=0
   local failed_updates=0
+  local uptodate_updates=0
 
-  _process_presets "$installed_presets" "$indent" preset_count successful_updates failed_updates
+  _process_presets "$installed_presets" "$indent" preset_count successful_updates failed_updates uptodate_updates
 
   _finalize_update_session
-  _report_update_results "$indent" "$preset_count" "$successful_updates" "$failed_updates"
+  _report_update_results "$indent" "$preset_count" "$successful_updates" "$failed_updates" "$uptodate_updates"
 }
 
 update_preset() {

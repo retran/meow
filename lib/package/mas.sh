@@ -230,14 +230,15 @@ update_mas_packages() {
 
   if [[ $updated_count -gt 0 && $failed_count -eq 0 ]]; then
     success_tick_msg "$indent_level" "Mac App Store applications for '$category' updated successfully ($updated_count upgraded, $up_to_date_count up-to-date) (${duration}s)"
+    return 0
   elif [[ $updated_count -eq 0 && $up_to_date_count -gt 0 && $failed_count -eq 0 ]]; then
     success_tick_msg "$indent_level" "All Mac App Store applications for '$category' are up-to-date ($up_to_date_count packages) (${duration}s)"
+    return 100
   elif [[ $failed_count -gt 0 ]]; then
     indented_error_msg "$indent_level" "Mac App Store update for '$category' completed with errors ($updated_count updated, $failed_count failed) (${duration}s)"
     return 1
   else
     success_tick_msg "$indent_level" "No Mac App Store applications to update for '$category' (${duration}s)"
+    return 100
   fi
-
-  return 0
 }
