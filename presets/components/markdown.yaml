@@ -9,6 +9,10 @@ npm:
   packages:
     - markdown
 
+go:
+  packages:
+    - markdown
+
 vscode:
   packages:
     - markdown

@@ -13,6 +13,7 @@ source "${DOTFILES_DIR}/lib/package/pipx.sh"
 source "${DOTFILES_DIR}/lib/package/mas.sh"
 source "${DOTFILES_DIR}/lib/package/vscode.sh"
 source "${DOTFILES_DIR}/lib/package/npm.sh"
+source "${DOTFILES_DIR}/lib/package/go.sh"
 source "${DOTFILES_DIR}/lib/package/symlinks.sh"
 source "${DOTFILES_DIR}/lib/system/macos.sh"
 
@@ -183,6 +184,14 @@ apply_preset() {
     while IFS= read -r category; do
       install_npm_packages "$category" "$child_indent"
     done <<< "$npm_categories_str"
+  fi
+
+  local go_categories_str
+  go_categories_str=$(yq eval '.go.packages[]?' "$preset_file" 2>/dev/null)
+  if [[ -n "$go_categories_str" && "$go_categories_str" != "null" ]]; then
+    while IFS= read -r category; do
+      install_go_packages "$category" "$child_indent"
+    done <<< "$go_categories_str"
   fi
 
   local symlink_categories_str

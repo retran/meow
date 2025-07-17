@@ -9,6 +9,10 @@ npm:
   packages:
     - web
 
+go:
+  packages:
+    - web
+
 vscode:
   packages:
     - web
