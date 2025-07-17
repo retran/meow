@@ -16,7 +16,7 @@ source "${DOTFILES_DIR}/lib/package/go.sh"
 declare -g UPDATED_PRESETS=""
 
 _initialize_update_session() {
-  setup_homebrew
+  setup_homebrew || true  # Continue even if Homebrew setup fails
   UPDATED_PRESETS=""
 }
 
@@ -239,7 +239,9 @@ _update_package_type() {
 
   local package_dir
   eval "package_dir=\$$package_dir_var"
-  local package_file="${package_dir}/${preset}.${file_extension}"
+  # Extract the category from the preset name (remove "components/" prefix if present)
+  local category="${preset#components/}"
+  local package_file="${package_dir}/${category}.${file_extension}"
 
   if ! command -v "$command_name" &>/dev/null || [[ ! -f "$package_file" ]]; then
     return 100  # No updates needed (command not available or no packages)

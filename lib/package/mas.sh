@@ -139,9 +139,8 @@ update_mas_packages() {
   step_header "$indent_level" "Updating Mac App Store Applications ($category)"
 
   if ! command -v mas &>/dev/null; then
-    indented_error_msg "$indent_level" "mas (Mac App Store CLI) is required but not installed."
-    indented_info "$((indent_level+1))" "Install it with: brew install mas"
-    return 1
+    info_italic_msg "$indent_level" "mas not available, skipping Mac App Store updates"
+    return 100
   fi
 
   # Note: mas account command is deprecated in newer macOS versions

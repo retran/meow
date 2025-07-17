@@ -63,18 +63,21 @@ setup_homebrew() {
         fi
       fi
     else
-      indented_error_msg "$indent" "Homebrew installation failed."
+      indented_warning "$indent" "Homebrew installation failed, skipping Homebrew package updates."
       return 1
     fi
   else
     success_tick_msg "$indent" "Homebrew is already installed."
   fi
 
-  action_msg "$indent" "Updating Homebrew package index..."
-  if brew update >/dev/null 2>&1; then
-    success_tick_msg "$indent" "Homebrew package index updated successfully."
-  else
-    indented_warning "$indent" "Failed to update Homebrew package index."
+  # Only update if brew is available
+  if command -v brew &>/dev/null; then
+    action_msg "$indent" "Updating Homebrew package index..."
+    if brew update >/dev/null 2>&1; then
+      success_tick_msg "$indent" "Homebrew package index updated successfully."
+    else
+      indented_warning "$indent" "Failed to update Homebrew package index."
+    fi
   fi
 
   return 0
@@ -201,6 +204,12 @@ update_brew_packages() {
   local verified_packages_list=()
   local start_time end_time duration
 
+  # Check if brew is available
+  if ! command -v brew &>/dev/null; then
+    info_italic_msg "$indent_level" "Homebrew not available, skipping Homebrew package updates"
+    return 100
+  fi
+
   start_time=$(date +%s)
   step_header "$indent_level" "Updating Homebrew Packages ($category)"
 
@@ -308,6 +317,11 @@ cleanup_homebrew() {
   local indent_level=0
   local start_time end_time duration
   start_time=$(date +%s)
+
+  if ! command -v brew &>/dev/null; then
+    info_italic_msg "$indent_level" "Homebrew not available, skipping cleanup"
+    return 0
+  fi
 
   step_header "$indent_level" "Cleaning up Homebrew"
 

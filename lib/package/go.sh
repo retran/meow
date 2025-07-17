@@ -140,8 +140,8 @@ update_go_packages() {
   step_header "$indent_level" "Updating Go Packages ($category)"
 
   if ! command -v go &>/dev/null; then
-    indented_warning "$((indent_level+1))" "Go not installed. Skipping update."
-    return 1
+    info_italic_msg "$indent_level" "Go not available, skipping Go package updates"
+    return 100
   fi
 
   if [[ "$category" == "all" ]]; then

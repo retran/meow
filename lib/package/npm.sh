@@ -136,8 +136,8 @@ update_npm_packages() {
   step_header "$indent_level" "Updating npm Packages ($category)"
 
   if ! command -v npm &>/dev/null; then
-    indented_warning "$((indent_level+1))" "npm not installed. Skipping update."
-    return 1
+    info_italic_msg "$indent_level" "npm not available, skipping npm package updates"
+    return 100
   fi
 
   if [[ "$category" == "all" ]]; then
