@@ -17,7 +17,7 @@
 <strong>meow - Purr-fect Development Environment</strong>
 </div>
 
-A comprehensive dotfiles management system that automates the tedious task of configuring a new machine by applying predefined setups called "presets." Instead of spending hours installing packages and tweaking configs, just pick a preset and you're ready to code. Part of the `project meow` ecosystem, including [`MeowVim`](https://github.com/retran/meowvim) for Neovim configuration.
+A comprehensive dotfiles management system that automates the tedious task of configuring a new machine by applying predefined setups called "presets." Instead of spending hours installing packages and tweaking configs, just pick a preset and you're ready to code. Part of the `project meow` ecosystem, including [`Meowvim`](https://github.com/retran/Meowvim) for Neovim configuration.
 
 ## 🖼️ Screenshots
 
@@ -35,9 +35,7 @@ A comprehensive dotfiles management system that automates the tedious task of co
 - [📋 Prerequisites](#-prerequisites)
 - [🚀 Installation](#-installation)
 - [⚡ Quick Start](#-quick-start)
-- [📖 Usage](#-usage)
 - [🧩 Components](#-components)
-- [📚 Documentation](#-documentation)
 - [🔧 Troubleshooting](#-troubleshooting)
 - [🤝 Contributing](#-contributing)
 - [📄 License](#-license)
@@ -93,7 +91,7 @@ Before installing `meow`, ensure you have the following:
 
 ## 🚀 Installation
 
-For a complete setup with all submodules (including `MeowVim`):
+For a complete setup with all submodules (including `Meowvim`):
 
 ```bash
 # Clone with submodules
@@ -225,10 +223,10 @@ python -m pip install --upgrade pipx
 pipx ensurepath
 ```
 
-#### `MeowVim` Configuration Not Working
+#### `Meowvim` Configuration Not Working
 
 ```bash
-# Check if MeowVim submodule is properly initialized
+# Check if Meowvim submodule is properly initialized
 cd ~/.meow
 git submodule status
 
