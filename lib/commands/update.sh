@@ -251,7 +251,7 @@ _update_package_type() {
   capitalized_type=$(echo "$package_type" | sed 's/^./\U&/')
 
   local update_status
-  "$update_function" "$preset" "$indent_level"
+  "$update_function" "$category" "$indent_level"
   update_status=$?
 
   if [[ $update_status -eq 0 ]]; then

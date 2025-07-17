@@ -8,7 +8,3 @@ depends_on:
 npm:
   packages:
     - javascript
-
-vscode:
-  packages:
-    - javascript

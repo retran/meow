@@ -13,6 +13,4 @@ go:
   packages:
     - web
 
-vscode:
-  packages:
-    - web
+
