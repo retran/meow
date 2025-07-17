@@ -17,7 +17,7 @@
 <strong>meow - Purr-fect Development Environment</strong>
 </div>
 
-A comprehensive dotfiles management system that automates the tedious task of configuring a new machine by applying predefined setups called "presets." Instead of spending hours installing packages and tweaking configs, just pick a preset and you're ready to code. Part of the meow ecosystem, including [MeowVim](https://github.com/retran/meowvim) for Neovim configuration.
+A comprehensive dotfiles management system that automates the tedious task of configuring a new machine by applying predefined setups called "presets." Instead of spending hours installing packages and tweaking configs, just pick a preset and you're ready to code. Part of the `project meow` ecosystem, including [`MeowVim`](https://github.com/retran/meowvim) for Neovim configuration.
 
 ## 🖼️ Screenshots
 
@@ -48,7 +48,6 @@ A comprehensive dotfiles management system that automates the tedious task of co
 - **🎯 Two Main Presets**: personal and corporate
 - **📦 Multi-Package Manager**: Homebrew, pipx, npm, Go packages, and Mac App Store
 - **🔧 Pre-configured Environments**: Go, .NET, Kotlin, Godot, JavaScript, React, and more
-- **🐾 Cat-themed Customizations**: Terminal greetings and personalized touches
 - **🔗 Automatic Dotfile Linking**: Seamless configuration deployment
 - **🧩 Mix and Match Components**: Custom setups for specific needs
 - **⚡ One-Command Setup**: Single script installation and updates
@@ -56,21 +55,12 @@ A comprehensive dotfiles management system that automates the tedious task of co
 
 ## ✨ Features
 
-meow provides a comprehensive development environment setup with these key capabilities:
+`meow` provides a comprehensive development environment setup with these key capabilities:
 
 ### 🎯 Preset System
 
 - **Personal Preset**: Full development setup with all tools and customizations
 - **Corporate Preset**: Work-focused Go development environment
-
-### 📦 Package Management
-
-- **Homebrew**: Native macOS applications and system tools
-- **npm**: JavaScript/Node.js packages and development tools
-- **pipx**: Python command-line applications in isolated environments
-- **Go Packages**: Development tools via `go install`
-- **VS Code Extensions**: Enhanced development experience
-- **Mac App Store**: Commercial applications and utilities
 
 ### 🔧 Development Environments
 
@@ -92,7 +82,7 @@ meow provides a comprehensive development environment setup with these key capab
 
 ## 📋 Prerequisites
 
-Before installing meow, ensure you have the following:
+Before installing `meow`, ensure you have the following:
 
 ### Required
 
@@ -101,16 +91,9 @@ Before installing meow, ensure you have the following:
 - **Git**: For cloning the repository and version control integration
 - **Internet Connection**: For downloading packages and tools
 
-### Automatically Installed
-
-- **Homebrew**: Package manager for macOS (installed automatically if missing)
-- **Terminal**: Ghostty terminal is included in the setup
-
 ## 🚀 Installation
 
-### Option 1: Fresh Installation
-
-For a complete setup with all submodules (including MeowVim):
+For a complete setup with all submodules (including `MeowVim`):
 
 ```bash
 # Clone with submodules
@@ -119,36 +102,6 @@ cd ~/.meow
 
 # Install your preferred preset
 ./bin/install.sh PRESET_NAME
-```
-
-### Option 2: Existing Repository
-
-If you've already cloned without submodules:
-
-```bash
-# Navigate to your existing clone
-cd ~/.meow
-
-# Initialize and update submodules
-git submodule init
-git submodule update
-
-# Install your preferred preset
-./bin/install.sh PRESET_NAME
-```
-
-### Available Presets
-
-**🏠 personal** - Complete development setup with all tools and customizations
-
-```bash
-./bin/install.sh personal
-```
-
-**🏢 corporate** - Work-focused Go development environment
-
-```bash
-./bin/install.sh corporate
 ```
 
 ## ⚡ Quick Start
@@ -165,7 +118,7 @@ Based on your needs:
 ### 2. One-Command Setup
 
 ```bash
-# New personal machine
+# Personal environment
 git clone --recurse-submodules https://github.com/retran/meow.git ~/.meow && cd ~/.meow && ./bin/install.sh personal
 
 # Corporate environment
@@ -182,16 +135,13 @@ After installation:
 ### 4. Keep It Updated
 
 ```bash
-# Update all packages
+# Update installed preset
 ./bin/update.sh
-
-# Update specific preset
-./bin/update.sh corporate
 ```
 
 ## 🧩 Components
 
-meow uses a modular component system where each component can depend on others, creating a layered architecture for development environments:
+`meow` uses a modular component system where each component can depend on others, creating a layered architecture for development environments:
 
 ### Foundation Components
 
@@ -214,14 +164,14 @@ meow uses a modular component system where each component can depend on others, 
 
 ### Specialized Development
 
-- **🎮 game-development** - Game development tools and engines including Godot
+- **🎮 game-development** - Game development tools including Godot and tools for Pico-8/Picotron
 - **📝 markdown** - Technical writing with linting, spell checking, presentation tools, and terminal rendering
 
 ### Communication & Productivity
 
 - **💼 corporate-communication** - Professional communication tools for work environments
 - **👥 personal-communication** - Personal messaging and social applications
-- **📋 productivity** - Foundation for desktop productivity environment
+- **📋 productivity** - Set of productivity tools
 
 ### Entertainment & Media
 
@@ -231,12 +181,13 @@ meow uses a modular component system where each component can depend on others, 
 ### Package Manager Support
 
 Components support multiple package managers depending on their needs:
-- **Homebrew**: Native macOS applications and system tools
-- **npm**: JavaScript/Node.js packages and development tools
-- **pipx**: Python command-line applications installed in isolation
-- **Go packages**: Go development tools installed via `go install`
-- **VS Code**: Editor extensions for enhanced development experience
-- **Mac App Store**: Commercial applications and utilities
+
+- **brew**
+- **npm**
+- **pipx**
+- **gopm**
+- **mas**
+- **VS Code extensions**
 
 Components automatically resolve dependencies - for example, `react` includes `javascript`, which includes `core-development`, which includes `shell-essential`.
 
@@ -274,7 +225,7 @@ python -m pip install --upgrade pipx
 pipx ensurepath
 ```
 
-#### MeowVim Configuration Not Working
+#### `MeowVim` Configuration Not Working
 
 ```bash
 # Check if MeowVim submodule is properly initialized
@@ -308,7 +259,7 @@ chmod +x ~/.meow/bin/*.sh
 
 ## 🤝 Contributing
 
-Contributions are welcome to help improve meow! Here's how you can help:
+Contributions are welcome to help improve `meow`! Here's how you can help:
 
 ### Ways to Contribute
 
@@ -325,37 +276,46 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 ## 🙏 Acknowledgments
 
-meow builds on the excellent work of the open-source community and various development tools.
-
-### Core Tools
+`meow` builds on the excellent work of the open-source community and various development tools.
 
 - [Homebrew](https://brew.sh/) - The missing package manager for macOS
-- [Zsh](https://zsh.sourceforge.io/) - Extended shell with advanced features
-- [Tmux](https://github.com/tmux/tmux) - Terminal multiplexer
-- [Git](https://git-scm.com/) - Version control system
-
-### Development Environments
-
-- [Go](https://golang.org/) - Programming language and tools
+- [zsh](https://zsh.sourceforge.io/) - Z shell
+- [Oh My Zsh](https://ohmyz.sh/) - Zsh configuration framework
+- [tmux](https://github.com/tmux/tmux) - Terminal multiplexer
+- [git](https://git-scm.com/) - Version control system
+- [Starship](https://starship.rs/) - Cross-shell prompt
+- [Neovim](https://neovim.io/) - Hyperextensible Vim-based text editor
+- [Neovide](https://neovide.dev/) - Neovim GUI client
+- [Visual Studio Code](https://code.visualstudio.com/) - Code editor
+- [Ghostty](https://ghostty.org/) - Terminal emulator
 - [Node.js](https://nodejs.org/) - JavaScript runtime
-- [Python](https://python.org/) - Programming language
-- [.NET](https://dotnet.microsoft.com/) - Development platform
+- [Go](https://golang.org/) - Programming language
+- [Python](https://www.python.org/) - Programming language
+- [mas](https://github.com/mas-cli/mas) - Mac App Store command line interface
+- [Raycast](https://raycast.com/) - Productivity tool for macOS
+- [Hammerspoon](https://www.hammerspoon.org/) - macOS automation tool
+- [fzf](https://github.com/junegunn/fzf) - Command-line fuzzy finder
+- [ripgrep](https://github.com/BurntSushi/ripgrep) - Line-oriented search tool
+- [fd](https://github.com/sharkdp/fd) - Simple, fast and user-friendly alternative to find
+- [jq](https://stedolan.github.io/jq/) - Command-line JSON processor
+- [yq](https://github.com/mikefarah/yq) - Command-line YAML processor
+- [task](https://taskfile.dev/) - Task runner / build tool
+- [pandoc](https://pandoc.org/) - Universal document converter
+- [JetBrains Mono](https://www.jetbrains.com/lp/mono/) - Typeface for developers
+- [Nerd Fonts](https://www.nerdfonts.com/) - Iconic font aggregator
+- [Tokyo Night](https://github.com/tokyo-night) - Clean, dark theme
 
-### Package Managers
-
-- [npm](https://npmjs.com/) - Node.js package manager
-- [pipx](https://pipxproject.github.io/pipx/) - Python application installer
-- [VS Code](https://code.visualstudio.com/) - Code editor platform
+and many other amazing open-source projects that make development a joy
 
 ### Author
 
-meow is developed by Andrew Vasilyev with help from feline assistants Sonya, Mila, and Marcus Fenix.
+`meow` is developed by Andrew Vasilyev with help from GitHub Copilot and feline assistants Sonya Blade, Mila, and Marcus Fenix.
 
 ---
 
 <div align="center">
 
-**Happy coding with project meow! 🐱**
+**Happy coding with `project meow`! 🐱**
 
 Made with ❤️ by Andrew Vasilyev and feline assistants
 

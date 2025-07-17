@@ -19,5 +19,8 @@
     "extensions.ignoreRecommendations": true,
     "redhat.telemetry.enabled": true,
     "github.copilot.chat.codesearch.enabled": true,
-    "githubPullRequests.createOnPublishBranch": "never"
+    "githubPullRequests.createOnPublishBranch": "never",
+    "[markdown]": {
+        "editor.defaultFormatter": "yzhang.markdown-all-in-one"
+    }
 }
