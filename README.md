@@ -1,6 +1,6 @@
 # 🐱 meow
 
-> The purr-fect dotfiles management system that sets up your development environment with a single command.
+> The purr-fect dotfiles management system that sets up your development environment with a single meow.
 
 <div align="center">
 
