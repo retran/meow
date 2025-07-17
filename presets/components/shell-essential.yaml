@@ -10,6 +10,8 @@ symlinks:
   - tmux
   - starship
   - zsh
+  - bash
+  - secrets
   - nvim
 
 script: setup-shell-essential.sh

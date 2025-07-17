@@ -1,0 +1,4 @@
+- source: "$DOTFILES_DIR/config/shells/bash/.bashrc"
+  target: "$HOME/.bashrc"
+- source: "$DOTFILES_DIR/config/shells/bash/.fzf.bash"
+  target: "$HOME/.fzf.bash"

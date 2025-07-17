@@ -8,7 +8,6 @@ fi
 _CONFIG_XDG_ENV_SOURCED=1
 
 export DOTFILES_DIR="${DOTFILES_DIR:-${HOME}/.meow}"
-
 export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
 export XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
 export XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
@@ -16,16 +15,15 @@ export XDG_STATE_HOME="${XDG_STATE_HOME:-$HOME/.local/state}"
 
 export LANG="en_US.UTF-8"
 export LC_ALL="en_US.UTF-8"
-
 export EDITOR="nvim"
 export VISUAL="nvim"
 export PAGER="less"
 
-export ZSH="$HOME/.oh-my-zsh"
-
 if [[ -f "$HOME/.secrets" ]]; then
   source "$HOME/.secrets"
 fi
+
+export PATH="$HOME/.local/bin:$PATH"
 
 if [[ "$(uname -s)" == "Darwin" ]]; then
   export HOMEBREW_PREFIX="/opt/homebrew"
@@ -35,11 +33,9 @@ if [[ "$(uname -s)" == "Darwin" ]]; then
 fi
 
 export PYENV_ROOT="$HOME/.pyenv"
-[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
-if command -v pyenv &>/dev/null; then
-  eval "$(pyenv init - zsh)"
+if [[ -d "$PYENV_ROOT/bin" ]]; then
+  export PATH="$PYENV_ROOT/bin:$PATH"
 fi
-export PATH="$PATH:$HOME/.local/bin"
 
 if command -v go &>/dev/null; then
   export GOPATH="${GOPATH:-$(go env GOPATH)}"
