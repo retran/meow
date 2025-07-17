@@ -3,7 +3,7 @@ description: >-
 
 homebrew:
   packages:
-    - components/shell-essential
+    - shell-essential
 
 symlinks:
   - git
