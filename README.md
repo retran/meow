@@ -46,44 +46,56 @@ git submodule update
 ./bin/install.sh corporate
 ```
 
-## 🧩 Development Components
+## 🧩 Components
 
-The system includes modular development components that can be composed together:
+meow uses a modular component system where each component can depend on others, creating a layered architecture for development environments:
 
-### Essentials
+### Foundation Components
 
--- **🐚 shell-essential** - Minimal setup for shell (Git, Tmux, Starship, Neovim)
+- **🐚 shell-essential** - Essential shell tools installable on any system (Git, Tmux, Starship, Neovim)
+- **🖥️ desktop-essential** - GUI foundation for macOS desktop applications  
+- **🛠️ core-development** - Core development tools shared across all programming environments (depends on shell-essential)
+- **🎨 fonts** - Essential programming and design fonts
 
--- **🖥️ desktop-essential** - GUI foundation without specific dev tools
+### Programming Languages
 
-### Core Development
-- **🛠️ core-development** - Core development tools common to all programming
-- **🎨 fonts** - Essential fonts for development and design
-
-### Language-Specific Development
-- **🐹 go-development** - Go development tools and environment
-- **⚡ javascript** - JavaScript/TypeScript development with modern tooling
-- **🗾 kotlin-development** - Kotlin development environment
+- **🐹 go-development** - Complete Go development environment with language server, debugger, linters, and build tools
+- **⚡ javascript** - JavaScript/TypeScript development with Node.js tools, language servers, and formatters  
+- **🗾 kotlin-development** - Kotlin development environment and tools
 - **🦄 dotnet-development** - .NET development tools and SDK
 
 ### Frontend & Web Development
-- **⚛️ react** - React development extending JavaScript component
-- **🌐 web** - Complete frontend development with CSS, build tools, deployment, and HTTP testing tools
+
+- **⚛️ react** - React development framework extending JavaScript with React-specific tooling
+- **🌐 web** - Advanced web development with CSS frameworks, build tools, deployment utilities, and HTTP testing (extends React)
 
 ### Specialized Development
-- **🎮 game-development** - Game development tools and engines
-- **📝 markdown** - Technical writing and documentation workflow with terminal rendering tools
+
+- **🎮 game-development** - Game development tools and engines including Godot
+- **📝 markdown** - Technical writing with linting, spell checking, presentation tools, and terminal rendering
 
 ### Communication & Productivity
-- **💼 corporate-communication** - Corporate communication tools
-- **👥 personal-communication** - Personal messaging and social apps
-- **📋 productivity** - Productivity applications and utilities
+
+- **💼 corporate-communication** - Professional communication tools for work environments
+- **👥 personal-communication** - Personal messaging and social applications  
+- **📋 productivity** - Productivity applications and organizational utilities
 
 ### Entertainment & Media
-- **🎮 gaming** - Gaming applications and platforms
-- **🎨 media-graphics** - Media editing and graphics tools
 
-Components are automatically included when using the personal preset, or can be referenced in custom preset definitions.
+- **🎮 gaming** - Gaming platforms and applications
+- **🎨 media** - Media editing and graphics tools
+
+### Package Manager Support
+
+Components support multiple package managers depending on their needs:
+- **Homebrew**: Native macOS applications and system tools
+- **npm**: JavaScript/Node.js packages and development tools  
+- **pipx**: Python command-line applications installed in isolation
+- **Go packages**: Go development tools installed via `go install`
+- **VS Code**: Editor extensions for enhanced development experience
+- **Mac App Store**: Commercial applications and utilities
+
+Components automatically resolve dependencies - for example, `react` includes `javascript`, which includes `core-development`, which includes `shell-essential`.
 
 ## 📖 Usage
 
