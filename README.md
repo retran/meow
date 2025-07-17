@@ -4,8 +4,7 @@
 
 <div align="center">
 
-![Zsh](https://img.shields.io/badge/zsh-%23019733.svg?style=for-the-badge&logo=zsh&logoColor=white)
-![Tmux](https://img.shields.io/badge/tmux-%23019733.svg?style=for-the-badge&logo=tmux&logoColor=white)
+![Shell](https://img.shields.io/badge/shell-%23019733.svg?style=for-the-badge&logo=gnu-bash&logoColor=white)
 ![License](https://img.shields.io/badge/license-MIT-blue.svg?style=for-the-badge)
 ![GitHub stars](https://img.shields.io/github/stars/retran/meow?style=for-the-badge)
 ![GitHub forks](https://img.shields.io/github/forks/retran/meow?style=for-the-badge)
@@ -47,25 +46,23 @@ A comprehensive dotfiles management system that automates the tedious task of co
 
 ## 🌟 Key Features
 
-- **🎯 Four Main Presets**: personal, corporate, shell-essential, desktop-essential
+- **🎯 Two Main Presets**: personal and corporate
 - **📦 Multi-Package Manager**: Homebrew, pipx, npm, Go packages, and Mac App Store
 - **🔧 Pre-configured Environments**: Go, .NET, Kotlin, Godot, JavaScript, React, and more
 - **🐾 Cat-themed Customizations**: Terminal greetings and personalized touches
 - **🔗 Automatic Dotfile Linking**: Seamless configuration deployment
 - **🧩 Mix and Match Components**: Custom setups for specific needs
 - **⚡ One-Command Setup**: Single script installation and updates
-- **🌐 Cross-Platform Support**: macOS (primary), Linux/Unix systems
+- **🌐 macOS Support**: Designed specifically for macOS systems
 
 ## ✨ Features
 
 meow provides a comprehensive development environment setup with these key capabilities:
 
 ### 🎯 Preset System
-- **Four Main Presets**: Complete development configurations for different use cases
+- **Two Main Presets**: Complete development configurations for different use cases
 - **Personal Preset**: Full development setup with all tools and customizations
 - **Corporate Preset**: Work-focused Go development environment
-- **Shell-Essential**: Core terminal tools for any system
-- **Desktop-Essential**: GUI foundation for macOS applications
 
 ### 📦 Package Management
 - **Homebrew**: Native macOS applications and system tools
@@ -86,7 +83,7 @@ meow provides a comprehensive development environment setup with these key capab
 - **Markdown**: Technical writing with linting and presentation tools
 
 ### 🐾 User Experience
-- **Cat-themed Branding**: MeowVim ASCII art and terminal greetings
+- **Cat-themed Branding**: Project meow ASCII art and terminal greetings
 - **Automatic Configuration**: Seamless dotfile linking and setup
 - **One-Command Installation**: Simple script-based deployment
 - **Modular Components**: Mix and match for custom setups
@@ -97,20 +94,14 @@ meow provides a comprehensive development environment setup with these key capab
 Before installing meow, ensure you have the following:
 
 ### Required
-- **Operating System**: macOS (primary support), Linux/Unix systems (shell-essential preset)
+- **Operating System**: macOS
 - **Shell**: Bash or Zsh
 - **Git**: For cloning the repository and version control integration
-
-### Recommended
-- **Homebrew**: Package manager for macOS (installed automatically if missing)
 - **Internet Connection**: For downloading packages and tools
-- **Terminal**: With true color support for optimal experience
 
-### Optional
-- **Node.js**: For JavaScript/TypeScript development components
-- **Python**: For Python development tools and pipx packages
-- **Go**: For Go development environment
-- **VS Code**: For editor extensions and integrations
+### Automatically Installed
+- **Homebrew**: Package manager for macOS (installed automatically if missing)
+- **Terminal**: Ghostty terminal is included in the setup
 
 ## 🚀 Installation
 
@@ -155,16 +146,6 @@ git submodule update
 ./bin/install.sh corporate
 ```
 
-**🐚 Shell-Essential** - Core terminal tools for any system
-```bash
-./bin/install.sh shell-essential
-```
-
-**🖥️ Desktop-Essential** - GUI foundation for macOS applications
-```bash
-./bin/install.sh desktop-essential
-```
-
 ## ⚡ Quick Start
 
 After installation, follow these steps to get started:
@@ -173,24 +154,21 @@ After installation, follow these steps to get started:
 Based on your needs:
 - **New personal machine**: Use `personal` preset
 - **Work environment**: Use `corporate` preset
-- **Remote server**: Use `shell-essential` preset
-- **GUI applications**: Use `desktop-essential` preset
 
 ### 2. One-Command Setup
 ```bash
 # New personal machine
 git clone --recurse-submodules https://github.com/retran/meow.git ~/.meow && cd ~/.meow && ./bin/install.sh personal
 
-# Remote server
-git clone --recurse-submodules https://github.com/retran/meow.git ~/.meow && cd ~/.meow && ./bin/install.sh shell-essential
+# Corporate environment
+git clone --recurse-submodules https://github.com/retran/meow.git ~/.meow && cd ~/.meow && ./bin/install.sh corporate
 ```
 
 ### 3. Enjoy Your Setup
 After installation:
-- Your shell will display the new MeowVim ASCII art
+- Your shell will display the new project meow ASCII art
 - All development tools will be available
 - Configurations are automatically linked
-- MeowVim (if included) is ready to use
 
 ### 4. Keep It Updated
 ```bash
@@ -207,8 +185,8 @@ meow uses a modular component system where each component can depend on others, 
 
 ### Foundation Components
 
-- **🐚 shell-essential** - Essential shell tools installable on any system (Git, Tmux, Starship, Neovim)
-- **🖥️ desktop-essential** - GUI foundation for macOS desktop applications
+- **🐚 shell-essential** - Essential shell tools component (Git, Tmux, Starship, Neovim)
+- **🖥️ desktop-essential** - GUI foundation component for macOS desktop applications
 - **🛠️ core-development** - Core development tools shared across all programming environments (depends on shell-essential)
 - **🎨 fonts** - Essential programming and design fonts
 
@@ -233,7 +211,7 @@ meow uses a modular component system where each component can depend on others, 
 
 - **💼 corporate-communication** - Professional communication tools for work environments
 - **👥 personal-communication** - Personal messaging and social applications
-- **📋 productivity** - Productivity applications and organizational utilities
+- **📋 productivity** - Foundation for desktop productivity environment
 
 ### Entertainment & Media
 
@@ -262,9 +240,6 @@ Components automatically resolve dependencies - for example, `react` includes `j
 
 # Update packages for a specific preset
 ./bin/update.sh corporate
-
-# Update packages for shell-essential preset
-./bin/update.sh shell-essential
 ```
 
 ### Getting Help
@@ -288,54 +263,6 @@ git clone --recurse-submodules https://github.com/retran/meow.git ~/.meow && cd 
 ```bash
 git clone --recurse-submodules https://github.com/retran/meow.git ~/.meow && cd ~/.meow && ./bin/install.sh corporate
 ```
-
-**Remote server setup:**
-```bash
-git clone --recurse-submodules https://github.com/retran/meow.git ~/.meow && cd ~/.meow && ./bin/install.sh shell-essential
-```
-
-**GUI applications only:**
-```bash
-git clone --recurse-submodules https://github.com/retran/meow.git ~/.meow && cd ~/.meow && ./bin/install.sh desktop-essential
-```
-
-## 📚 Documentation
-
-### File Structure
-```
-~/.meow/
-├── bin/                  # Installation and update scripts
-│   ├── install.sh       # Main installation script
-│   └── update.sh        # Update script
-├── config/              # Application configurations
-│   ├── nvim/           # MeowVim Neovim configuration (submodule)
-│   ├── tmux/           # Tmux configuration
-│   └── zsh/            # Zsh configuration
-├── presets/             # Preset definitions and components
-│   ├── components/     # Individual component definitions
-│   └── presets/        # Preset configurations
-├── packages/            # Package manager integrations
-│   ├── brew/           # Homebrew packages
-│   ├── npm/            # npm packages
-│   ├── pipx/           # pipx packages
-│   └── go/             # Go packages
-├── lib/                 # Library functions
-│   ├── motd/           # Message of the day system
-│   └── core/           # Core utilities
-└── assets/             # Static assets
-    ├── ascii/          # ASCII art files
-    ├── comments/       # Random comment collections
-    ├── icon.png        # Main meow icon
-    ├── icon_small.png  # Small meow icon for README
-    └── screenshot.png  # Development environment screenshot
-```
-
-### Key Files
-- **`config/nvim/`**: Custom Neovim configuration (MeowVim submodule)
-- **`presets/`**: Preset definitions and component configurations
-- **`packages/`**: Package manager integrations for different tools
-- **`lib/motd/`**: Message of the day system with cat-themed greetings
-- **`assets/ascii/`**: ASCII art files including MeowVim branding
 
 ## 🔧 Troubleshooting
 
@@ -369,9 +296,9 @@ python -m pip install --upgrade pipx
 pipx ensurepath
 ```
 
-#### MeowVim Not Working
+#### Neovim Configuration Not Working
 ```bash
-# Check if MeowVim submodule is properly initialized
+# Check if Neovim submodule is properly initialized
 cd ~/.meow
 git submodule status
 
@@ -489,11 +416,6 @@ meow builds on the excellent work of the open-source community and various devel
 - [pipx](https://pipxproject.github.io/pipx/) - Python application installer
 - [VS Code](https://code.visualstudio.com/) - Code editor platform
 
-### MeowVim Integration
-- [MeowVim](https://github.com/retran/meowvim) - Neovim configuration system
-- [Neovim](https://neovim.io/) - Extensible text editor
-- [Lazy.nvim](https://github.com/folke/lazy.nvim) - Plugin manager
-
 ### Author
 meow is developed by Andrew Vasilyev with help from feline assistants Sonya, Mila, and Marcus Fenix.
 
@@ -501,7 +423,7 @@ meow is developed by Andrew Vasilyev with help from feline assistants Sonya, Mil
 
 <div align="center">
 
-**Happy coding with meow! 🐱**
+**Happy coding with project meow! 🐱**
 
 Made with ❤️ by Andrew Vasilyev and feline assistants
 
