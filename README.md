@@ -197,14 +197,14 @@ meow uses a modular component system where each component can depend on others, 
 ### Foundation Components
 
 - **🐚 shell-essential** - Essential shell tools installable on any system (Git, Tmux, Starship, Neovim)
-- **🖥️ desktop-essential** - GUI foundation for macOS desktop applications  
+- **🖥️ desktop-essential** - GUI foundation for macOS desktop applications
 - **🛠️ core-development** - Core development tools shared across all programming environments (depends on shell-essential)
 - **🎨 fonts** - Essential programming and design fonts
 
 ### Programming Languages
 
 - **🐹 go-development** - Complete Go development environment with language server, debugger, linters, and build tools
-- **⚡ javascript** - JavaScript/TypeScript development with Node.js tools, language servers, and formatters  
+- **⚡ javascript** - JavaScript/TypeScript development with Node.js tools, language servers, and formatters
 - **🗾 kotlin-development** - Kotlin development environment and tools
 - **🦄 dotnet-development** - .NET development tools and SDK
 
@@ -221,7 +221,7 @@ meow uses a modular component system where each component can depend on others, 
 ### Communication & Productivity
 
 - **💼 corporate-communication** - Professional communication tools for work environments
-- **👥 personal-communication** - Personal messaging and social applications  
+- **👥 personal-communication** - Personal messaging and social applications
 - **📋 productivity** - Productivity applications and organizational utilities
 
 ### Entertainment & Media
@@ -233,7 +233,7 @@ meow uses a modular component system where each component can depend on others, 
 
 Components support multiple package managers depending on their needs:
 - **Homebrew**: Native macOS applications and system tools
-- **npm**: JavaScript/Node.js packages and development tools  
+- **npm**: JavaScript/Node.js packages and development tools
 - **pipx**: Python command-line applications installed in isolation
 - **Go packages**: Go development tools installed via `go install`
 - **VS Code**: Editor extensions for enhanced development experience

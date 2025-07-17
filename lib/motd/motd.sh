@@ -8,8 +8,8 @@ fi
 _LIB_MOTD_SOURCED=1
 
 if [[ -z "$DOTFILES_DIR" ]]; then
-    echo "Error: DOTFILES_DIR environment variable is not set." >&2
-    return 1
+  echo "Error: DOTFILES_DIR environment variable is not set." >&2
+  return 1
 fi
 
 readonly MOTD_ASSETS_DIR="${DOTFILES_DIR}/assets"
@@ -30,7 +30,10 @@ load_yaml_comments() {
   fi
 
   if command -v yq >/dev/null 2>&1; then
-    (set -o pipefail; yq -r ".${category}.${section}[]" "$yaml_file" 2>/dev/null)
+    (
+      set -o pipefail
+      yq -r ".${category}.${section}[]" "$yaml_file" 2>/dev/null
+    )
   else
     return 1
   fi
@@ -49,10 +52,10 @@ get_comment_collection() {
     collection_content=$(load_yaml_comments "$category" "$section")
     if [[ $? -eq 0 && -n "$collection_content" ]]; then
       while read -r line; do
-          if [[ -n "$line" ]]; then
-            result+=("$line")
-          fi
-      done <<< "$collection_content"
+        if [[ -n "$line" ]]; then
+          result+=("$line")
+        fi
+      done <<<"$collection_content"
     fi
   done
 
@@ -62,7 +65,7 @@ get_comment_collection() {
     return 0
   fi
 
-  local index=$(( (RANDOM % count) + 1 ))
+  local index=$(((RANDOM % count) + 1))
   local selected_comment="${result[index]}"
   echo "$selected_comment"
 }
@@ -118,7 +121,7 @@ load_art() {
 
   while IFS= read -r line || [[ -n "$line" ]]; do
     echo -e "${ART}${line}${RESET}"
-  done < "$art_file"
+  done <"$art_file"
 }
 
 build_greeting() {
@@ -129,18 +132,18 @@ build_greeting() {
   local greeting="Meowvelous day"
   local time_collection_key="night" # Default
 
-  if (( hour_num >= 5 && hour_num < 12 )); then
+  if ((hour_num >= 5 && hour_num < 12)); then
     time_collection_key="morning"
-  elif (( hour_num >= 12 && hour_num < 18 )); then
+  elif ((hour_num >= 12 && hour_num < 18)); then
     time_collection_key="afternoon"
-  elif (( hour_num >= 18 && hour_num < 22 )); then
+  elif ((hour_num >= 18 && hour_num < 22)); then
     time_collection_key="evening"
   fi
 
   local time_comment
   time_comment=$(get_comment_collection "motd" "$time_collection_key")
   if [[ -z "$time_comment" || "$time_comment" == "A fancy digital cat comment should be here" ]]; then
-      time_comment="Hope you have a purr-ductive time!"
+    time_comment="Hope you have a purr-ductive time!"
   fi
 
   echo -e "${SECONDARY}${greeting}, сomrade ${DATA}$(whoami)${SECONDARY}!${RESET}"
@@ -218,38 +221,41 @@ display_art_and_stats() {
   local -a art_array
   local -a stats_array
 
-  while IFS= read -r line; do art_array+=("$line"); done <<< "$art_content"
-  while IFS= read -r line; do stats_array+=("$line"); done <<< "$stats_content"
+  while IFS= read -r line; do art_array+=("$line"); done <<<"$art_content"
+  while IFS= read -r line; do stats_array+=("$line"); done <<<"$stats_content"
 
   local max_art_width=0
   local num_art_lines=${#art_array[@]}
   local num_stats_lines=${#stats_array[@]}
 
   local max_total_lines
-  if (( num_art_lines > num_stats_lines )); then
+  if ((num_art_lines > num_stats_lines)); then
     max_total_lines=$num_art_lines
   else
     max_total_lines=$num_stats_lines
   fi
 
-  local column_gap="  "
-  local ansi_regex=$'\x1b\\[[0-9;]*m'
+  local column_gap=" "
+  local ESC=$(printf '\x1b')
 
   for art_line in "${art_array[@]}"; do
-    local plain_art_line="${art_line//$ansi_regex/}"
-    if ((${#plain_art_line} > max_art_width)); then
-      max_art_width=${#plain_art_line}
+    local stripped_line="${art_line//${ESC}\[[0-9;]*m/}"
+    stripped_line="${stripped_line//${ESC}\[?25[hl]/}"
+
+    if ((${#stripped_line} > max_art_width)); then
+      max_art_width=${#stripped_line}
     fi
   done
 
-  for ((i=1; i <= max_total_lines; i++)); do
+  for ((i = 0; i < max_total_lines - 1; i++)); do
     local art_line="${art_array[i]:-}"
     local stats_line="${stats_array[i]:-}"
 
-    local plain_art_line="${art_line//$ansi_regex/}"
-    local current_plain_art_len=${#plain_art_line}
+    local stripped_line="${art_line//${ESC}\[[0-9;]*m/}"
+    stripped_line="${stripped_line//${ESC}\[?25[hl]/}"
+    local current_plain_art_len=${#stripped_line}
 
-    printf "%s" "$art_line"
+    printf "%s%s" "$column_gap" "$art_line"
 
     local padding_spaces=$((max_art_width - current_plain_art_len))
     if ((padding_spaces > 0)); then
