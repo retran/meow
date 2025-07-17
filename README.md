@@ -20,19 +20,19 @@
 
 A comprehensive dotfiles management system that automates the tedious task of configuring a new machine by applying predefined setups called "presets." Instead of spending hours installing packages and tweaking configs, just pick a preset and you're ready to code. Part of the meow ecosystem, including [MeowVim](https://github.com/retran/meowvim) for Neovim configuration.
 
-## 🌟 Key Features
+## 🖼️ Screenshots
 
-- **🎯 Four Main Presets**: personal, corporate, shell-essential, desktop-essential
-- **📦 Multi-Package Manager**: Homebrew, pipx, npm, Go packages, and Mac App Store
-- **🔧 Pre-configured Environments**: Go, .NET, Kotlin, Godot, JavaScript, React, and more
-- **🐾 Cat-themed Customizations**: Terminal greetings and personalized touches
-- **🔗 Automatic Dotfile Linking**: Seamless configuration deployment
-- **🧩 Mix and Match Components**: Custom setups for specific needs
-- **⚡ One-Command Setup**: Single script installation and updates
-- **🌐 Cross-Platform Support**: macOS (primary), Linux/Unix systems
+<div align="center">
+
+### Development Environment
+<img src="assets/screenshot.png" alt="meow Development Environment" width="800">
+
+</div>
 
 ## 📋 Table of Contents
 
+- [🖼️ Screenshots](#️-screenshots)
+- [🌟 Key Features](#-key-features)
 - [✨ Features](#-features)
 - [📋 Prerequisites](#-prerequisites)
 - [🚀 Installation](#-installation)
@@ -44,6 +44,17 @@ A comprehensive dotfiles management system that automates the tedious task of co
 - [🤝 Contributing](#-contributing)
 - [📄 License](#-license)
 - [🙏 Acknowledgments](#-acknowledgments)
+
+## 🌟 Key Features
+
+- **🎯 Four Main Presets**: personal, corporate, shell-essential, desktop-essential
+- **📦 Multi-Package Manager**: Homebrew, pipx, npm, Go packages, and Mac App Store
+- **🔧 Pre-configured Environments**: Go, .NET, Kotlin, Godot, JavaScript, React, and more
+- **🐾 Cat-themed Customizations**: Terminal greetings and personalized touches
+- **🔗 Automatic Dotfile Linking**: Seamless configuration deployment
+- **🧩 Mix and Match Components**: Custom setups for specific needs
+- **⚡ One-Command Setup**: Single script installation and updates
+- **🌐 Cross-Platform Support**: macOS (primary), Linux/Unix systems
 
 ## ✨ Features
 
@@ -313,7 +324,10 @@ git clone --recurse-submodules https://github.com/retran/meow.git ~/.meow && cd 
 │   └── core/           # Core utilities
 └── assets/             # Static assets
     ├── ascii/          # ASCII art files
-    └── comments/       # Random comment collections
+    ├── comments/       # Random comment collections
+    ├── icon.png        # Main meow icon
+    ├── icon_small.png  # Small meow icon for README
+    └── screenshot.png  # Development environment screenshot
 ```
 
 ### Key Files
