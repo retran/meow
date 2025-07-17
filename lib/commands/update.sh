@@ -96,6 +96,8 @@ _update_preset_dependencies() {
 
   for dependency in "${dependencies[@]}"; do
     dependency_msg "$indent_level" "Updating dependency: $dependency (for $preset)"
+    # Dependencies are handled recursively by update_preset_with_dependencies
+    # We don't need to check return codes here since errors will bubble up
     update_preset_with_dependencies "$dependency" "$indent_level"
   done
 }
