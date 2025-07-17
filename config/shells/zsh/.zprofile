@@ -1,5 +1,7 @@
 #!/usr/bin/env zsh
 
-# config/shells/zsh/.zprofile - Zsh profile configuration
+# ~/.zprofile - Sourced on login.
 
-. "$HOME/.meow/config/env/env.sh"
+if [[ -f "$DOTFILES_DIR/config/env/env.sh" ]]; then
+  . "$DOTFILES_DIR/config/env/env.sh"
+fi

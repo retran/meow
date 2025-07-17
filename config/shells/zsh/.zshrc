@@ -1,24 +1,13 @@
 #!/usr/bin/env zsh
 
-# config/shells/zsh/.zshrc - Zsh configuration file
-
-# Source environment configuration
-. "$DOTFILES_DIR/config/env/env.sh"
-
-. "$DOTFILES_DIR/lib/core/colors.sh"
-. "$DOTFILES_DIR/lib/core/ui.sh"
-. "$DOTFILES_DIR/lib/motd/motd.sh"
-
-# Source aliases
-. "$DOTFILES_DIR/config/aliases/aliases.sh"
-
 ZSH_THEME="robbyrussell"
 
 plugins=(
+  # macOS & Homebrew
   macos
-
   brew
 
+  # Utilities
   copyfile
   copypath
   urltools
@@ -27,12 +16,13 @@ plugins=(
   encode64
   dotenv
 
+  # Tools
   tmux
-
   ssh
-
   colored-man-pages
+  1password
 
+  # Version Control
   git
   git-lfs
   git-extras
@@ -40,47 +30,55 @@ plugins=(
   github
   gh
 
-  1password
-
+  # Development
   docker
   docker-compose
   gcloud
-
   python
-
   dotnet
-
   bazel
   gradle
-
   vscode
 )
 
-# Only autostart tmux when running in Kitty
-if [[ -n "GHOSTTY_BIN_DIR" ]]; then
+if [[ -n "$GHOSTTY_BIN_DIR" ]]; then
   ZSH_TMUX_AUTOSTART=true
 else
   ZSH_TMUX_AUTOSTART=false
 fi
 
-source "$ZSH/oh-my-zsh.sh"
+export ZSH="$HOME/.oh-my-zsh"
+if [[ -f "$ZSH/oh-my-zsh.sh" ]]; then
+  source "$ZSH/oh-my-zsh.sh"
+fi
 
-. "/opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
-. "/opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+if [[ -f "$DOTFILES_DIR/lib/core/colors.sh" ]]; then . "$DOTFILES_DIR/lib/core/colors.sh"; fi
+if [[ -f "$DOTFILES_DIR/lib/core/ui.sh" ]]; then . "$DOTFILES_DIR/lib/core/ui.sh"; fi
 
-# Toggl completion
-_toggl() {
-  eval $(env COMMANDLINE="${words[1,$CURRENT]}" _TOGGL_COMPLETE=complete-zsh toggl)
-}
+if [[ -f "$DOTFILES_DIR/config/aliases/aliases.sh" ]]; then . "$DOTFILES_DIR/config/aliases/aliases.sh"; fi
 
-if [[ "$(basename -- "${(%):-%N}")" != "_toggl" ]]; then
+if [[ -f "/opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh" ]]; then
+  . "/opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
+fi
+if [[ -f "/opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]]; then
+  . "/opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+fi
+
+if command -v pyenv &>/dev/null; then
+  eval "$(pyenv init -)"
+fi
+
+if ! command -v _toggl >/dev/null 2>&1; then
+  _toggl() {
+    eval $(env COMMANDLINE="${words[1,$CURRENT]}" _TOGGL_COMPLETE=complete-zsh toggl)
+  }
   compdef _toggl toggl
 fi
 
-# starship prompt initialization
 eval "$(starship init zsh)"
 
-# Only show motd in the first tmux pane
-if [[ "$TMUX_PANE" == "%0" ]]; then
-  show_motd
+if [[ -f "$DOTFILES_DIR/lib/motd/motd.sh" ]]; then
+  . "$DOTFILES_DIR/lib/motd/motd.sh"
 fi
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
