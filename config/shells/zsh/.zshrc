@@ -57,7 +57,7 @@ plugins=(
 )
 
 # Only autostart tmux when running in Kitty
-if [[ -n "$KITTY_PID" ]]; then
+if [[ -n "GHOSTTY_BIN_DIR" ]]; then
   ZSH_TMUX_AUTOSTART=true
 else
   ZSH_TMUX_AUTOSTART=false
