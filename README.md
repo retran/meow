@@ -83,7 +83,6 @@ meow provides a comprehensive development environment setup with these key capab
 - **Markdown**: Technical writing with linting and presentation tools
 
 ### 🐾 User Experience
-- **Cat-themed Branding**: Project meow ASCII art and terminal greetings
 - **Automatic Configuration**: Seamless dotfile linking and setup
 - **One-Command Installation**: Simple script-based deployment
 - **Modular Components**: Mix and match for custom setups
@@ -166,7 +165,6 @@ git clone --recurse-submodules https://github.com/retran/meow.git ~/.meow && cd 
 
 ### 3. Enjoy Your Setup
 After installation:
-- Your shell will display the new project meow ASCII art
 - All development tools will be available
 - Configurations are automatically linked
 
@@ -186,7 +184,7 @@ meow uses a modular component system where each component can depend on others, 
 ### Foundation Components
 
 - **🐚 shell-essential** - Essential shell tools component (Git, Tmux, Starship, Neovim)
-- **🖥️ desktop-essential** - GUI foundation component for macOS desktop applications
+- **🖥️ desktop-essential** - GUI foundation component for macOS desktop environment
 - **🛠️ core-development** - Core development tools shared across all programming environments (depends on shell-essential)
 - **🎨 fonts** - Essential programming and design fonts
 
@@ -230,40 +228,6 @@ Components support multiple package managers depending on their needs:
 
 Components automatically resolve dependencies - for example, `react` includes `javascript`, which includes `core-development`, which includes `shell-essential`.
 
-## 📖 Usage
-
-### Updating Your System
-
-```bash
-# Update all packages for all presets
-./bin/update.sh
-
-# Update packages for a specific preset
-./bin/update.sh corporate
-```
-
-### Getting Help
-
-```bash
-# Get help for the install script
-./bin/install.sh --help
-
-# Get help for the update script
-./bin/update.sh --help
-```
-
-### Common Workflows
-
-**New personal machine:**
-```bash
-git clone --recurse-submodules https://github.com/retran/meow.git ~/.meow && cd ~/.meow && ./bin/install.sh personal
-```
-
-**Work environment setup:**
-```bash
-git clone --recurse-submodules https://github.com/retran/meow.git ~/.meow && cd ~/.meow && ./bin/install.sh corporate
-```
-
 ## 🔧 Troubleshooting
 
 ### Common Issues
@@ -296,9 +260,9 @@ python -m pip install --upgrade pipx
 pipx ensurepath
 ```
 
-#### Neovim Configuration Not Working
+#### MeowVim Configuration Not Working
 ```bash
-# Check if Neovim submodule is properly initialized
+# Check if MeowVim submodule is properly initialized
 cd ~/.meow
 git submodule status
 
@@ -309,11 +273,6 @@ git submodule update
 # Check Neovim installation
 nvim --version
 ```
-
-#### ASCII Art Not Displaying
-1. **Terminal Support**: Ensure your terminal supports true color
-2. **Font Issues**: Install a Nerd Font for proper icon display
-3. **Color Settings**: Check your terminal's color settings
 
 #### Permission Issues
 ```bash
@@ -341,55 +300,6 @@ Contributions are welcome to help improve meow! Here's how you can help:
 - 🔧 Submit code improvements
 - 🎨 Enhance configurations
 - 📦 Add new package integrations
-
-### Development Setup
-```bash
-# Fork the repository
-git clone https://github.com/YOUR-USERNAME/meow.git ~/.meow-dev
-cd ~/.meow-dev
-
-# Initialize submodules
-git submodule init
-git submodule update --recursive
-
-# Create a feature branch
-git checkout -b feature/new-feature
-
-# Make your changes and test thoroughly with different presets
-./bin/install.sh shell-essential  # Test basic functionality
-./bin/install.sh personal         # Test full installation
-
-# Commit your changes
-git commit -m "Add new feature"
-
-# Push to your fork
-git push origin feature/new-feature
-
-# Create a Pull Request
-```
-
-### Adding New Components
-1. **Create component files** in `presets/components/`
-2. **Define packages** in `packages/` for each package manager
-3. **Add configurations** in `config/` if needed
-4. **Update presets** to include your component
-5. **Test thoroughly** with different presets
-6. **Update documentation** as needed
-
-### Code Style
-- Follow existing code patterns and structure
-- Use meaningful variable names and comments
-- Keep functions focused and small
-- Test your changes with multiple presets
-- Ensure backward compatibility
-
-### Pull Request Guidelines
-1. Fork the repository
-2. Create a feature branch from `main`
-3. Make your changes with clear commit messages
-4. Test thoroughly with different presets
-5. Update documentation if needed
-6. Submit a Pull Request with a clear description
 
 ## 📄 License
 
