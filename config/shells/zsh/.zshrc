@@ -52,9 +52,6 @@ if [[ -f "$ZSH/oh-my-zsh.sh" ]]; then
   source "$ZSH/oh-my-zsh.sh"
 fi
 
-if [[ -f "$DOTFILES_DIR/lib/core/colors.sh" ]]; then . "$DOTFILES_DIR/lib/core/colors.sh"; fi
-if [[ -f "$DOTFILES_DIR/lib/core/ui.sh" ]]; then . "$DOTFILES_DIR/lib/core/ui.sh"; fi
-
 if [[ -f "$DOTFILES_DIR/config/aliases/aliases.sh" ]]; then . "$DOTFILES_DIR/config/aliases/aliases.sh"; fi
 
 if [[ -f "/opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh" ]]; then
@@ -75,10 +72,6 @@ if ! command -v _toggl >/dev/null 2>&1; then
   compdef _toggl toggl
 fi
 
+if [[ -f $HOME/fzf.zsh ]]; then . $HOME/.fzf.zsh; fi
+
 eval "$(starship init zsh)"
-
-if [[ -f "$DOTFILES_DIR/lib/motd/motd.sh" ]]; then
-  . "$DOTFILES_DIR/lib/motd/motd.sh"
-fi
-
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh

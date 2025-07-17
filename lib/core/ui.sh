@@ -12,6 +12,15 @@ source "${DOTFILES_DIR}/lib/core/colors.sh"
 # Indent helper for all logging
 indent() {
   local level="${1:-0}"
+
+  if ! [[ "$level" =~ ^[0-9]+$ ]]; then
+    echo -e "\n\e[1;31m[DEBUG] Error calling function 'indent':\e[0m" >&2
+    echo -e "\e[31m -> Expected a number, but got argument: '$1'\e[0m" >&2
+    echo -e "\e[31m -> Call stack (who called whom):\e[0m" >&2
+    echo -e "\e[1;33m   ${(j: -> :)funcstack}\e[0m\n" >&2
+    return 1
+  fi
+
   local indent_str=""
   for ((i=0; i<level; i++)); do
     indent_str+="  "
