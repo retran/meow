@@ -5,11 +5,7 @@ depends_on:
 
 go:
   packages:
-    - core-development
-    - web-development
-    - testing
-    - cli-tools
-    - build-tools
+    - development
 
 vscode:
   packages:

@@ -1,6 +1,0 @@
-golang.org/x/tools/gopls@latest
-github.com/go-delve/delve/cmd/dlv@latest
-honnef.co/go/tools/cmd/staticcheck@latest
-github.com/golangci/golangci-lint/cmd/golangci-lint@latest
-mvdan.cc/gofumpt@latest
-golang.org/x/tools/cmd/goimports@latest
