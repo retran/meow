@@ -7,7 +7,7 @@ meow automates the tedious task of configuring a new machine by applying predefi
 ## ✨ Features
 
 - 🎯 Four main presets: personal, corporate, shell-essential, desktop-essential
-- 📦 Package management via Homebrew, pipx, npm, and Mac App Store
+- 📦 Package management via Homebrew, pipx, npm, Go packages, and Mac App Store
 - 🔧 Pre-configured development environments (Go, .NET, Kotlin, Godot, JavaScript, React, ...)
 - 🐾 Cat-themed terminal greetings and customizations
 - 🔗 Automatic dotfile linking
@@ -68,11 +68,11 @@ The system includes modular development components that can be composed together
 
 ### Frontend & Web Development
 - **⚛️ react** - React development extending JavaScript component
-- **🌐 web** - Complete frontend development with CSS, build tools, deployment
+- **🌐 web** - Complete frontend development with CSS, build tools, deployment, and HTTP testing tools
 
 ### Specialized Development
 - **🎮 game-development** - Game development tools and engines
-- **📝 markdown** - Technical writing and documentation workflow
+- **📝 markdown** - Technical writing and documentation workflow with terminal rendering tools
 
 ### Communication & Productivity
 - **💼 corporate-communication** - Corporate communication tools

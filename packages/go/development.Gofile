@@ -7,18 +7,16 @@ mvdan.cc/gofumpt@latest
 golang.org/x/tools/cmd/goimports@latest
 
 # Web development tools
-github.com/cosmtrek/air@latest
+github.com/air-verse/air@latest
 github.com/a-h/templ/cmd/templ@latest
 github.com/swaggo/swag/cmd/swag@latest
 
 # Testing tools
 github.com/onsi/ginkgo/v2/ginkgo@latest
 gotest.tools/gotestsum@latest
-github.com/rakyll/hey@latest
 
 # CLI development tools
 github.com/spf13/cobra-cli@latest
-github.com/charmbracelet/glow@latest
 
 # Build and release tools
 github.com/goreleaser/goreleaser@latest
