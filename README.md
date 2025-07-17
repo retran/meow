@@ -17,7 +17,7 @@
 <strong>meow - Purr-fect Development Environment</strong>
 </div>
 
-A comprehensive dotfiles management system that automates the tedious task of configuring a new machine by applying predefined setups called "presets." Instead of spending hours installing packages and tweaking configs, just pick a preset and you're ready to code. Part of the `project meow` ecosystem, including [`Meowvim`](https://github.com/retran/Meowvim) for Neovim configuration.
+A comprehensive dotfiles management system that automates the tedious task of configuring a new machine by applying predefined setups called "presets." Instead of spending hours installing packages and tweaking configs, just pick a preset and you're ready to code. Part of the `project meow` ecosystem, including [`Meowvim`](https://github.com/retran/meowvim) for Neovim configuration.
 
 ## 🖼️ Screenshots
 
