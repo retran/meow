@@ -1,22 +1,13 @@
-# Core Go development tools
 golang.org/x/tools/gopls@latest
 github.com/go-delve/delve/cmd/dlv@latest
 honnef.co/go/tools/cmd/staticcheck@latest
 github.com/golangci/golangci-lint/cmd/golangci-lint@latest
 mvdan.cc/gofumpt@latest
 golang.org/x/tools/cmd/goimports@latest
-
-# Web development tools
 github.com/air-verse/air@latest
 github.com/a-h/templ/cmd/templ@latest
 github.com/swaggo/swag/cmd/swag@latest
-
-# Testing tools
 github.com/onsi/ginkgo/v2/ginkgo@latest
 gotest.tools/gotestsum@latest
-
-# CLI development tools
 github.com/spf13/cobra-cli@latest
-
-# Build and release tools
 github.com/goreleaser/goreleaser@latest
