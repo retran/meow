@@ -1,49 +1,54 @@
-# Testing Infrastructure for meow
+# Testing Framework
 
-This directory contains the testing infrastructure for the meow dotfiles management system, with a focus on bash 3.2 compatibility.
+This directory contains functionality tests for the meow dotfiles management system.
+
+## Overview
+
+The testing framework validates core functionality and ensures the shell scripts work correctly across different environments.
 
 ## Test Files
 
-- `bash_compat.bats` - Tests for bash version compatibility functions
-- `here_strings.bats` - Tests for here-string compatibility fixes
-- `integration.bats` - Integration tests for core functionality
-- `comprehensive.bats` - Comprehensive tests for all refactored components
-- `run_tests.sh` - Script to run all tests
+- **`integration.bats`** - Integration tests for core functionality, library loading, and function verification
+- **`run_tests.sh`** - Test runner script that executes all functionality tests
 
 ## Running Tests
 
+### Prerequisites
+
+Install the bats testing framework:
+
+```bash
+# Ubuntu/Debian
+sudo apt install bats
+
+# macOS
+brew install bats
+```
+
 ### Run All Tests
+
 ```bash
 ./tests/run_tests.sh
 ```
 
-### Run Individual Test Files
+### Run Specific Tests
+
 ```bash
-bats tests/bash_compat.bats
-bats tests/here_strings.bats
 bats tests/integration.bats
-bats tests/comprehensive.bats
 ```
 
-## Requirements
-
-- **bats** testing framework
-- **bash 3.2** installed at `/tmp/bash32/bin/bash` (for compatibility testing)
-
-### Installing bats
-- Ubuntu/Debian: `sudo apt install bats`
-- macOS: `brew install bats`
-
-## Test Coverage
+## Test Structure
 
 The tests verify:
-- All shell scripts pass syntax check with bash 3.2
-- No bash 4+ features remain in the codebase
-- Here-strings have been replaced with compatible alternatives
-- Core functions can be loaded and executed
-- Version detection works correctly
-- Shebang consistency across all scripts
+- Core library loading and initialization
+- UI function availability and basic operation
+- Package management system functionality
+- Integration between different components
 
-## Bash 3.2 Compatibility
+## Adding New Tests
 
-All tests are designed to run with bash 3.2 to ensure compatibility with macOS default shell environments.
+When adding new functionality to the codebase:
+1. Add corresponding tests to verify the functionality works
+2. Focus on testing behavior, not implementation details
+3. Ensure tests are environment-agnostic
+4. Update this README if new test files are added

@@ -1,7 +1,18 @@
 #!/usr/bin/env bash
 
 # lib/core/ui.sh - Core UI functions for terminal output
+#
+# Provides a comprehensive set of functions for consistent terminal output formatting,
+# including indentation, colored messages, and interactive prompts.
+#
+# Key features:
+# - Hierarchical indentation system for nested operations
+# - Consistent color coding for different message types
+# - Stack trace support for debugging
+# - Interactive confirmation prompts
+# - Progress indicators and spinners
 
+# Prevent multiple sourcing
 if [[ "${BASH_SOURCE[0]}" != "${0}" ]] && [[ -n "${_LIB_CORE_UI_SOURCED:-}" ]]; then
   return 0
 fi
@@ -9,15 +20,25 @@ _LIB_CORE_UI_SOURCED=1
 
 source "${DOTFILES_DIR}/lib/core/colors.sh"
 
-# Indent helper for all logging
+#======================================
+# Core Indentation and Formatting
+#======================================
+
+# Generate indentation string for nested output
+# Usage: indent <level>
+# Arguments:
+#   level - Indentation depth (0-based, default: 0)
+# Returns: Prints indentation string (2 spaces per level)
 indent() {
   local level="${1:-0}"
 
+  # Validate input is a non-negative integer
   if ! [[ "$level" =~ ^[0-9]+$ ]]; then
-    echo -e "\n\e[1;31m[DEBUG] Error calling function 'indent':\e[0m" >&2
-    echo -e "\e[31m -> Expected a number, but got argument: '$1'\e[0m" >&2
-    echo -e "\e[31m -> Call stack (who called whom):\e[0m" >&2
-    # Display function stack trace using bash-compatible FUNCNAME array
+    echo -e "\n\e[1;31m[DEBUG] Error in indent(): Invalid argument\e[0m" >&2
+    echo -e "\e[31m -> Expected non-negative integer, got: '$1'\e[0m" >&2
+    echo -e "\e[31m -> Function call stack:\e[0m" >&2
+    
+    # Build and display stack trace for debugging
     local stack_trace=""
     local i
     for ((i=1; i<${#FUNCNAME[@]}; i++)); do
@@ -30,6 +51,7 @@ indent() {
     return 1
   fi
 
+  # Generate indentation (2 spaces per level)
   local indent_str=""
   for ((i=0; i<level; i++)); do
     indent_str+="  "
@@ -37,7 +59,12 @@ indent() {
   echo -n "$indent_str"
 }
 
-# Helper for basic colored messages
+#======================================
+# Message Formatting Helpers
+#======================================
+
+# Internal helper for basic colored messages
+# Usage: _base_msg <indent_level> <color_prefix> <message>
 _base_msg() {
   local indent_level="$1"
   local color_prefix="$2"
@@ -45,7 +72,8 @@ _base_msg() {
   echo -e "$(indent "$indent_level")${color_prefix}${*}${RESET}"
 }
 
-# Helper for messages with icons
+# Internal helper for messages with icons and custom formatting
+# Usage: _icon_msg_core <indent_level> <icon_and_color> <message>
 _icon_msg_core() {
   local indent_level="$1"
   local icon_and_color="$2"
@@ -53,41 +81,68 @@ _icon_msg_core() {
   echo -e "$(indent "$indent_level")${icon_and_color}${RESET}${NORMAL}${*}${RESET}"
 }
 
-# Helper function to print temporary output file content on error (used by ui_spinner)
+# Internal helper to display command output on error
+# Used by spinner functions to show captured output when commands fail
 _print_temp_output_if_exists() {
   local indent_level="$1"
   local temp_file="$2"
+  
   if [[ -s "$temp_file" ]]; then
     echo ""
-    error "$indent_level" "Output:"
+    error "$indent_level" "Command output:"
     while IFS= read -r line; do
         content "$indent_level" "$line"
     done < "$temp_file"
   fi
 }
 
-msg() { _base_msg "${1:-0}" "${NORMAL}" "${@:2}"; }
-success() { _base_msg "${1:-0}" "${SUCCESS}" "${@:2}"; }
-error() { _base_msg "${1:-0}" "${ERROR}" "${@:2}" >&2; }
-warning() { _base_msg "${1:-0}" "${WARNING}" "${@:2}"; }
-info() { _base_msg "${1:-0}" "${INFO}" "${@:2}"; }
-content() { _base_msg "${1:-0}" "${CONTENT}" "${@:2}"; }
+#======================================
+# Basic Message Functions
+#======================================
 
-title() { _base_msg "${1:-0}" "${HEADER}${BOLD}" "${@:2}"; }
-header() { _base_msg "${1:-0}" "${HEADER}" "${@:2}"; }
-subheader() { _base_msg "${1:-0}" "${SUBHEADER}" "${@:2}"; }
+# Standard message functions
+# Usage: <function> <indent_level> <message>
+msg() { _base_msg "${1:-0}" "${NORMAL}" "${@:2}"; }        # Normal text
+success() { _base_msg "${1:-0}" "${SUCCESS}" "${@:2}"; }   # Green success message
+error() { _base_msg "${1:-0}" "${ERROR}" "${@:2}" >&2; }   # Red error message (to stderr)
+warning() { _base_msg "${1:-0}" "${WARNING}" "${@:2}"; }   # Yellow warning message
+info() { _base_msg "${1:-0}" "${INFO}" "${@:2}"; }         # Blue informational message
+content() { _base_msg "${1:-0}" "${CONTENT}" "${@:2}"; }   # Gray content/data display
 
-action_msg() { _icon_msg_core "${1:-0}" "${INFO}➤ " "${@:2}"; }
-success_tick_msg() { _icon_msg_core "${1:-0}" "${SUCCESS}✓ " "${@:2}"; }
-info_italic_msg() { _icon_msg_core "${1:-0}" "${INFO}ℹ︎ " "${@:2}"; }
-dependency_msg() { _icon_msg_core "${1:-0}" "${NORMAL}↪ " "${@:2}"; }
-indented_info() { _icon_msg_core "${1:-0}" "${NORMAL}  " "${@:2}"; }
-indented_success_tick_msg() { _icon_msg_core "${1:-0}" "${SUCCESS}  ✓ " "${@:2}"; }
-indented_warning() { _icon_msg_core "${1:-0}" "${WARNING}  ⚠ " "${@:2}"; }
-indented_error_msg() { _icon_msg_core "${1:-0}" "${ERROR}  ✗ " "${@:2}" >&2; }
-list_item_msg() { _icon_msg_core "${1:-0}" "${NORMAL}    " "${@:2}"; }
-emphasized_msg() { _icon_msg_core "${1:-0}" "${BOLD}" "${@:2}"; }
+# Header and title functions
+title() { _base_msg "${1:-0}" "${HEADER}${BOLD}" "${@:2}"; }     # Bold header text
+header() { _base_msg "${1:-0}" "${HEADER}" "${@:2}"; }           # Regular header text
+subheader() { _base_msg "${1:-0}" "${SUBHEADER}" "${@:2}"; }     # Subheader text
 
+#======================================
+# Specialized Message Functions
+#======================================
+
+# Action and status messages with icons
+action_msg() { _icon_msg_core "${1:-0}" "${INFO}➤ " "${@:2}"; }              # Blue arrow for actions
+success_tick_msg() { _icon_msg_core "${1:-0}" "${SUCCESS}✓ " "${@:2}"; }     # Green checkmark for success
+info_italic_msg() { _icon_msg_core "${1:-0}" "${INFO}ℹ︎ " "${@:2}"; }         # Blue info icon
+dependency_msg() { _icon_msg_core "${1:-0}" "${NORMAL}↪ " "${@:2}"; }        # Dependency arrow
+
+# Indented message variants for nested operations
+indented_info() { _icon_msg_core "${1:-0}" "${NORMAL}  " "${@:2}"; }           # Plain indented text
+indented_success_tick_msg() { _icon_msg_core "${1:-0}" "${SUCCESS}  ✓ " "${@:2}"; }  # Indented success
+indented_warning() { _icon_msg_core "${1:-0}" "${WARNING}  ⚠ " "${@:2}"; }     # Indented warning
+indented_error_msg() { _icon_msg_core "${1:-0}" "${ERROR}  ✗ " "${@:2}" >&2; } # Indented error
+list_item_msg() { _icon_msg_core "${1:-0}" "${NORMAL}    " "${@:2}"; }         # List item
+emphasized_msg() { _icon_msg_core "${1:-0}" "${BOLD}" "${@:2}"; }              # Bold emphasized text
+
+#======================================
+# Interactive Functions
+#======================================
+
+# Interactive confirmation prompt
+# Usage: ui_confirm <indent_level> <message> [default_response]
+# Arguments:
+#   indent_level - Indentation depth
+#   message - Prompt message to display
+#   default_response - Default response (Y/N, default: N)
+# Returns: 0 for yes, 1 for no
 ui_confirm() {
   local indent_level="${1:-0}"
   local message="${2:-Confirm}"

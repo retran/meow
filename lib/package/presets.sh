@@ -1,12 +1,25 @@
 #!/usr/bin/env bash
 
-# lib/package/presets.sh - Functions for managing presets in the dotfiles package
+# lib/package/presets.sh - Preset management system for dotfiles
+#
+# Manages installation and tracking of software presets, which are collections
+# of packages and configurations that can be applied together. Supports multiple
+# package managers including Homebrew, npm, pip, Go, Rust, and more.
+#
+# Key features:
+# - Dependency resolution and recursive preset application
+# - Multi-package-manager support (brew, npm, pip, go, cargo, etc.)
+# - Installation tracking and state management
+# - Symlink management for configuration files
+# - JSON-based preset configuration
 
+# Prevent multiple sourcing
 if [[ "${BASH_SOURCE[0]}" != "${0}" ]] && [[ -n "${_LIB_PACKAGE_PRESETS_SOURCED:-}" ]]; then
   return 0
 fi
 _LIB_PACKAGE_PRESETS_SOURCED=1
 
+# Load required dependencies
 source "${DOTFILES_DIR}/lib/core/ui.sh"
 source "${DOTFILES_DIR}/lib/package/homebrew.sh"
 source "${DOTFILES_DIR}/lib/package/pipx.sh"
@@ -18,13 +31,29 @@ source "${DOTFILES_DIR}/lib/package/cargo.sh"
 source "${DOTFILES_DIR}/lib/package/symlinks.sh"
 source "${DOTFILES_DIR}/lib/system/macos.sh"
 
-PRESETS_DIR="${DOTFILES_DIR}/presets"
-INSTALLED_PRESETS_FILE="$HOME/.installed_presets"
+#======================================
+# Configuration and State Management
+#======================================
 
+# Directory containing preset configuration files
+readonly PRESETS_DIR="${DOTFILES_DIR}/presets"
+
+# File tracking which presets have been installed
+readonly INSTALLED_PRESETS_FILE="$HOME/.installed_presets"
+
+# Runtime array tracking presets applied in current session
 APPLIED_PRESETS=()
 
+#======================================
+# Preset State Tracking Functions
+#======================================
+
+# Check if a preset has been applied in the current session
+# Usage: is_preset_applied <preset_name>
+# Returns: 0 if applied, 1 if not applied
 is_preset_applied() {
   local preset="$1"
+  
   for applied in "${APPLIED_PRESETS[@]}"; do
     if [[ "$applied" == "$preset" ]]; then
       return 0
@@ -33,19 +62,26 @@ is_preset_applied() {
   return 1
 }
 
+# Mark a preset as applied in the current session and persist to disk
+# Usage: mark_preset_applied <preset_name>
 mark_preset_applied() {
   local preset="$1"
+  
   APPLIED_PRESETS+=("$preset")
   debug "Marked preset '$preset' as applied"
-
+  
   save_installed_preset "$preset"
 }
 
+# Persist preset installation to the tracking file
+# Usage: save_installed_preset <preset_name>
 save_installed_preset() {
   local preset="$1"
 
+  # Ensure tracking file exists
   touch "$INSTALLED_PRESETS_FILE"
 
+  # Add preset to tracking file if not already present
   if ! grep -Fxq "$preset" "$INSTALLED_PRESETS_FILE" 2>/dev/null; then
     echo "$preset" >> "$INSTALLED_PRESETS_FILE"
     debug "Saved preset '$preset' to installed presets file"
