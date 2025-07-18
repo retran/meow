@@ -1,0 +1,9 @@
+rust-analyzer
+clippy
+rustfmt
+cargo-watch
+cargo-edit
+cargo-expand
+cargo-outdated
+cargo-audit
+cargo-deny
