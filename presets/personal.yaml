@@ -12,6 +12,7 @@ depends_on:
 
   - components/core-development
   - components/go-development
+  - components/rust-development
   - components/dotnet-development
   - components/kotlin-development
   - components/game-development
