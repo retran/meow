@@ -1,2 +1,2 @@
-- source: "$DOTFILES_DIR/config/eza/.ezarc"
+- source: "$DOTFILES_DIR/config/eza/config"
   target: "$HOME/.config/eza/config"

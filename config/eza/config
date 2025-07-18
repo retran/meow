@@ -1,7 +1,3 @@
-# eza configuration file
-# https://github.com/eza-community/eza
-
-# Default options for eza
 --icons=auto
 --group-directories-first
 --time-style=relative
