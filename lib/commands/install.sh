@@ -34,7 +34,9 @@ _validate_preset_exists() {
 
     # Read available presets into array (bash 3.2 compatible)
     while IFS= read -r preset_name; do
-        [[ -n "$preset_name" ]] && available_presets+=("$preset_name")
+        if [[ -n "$preset_name" && "$preset_name" =~ ^[a-zA-Z0-9_-]+$ ]]; then
+            available_presets+=("$preset_name")
+        fi
     done < <(_get_available_presets)
 
     if [[ " ${available_presets[*]} " =~ ${preset} ]]; then
