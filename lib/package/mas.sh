@@ -75,7 +75,7 @@ install_mas_packages() {
       app_name=${temp%\"*}   # Remove from last quote to end
       
       # Extract app ID (bash 3.2 compatible)  
-      local temp2=${line##*id:[[:space:]]}  # Remove everything up to "id: "
+      local temp2=${line##*id: }  # Remove everything up to "id: "
       app_id=${temp2}
 
       if is_mas_app_installed "$app_id"; then
