@@ -1,0 +1,2 @@
+- source: "$DOTFILES_DIR/config/eza/.ezarc"
+  target: "$HOME/.config/eza/config"

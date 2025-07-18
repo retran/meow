@@ -10,3 +10,11 @@ _CONFIG_ALIASES_SOURCED=1
 # aliases
 alias vim='nvim'
 alias vi='nvim'
+
+# eza aliases (modern ls replacement)
+if command -v eza >/dev/null 2>&1; then
+  alias ls='eza'
+  alias ll='eza -l'
+  alias la='eza -la'
+  alias tree='eza --tree'
+fi
