@@ -3,10 +3,6 @@ description: "Rust development tools and environment"
 depends_on:
   - components/core-development
 
-homebrew:
-  packages:
-    - rust-development
-
 cargo:
   packages:
     - rust-development

@@ -1,3 +1,0 @@
-# Essential cargo packages for shell environment
-# Basic cargo is available after rustup initialization in setup-shell-essential.sh
-# Development tools are in rust-development.Cargofile

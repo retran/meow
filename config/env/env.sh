@@ -43,6 +43,6 @@ if command -v go &>/dev/null; then
 fi
 
 # Rust and Cargo configuration
-if [[ -d "$HOME/.cargo/bin" ]]; then
-  export PATH="$HOME/.cargo/bin:$PATH"
+if [[ -d "$HOME/.cargo" ]]; then
+  source "$HOME/.cargo/env"
 fi

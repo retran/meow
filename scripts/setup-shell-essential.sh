@@ -18,7 +18,6 @@ main() {
 
   step_header "$indent_level" "Setting up essential shell environment for preset: $PRESET"
 
-  # Setup Rust toolchain first as it's part of shell essentials
   setup_rustup "$((indent_level + 1))" || true
 
   if command -v tmux >/dev/null 2>&1; then

@@ -5,10 +5,6 @@ homebrew:
   packages:
     - shell-essential
 
-cargo:
-  packages:
-    - shell-essential
-
 symlinks:
   - git
   - tmux
