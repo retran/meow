@@ -14,7 +14,7 @@ source "${DOTFILES_DIR}/lib/package/npm.sh"
 source "${DOTFILES_DIR}/lib/package/go.sh"
 source "${DOTFILES_DIR}/lib/package/cargo.sh"
 
-declare -g UPDATED_PRESETS=""
+UPDATED_PRESETS=""
 
 _initialize_update_session() {
   setup_homebrew
@@ -84,7 +84,7 @@ _parse_preset_dependencies() {
     if [[ -n "$line" ]]; then
       eval "${dependencies_var}+=(\"$line\")"
     fi
-  done <<< "$dependencies_str"
+  done < <(printf '%s\n' "$dependencies_str")
 }
 
 _update_preset_dependencies() {
@@ -133,7 +133,7 @@ update_preset_with_dependencies() {
     local symlink_categories=()
     while IFS= read -r line; do
       [[ -n "$line" ]] && symlink_categories+=("$line")
-    done <<< "$symlink_categories_str"
+    done < <(printf '%s\n' "$symlink_categories_str")
     for category_name in "${symlink_categories[@]}"; do
       setup_symlinks "$category_name" "$child_indent"
     done
@@ -349,7 +349,7 @@ _update_go_packages() {
     elif [[ $update_status -eq 1 ]]; then
       had_errors=true
     fi
-  done <<< "$go_categories_str"
+  done < <(printf '%s\n' "$go_categories_str")
 
   if [[ $had_errors == true ]]; then
     return 1
@@ -391,7 +391,7 @@ _update_cargo_packages() {
     elif [[ $update_status -eq 1 ]]; then
       had_errors=true
     fi
-  done <<< "$cargo_categories_str"
+  done < <(printf '%s\n' "$cargo_categories_str")
 
   if [[ $had_errors == true ]]; then
     return 1
@@ -433,7 +433,7 @@ _process_presets() {
     else
       eval "$failed_updates_var=\$((\$$failed_updates_var + 1))"
     fi
-  done <<< "$installed_presets"
+  done < <(printf '%s\n' "$installed_presets")
 }
 
 _validate_installed_presets() {

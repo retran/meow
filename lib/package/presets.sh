@@ -133,7 +133,7 @@ apply_preset() {
       local dependencies=()
       while IFS= read -r line; do
         [[ -n "$line" ]] && dependencies+=("$line")
-      done <<< "$dependencies_str"
+      done < <(printf '%s\n' "$dependencies_str")
       for dependency in "${dependencies[@]}"; do
         if ! is_preset_applied "$dependency"; then
           apply_preset "$dependency" false "$preset" "$child_indent"
@@ -149,7 +149,7 @@ apply_preset() {
   if [[ -n "$brew_categories_str" && "$brew_categories_str" != "null" ]]; then
     while IFS= read -r category; do
       install_brew_packages "$category" "$child_indent"
-    done <<< "$brew_categories_str"
+    done < <(printf '%s\n' "$brew_categories_str")
   fi
 
   local pipx_categories_str
@@ -157,7 +157,7 @@ apply_preset() {
   if [[ -n "$pipx_categories_str" && "$pipx_categories_str" != "null" ]]; then
     while IFS= read -r category; do
       install_pipx_packages "$category" "$child_indent"
-    done <<< "$pipx_categories_str"
+    done < <(printf '%s\n' "$pipx_categories_str")
   fi
 
   local mas_categories_str
@@ -165,7 +165,7 @@ apply_preset() {
   if [[ -n "$mas_categories_str" && "$mas_categories_str" != "null" ]]; then
     while IFS= read -r category; do
       install_mas_packages "$category" "$child_indent"
-    done <<< "$mas_categories_str"
+    done < <(printf '%s\n' "$mas_categories_str")
   fi
 
   local vscode_categories_str
@@ -173,7 +173,7 @@ apply_preset() {
   if [[ -n "$vscode_categories_str" && "$vscode_categories_str" != "null" ]]; then
     while IFS= read -r category; do
       install_vscode_extensions "$category" "$child_indent"
-    done <<< "$vscode_categories_str"
+    done < <(printf '%s\n' "$vscode_categories_str")
   fi
 
   local npm_categories_str
@@ -181,7 +181,7 @@ apply_preset() {
   if [[ -n "$npm_categories_str" && "$npm_categories_str" != "null" ]]; then
     while IFS= read -r category; do
       install_npm_packages "$category" "$child_indent"
-    done <<< "$npm_categories_str"
+    done < <(printf '%s\n' "$npm_categories_str")
   fi
 
   local go_categories_str
@@ -189,7 +189,7 @@ apply_preset() {
   if [[ -n "$go_categories_str" && "$go_categories_str" != "null" ]]; then
     while IFS= read -r category; do
       install_go_packages "$category" "$child_indent"
-    done <<< "$go_categories_str"
+    done < <(printf '%s\n' "$go_categories_str")
   fi
 
   local cargo_categories_str
@@ -197,7 +197,7 @@ apply_preset() {
   if [[ -n "$cargo_categories_str" && "$cargo_categories_str" != "null" ]]; then
     while IFS= read -r category; do
       install_cargo_packages "$category" "$child_indent"
-    done <<< "$cargo_categories_str"
+    done < <(printf '%s\n' "$cargo_categories_str")
   fi
 
   local symlink_categories_str
@@ -206,7 +206,7 @@ apply_preset() {
     local symlink_categories=()
     while IFS= read -r line; do
       [[ -n "$line" ]] && symlink_categories+=("$line")
-    done <<< "$symlink_categories_str"
+    done < <(printf '%s\n' "$symlink_categories_str")
     for category_name in "${symlink_categories[@]}"; do
       setup_symlinks "$category_name" "$child_indent"
     done
@@ -266,7 +266,7 @@ list_installed_presets() {
     [[ -z "$preset" ]] && continue
     list_item_msg 1 "- $preset"
     ((count++))
-  done <<< "$installed_presets"
+  done < <(printf '%s\n' "$installed_presets")
 
   if [[ $count -eq 0 ]]; then
     indented_info 1 "(No presets found in tracking file)"

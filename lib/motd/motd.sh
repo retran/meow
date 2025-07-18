@@ -1,4 +1,4 @@
-#!/usr/bin/env zsh
+#!/usr/bin/env bash
 
 # lib/motd/motd.sh - Message of the Day (MOTD) display system
 
@@ -55,7 +55,7 @@ get_comment_collection() {
         if [[ -n "$line" ]]; then
           result+=("$line")
         fi
-      done <<<"$collection_content"
+      done < <(printf '%s\n' "$collection_content")
     fi
   done
 
@@ -221,8 +221,8 @@ display_art_and_stats() {
   local -a art_array
   local -a stats_array
 
-  while IFS= read -r line; do art_array+=("$line"); done <<<"$art_content"
-  while IFS= read -r line; do stats_array+=("$line"); done <<<"$stats_content"
+  while IFS= read -r line; do art_array+=("$line"); done < <(printf '%s\n' "$art_content")
+  while IFS= read -r line; do stats_array+=("$line"); done < <(printf '%s\n' "$stats_content")
 
   local max_art_width=0
   local num_art_lines=${#art_array[@]}

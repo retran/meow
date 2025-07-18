@@ -1,0 +1,17 @@
+# Test artifacts
+tests/*.log
+tests/tmp/
+
+# macOS
+.DS_Store
+
+# Editor files
+*.swp
+*.swo
+*~
+
+# Cache
+.cache/
+
+# Logs
+*.log
