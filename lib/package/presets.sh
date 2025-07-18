@@ -1,25 +1,12 @@
 #!/usr/bin/env bash
 
-# lib/package/presets.sh - Preset management system for dotfiles
-#
-# Manages installation and tracking of software presets, which are collections
-# of packages and configurations that can be applied together. Supports multiple
-# package managers including Homebrew, npm, pip, Go, Rust, and more.
-#
-# Key features:
-# - Dependency resolution and recursive preset application
-# - Multi-package-manager support (brew, npm, pip, go, cargo, etc.)
-# - Installation tracking and state management
-# - Symlink management for configuration files
-# - JSON-based preset configuration
+# lib/package/presets.sh - Preset management for dotfiles
 
-# Prevent multiple sourcing
 if [[ "${BASH_SOURCE[0]}" != "${0}" ]] && [[ -n "${_LIB_PACKAGE_PRESETS_SOURCED:-}" ]]; then
   return 0
 fi
 _LIB_PACKAGE_PRESETS_SOURCED=1
 
-# Load required dependencies
 source "${DOTFILES_DIR}/lib/core/ui.sh"
 source "${DOTFILES_DIR}/lib/package/homebrew.sh"
 source "${DOTFILES_DIR}/lib/package/pipx.sh"
@@ -31,22 +18,9 @@ source "${DOTFILES_DIR}/lib/package/cargo.sh"
 source "${DOTFILES_DIR}/lib/package/symlinks.sh"
 source "${DOTFILES_DIR}/lib/system/macos.sh"
 
-#======================================
-# Configuration and State Management
-#======================================
-
-# Directory containing preset configuration files
 readonly PRESETS_DIR="${DOTFILES_DIR}/presets"
-
-# File tracking which presets have been installed
 readonly INSTALLED_PRESETS_FILE="$HOME/.installed_presets"
-
-# Runtime array tracking presets applied in current session
 APPLIED_PRESETS=()
-
-#======================================
-# Preset State Tracking Functions
-#======================================
 
 # Check if a preset has been applied in the current session
 # Usage: is_preset_applied <preset_name>

@@ -1,18 +1,7 @@
 #!/usr/bin/env bash
 
-# lib/core/ui.sh - Core UI functions for terminal output
-#
-# Provides a comprehensive set of functions for consistent terminal output formatting,
-# including indentation, colored messages, and interactive prompts.
-#
-# Key features:
-# - Hierarchical indentation system for nested operations
-# - Consistent color coding for different message types
-# - Stack trace support for debugging
-# - Interactive confirmation prompts
-# - Progress indicators and spinners
+# lib/core/ui.sh - UI functions for terminal output
 
-# Prevent multiple sourcing
 if [[ "${BASH_SOURCE[0]}" != "${0}" ]] && [[ -n "${_LIB_CORE_UI_SOURCED:-}" ]]; then
   return 0
 fi
@@ -20,38 +9,14 @@ _LIB_CORE_UI_SOURCED=1
 
 source "${DOTFILES_DIR}/lib/core/colors.sh"
 
-#======================================
-# Core Indentation and Formatting
-#======================================
-
-# Generate indentation string for nested output
-# Usage: indent <level>
-# Arguments:
-#   level - Indentation depth (0-based, default: 0)
-# Returns: Prints indentation string (2 spaces per level)
+# Generate indentation string
 indent() {
   local level="${1:-0}"
-
-  # Validate input is a non-negative integer
   if ! [[ "$level" =~ ^[0-9]+$ ]]; then
     echo -e "\n\e[1;31m[DEBUG] Error in indent(): Invalid argument\e[0m" >&2
     echo -e "\e[31m -> Expected non-negative integer, got: '$1'\e[0m" >&2
-    echo -e "\e[31m -> Function call stack:\e[0m" >&2
-    
-    # Build and display stack trace for debugging
-    local stack_trace=""
-    local i
-    for ((i=1; i<${#FUNCNAME[@]}; i++)); do
-      if [[ -n "$stack_trace" ]]; then
-        stack_trace+=" -> "
-      fi
-      stack_trace+="${FUNCNAME[i]}"
-    done
-    echo -e "\e[1;33m   $stack_trace\e[0m\n" >&2
     return 1
   fi
-
-  # Generate indentation (2 spaces per level)
   local indent_str=""
   for ((i=0; i<level; i++)); do
     indent_str+="  "
@@ -59,12 +24,7 @@ indent() {
   echo -n "$indent_str"
 }
 
-#======================================
-# Message Formatting Helpers
-#======================================
-
-# Internal helper for basic colored messages
-# Usage: _base_msg <indent_level> <color_prefix> <message>
+# Internal helper for colored messages
 _base_msg() {
   local indent_level="$1"
   local color_prefix="$2"
@@ -72,8 +32,7 @@ _base_msg() {
   echo -e "$(indent "$indent_level")${color_prefix}${*}${RESET}"
 }
 
-# Internal helper for messages with icons and custom formatting
-# Usage: _icon_msg_core <indent_level> <icon_and_color> <message>
+# Internal helper for icon messages
 _icon_msg_core() {
   local indent_level="$1"
   local icon_and_color="$2"
@@ -81,8 +40,7 @@ _icon_msg_core() {
   echo -e "$(indent "$indent_level")${icon_and_color}${RESET}${NORMAL}${*}${RESET}"
 }
 
-# Internal helper to display command output on error
-# Used by spinner functions to show captured output when commands fail
+# Show command output on error
 _print_temp_output_if_exists() {
   local indent_level="$1"
   local temp_file="$2"
@@ -96,53 +54,34 @@ _print_temp_output_if_exists() {
   fi
 }
 
-#======================================
-# Basic Message Functions
-#======================================
+# Message functions
+msg() { _base_msg "${1:-0}" "${NORMAL}" "${@:2}"; }
+success() { _base_msg "${1:-0}" "${SUCCESS}" "${@:2}"; }
+error() { _base_msg "${1:-0}" "${ERROR}" "${@:2}" >&2; }
+warning() { _base_msg "${1:-0}" "${WARNING}" "${@:2}"; }
+info() { _base_msg "${1:-0}" "${INFO}" "${@:2}"; }
+content() { _base_msg "${1:-0}" "${CONTENT}" "${@:2}"; }
 
-# Standard message functions
-# Usage: <function> <indent_level> <message>
-msg() { _base_msg "${1:-0}" "${NORMAL}" "${@:2}"; }        # Normal text
-success() { _base_msg "${1:-0}" "${SUCCESS}" "${@:2}"; }   # Green success message
-error() { _base_msg "${1:-0}" "${ERROR}" "${@:2}" >&2; }   # Red error message (to stderr)
-warning() { _base_msg "${1:-0}" "${WARNING}" "${@:2}"; }   # Yellow warning message
-info() { _base_msg "${1:-0}" "${INFO}" "${@:2}"; }         # Blue informational message
-content() { _base_msg "${1:-0}" "${CONTENT}" "${@:2}"; }   # Gray content/data display
+# Header functions
+title() { _base_msg "${1:-0}" "${HEADER}${BOLD}" "${@:2}"; }
+header() { _base_msg "${1:-0}" "${HEADER}" "${@:2}"; }
+subheader() { _base_msg "${1:-0}" "${SUBHEADER}" "${@:2}"; }
 
-# Header and title functions
-title() { _base_msg "${1:-0}" "${HEADER}${BOLD}" "${@:2}"; }     # Bold header text
-header() { _base_msg "${1:-0}" "${HEADER}" "${@:2}"; }           # Regular header text
-subheader() { _base_msg "${1:-0}" "${SUBHEADER}" "${@:2}"; }     # Subheader text
+# Icon messages
+action_msg() { _icon_msg_core "${1:-0}" "${INFO}➤ " "${@:2}"; }
+success_tick_msg() { _icon_msg_core "${1:-0}" "${SUCCESS}✓ " "${@:2}"; }
+info_italic_msg() { _icon_msg_core "${1:-0}" "${INFO}ℹ︎ " "${@:2}"; }
+dependency_msg() { _icon_msg_core "${1:-0}" "${NORMAL}↪ " "${@:2}"; }
 
-#======================================
-# Specialized Message Functions
-#======================================
-
-# Action and status messages with icons
-action_msg() { _icon_msg_core "${1:-0}" "${INFO}➤ " "${@:2}"; }              # Blue arrow for actions
-success_tick_msg() { _icon_msg_core "${1:-0}" "${SUCCESS}✓ " "${@:2}"; }     # Green checkmark for success
-info_italic_msg() { _icon_msg_core "${1:-0}" "${INFO}ℹ︎ " "${@:2}"; }         # Blue info icon
-dependency_msg() { _icon_msg_core "${1:-0}" "${NORMAL}↪ " "${@:2}"; }        # Dependency arrow
-
-# Indented message variants for nested operations
-indented_info() { _icon_msg_core "${1:-0}" "${NORMAL}  " "${@:2}"; }           # Plain indented text
-indented_success_tick_msg() { _icon_msg_core "${1:-0}" "${SUCCESS}  ✓ " "${@:2}"; }  # Indented success
-indented_warning() { _icon_msg_core "${1:-0}" "${WARNING}  ⚠ " "${@:2}"; }     # Indented warning
-indented_error_msg() { _icon_msg_core "${1:-0}" "${ERROR}  ✗ " "${@:2}" >&2; } # Indented error
-list_item_msg() { _icon_msg_core "${1:-0}" "${NORMAL}    " "${@:2}"; }         # List item
-emphasized_msg() { _icon_msg_core "${1:-0}" "${BOLD}" "${@:2}"; }              # Bold emphasized text
-
-#======================================
-# Interactive Functions
-#======================================
+# Indented messages
+indented_info() { _icon_msg_core "${1:-0}" "${NORMAL}  " "${@:2}"; }
+indented_success_tick_msg() { _icon_msg_core "${1:-0}" "${SUCCESS}  ✓ " "${@:2}"; }
+indented_warning() { _icon_msg_core "${1:-0}" "${WARNING}  ⚠ " "${@:2}"; }
+indented_error_msg() { _icon_msg_core "${1:-0}" "${ERROR}  ✗ " "${@:2}" >&2; }
+list_item_msg() { _icon_msg_core "${1:-0}" "${NORMAL}    " "${@:2}"; }
+emphasized_msg() { _icon_msg_core "${1:-0}" "${BOLD}" "${@:2}"; }
 
 # Interactive confirmation prompt
-# Usage: ui_confirm <indent_level> <message> [default_response]
-# Arguments:
-#   indent_level - Indentation depth
-#   message - Prompt message to display
-#   default_response - Default response (Y/N, default: N)
-# Returns: 0 for yes, 1 for no
 ui_confirm() {
   local indent_level="${1:-0}"
   local message="${2:-Confirm}"
@@ -153,12 +92,8 @@ ui_confirm() {
   default_upper=$(echo "$default_response" | tr '[:lower:]' '[:upper:]')
 
   case "$default_upper" in
-    Y|YES)
-      prompt_suffix="(Y/n)"
-      ;;
-    *)
-      prompt_suffix="(y/N)"
-      ;;
+    Y|YES) prompt_suffix="(Y/n)" ;;
+    *) prompt_suffix="(y/N)" ;;
   esac
 
   local response
@@ -174,24 +109,14 @@ ui_confirm() {
     response_upper=$(echo "$response" | tr '[:lower:]' '[:upper:]')
 
     case "$response_upper" in
-      Y|YES)
-        return 0
-        ;;
-      N|NO)
-        return 1
-        ;;
-      *)
-        warning "$indent_level" "Please answer 'y' for yes or 'n' for no."
-        ;;
+      Y|YES) return 0 ;;
+      N|NO) return 1 ;;
+      *) warning "$indent_level" "Please answer 'y' for yes or 'n' for no." ;;
     esac
   done
 }
 
-# Spinner function
-# Usage: ui_spinner <indent_level> "Message for spinner" [--success "Success message"] [--fail "Failure message"] [--unchanged "Unchanged message"] [--pattern "Unchanged pattern"] command [arg1 arg2 ...]
-# Example: ui_spinner 1 "Installing package..." brew install package_name
-# Example with custom messages: ui_spinner 1 "Installing package..." --success "Package installed!" --fail "Package installation failed!" --unchanged "Package already up to date!" brew install package_name
-# Returns the exit code of the command
+# Spinner function with progress indicator
 ui_spinner() {
   local indent_level="$1"
   local msg="$2"
@@ -277,8 +202,7 @@ log_verbose() {
   fi
 }
 
-# Standard operation wrapper with consistent logging
-# Usage: run_operation <indent_level> <operation_name> <command> [args...]
+# Operation wrapper with timing
 run_operation() {
   local indent_level="$1"
   local operation_name="$2"
@@ -303,7 +227,7 @@ run_operation() {
   fi
 }
 
-# Standardized step logging for multi-step operations
+# Step header with optional numbering
 step_header() {
   local indent_level="$1"
   local step_name="$2"
@@ -317,7 +241,7 @@ step_header() {
   fi
 }
 
-# Standardized package operation wrapper
+# Package operation wrapper
 run_package_operation() {
   local indent_level="$1"
   local package_name="$2"
