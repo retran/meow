@@ -244,7 +244,13 @@ _update_package_type() {
 
   local package_dir
   eval "package_dir=\$$package_dir_var"
-  local category="${preset#components/}"
+  local category
+  if [[ "$preset" == components/* ]]; then
+    category="${preset#components/}"
+  else
+    indented_error_msg "$indent_level" "Invalid preset format: '$preset'. Expected to start with 'components/'."
+    return 1
+  fi
   local package_file="${package_dir}/${category}.${file_extension}"
 
   if [[ ! -f "$package_file" ]]; then
