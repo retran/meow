@@ -75,7 +75,7 @@ fi
 if [[ -f $HOME/fzf.zsh ]]; then . $HOME/.fzf.zsh; fi
 
 if command -v zoxide &>/dev/null; then
-  eval "$(zoxide init zsh)"
+  eval "$(zoxide init zsh --cmd cd)"
 fi
 
 eval "$(starship init zsh)"
