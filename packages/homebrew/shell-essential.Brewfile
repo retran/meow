@@ -6,7 +6,7 @@ brew "watch"
 brew "findutils"
 
 brew "htop"
-brew "tree"
+brew "eza"
 
 brew "git"
 

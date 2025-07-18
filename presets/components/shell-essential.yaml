@@ -13,5 +13,6 @@ symlinks:
   - bash
   - secrets
   - nvim
+  - eza
 
 script: setup-shell-essential.sh
