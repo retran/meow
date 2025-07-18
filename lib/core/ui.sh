@@ -17,7 +17,7 @@ indent() {
     echo -e "\n\e[1;31m[DEBUG] Error calling function 'indent':\e[0m" >&2
     echo -e "\e[31m -> Expected a number, but got argument: '$1'\e[0m" >&2
     echo -e "\e[31m -> Call stack (who called whom):\e[0m" >&2
-    # Use bash-compatible function stack display (bash 3.2 compatible)
+    # Display function stack trace using bash-compatible FUNCNAME array
     local stack_trace=""
     local i
     for ((i=1; i<${#FUNCNAME[@]}; i++)); do
