@@ -323,8 +323,47 @@ _update_npm_packages() {
 _update_go_packages() {
   local preset="$1"
   local indent_level="$2"
+  local preset_file="${DOTFILES_DIR}/presets/${preset}.yaml"
+  local had_updates=false
+  local had_errors=false
 
-  _update_package_type "$preset" "$indent_level" "go" "go" "Gofile" "update_go_packages"
+  if ! command -v go &>/dev/null; then
+    info_italic_msg "$indent_level" "Go not available, skipping go package updates for '${preset#components/}'"
+    return 100
+  fi
+
+  # Ensure yq is available for parsing YAML
+  _ensure_yq_available "$indent_level" || return 1
+
+  # Parse go packages from YAML
+  local go_categories_str
+  go_categories_str=$(yq eval '.go.packages[]?' "$preset_file" 2>/dev/null)
+  
+  if [[ -z "$go_categories_str" || "$go_categories_str" == "null" ]]; then
+    return 100  # No go packages configured
+  fi
+
+  while IFS= read -r category; do
+    local update_status
+    update_go_packages "$category" "$indent_level"
+    update_status=$?
+    
+    if [[ $update_status -eq 0 ]]; then
+      had_updates=true
+    elif [[ $update_status -eq 1 ]]; then
+      had_errors=true
+    fi
+    # Status 100 means up-to-date, which is fine
+  done <<< "$go_categories_str"
+
+  # Return appropriate status
+  if [[ $had_errors == true ]]; then
+    return 1
+  elif [[ $had_updates == true ]]; then
+    return 0
+  else
+    return 100
+  fi
 }
 
 _update_vscode_extensions() {
