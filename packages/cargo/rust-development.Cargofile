@@ -1,6 +1,3 @@
-rust-analyzer
-clippy
-rustfmt
 cargo-watch
 cargo-edit
 cargo-expand
