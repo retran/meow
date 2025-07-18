@@ -14,20 +14,16 @@ BREW_PACKAGES_DIR="${DOTFILES_DIR}/packages/homebrew"
 is_package_installed() {
   local package_name="$1"
 
-  # Remove any extra whitespace or special characters that might cause issues
   package_name=$(echo "$package_name" | xargs)
 
-  # Check if it's installed as a formula
   if brew list --formula 2>/dev/null | grep -q "^${package_name}$"; then
     return 0
   fi
 
-  # Check if it's installed as a cask
   if brew list --cask 2>/dev/null | grep -q "^${package_name}$"; then
     return 0
   fi
 
-  # Also check using brew list directly (handles both formulas and casks)
   if brew list "$package_name" &>/dev/null; then
     return 0
   fi
@@ -36,7 +32,7 @@ is_package_installed() {
 }
 
 setup_homebrew() {
-  local indent="${1:-0}"  # Accept indent level as parameter, default to 0
+  local indent="${1:-0}"
   step_header "$indent" "Setting up Homebrew"
 
   if ! command -v brew &>/dev/null; then
@@ -70,7 +66,6 @@ setup_homebrew() {
     success_tick_msg "$indent" "Homebrew is already installed."
   fi
 
-  # Only update if brew is available
   if command -v brew &>/dev/null; then
     action_msg "$indent" "Updating Homebrew package index..."
     if brew update >/dev/null 2>&1; then
@@ -204,7 +199,6 @@ update_brew_packages() {
   local verified_packages_list=()
   local start_time end_time duration
 
-  # Check if brew is available
   if ! command -v brew &>/dev/null; then
     info_italic_msg "$indent_level" "Homebrew not available, skipping Homebrew package updates"
     return 100

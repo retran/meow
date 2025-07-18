@@ -6,7 +6,6 @@ set -euo pipefail
 
 DOTFILES_DIR="${DOTFILES_DIR:-$HOME/.meow}"
 
-# If running from the repo directory (development mode), use current directory
 if [[ -f "./config/env/env.sh" && -d "./presets" ]]; then
   DOTFILES_DIR="$(pwd)"
 fi
@@ -40,7 +39,6 @@ parse_arguments() {
     while [[ $# -gt 0 ]]; do
         case "$1" in
             --help | -h)
-                # This should not be reached due to pre-check in main
                 exit 0
                 ;;
             --*)
@@ -64,7 +62,6 @@ parse_arguments() {
 }
 
 main() {
-    # Check for help first before parsing
     for arg in "$@"; do
         if [[ "$arg" == "--help" || "$arg" == "-h" ]]; then
             show_help
@@ -75,7 +72,6 @@ main() {
     local preset_name
     preset_name=$(parse_arguments "$@")
 
-    # Use more tolerant error handling for update operations
     set +e
     if [[ -n "$preset_name" ]]; then
         update_preset "$preset_name"
@@ -85,8 +81,7 @@ main() {
         local exit_code=$?
     fi
     set -e
-    
-    # Exit with the actual result of the update operation
+
     exit $exit_code
 }
 

@@ -16,10 +16,7 @@ source "${DOTFILES_DIR}/lib/package/go.sh"
 declare -g UPDATED_PRESETS=""
 
 _initialize_update_session() {
-  # For updates, only set up Homebrew if it's already installed
-  if command -v brew &>/dev/null; then
-    setup_homebrew || true  # Continue even if Homebrew setup fails
-  fi
+  setup_homebrew
   UPDATED_PRESETS=""
 }
 
@@ -99,8 +96,6 @@ _update_preset_dependencies() {
 
   for dependency in "${dependencies[@]}"; do
     dependency_msg "$indent_level" "Updating dependency: $dependency (for $preset)"
-    # Dependencies are handled recursively by update_preset_with_dependencies
-    # We don't need to check return codes here since errors will bubble up
     update_preset_with_dependencies "$dependency" "$indent_level"
   done
 }
@@ -118,10 +113,8 @@ update_preset_with_dependencies() {
 
   step_header "$indent_level" "Updating preset: $preset"
 
-  # Update dependencies first
   _update_preset_dependencies "$preset" "$preset_file" "$child_indent"
 
-  # Update packages for this preset
   local package_status
   update_preset_packages "$preset" "$child_indent"
   package_status=$?
@@ -129,10 +122,9 @@ update_preset_with_dependencies() {
   if [[ $package_status -eq 0 ]]; then
     had_updates=true
   elif [[ $package_status -eq 1 ]]; then
-    return 1  # Error occurred
+    return 1
   fi
 
-  # Update symlinks for this preset (same as during installation)
   local symlink_categories_str
   symlink_categories_str=$(yq eval '.symlinks[]?' "$preset_file" 2>/dev/null)
   if [[ -n "$symlink_categories_str" && "$symlink_categories_str" != "null" ]]; then
@@ -146,16 +138,15 @@ update_preset_with_dependencies() {
     done
   fi
 
-  # Execute custom script if specified (for updates)
   local script_name
   script_name=$(yq eval '.script?' "$preset_file" 2>/dev/null)
   if [[ -n "$script_name" && "$script_name" != "null" ]]; then
-    source "${DOTFILES_DIR}/lib/package/presets.sh" # Ensure execute_preset_script is available
+    source "${DOTFILES_DIR}/lib/package/presets.sh"
     execute_preset_script "$script_name" "$preset" "$child_indent"
   fi
 
   UPDATED_PRESETS="${UPDATED_PRESETS}|$preset|"
-  
+
   if [[ $had_updates == true ]]; then
     success_tick_msg "$indent_level" "Preset '$preset' updated successfully"
     return 0
@@ -171,7 +162,6 @@ update_preset_packages() {
   local had_updates=false
   local had_error=false
 
-  # Track status for each package type
   local homebrew_status pipx_status mas_status npm_status go_status vscode_status
 
   _update_homebrew_packages "$preset" "$indent_level"
@@ -222,13 +212,12 @@ update_preset_packages() {
     had_error=true
   fi
 
-  # Return appropriate status code
   if [[ $had_error == true ]]; then
-    return 1  # Error occurred
+    return 1
   elif [[ $had_updates == true ]]; then
-    return 0  # Updates were applied
+    return 0
   else
-    return 100  # No updates needed
+    return 100
   fi
 }
 
@@ -240,7 +229,6 @@ _update_package_type() {
   local file_extension="$5"
   local update_function="$6"
 
-  # Map package types to their actual directory variable names
   local package_dir_var
   case "$package_type" in
     "homebrew") package_dir_var="BREW_PACKAGES_DIR" ;;
@@ -256,21 +244,18 @@ _update_package_type() {
 
   local package_dir
   eval "package_dir=\$$package_dir_var"
-  # Extract the category from the preset name (remove "components/" prefix if present)
   local category="${preset#components/}"
   local package_file="${package_dir}/${category}.${file_extension}"
 
-  # Check if package file exists first
   if [[ ! -f "$package_file" ]]; then
-    return 100  # No updates needed (no packages configured)
+    return 100
   fi
 
-  # Check if command is available and provide feedback
   if ! command -v "$command_name" &>/dev/null; then
     local capitalized_type
     capitalized_type=$(echo "$package_type" | sed 's/^./\U&/')
     info_italic_msg "$indent_level" "$capitalized_type not available, skipping $package_type package updates for '$category'"
-    return 100  # No updates needed (command not available)
+    return 100
   fi
 
   local capitalized_type
@@ -281,10 +266,8 @@ _update_package_type() {
   update_status=$?
 
   if [[ $update_status -eq 0 ]]; then
-    # Updates were applied - this message is now handled by the individual update functions
     return 0
   elif [[ $update_status -eq 100 ]]; then
-    # No updates needed - this message is now handled by the individual update functions
     return 100
   else
     indented_error_msg "$indent_level" "Failed to update ${package_type} packages for '$preset'"
@@ -332,31 +315,27 @@ _update_go_packages() {
     return 100
   fi
 
-  # Ensure yq is available for parsing YAML
   _ensure_yq_available "$indent_level" || return 1
 
-  # Parse go packages from YAML
   local go_categories_str
   go_categories_str=$(yq eval '.go.packages[]?' "$preset_file" 2>/dev/null)
-  
+
   if [[ -z "$go_categories_str" || "$go_categories_str" == "null" ]]; then
-    return 100  # No go packages configured
+    return 100
   fi
 
   while IFS= read -r category; do
     local update_status
     update_go_packages "$category" "$indent_level"
     update_status=$?
-    
+
     if [[ $update_status -eq 0 ]]; then
       had_updates=true
     elif [[ $update_status -eq 1 ]]; then
       had_errors=true
     fi
-    # Status 100 means up-to-date, which is fine
   done <<< "$go_categories_str"
 
-  # Return appropriate status
   if [[ $had_errors == true ]]; then
     return 1
   elif [[ $had_updates == true ]]; then
@@ -383,12 +362,6 @@ _process_presets() {
 
   while IFS= read -r preset; do
     [[ -z "$preset" ]] && continue
-
-    # Skip the "all" preset as it's a meta-preset that installs other presets
-    if [[ "$preset" == "all" ]]; then
-      info_italic_msg $((indent + 1)) "Skipping 'all' preset (meta-preset)"
-      continue
-    fi
 
     eval "$preset_count_var=\$((\$$preset_count_var + 1))"
 

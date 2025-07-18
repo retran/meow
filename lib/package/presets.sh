@@ -37,17 +37,14 @@ mark_preset_applied() {
   APPLIED_PRESETS+=("$preset")
   debug "Marked preset '$preset' as applied"
 
-  # Also save to persistent file
   save_installed_preset "$preset"
 }
 
 save_installed_preset() {
   local preset="$1"
 
-  # Create the file if it doesn't exist
   touch "$INSTALLED_PRESETS_FILE"
 
-  # Check if preset is already in the file
   if ! grep -Fxq "$preset" "$INSTALLED_PRESETS_FILE" 2>/dev/null; then
     echo "$preset" >> "$INSTALLED_PRESETS_FILE"
     debug "Saved preset '$preset' to installed presets file"
@@ -206,7 +203,6 @@ apply_preset() {
     done
   fi
 
-  # Execute custom script if specified
   local script_name
   script_name=$(yq eval '.script?' "$preset_file" 2>/dev/null)
   if [[ -n "$script_name" && "$script_name" != "null" ]]; then
@@ -218,7 +214,6 @@ apply_preset() {
   return 0
 }
 
-# Legacy wrapper function - replaced by full implementation in lib/commands/install.sh
 install_preset() {
   apply_preset "$@"
 }
@@ -231,7 +226,6 @@ list_presets() {
       if [[ -f "$file" ]]; then
         local preset_name
         preset_name=$(basename "$file" .yaml)
-        # Exclude all presets within the components directory, including nested ones
         if [[ "$file" == "$PRESETS_DIR/components/"* ]]; then
           continue
         fi

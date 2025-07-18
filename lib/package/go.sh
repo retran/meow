@@ -54,7 +54,6 @@ install_go_packages() {
     return 1
   fi
 
-  # Check if Go is available
   if ! command -v go &>/dev/null; then
     indented_error_msg "$indent_level" "Go is not installed or not in PATH"
     return 1
@@ -66,11 +65,9 @@ install_go_packages() {
     fi
     package_name=$(echo "$line" | awk '{print $1}')
 
-    # Extract the binary name from the package path for checking installation
     local binary_name
     binary_name=$(basename "$package_name" | sed 's/@.*//')
-    
-    # Check if package binary is already available in PATH
+
     if command -v "$binary_name" &>/dev/null; then
       local verify_status
       run_package_operation "$((indent_level+1))" "$package_name" "verify" \
@@ -186,7 +183,6 @@ update_go_packages() {
     local package_name
     package_name=$(echo "$line" | awk '{print $1}')
 
-    # Extract the binary name from the package path for checking installation
     local binary_name
     binary_name=$(basename "$package_name" | sed 's/@.*//')
 
@@ -232,22 +228,20 @@ update_go_packages() {
   fi
 }
 
-# Helper function to check if Go is available and set up if needed
 setup_go() {
   local indent="${1:-0}"
-  
+
   if ! command -v go &>/dev/null; then
     step_header "$indent" "Setting up Go"
-    
+
     indented_warning "$indent" "Go is not installed. This should be handled by homebrew packages."
     indented_info "$indent" "Please install Go via homebrew or your system package manager."
     indented_info "$indent" "After installing Go, ensure GOPATH and GOBIN are properly configured."
     return 1
   fi
-  
+
   success_tick_msg "$indent" "Go is available"
-  
-  # Check if GOBIN is set and in PATH
+
   local gobin_path
   if [[ -n "${GOBIN:-}" ]]; then
     gobin_path="$GOBIN"
@@ -256,13 +250,13 @@ setup_go() {
   else
     gobin_path="$(go env GOPATH)/bin"
   fi
-  
+
   if [[ ":$PATH:" == *":$gobin_path:"* ]]; then
     success_tick_msg "$indent" "Go binary path ($gobin_path) is in PATH"
   else
     indented_warning "$indent" "Go binary path ($gobin_path) is not in PATH"
     indented_info "$indent" "Add 'export PATH=\"$gobin_path:\$PATH\"' to your shell profile"
   fi
-  
+
   return 0
 }

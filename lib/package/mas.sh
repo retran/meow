@@ -37,9 +37,6 @@ install_mas_packages() {
     return 1
   fi
 
-  # Note: mas account command is deprecated in newer macOS versions
-  # We'll attempt installation and handle authentication errors if they occur
-
   if [[ "$category" == "all" ]]; then
     indented_info "$((indent_level+1))" "Processing all Masfile categories..."
     local overall_success=true
@@ -142,9 +139,6 @@ update_mas_packages() {
     info_italic_msg "$indent_level" "mas not available, skipping Mac App Store updates"
     return 100
   fi
-
-  # Note: mas account command is deprecated in newer macOS versions
-  # We'll attempt updates and handle authentication errors if they occur
 
   if [[ "$category" == "all" ]]; then
     indented_info "$((indent_level+1))" "Processing all Masfile categories..."

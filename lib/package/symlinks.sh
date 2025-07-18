@@ -2,7 +2,6 @@
 
 # lib/package/symlinks.sh - Functions for managing symlinks in the dotfiles package
 
-# Guard against multiple sourcing
 if [[ "${BASH_SOURCE[0]}" != "${0}" ]] && [[ -n "${_LIB_PACKAGE_SYMLINKS_SOURCED:-}" ]]; then
   return 0
 fi
