@@ -13,6 +13,7 @@ brew "git"
 brew "fd"
 brew "fzf"
 brew "ripgrep"
+brew "zoxide"
 
 brew "jq"
 brew "yq"
