@@ -16,7 +16,10 @@ source "${DOTFILES_DIR}/lib/package/go.sh"
 declare -g UPDATED_PRESETS=""
 
 _initialize_update_session() {
-  setup_homebrew || true  # Continue even if Homebrew setup fails
+  # For updates, only set up Homebrew if it's already installed
+  if command -v brew &>/dev/null; then
+    setup_homebrew || true  # Continue even if Homebrew setup fails
+  fi
   UPDATED_PRESETS=""
 }
 
@@ -127,6 +130,20 @@ update_preset_with_dependencies() {
     had_updates=true
   elif [[ $package_status -eq 1 ]]; then
     return 1  # Error occurred
+  fi
+
+  # Update symlinks for this preset (same as during installation)
+  local symlink_categories_str
+  symlink_categories_str=$(yq eval '.symlinks[]?' "$preset_file" 2>/dev/null)
+  if [[ -n "$symlink_categories_str" && "$symlink_categories_str" != "null" ]]; then
+    source "${DOTFILES_DIR}/lib/package/symlinks.sh" # Ensure setup_symlinks is available
+    local symlink_categories=()
+    while IFS= read -r line; do
+      [[ -n "$line" ]] && symlink_categories+=("$line")
+    done <<< "$symlink_categories_str"
+    for category_name in "${symlink_categories[@]}"; do
+      setup_symlinks "$category_name" "$child_indent"
+    done
   fi
 
   # Execute custom script if specified (for updates)
@@ -243,8 +260,17 @@ _update_package_type() {
   local category="${preset#components/}"
   local package_file="${package_dir}/${category}.${file_extension}"
 
-  if ! command -v "$command_name" &>/dev/null || [[ ! -f "$package_file" ]]; then
-    return 100  # No updates needed (command not available or no packages)
+  # Check if package file exists first
+  if [[ ! -f "$package_file" ]]; then
+    return 100  # No updates needed (no packages configured)
+  fi
+
+  # Check if command is available and provide feedback
+  if ! command -v "$command_name" &>/dev/null; then
+    local capitalized_type
+    capitalized_type=$(echo "$package_type" | sed 's/^./\U&/')
+    info_italic_msg "$indent_level" "$capitalized_type not available, skipping $package_type package updates for '$category'"
+    return 100  # No updates needed (command not available)
   fi
 
   local capitalized_type

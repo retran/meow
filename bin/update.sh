@@ -75,11 +75,19 @@ main() {
     local preset_name
     preset_name=$(parse_arguments "$@")
 
+    # Use more tolerant error handling for update operations
+    set +e
     if [[ -n "$preset_name" ]]; then
         update_preset "$preset_name"
+        local exit_code=$?
     else
         update_installed_presets
+        local exit_code=$?
     fi
+    set -e
+    
+    # Exit with the actual result of the update operation
+    exit $exit_code
 }
 
 main "$@"
