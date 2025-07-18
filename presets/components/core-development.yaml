@@ -11,9 +11,6 @@ pipx:
   packages:
     - core-development
 
-symlinks:
-  - nvim
-
 vscode:
   packages:
     - core-development
