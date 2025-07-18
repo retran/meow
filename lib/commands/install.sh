@@ -19,11 +19,10 @@ _finalize_install_session() {
 }
 
 _get_available_presets() {
-    local -n available_presets_ref="$1"
-
+    # Return available presets to stdout (bash 3.2 compatible)
     for file in "${DOTFILES_DIR}/presets"/*.yaml; do
         if [[ -f "$file" ]]; then
-            available_presets_ref+=("$(basename "$file" .yaml)")
+            echo "$(basename "$file" .yaml)"
         fi
     done
 }
@@ -33,7 +32,12 @@ _validate_preset_exists() {
     local indent_level="$2"
     local available_presets=()
 
-    _get_available_presets available_presets
+    # Read available presets into array (bash 3.2 compatible)
+    while IFS= read -r preset_name; do
+        if [[ -n "$preset_name" ]]; then
+            available_presets+=("$preset_name")
+        fi
+    done < <(_get_available_presets)
 
     if [[ " ${available_presets[*]} " =~ ${preset} ]]; then
         info "$indent_level" "Found preset: $preset"

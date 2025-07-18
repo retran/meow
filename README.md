@@ -85,9 +85,17 @@ Before installing `meow`, ensure you have the following:
 ### Required
 
 - **Operating System**: macOS
-- **Shell**: Bash or Zsh
+- **Shell**: Bash 3.2+ (default on macOS) or Zsh
 - **Git**: For cloning the repository and version control integration
 - **Internet Connection**: For downloading packages and tools
+
+### Bash Compatibility
+
+`meow` is designed to work with the default bash 3.2 that ships with macOS, avoiding the chicken-and-egg problem where you need a newer bash to install a newer bash. The scripts automatically detect your bash version and run in compatibility mode when needed.
+
+- **✅ Fully supported**: bash 3.2+ (macOS default)
+- **🚀 Enhanced experience**: bash 4.0+ (after Homebrew installation)
+- **📦 Modern features**: bash 5.0+ (latest features and performance)
 
 ## 🚀 Installation
 
