@@ -1,0 +1,12 @@
+description: "Rust development tools and environment"
+
+depends_on:
+  - components/core-development
+
+cargo:
+  packages:
+    - rust-development
+
+vscode:
+  packages:
+    - rust-development

@@ -14,6 +14,7 @@ source "${DOTFILES_DIR}/lib/package/mas.sh"
 source "${DOTFILES_DIR}/lib/package/vscode.sh"
 source "${DOTFILES_DIR}/lib/package/npm.sh"
 source "${DOTFILES_DIR}/lib/package/go.sh"
+source "${DOTFILES_DIR}/lib/package/cargo.sh"
 source "${DOTFILES_DIR}/lib/package/symlinks.sh"
 source "${DOTFILES_DIR}/lib/system/macos.sh"
 
@@ -189,6 +190,14 @@ apply_preset() {
     while IFS= read -r category; do
       install_go_packages "$category" "$child_indent"
     done <<< "$go_categories_str"
+  fi
+
+  local cargo_categories_str
+  cargo_categories_str=$(yq eval '.cargo.packages[]?' "$preset_file" 2>/dev/null)
+  if [[ -n "$cargo_categories_str" && "$cargo_categories_str" != "null" ]]; then
+    while IFS= read -r category; do
+      install_cargo_packages "$category" "$child_indent"
+    done <<< "$cargo_categories_str"
   fi
 
   local symlink_categories_str

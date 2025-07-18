@@ -41,3 +41,8 @@ if command -v go &>/dev/null; then
   export GOPATH="${GOPATH:-$(go env GOPATH)}"
   export PATH="$GOPATH/bin:$PATH"
 fi
+
+# Rust and Cargo configuration
+if [[ -d "$HOME/.cargo" ]]; then
+  source "$HOME/.cargo/env"
+fi

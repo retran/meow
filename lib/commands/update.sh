@@ -12,6 +12,7 @@ source "${DOTFILES_DIR}/lib/package/presets.sh"
 source "${DOTFILES_DIR}/lib/package/homebrew.sh"
 source "${DOTFILES_DIR}/lib/package/npm.sh"
 source "${DOTFILES_DIR}/lib/package/go.sh"
+source "${DOTFILES_DIR}/lib/package/cargo.sh"
 
 declare -g UPDATED_PRESETS=""
 
@@ -162,7 +163,7 @@ update_preset_packages() {
   local had_updates=false
   local had_error=false
 
-  local homebrew_status pipx_status mas_status npm_status go_status vscode_status
+  local homebrew_status pipx_status mas_status npm_status go_status cargo_status vscode_status
 
   _update_homebrew_packages "$preset" "$indent_level"
   homebrew_status=$?
@@ -201,6 +202,14 @@ update_preset_packages() {
   if [[ $go_status -eq 0 ]]; then
     had_updates=true
   elif [[ $go_status -eq 1 ]]; then
+    had_error=true
+  fi
+
+  _update_cargo_packages "$preset" "$indent_level"
+  cargo_status=$?
+  if [[ $cargo_status -eq 0 ]]; then
+    had_updates=true
+  elif [[ $cargo_status -eq 1 ]]; then
     had_error=true
   fi
 
@@ -341,6 +350,48 @@ _update_go_packages() {
       had_errors=true
     fi
   done <<< "$go_categories_str"
+
+  if [[ $had_errors == true ]]; then
+    return 1
+  elif [[ $had_updates == true ]]; then
+    return 0
+  else
+    return 100
+  fi
+}
+
+_update_cargo_packages() {
+  local preset="$1"
+  local indent_level="$2"
+  local preset_file="${DOTFILES_DIR}/presets/${preset}.yaml"
+  local had_updates=false
+  local had_errors=false
+
+  if ! command -v cargo &>/dev/null; then
+    info_italic_msg "$indent_level" "Cargo not available, skipping cargo package updates for '${preset#components/}'"
+    return 100
+  fi
+
+  _ensure_yq_available "$indent_level" || return 1
+
+  local cargo_categories_str
+  cargo_categories_str=$(yq eval '.cargo.packages[]?' "$preset_file" 2>/dev/null)
+
+  if [[ -z "$cargo_categories_str" || "$cargo_categories_str" == "null" ]]; then
+    return 100
+  fi
+
+  while IFS= read -r category; do
+    local update_status
+    update_cargo_packages "$category" "$indent_level"
+    update_status=$?
+
+    if [[ $update_status -eq 0 ]]; then
+      had_updates=true
+    elif [[ $update_status -eq 1 ]]; then
+      had_errors=true
+    fi
+  done <<< "$cargo_categories_str"
 
   if [[ $had_errors == true ]]; then
     return 1
