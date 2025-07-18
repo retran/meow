@@ -7,11 +7,12 @@ if [[ "${BASH_SOURCE[0]}" != "${0}" ]] && [[ -n "${_CONFIG_ALIASES_SOURCED:-}" ]
 fi
 _CONFIG_ALIASES_SOURCED=1
 
-# aliases
-alias vim='nvim'
-alias vi='nvim'
 
-# eza aliases (modern ls replacement)
+if command -v nvim >/dev/null 2>&1; then
+  alias vim='nvim'
+  alias vi='nvim'
+fi
+
 if command -v eza >/dev/null 2>&1; then
   alias ls='eza'
   alias ll='eza -l'
