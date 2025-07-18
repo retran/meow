@@ -11,12 +11,15 @@ if [[ -f "./config/env/env.sh" && -d "./presets" ]]; then
 fi
 
 source "${DOTFILES_DIR}/config/env/env.sh"
+source "${DOTFILES_DIR}/lib/core/bash_compat.sh"
 source "${DOTFILES_DIR}/lib/core/ui.sh"
 source "${DOTFILES_DIR}/lib/commands/install.sh"
 
 show_help() {
   title 0 "dotfiles Install"
   msg 0 "Installs your system with your preferred configuration."
+  msg 0 ""
+  show_bash_version_info 0
   msg 0 ""
   msg 0 "Usage: $0 PRESET"
   msg 0 ""
@@ -75,6 +78,9 @@ validate_preset_argument() {
 }
 
 main() {
+  # Check bash compatibility early
+  warn_bash_compatibility 0
+  
   for arg in "$@"; do
     if [[ "$arg" == "--help" || "$arg" == "-h" ]]; then
       show_help
