@@ -17,13 +17,11 @@ main() {
 
   step_header "$indent_level" "Setting up essential shell environment for preset: $PRESET"
 
-  # Set up tmux
   if command -v tmux >/dev/null 2>&1; then
     info "$indent_level" "Setting up tmux..."
     configure_tmux "$((indent_level + 1))" || true
   fi
 
-  # Set up zsh
   if command -v zsh >/dev/null 2>&1; then
     info "$indent_level" "Setting up zsh..."
     configure_zsh "$((indent_level + 1))" || true

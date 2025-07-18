@@ -37,9 +37,6 @@ install_mas_packages() {
     return 1
   fi
 
-  # Note: mas account command is deprecated in newer macOS versions
-  # We'll attempt installation and handle authentication errors if they occur
-
   if [[ "$category" == "all" ]]; then
     indented_info "$((indent_level+1))" "Processing all Masfile categories..."
     local overall_success=true
@@ -139,13 +136,9 @@ update_mas_packages() {
   step_header "$indent_level" "Updating Mac App Store Applications ($category)"
 
   if ! command -v mas &>/dev/null; then
-    indented_error_msg "$indent_level" "mas (Mac App Store CLI) is required but not installed."
-    indented_info "$((indent_level+1))" "Install it with: brew install mas"
-    return 1
+    info_italic_msg "$indent_level" "mas not available, skipping Mac App Store updates"
+    return 100
   fi
-
-  # Note: mas account command is deprecated in newer macOS versions
-  # We'll attempt updates and handle authentication errors if they occur
 
   if [[ "$category" == "all" ]]; then
     indented_info "$((indent_level+1))" "Processing all Masfile categories..."
@@ -230,14 +223,15 @@ update_mas_packages() {
 
   if [[ $updated_count -gt 0 && $failed_count -eq 0 ]]; then
     success_tick_msg "$indent_level" "Mac App Store applications for '$category' updated successfully ($updated_count upgraded, $up_to_date_count up-to-date) (${duration}s)"
+    return 0
   elif [[ $updated_count -eq 0 && $up_to_date_count -gt 0 && $failed_count -eq 0 ]]; then
     success_tick_msg "$indent_level" "All Mac App Store applications for '$category' are up-to-date ($up_to_date_count packages) (${duration}s)"
+    return 100
   elif [[ $failed_count -gt 0 ]]; then
     indented_error_msg "$indent_level" "Mac App Store update for '$category' completed with errors ($updated_count updated, $failed_count failed) (${duration}s)"
     return 1
   else
     success_tick_msg "$indent_level" "No Mac App Store applications to update for '$category' (${duration}s)"
+    return 100
   fi
-
-  return 0
 }

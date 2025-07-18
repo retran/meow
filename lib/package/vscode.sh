@@ -26,9 +26,7 @@ check_vscode_available() {
   local indent_level="$1"
 
   if ! command -v code &>/dev/null; then
-    indented_error_msg "$indent_level" "VS Code CLI (code) is required but not available."
-    indented_info "$((indent_level+1))" "Please ensure VS Code is installed and the 'code' command is in your PATH."
-    indented_info "$((indent_level+1))" "You can install the CLI from VS Code: View > Command Palette > 'Shell Command: Install code command in PATH'"
+    info_italic_msg "$indent_level" "VS Code CLI not available, skipping VS Code extension updates"
     return 1
   fi
   return 0
@@ -143,7 +141,7 @@ update_vscode_extensions() {
   step_header "$indent_level" "Updating VS Code Extensions ($category)"
 
   if ! check_vscode_available "$indent_level"; then
-    return 1
+    return 100
   fi
 
   if [[ "$category" == "all" ]]; then
@@ -206,11 +204,15 @@ update_vscode_extensions() {
 
   # Summary message
   if [[ $failed_count -eq 0 ]]; then
-    success_tick_msg "$indent_level" "All VS Code extensions for '$category' are up-to-date ($up_to_date_count extensions) (${duration}s)"
+    if [[ $up_to_date_count -gt 0 ]]; then
+      success_tick_msg "$indent_level" "All VS Code extensions for '$category' are up-to-date ($up_to_date_count extensions) (${duration}s)"
+      return 0
+    else
+      info_italic_msg "$indent_level" "No VS Code extensions were processed for '$category' (${duration}s)"
+      return 0
+    fi
   else
     indented_error_msg "$indent_level" "VS Code extension update for '$category' completed with errors ($failed_count failed) (${duration}s)"
     return 1
   fi
-
-  return 0
 }

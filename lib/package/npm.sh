@@ -54,7 +54,6 @@ install_npm_packages() {
     return 1
   fi
 
-  # Check if npm is available
   if ! command -v npm &>/dev/null; then
     indented_error_msg "$indent_level" "npm is not installed or not in PATH"
     return 1
@@ -66,7 +65,6 @@ install_npm_packages() {
     fi
     package_name=$(echo "$line" | awk '{print $1}')
 
-    # Check if package is already installed globally
     if npm list -g --depth=0 "$package_name" &>/dev/null; then
       local verify_status
       run_package_operation "$((indent_level+1))" "$package_name" "verify" \
@@ -136,8 +134,8 @@ update_npm_packages() {
   step_header "$indent_level" "Updating npm Packages ($category)"
 
   if ! command -v npm &>/dev/null; then
-    indented_warning "$((indent_level+1))" "npm not installed. Skipping update."
-    return 1
+    info_italic_msg "$indent_level" "npm not available, skipping npm package updates"
+    return 100
   fi
 
   if [[ "$category" == "all" ]]; then
@@ -213,23 +211,23 @@ update_npm_packages() {
   if [[ $packages_failed_count -eq 0 ]]; then
     if [[ $packages_upgraded_count -gt 0 ]]; then
       success_tick_msg "$indent_level" "npm packages for '$category' updated successfully ($packages_upgraded_count upgraded, $packages_verified_count up-to-date) (${duration}s)"
+      return 0
     else
       success_tick_msg "$indent_level" "All npm packages for '$category' are up-to-date ($packages_verified_count packages) (${duration}s)"
+      return 100
     fi
-    return 0
   else
     indented_error_msg "$indent_level" "Some npm packages for '$category' failed ($packages_failed_count failures) (${duration}s)"
     return 1
   fi
 }
 
-# Helper function to check if npm is available and set up if needed
 setup_npm() {
   local indent="${1:-0}"
-  
+
   if ! command -v npm &>/dev/null; then
     step_header "$indent" "Setting up npm"
-    
+
     if command -v node &>/dev/null; then
       indented_warning "$indent" "Node.js is available but npm is not found in PATH"
       return 1
@@ -238,8 +236,7 @@ setup_npm() {
       return 1
     fi
   fi
-  
+
   success_tick_msg "$indent" "npm is available"
   return 0
 }
-

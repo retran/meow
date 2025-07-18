@@ -14,20 +14,16 @@ BREW_PACKAGES_DIR="${DOTFILES_DIR}/packages/homebrew"
 is_package_installed() {
   local package_name="$1"
 
-  # Remove any extra whitespace or special characters that might cause issues
   package_name=$(echo "$package_name" | xargs)
 
-  # Check if it's installed as a formula
   if brew list --formula 2>/dev/null | grep -q "^${package_name}$"; then
     return 0
   fi
 
-  # Check if it's installed as a cask
   if brew list --cask 2>/dev/null | grep -q "^${package_name}$"; then
     return 0
   fi
 
-  # Also check using brew list directly (handles both formulas and casks)
   if brew list "$package_name" &>/dev/null; then
     return 0
   fi
@@ -36,7 +32,7 @@ is_package_installed() {
 }
 
 setup_homebrew() {
-  local indent="${1:-0}"  # Accept indent level as parameter, default to 0
+  local indent="${1:-0}"
   step_header "$indent" "Setting up Homebrew"
 
   if ! command -v brew &>/dev/null; then
@@ -63,18 +59,20 @@ setup_homebrew() {
         fi
       fi
     else
-      indented_error_msg "$indent" "Homebrew installation failed."
+      indented_warning "$indent" "Homebrew installation failed, skipping Homebrew package updates."
       return 1
     fi
   else
     success_tick_msg "$indent" "Homebrew is already installed."
   fi
 
-  action_msg "$indent" "Updating Homebrew package index..."
-  if brew update >/dev/null 2>&1; then
-    success_tick_msg "$indent" "Homebrew package index updated successfully."
-  else
-    indented_warning "$indent" "Failed to update Homebrew package index."
+  if command -v brew &>/dev/null; then
+    action_msg "$indent" "Updating Homebrew package index..."
+    if brew update >/dev/null 2>&1; then
+      success_tick_msg "$indent" "Homebrew package index updated successfully."
+    else
+      indented_warning "$indent" "Failed to update Homebrew package index."
+    fi
   fi
 
   return 0
@@ -201,6 +199,11 @@ update_brew_packages() {
   local verified_packages_list=()
   local start_time end_time duration
 
+  if ! command -v brew &>/dev/null; then
+    info_italic_msg "$indent_level" "Homebrew not available, skipping Homebrew package updates"
+    return 100
+  fi
+
   start_time=$(date +%s)
   step_header "$indent_level" "Updating Homebrew Packages ($category)"
 
@@ -277,10 +280,11 @@ update_brew_packages() {
   if [[ $packages_failed_count -eq 0 ]]; then
     if [[ $packages_upgraded_count -gt 0 ]]; then
       success_tick_msg "$indent_level" "Homebrew packages for '$category' updated successfully ($packages_upgraded_count upgraded, $packages_verified_count up-to-date) (${duration}s)"
+      return 0
     else
       success_tick_msg "$indent_level" "All Homebrew packages for '$category' are up-to-date ($packages_verified_count packages) (${duration}s)"
+      return 100
     fi
-    return 0
   else
     indented_error_msg "$indent_level" "Some Homebrew packages for '$category' failed ($packages_failed_count failures) (${duration}s)"
     return 1
@@ -307,6 +311,11 @@ cleanup_homebrew() {
   local indent_level=0
   local start_time end_time duration
   start_time=$(date +%s)
+
+  if ! command -v brew &>/dev/null; then
+    info_italic_msg "$indent_level" "Homebrew not available, skipping cleanup"
+    return 0
+  fi
 
   step_header "$indent_level" "Cleaning up Homebrew"
 

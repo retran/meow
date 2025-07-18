@@ -14,7 +14,7 @@ is_macos() {
 }
 
 configure_macos_defaults() {
-  local indent_level="${1:-1}" # Accept indent level as parameter, default to 1
+  local indent_level="${1:-1}"
 
   step_header "$indent_level" "System Defaults"
 
@@ -87,7 +87,7 @@ configure_macos_defaults() {
 }
 
 configure_macos_finder() {
-  local indent_level="${1:-1}" # Accept indent level as parameter, default to 1
+  local indent_level="${1:-1}"
 
   step_header "$indent_level" "Finder Configuration"
 
@@ -132,7 +132,7 @@ configure_macos_finder() {
 }
 
 configure_macos_dock() {
-  local indent_level="${1:-1}" # Accept indent level as parameter, default to 1
+  local indent_level="${1:-1}"
 
   step_header "$indent_level" "Dock Configuration"
 
@@ -173,7 +173,7 @@ configure_macos_dock() {
 }
 
 configure_macos_apps() {
-  local indent_level="${1:-1}" # Accept indent level as parameter, default to 1
+  local indent_level="${1:-1}"
 
   step_header "$indent_level" "App Configuration"
 
@@ -209,7 +209,7 @@ configure_macos_apps() {
 }
 
 configure_macos() {
-  local indent_level="${1:-0}" # Accept indent level as parameter, default to 0
+  local indent_level="${1:-0}"
   local summary_msgs=()
 
   if ! is_macos; then

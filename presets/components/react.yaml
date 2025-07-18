@@ -9,7 +9,3 @@ depends_on:
 npm:
   packages:
     - react
-
-vscode:
-  packages:
-    - react

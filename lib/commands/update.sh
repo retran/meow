@@ -105,38 +105,120 @@ update_preset_with_dependencies() {
   local indent_level="${2:-0}"
   local preset_file="${DOTFILES_DIR}/presets/${preset}.yaml"
   local child_indent=$((indent_level + 1))
+  local had_updates=false
 
-  _check_preset_already_updated "$preset" "$indent_level" && return 0
+  _check_preset_already_updated "$preset" "$indent_level" && return 100
   _validate_preset_file "$preset_file" "$indent_level" || return 1
   _ensure_yq_available "$child_indent" || return 1
 
   step_header "$indent_level" "Updating preset: $preset"
 
   _update_preset_dependencies "$preset" "$preset_file" "$child_indent"
-  update_preset_packages "$preset" "$child_indent"
 
-  # Execute custom script if specified (for updates)
+  local package_status
+  update_preset_packages "$preset" "$child_indent"
+  package_status=$?
+
+  if [[ $package_status -eq 0 ]]; then
+    had_updates=true
+  elif [[ $package_status -eq 1 ]]; then
+    return 1
+  fi
+
+  local symlink_categories_str
+  symlink_categories_str=$(yq eval '.symlinks[]?' "$preset_file" 2>/dev/null)
+  if [[ -n "$symlink_categories_str" && "$symlink_categories_str" != "null" ]]; then
+    source "${DOTFILES_DIR}/lib/package/symlinks.sh" # Ensure setup_symlinks is available
+    local symlink_categories=()
+    while IFS= read -r line; do
+      [[ -n "$line" ]] && symlink_categories+=("$line")
+    done <<< "$symlink_categories_str"
+    for category_name in "${symlink_categories[@]}"; do
+      setup_symlinks "$category_name" "$child_indent"
+    done
+  fi
+
   local script_name
   script_name=$(yq eval '.script?' "$preset_file" 2>/dev/null)
   if [[ -n "$script_name" && "$script_name" != "null" ]]; then
-    source "${DOTFILES_DIR}/lib/package/presets.sh" # Ensure execute_preset_script is available
+    source "${DOTFILES_DIR}/lib/package/presets.sh"
     execute_preset_script "$script_name" "$preset" "$child_indent"
   fi
 
   UPDATED_PRESETS="${UPDATED_PRESETS}|$preset|"
-  success_tick_msg "$indent_level" "Preset '$preset' updated successfully"
+
+  if [[ $had_updates == true ]]; then
+    success_tick_msg "$indent_level" "Preset '$preset' updated successfully"
+    return 0
+  else
+    success_tick_msg "$indent_level" "Preset '$preset' is up-to-date"
+    return 100
+  fi
 }
 
 update_preset_packages() {
   local preset="$1"
   local indent_level="${2:-1}"
+  local had_updates=false
+  local had_error=false
 
-  _update_homebrew_packages "$preset" "$indent_level" || return 1
-  _update_pipx_packages "$preset" "$indent_level" || return 1
-  _update_mas_packages "$preset" "$indent_level" || return 1
-  _update_npm_packages "$preset" "$indent_level" || return 1
-  _update_go_packages "$preset" "$indent_level" || return 1
-  _update_vscode_extensions "$preset" "$indent_level" || return 1
+  local homebrew_status pipx_status mas_status npm_status go_status vscode_status
+
+  _update_homebrew_packages "$preset" "$indent_level"
+  homebrew_status=$?
+  if [[ $homebrew_status -eq 0 ]]; then
+    had_updates=true
+  elif [[ $homebrew_status -eq 1 ]]; then
+    had_error=true
+  fi
+
+  _update_pipx_packages "$preset" "$indent_level"
+  pipx_status=$?
+  if [[ $pipx_status -eq 0 ]]; then
+    had_updates=true
+  elif [[ $pipx_status -eq 1 ]]; then
+    had_error=true
+  fi
+
+  _update_mas_packages "$preset" "$indent_level"
+  mas_status=$?
+  if [[ $mas_status -eq 0 ]]; then
+    had_updates=true
+  elif [[ $mas_status -eq 1 ]]; then
+    had_error=true
+  fi
+
+  _update_npm_packages "$preset" "$indent_level"
+  npm_status=$?
+  if [[ $npm_status -eq 0 ]]; then
+    had_updates=true
+  elif [[ $npm_status -eq 1 ]]; then
+    had_error=true
+  fi
+
+  _update_go_packages "$preset" "$indent_level"
+  go_status=$?
+  if [[ $go_status -eq 0 ]]; then
+    had_updates=true
+  elif [[ $go_status -eq 1 ]]; then
+    had_error=true
+  fi
+
+  _update_vscode_extensions "$preset" "$indent_level"
+  vscode_status=$?
+  if [[ $vscode_status -eq 0 ]]; then
+    had_updates=true
+  elif [[ $vscode_status -eq 1 ]]; then
+    had_error=true
+  fi
+
+  if [[ $had_error == true ]]; then
+    return 1
+  elif [[ $had_updates == true ]]; then
+    return 0
+  else
+    return 100
+  fi
 }
 
 _update_package_type() {
@@ -147,7 +229,6 @@ _update_package_type() {
   local file_extension="$5"
   local update_function="$6"
 
-  # Map package types to their actual directory variable names
   local package_dir_var
   case "$package_type" in
     "homebrew") package_dir_var="BREW_PACKAGES_DIR" ;;
@@ -163,17 +244,37 @@ _update_package_type() {
 
   local package_dir
   eval "package_dir=\$$package_dir_var"
-  local package_file="${package_dir}/${preset}.${file_extension}"
+  local category
+  if [[ "$preset" == components/* ]]; then
+    category="${preset#components/}"
+  else
+    indented_error_msg "$indent_level" "Invalid preset format: '$preset'. Expected to start with 'components/'."
+    return 1
+  fi
+  local package_file="${package_dir}/${category}.${file_extension}"
 
-  if ! command -v "$command_name" &>/dev/null || [[ ! -f "$package_file" ]]; then
-    return 0
+  if [[ ! -f "$package_file" ]]; then
+    return 100
+  fi
+
+  if ! command -v "$command_name" &>/dev/null; then
+    local capitalized_type
+    capitalized_type=$(echo "$package_type" | sed 's/^./\U&/')
+    info_italic_msg "$indent_level" "$capitalized_type not available, skipping $package_type package updates for '$category'"
+    return 100
   fi
 
   local capitalized_type
   capitalized_type=$(echo "$package_type" | sed 's/^./\U&/')
 
-  if "$update_function" "$preset" "$indent_level"; then
-    success_tick_msg "$indent_level" "${capitalized_type} packages for '$preset' updated successfully"
+  local update_status
+  "$update_function" "$category" "$indent_level"
+  update_status=$?
+
+  if [[ $update_status -eq 0 ]]; then
+    return 0
+  elif [[ $update_status -eq 100 ]]; then
+    return 100
   else
     indented_error_msg "$indent_level" "Failed to update ${package_type} packages for '$preset'"
     return 1
@@ -211,8 +312,43 @@ _update_npm_packages() {
 _update_go_packages() {
   local preset="$1"
   local indent_level="$2"
+  local preset_file="${DOTFILES_DIR}/presets/${preset}.yaml"
+  local had_updates=false
+  local had_errors=false
 
-  _update_package_type "$preset" "$indent_level" "go" "go" "Gofile" "update_go_packages"
+  if ! command -v go &>/dev/null; then
+    info_italic_msg "$indent_level" "Go not available, skipping go package updates for '${preset#components/}'"
+    return 100
+  fi
+
+  _ensure_yq_available "$indent_level" || return 1
+
+  local go_categories_str
+  go_categories_str=$(yq eval '.go.packages[]?' "$preset_file" 2>/dev/null)
+
+  if [[ -z "$go_categories_str" || "$go_categories_str" == "null" ]]; then
+    return 100
+  fi
+
+  while IFS= read -r category; do
+    local update_status
+    update_go_packages "$category" "$indent_level"
+    update_status=$?
+
+    if [[ $update_status -eq 0 ]]; then
+      had_updates=true
+    elif [[ $update_status -eq 1 ]]; then
+      had_errors=true
+    fi
+  done <<< "$go_categories_str"
+
+  if [[ $had_errors == true ]]; then
+    return 1
+  elif [[ $had_updates == true ]]; then
+    return 0
+  else
+    return 100
+  fi
 }
 
 _update_vscode_extensions() {
@@ -228,20 +364,21 @@ _process_presets() {
   local preset_count_var="$3"
   local successful_updates_var="$4"
   local failed_updates_var="$5"
+  local uptodate_updates_var="$6"
 
   while IFS= read -r preset; do
     [[ -z "$preset" ]] && continue
 
-    # Skip the "all" preset as it's a meta-preset that installs other presets
-    if [[ "$preset" == "all" ]]; then
-      info_italic_msg $((indent + 1)) "Skipping 'all' preset (meta-preset)"
-      continue
-    fi
-
     eval "$preset_count_var=\$((\$$preset_count_var + 1))"
 
-    if update_preset_with_dependencies "$preset" $((indent + 1)); then
+    local update_status
+    update_preset_with_dependencies "$preset" $((indent + 1))
+    update_status=$?
+
+    if [[ $update_status -eq 0 ]]; then
       eval "$successful_updates_var=\$((\$$successful_updates_var + 1))"
+    elif [[ $update_status -eq 100 ]]; then
+      eval "$uptodate_updates_var=\$((\$$uptodate_updates_var + 1))"
     else
       eval "$failed_updates_var=\$((\$$failed_updates_var + 1))"
     fi
@@ -266,14 +403,23 @@ _report_update_results() {
   local preset_count="$2"
   local successful_updates="$3"
   local failed_updates="$4"
+  local uptodate_updates="$5"
 
   if [[ $preset_count -eq 0 ]]; then
     indented_warning "$indent" "No installed presets found to update"
     return 1
   elif [[ $failed_updates -eq 0 ]]; then
-    success_tick_msg "$indent" "All $successful_updates installed presets updated successfully"
+    if [[ $successful_updates -gt 0 ]]; then
+      if [[ $uptodate_updates -gt 0 ]]; then
+        success_tick_msg "$indent" "Processed $preset_count installed presets: $successful_updates updated, $uptodate_updates already up-to-date"
+      else
+        success_tick_msg "$indent" "All $successful_updates installed presets updated successfully"
+      fi
+    else
+      success_tick_msg "$indent" "All $uptodate_updates installed presets are already up-to-date"
+    fi
   else
-    indented_warning "$indent" "Updated $successful_updates presets successfully, $failed_updates failed"
+    indented_warning "$indent" "Processed $preset_count presets: $successful_updates updated, $uptodate_updates up-to-date, $failed_updates failed"
     return 1
   fi
 }
@@ -294,11 +440,12 @@ update_installed_presets() {
   local preset_count=0
   local successful_updates=0
   local failed_updates=0
+  local uptodate_updates=0
 
-  _process_presets "$installed_presets" "$indent" preset_count successful_updates failed_updates
+  _process_presets "$installed_presets" "$indent" preset_count successful_updates failed_updates uptodate_updates
 
   _finalize_update_session
-  _report_update_results "$indent" "$preset_count" "$successful_updates" "$failed_updates"
+  _report_update_results "$indent" "$preset_count" "$successful_updates" "$failed_updates" "$uptodate_updates"
 }
 
 update_preset() {

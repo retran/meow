@@ -125,8 +125,8 @@ update_pipx_packages() {
   step_header "$indent_level" "Updating pipx Packages ($category)"
 
   if ! command -v pipx &>/dev/null; then
-    indented_warning "$((indent_level+1))" "pipx not installed. Skipping update."
-    return 1
+    info_italic_msg "$indent_level" "pipx not available, skipping pipx package updates"
+    return 100
   fi
 
   if [[ "$category" == "all" ]]; then
@@ -201,10 +201,11 @@ update_pipx_packages() {
   if [[ $packages_failed_count -eq 0 ]]; then
     if [[ $packages_upgraded_count -gt 0 ]]; then
       success_tick_msg "$indent_level" "Pipx packages for '$category' updated successfully ($packages_upgraded_count upgraded, $packages_verified_count up-to-date) (${duration}s)"
+      return 0
     else
       success_tick_msg "$indent_level" "All pipx packages for '$category' are up-to-date ($packages_verified_count packages) (${duration}s)"
+      return 100
     fi
-    return 0
   else
     indented_error_msg "$indent_level" "Some pipx packages for '$category' failed ($packages_failed_count failures) (${duration}s)"
     return 1

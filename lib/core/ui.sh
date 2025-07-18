@@ -86,7 +86,6 @@ ui_confirm() {
   local prompt_suffix
   local default_upper
 
-  # Convert to uppercase in a portable way
   default_upper=$(echo "$default_response" | tr '[:lower:]' '[:upper:]')
 
   case "$default_upper" in
@@ -107,7 +106,6 @@ ui_confirm() {
       response="$default_response"
     fi
 
-    # Convert response to uppercase in a portable way
     local response_upper
     response_upper=$(echo "$response" | tr '[:lower:]' '[:upper:]')
 

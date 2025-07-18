@@ -13,6 +13,4 @@ go:
   packages:
     - markdown
 
-vscode:
-  packages:
-    - markdown
+

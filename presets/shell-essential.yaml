@@ -1,4 +1,0 @@
-description: "Essential shell tools installable on any system (Git, Tmux, Starship, Neovim)"
-
-components:
-  - shell-essential

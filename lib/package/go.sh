@@ -54,7 +54,6 @@ install_go_packages() {
     return 1
   fi
 
-  # Check if Go is available
   if ! command -v go &>/dev/null; then
     indented_error_msg "$indent_level" "Go is not installed or not in PATH"
     return 1
@@ -66,11 +65,9 @@ install_go_packages() {
     fi
     package_name=$(echo "$line" | awk '{print $1}')
 
-    # Extract the binary name from the package path for checking installation
     local binary_name
     binary_name=$(basename "$package_name" | sed 's/@.*//')
-    
-    # Check if package binary is already available in PATH
+
     if command -v "$binary_name" &>/dev/null; then
       local verify_status
       run_package_operation "$((indent_level+1))" "$package_name" "verify" \
@@ -140,8 +137,8 @@ update_go_packages() {
   step_header "$indent_level" "Updating Go Packages ($category)"
 
   if ! command -v go &>/dev/null; then
-    indented_warning "$((indent_level+1))" "Go not installed. Skipping update."
-    return 1
+    info_italic_msg "$indent_level" "Go not available, skipping Go package updates"
+    return 100
   fi
 
   if [[ "$category" == "all" ]]; then
@@ -186,7 +183,6 @@ update_go_packages() {
     local package_name
     package_name=$(echo "$line" | awk '{print $1}')
 
-    # Extract the binary name from the package path for checking installation
     local binary_name
     binary_name=$(basename "$package_name" | sed 's/@.*//')
 
@@ -221,32 +217,31 @@ update_go_packages() {
   if [[ $packages_failed_count -eq 0 ]]; then
     if [[ $packages_upgraded_count -gt 0 ]]; then
       success_tick_msg "$indent_level" "Go packages for '$category' updated successfully ($packages_upgraded_count updated, $packages_verified_count up-to-date) (${duration}s)"
+      return 0
     else
       success_tick_msg "$indent_level" "All Go packages for '$category' are up-to-date ($packages_verified_count packages) (${duration}s)"
+      return 100
     fi
-    return 0
   else
     indented_error_msg "$indent_level" "Some Go packages for '$category' failed ($packages_failed_count failures) (${duration}s)"
     return 1
   fi
 }
 
-# Helper function to check if Go is available and set up if needed
 setup_go() {
   local indent="${1:-0}"
-  
+
   if ! command -v go &>/dev/null; then
     step_header "$indent" "Setting up Go"
-    
+
     indented_warning "$indent" "Go is not installed. This should be handled by homebrew packages."
     indented_info "$indent" "Please install Go via homebrew or your system package manager."
     indented_info "$indent" "After installing Go, ensure GOPATH and GOBIN are properly configured."
     return 1
   fi
-  
+
   success_tick_msg "$indent" "Go is available"
-  
-  # Check if GOBIN is set and in PATH
+
   local gobin_path
   if [[ -n "${GOBIN:-}" ]]; then
     gobin_path="$GOBIN"
@@ -255,13 +250,13 @@ setup_go() {
   else
     gobin_path="$(go env GOPATH)/bin"
   fi
-  
+
   if [[ ":$PATH:" == *":$gobin_path:"* ]]; then
     success_tick_msg "$indent" "Go binary path ($gobin_path) is in PATH"
   else
     indented_warning "$indent" "Go binary path ($gobin_path) is not in PATH"
     indented_info "$indent" "Add 'export PATH=\"$gobin_path:\$PATH\"' to your shell profile"
   fi
-  
+
   return 0
 }
