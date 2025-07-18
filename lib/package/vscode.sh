@@ -204,8 +204,13 @@ update_vscode_extensions() {
 
   # Summary message
   if [[ $failed_count -eq 0 ]]; then
-    success_tick_msg "$indent_level" "All VS Code extensions for '$category' are up-to-date ($up_to_date_count extensions) (${duration}s)"
-    return 100
+    if [[ $up_to_date_count -gt 0 ]]; then
+      success_tick_msg "$indent_level" "All VS Code extensions for '$category' are up-to-date ($up_to_date_count extensions) (${duration}s)"
+      return 0
+    else
+      info_italic_msg "$indent_level" "No VS Code extensions were processed for '$category' (${duration}s)"
+      return 0
+    fi
   else
     indented_error_msg "$indent_level" "VS Code extension update for '$category' completed with errors ($failed_count failed) (${duration}s)"
     return 1
