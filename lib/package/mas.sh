@@ -69,9 +69,14 @@ install_mas_packages() {
   while IFS= read -r line || [[ -n "$line" ]]; do
     [[ -z "$line" || "$line" =~ ^[[:space:]]*# ]] && continue
 
-    if [[ "$line" =~ ^\"([^\"]+)\"[[:space:]]+id:[[:space:]]+([0-9]+)$ ]]; then
-      app_name="${BASH_REMATCH[1]}"
-      app_id="${BASH_REMATCH[2]}"
+    if [[ "$line" =~ ^\".*\"[[:space:]]+id:[[:space:]]+[0-9]+$ ]]; then
+      # Extract app name (bash 3.2 compatible)
+      local temp=${line#*\"}  # Remove up to first quote
+      app_name=${temp%\"*}   # Remove from last quote to end
+      
+      # Extract app ID (bash 3.2 compatible)  
+      local temp2=${line##*id:[[:space:]]}  # Remove everything up to "id: "
+      app_id=${temp2}
 
       if is_mas_app_installed "$app_id"; then
         info_italic_msg "$((indent_level+1))" "$app_name already installed, skipping"
@@ -181,9 +186,14 @@ update_mas_packages() {
   while IFS= read -r line || [[ -n "$line" ]]; do
     [[ -z "$line" || "$line" =~ ^[[:space:]]*# ]] && continue
 
-    if [[ "$line" =~ ^\"([^\"]+)\"[[:space:]]+id:[[:space:]]+([0-9]+)$ ]]; then
-      app_name="${BASH_REMATCH[1]}"
-      app_id="${BASH_REMATCH[2]}"
+    if [[ "$line" =~ ^\".*\"[[:space:]]+id:[[:space:]]+[0-9]+$ ]]; then
+      # Extract app name (bash 3.2 compatible)
+      local temp=${line#*\"}  # Remove up to first quote
+      app_name=${temp%\"*}   # Remove from last quote to end
+      
+      # Extract app ID (bash 3.2 compatible)  
+      local temp2=${line##*id:[[:space:]]}  # Remove everything up to "id: "
+      app_id=${temp2}
 
       if ! is_mas_app_installed "$app_id"; then
         info_italic_msg "$((indent_level+1))" "$app_name not installed, skipping"
