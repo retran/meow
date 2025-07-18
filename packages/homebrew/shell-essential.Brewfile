@@ -37,3 +37,5 @@ cask "basictex"
 brew "shellcheck"
 
 brew "neovim"
+
+brew "rustup-init"
