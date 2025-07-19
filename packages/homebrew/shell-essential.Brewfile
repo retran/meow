@@ -25,17 +25,19 @@ brew "tmux"
 brew "starship"
 brew "reattach-to-user-namespace"
 
-brew "pyenv"
-brew "pipx"
 brew "node"
 brew "go"
 
-brew "go-task"
+brew "neovim"
+brew "lua-language-server"
+brew "luacheck"
+brew "luarocks"
+brew "stylua"
 
 brew "pandoc"
 cask "basictex"
-brew "shellcheck"
 
-brew "neovim"
+brew "pyenv"
+brew "pipx"
 
 brew "rustup-init"

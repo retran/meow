@@ -1,0 +1,17 @@
+description: >-
+  Shell development tools for scripting, task running, and documentation
+
+depends_on:
+  - components/shell-essential
+
+homebrew:
+  packages:
+    - shell-development
+
+pipx:
+  packages:
+    - shell-development
+
+vscode:
+  packages:
+    - shell-development
