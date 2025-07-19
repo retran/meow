@@ -6,6 +6,4 @@ brew "lua-language-server"
 brew "luacheck"
 brew "luarocks"
 
-brew "bash-language-server"
-brew "shfmt"
 brew "stylua"

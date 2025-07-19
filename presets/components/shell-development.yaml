@@ -1,0 +1,11 @@
+description: >-
+  Shell development tools for scripting, task running, and documentation
+
+depends_on:
+  - components/shell-essential
+
+homebrew:
+  packages:
+    - shell-development
+
+script: setup-shell-development.sh
