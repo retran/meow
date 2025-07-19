@@ -99,10 +99,10 @@ Based on your needs:
 
 ```bash
 # Personal environment
-git clone --recurse-submodules https://github.com/retran/meow.git ~/.meow && cd ~/.meow && ./bin/install.sh personal
+curl -fsSL https://github.com/retran/meow/archive/main.tar.gz | tar -xz -C ~ && mv ~/meow-main ~/.meow && cd ~/.meow && git submodule update --init --recursive && ./bin/install.sh personal
 
-# Corporate environment
-git clone --recurse-submodules https://github.com/retran/meow.git ~/.meow && cd ~/.meow && ./bin/install.sh corporate
+# Corporate environment  
+curl -fsSL https://github.com/retran/meow/archive/main.tar.gz | tar -xz -C ~ && mv ~/meow-main ~/.meow && cd ~/.meow && git submodule update --init --recursive && ./bin/install.sh corporate
 ```
 
 ### 3. Enjoy Your Setup
@@ -125,46 +125,47 @@ cd ~/.meow
 
 ### Foundation Components
 
-- **🐚 shell-essential** - Essential shell tools component (Git, Tmux, Starship, Neovim)
-- **🖥️ desktop-essential** - GUI foundation component for macOS desktop environment
-- **🛠️ core-development** - Core development tools shared across all programming environments (depends on shell-essential)
-- **🎨 fonts** - Essential programming and design fonts
+- **🐚 shell-essential** - Essential shell tools (Git, Tmux, Starship, Neovim, fzf, ripgrep, zoxide)
+- **🎨 fonts** - Programming fonts (JetBrains Mono, Nerd Fonts)
+- **🖥️ desktop-essential** - GUI foundation for macOS (includes fonts, browser, terminal, VS Code)
+- **🛠️ core-development** - Core development tools (GitHub CLI, language servers, formatters)
 
 ### Development Environments
 
-- **🐹 go-development** - Complete Go development environment with language server, debugger, linters, and build tools
-- **⚡ javascript** - JavaScript/TypeScript development with Node.js tools, language servers, and formatters
-- **🗾 kotlin-development** - Kotlin development environment and tools
+- **🐹 go-development** - Complete Go environment (gopls, delve debugger, staticcheck, air, templ, swag)
+- **⚡ javascript** - JavaScript/TypeScript development with Node.js ecosystem tools
+- **⚛️ react** - React development framework extending JavaScript
+- **🌐 web** - Advanced web development extending React with deployment and HTTP tools
+- **🦀 rust-development** - Rust development tools and environment
+- **🗾 kotlin-development** - Kotlin development environment
 - **🦄 dotnet-development** - .NET development tools and SDK
-- **⚛️ react** - React development framework extending JavaScript with React-specific tooling
-- **🌐 web** - Advanced web development with CSS frameworks, build tools, deployment utilities, and HTTP testing (extends React)
-- **🎮 game-development** - Game development tools including Godot and tools for Pico-8/Picotron
-- **📝 markdown** - Technical writing with linting, spell checking, presentation tools, and terminal rendering
+- **🎮 game-development** - Game development tools and engines
+- **📝 markdown** - Technical writing with linting, presentation tools, and rendering
 
 ### Communication & Productivity
 
-- **💼 corporate-communication** - Professional communication tools for work environments
-- **👥 personal-communication** - Personal messaging and social applications
-- **📋 productivity** - Set of productivity tools
+- **💼 corporate-communication** - Professional communication tools
+- **👥 personal-communication** - Personal messaging applications
+- **📋 productivity** - Productivity applications and workflow tools
 
 ### Entertainment & Media
 
-- **🎮 gaming** - Gaming platforms and applications
-- **🎨 media** - Media editing and graphics tools
+- **🎮 gaming** - Gaming platforms (Steam, NVIDIA GeForce Now)
+- **🎨 media** - Media editing and graphics tools (FFmpeg, ImageMagick, OBS)
 
 ### Package Manager Support
 
-Components support multiple package managers depending on their needs:
+Components support multiple package managers:
 
-- **brew**
-- **npm**
-- **pipx**
-- **gopm**
-- **cargo**
-- **mas**
-- **VS Code extensions**
+- **Homebrew** - macOS packages and applications
+- **npm** - JavaScript/Node.js packages
+- **pipx** - Python applications in isolated environments
+- **go install** - Go tools and applications
+- **cargo** - Rust tools and applications
+- **Mac App Store (mas)** - macOS App Store applications
+- **VS Code extensions** - Development environment extensions
 
-Components automatically resolve dependencies - for example, `react` includes `javascript`, which includes `core-development`, which includes `shell-essential`.
+Components automatically resolve dependencies - for example, `web` includes `react`, which includes `javascript`, which includes `core-development`, which includes `shell-essential`.
 
 ## 🔧 Troubleshooting
 
@@ -251,36 +252,48 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 ## 🙏 Acknowledgments
 
-`meow` builds on the excellent work of the open-source community and various development tools.
+`meow` builds on the excellent work of the open-source community and development tools:
 
-- [Homebrew](https://brew.sh/) - The missing package manager for macOS
-- [zsh](https://zsh.sourceforge.io/) - Z shell
-- [Oh My Zsh](https://ohmyz.sh/) - Zsh configuration framework
+**Core Tools:**
+- [Homebrew](https://brew.sh/) - macOS package manager
+- [Git](https://git-scm.com/) - Version control system
+- [GitHub CLI](https://cli.github.com/) - Git hosting command line interface
 - [tmux](https://github.com/tmux/tmux) - Terminal multiplexer
-- [git](https://git-scm.com/) - Version control system
 - [Starship](https://starship.rs/) - Cross-shell prompt
-- [Neovim](https://neovim.io/) - Hyperextensible Vim-based text editor
-- [Neovide](https://neovide.dev/) - Neovim GUI client
-- [Visual Studio Code](https://code.visualstudio.com/) - Code editor
-- [Ghostty](https://ghostty.org/) - Terminal emulator
-- [Node.js](https://nodejs.org/) - JavaScript runtime
-- [Go](https://golang.org/) - Programming language
-- [Python](https://www.python.org/) - Programming language
-- [mas](https://github.com/mas-cli/mas) - Mac App Store command line interface
-- [Raycast](https://raycast.com/) - Productivity tool for macOS
-- [Hammerspoon](https://www.hammerspoon.org/) - macOS automation tool
-- [fzf](https://github.com/junegunn/fzf) - Command-line fuzzy finder
-- [ripgrep](https://github.com/BurntSushi/ripgrep) - Line-oriented search tool
-- [fd](https://github.com/sharkdp/fd) - Simple, fast and user-friendly alternative to find
-- [jq](https://stedolan.github.io/jq/) - Command-line JSON processor
-- [yq](https://github.com/mikefarah/yq) - Command-line YAML processor
-- [task](https://taskfile.dev/) - Task runner / build tool
-- [pandoc](https://pandoc.org/) - Universal document converter
-- [JetBrains Mono](https://www.jetbrains.com/lp/mono/) - Typeface for developers
-- [Nerd Fonts](https://www.nerdfonts.com/) - Iconic font aggregator
-- [Tokyo Night](https://github.com/tokyo-night) - Clean, dark theme
+- [zsh](https://zsh.sourceforge.io/) - Z shell
 
-and many other amazing open-source projects that make development a joy
+**Editors & Development:**
+- [Neovim](https://neovim.io/) - Hyperextensible text editor
+- [Visual Studio Code](https://code.visualstudio.com/) - Code editor
+- [Neovide](https://neovide.dev/) - Neovim GUI client
+- [Ghostty](https://ghostty.org/) - Terminal emulator
+
+**Command Line Utilities:**
+- [fzf](https://github.com/junegunn/fzf) - Fuzzy finder
+- [ripgrep](https://github.com/BurntSushi/ripgrep) - Text search tool
+- [fd](https://github.com/sharkdp/fd) - File finder
+- [eza](https://github.com/eza-community/eza) - Modern ls replacement
+- [zoxide](https://github.com/ajeetdsouza/zoxide) - Smart directory navigation
+- [jq](https://stedolan.github.io/jq/) - JSON processor
+- [yq](https://github.com/mikefarah/yq/) - YAML processor
+
+**Development Languages & Tools:**
+- [Go](https://golang.org/) - Programming language
+- [Node.js](https://nodejs.org/) - JavaScript runtime
+- [Rust](https://www.rust-lang.org/) - Systems programming language
+- [TypeScript](https://www.typescriptlang.org/) - Typed JavaScript
+
+**Productivity & Automation:**
+- [Raycast](https://raycast.com/) - macOS productivity tool
+- [Hammerspoon](https://www.hammerspoon.org/) - macOS automation
+- [1Password](https://1password.com/) - Password manager
+- [mas](https://github.com/mas-cli/mas) - Mac App Store CLI
+
+**Fonts & Design:**
+- [JetBrains Mono](https://www.jetbrains.com/lp/mono/) - Developer typeface
+- [Nerd Fonts](https://www.nerdfonts.com/) - Iconic font collection
+
+and many other open-source projects that make development enjoyable
 
 ### Author
 
