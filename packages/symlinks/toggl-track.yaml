@@ -1,2 +1,2 @@
-- source: "$DOTFILES_DIR/config/toggl/.togglrc"
+- source: "$MEOW/config/toggl/.togglrc"
   target: "$HOME/.togglrc"

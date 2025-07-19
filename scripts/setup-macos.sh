@@ -5,11 +5,11 @@
 set -euo pipefail
 
 PRESET="$1"
-DOTFILES_DIR="$2"
+MEOW="$2"
 INDENT_LEVEL="${3:-0}"
 
-source "${DOTFILES_DIR}/lib/core/ui.sh"
-source "${DOTFILES_DIR}/lib/system/macos.sh"
+source "${MEOW}/lib/core/ui.sh"
+source "${MEOW}/lib/system/macos.sh"
 
 main() {
   local indent_level="$INDENT_LEVEL"

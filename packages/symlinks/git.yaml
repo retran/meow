@@ -1,2 +1,2 @@
-- source: "$DOTFILES_DIR/config/git/.gitconfig"
+- source: "$MEOW/config/git/.gitconfig"
   target: "$HOME/.gitconfig"

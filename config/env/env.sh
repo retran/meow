@@ -7,7 +7,7 @@ if [[ "${BASH_SOURCE[0]}" != "${0}" ]] && [[ -n "${_CONFIG_XDG_ENV_SOURCED:-}" ]
 fi
 _CONFIG_XDG_ENV_SOURCED=1
 
-export DOTFILES_DIR="${DOTFILES_DIR:-${HOME}/.meow}"
+export MEOW="${MEOW:-${HOME}/.meow}"
 export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
 export XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
 export XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
@@ -37,12 +37,11 @@ if [[ -d "$PYENV_ROOT/bin" ]]; then
   export PATH="$PYENV_ROOT/bin:$PATH"
 fi
 
-if command -v go &>/dev/null; then
+if command -v go >/dev/null 2>&1; then
   export GOPATH="${GOPATH:-$(go env GOPATH)}"
   export PATH="$GOPATH/bin:$PATH"
 fi
 
-# Rust and Cargo configuration
 if [[ -d "$HOME/.cargo" ]]; then
   source "$HOME/.cargo/env"
 fi

@@ -5,13 +5,13 @@
 set -euo pipefail
 
 PRESET="$1"
-DOTFILES_DIR="$2"
+MEOW="$2"
 INDENT_LEVEL="${3:-0}"
 
-source "${DOTFILES_DIR}/lib/core/ui.sh"
-source "${DOTFILES_DIR}/lib/system/rust.sh"
-source "${DOTFILES_DIR}/lib/system/tmux.sh"
-source "${DOTFILES_DIR}/lib/system/zsh.sh"
+source "${MEOW}/lib/core/ui.sh"
+source "${MEOW}/lib/system/rust.sh"
+source "${MEOW}/lib/system/tmux.sh"
+source "${MEOW}/lib/system/zsh.sh"
 
 main() {
   local indent_level="$INDENT_LEVEL"

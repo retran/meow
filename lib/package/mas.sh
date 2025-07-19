@@ -7,9 +7,9 @@ if [[ "${BASH_SOURCE[0]}" != "${0}" ]] && [[ -n "${_LIB_PACKAGE_MAS_SOURCED:-}" 
 fi
 _LIB_PACKAGE_MAS_SOURCED=1
 
-source "${DOTFILES_DIR}/lib/core/ui.sh"
+source "${MEOW}/lib/core/ui.sh"
 
-MAS_PACKAGES_DIR="${DOTFILES_DIR}/packages/mas"
+MAS_PACKAGES_DIR="${MEOW}/packages/mas"
 
 is_mas_app_installed() {
   local app_id="$1"
@@ -31,21 +31,21 @@ install_mas_packages() {
 
   step_header "$indent_level" "Mac App Store Applications ($category)"
 
-  if ! command -v mas &>/dev/null; then
+  if ! command -v mas >/dev/null 2>&1; then
     indented_error_msg "$indent_level" "mas (Mac App Store CLI) is required but not installed."
-    indented_info "$((indent_level+1))" "Install it with: brew install mas"
+    indented_info "$((indent_level + 1))" "Install it with: brew install mas"
     return 1
   fi
 
   if [[ "$category" == "all" ]]; then
-    indented_info "$((indent_level+1))" "Processing all Masfile categories..."
+    indented_info "$((indent_level + 1))" "Processing all Masfile categories..."
     local overall_success=true
     for masfile_path in "$MAS_PACKAGES_DIR"/*.Masfile; do
       if [[ -f "$masfile_path" ]]; then
         local current_category
         current_category=$(basename "$masfile_path" .Masfile)
-        if ! install_mas_packages "$current_category" "$((indent_level+1))"; then
-            overall_success=false
+        if ! install_mas_packages "$current_category" "$((indent_level + 1))"; then
+          overall_success=false
         fi
       fi
     done
@@ -70,45 +70,37 @@ install_mas_packages() {
     [[ -z "$line" || "$line" =~ ^[[:space:]]*# ]] && continue
 
     if [[ "$line" =~ ^\".*\"[[:space:]]+id:[[:space:]]+[0-9]+$ ]]; then
-      # Extract app name (bash 3.2 compatible)
-      local temp=${line#*\"}  # Remove up to first quote
+      local temp=${line#*\"} # Remove up to first quote
       app_name=${temp%\"*}   # Remove from last quote to end
-      
-      # Extract app ID (bash 3.2 compatible)  
-      local temp2=${line##*id: }  # Remove everything up to "id: "
+
+      local temp2=${line##*id: } # Remove everything up to "id: "
       app_id=${temp2}
 
       if is_mas_app_installed "$app_id"; then
-        info_italic_msg "$((indent_level+1))" "$app_name already installed, skipping"
+        success_tick_msg "$((indent_level + 1))" "$app_name (already installed)"
         already_installed_packages+=("$app_name")
         ((already_installed_count++))
       else
-        action_msg "$((indent_level+1))" "Installing $app_name (ID: $app_id)..."
-        local install_output
-        install_output=$(mas install "$app_id" 2>&1)
-        local install_exit_code=$?
+        local install_status
+        run_package_operation "$((indent_level + 1))" "$app_name" "install" \
+          "Installing $app_name (ID: $app_id)" \
+          "Successfully installed $app_name." \
+          "Failed to install $app_name." \
+          "$app_name is already installed." \
+          mas install "$app_id"
+        install_status=$?
 
-        if [[ $install_exit_code -eq 0 ]]; then
-          success_tick_msg "$((indent_level+1))" "$app_name installed successfully"
+        if [ $install_status -eq 0 ]; then
           installed_packages+=("$app_name")
           ((installed_count++))
         else
-          if echo "$install_output" | grep -q "Not signed in"; then
-            indented_error_msg "$((indent_level+1))" "Failed to install $app_name: Not signed in to Mac App Store"
-            indented_info "$((indent_level+2))" "Please sign in through the App Store app and try again"
-          else
-            indented_error_msg "$((indent_level+1))" "Failed to install $app_name (ID: $app_id)"
-            if [[ -n "$install_output" ]]; then
-              indented_info "$((indent_level+2))" "Error: $install_output"
-            fi
-          fi
           ((failed_count++))
         fi
       fi
     else
-      indented_warning "$((indent_level+1))" "Invalid format in Masfile: $line"
+      indented_warning "$((indent_level + 1))" "Invalid format in Masfile: $line"
     fi
-  done < "$masfile"
+  done <"$masfile"
 
   end_time=$(date +%s)
   duration=$((end_time - start_time))
@@ -140,20 +132,20 @@ update_mas_packages() {
 
   step_header "$indent_level" "Updating Mac App Store Applications ($category)"
 
-  if ! command -v mas &>/dev/null; then
+  if ! command -v mas >/dev/null 2>&1; then
     info_italic_msg "$indent_level" "mas not available, skipping Mac App Store updates"
     return 100
   fi
 
   if [[ "$category" == "all" ]]; then
-    indented_info "$((indent_level+1))" "Processing all Masfile categories..."
+    indented_info "$((indent_level + 1))" "Processing all Masfile categories..."
     local overall_success=true
     for masfile_path in "$MAS_PACKAGES_DIR"/*.Masfile; do
       if [[ -f "$masfile_path" ]]; then
         local current_category
         current_category=$(basename "$masfile_path" .Masfile)
-        if ! update_mas_packages "$current_category" "$((indent_level+1))"; then
-            overall_success=false
+        if ! update_mas_packages "$current_category" "$((indent_level + 1))"; then
+          overall_success=false
         fi
       fi
     done
@@ -178,7 +170,7 @@ update_mas_packages() {
   outdated_apps=$(mas outdated 2>/dev/null)
 
   if [[ -z "$outdated_apps" ]]; then
-    info_italic_msg "$((indent_level+1))" "No Mac App Store apps need updates"
+    info_italic_msg "$((indent_level + 1))" "No Mac App Store apps need updates"
     success_tick_msg "$indent_level" "All Mac App Store applications for '$category' are up-to-date (0 packages)"
     return 0
   fi
@@ -187,46 +179,44 @@ update_mas_packages() {
     [[ -z "$line" || "$line" =~ ^[[:space:]]*# ]] && continue
 
     if [[ "$line" =~ ^\".*\"[[:space:]]+id:[[:space:]]+[0-9]+$ ]]; then
-      # Extract app name (bash 3.2 compatible)
-      local temp=${line#*\"}  # Remove up to first quote
+      local temp=${line#*\"} # Remove up to first quote
       app_name=${temp%\"*}   # Remove from last quote to end
-      
-      # Extract app ID (bash 3.2 compatible)  
-      local temp2=${line##*id: }  # Remove everything up to "id: "
+
+      local temp2=${line##*id: } # Remove everything up to "id: "
       app_id=${temp2}
 
       if ! is_mas_app_installed "$app_id"; then
-        info_italic_msg "$((indent_level+1))" "$app_name not installed, skipping"
+        info_italic_msg "$((indent_level + 1))" "$app_name not installed, skipping"
         continue
       fi
 
       if echo "$outdated_apps" | grep -q "^$app_id "; then
-        action_msg "$((indent_level+1))" "Upgrading $app_name..."
+        action_msg "$((indent_level + 1))" "Upgrading $app_name..."
         local upgrade_output
         upgrade_output=$(mas upgrade "$app_id" 2>&1)
         local upgrade_exit_code=$?
 
         if [[ $upgrade_exit_code -eq 0 ]]; then
-          success_tick_msg "$((indent_level+1))" "Successfully upgraded $app_name."
+          success_tick_msg "$((indent_level + 1))" "Successfully upgraded $app_name."
           ((updated_count++))
         else
           if echo "$upgrade_output" | grep -q "Not signed in"; then
-            indented_error_msg "$((indent_level+1))" "Failed to upgrade $app_name: Not signed in to Mac App Store"
-            indented_info "$((indent_level+2))" "Please sign in through the App Store app and try again"
+            indented_error_msg "$((indent_level + 1))" "Failed to upgrade $app_name: Not signed in to Mac App Store"
+            indented_info "$((indent_level + 2))" "Please sign in through the App Store app and try again"
           else
-            indented_error_msg "$((indent_level+1))" "Failed to upgrade $app_name."
+            indented_error_msg "$((indent_level + 1))" "Failed to upgrade $app_name."
             if [[ -n "$upgrade_output" ]]; then
-              indented_info "$((indent_level+2))" "Error: $upgrade_output"
+              indented_info "$((indent_level + 2))" "Error: $upgrade_output"
             fi
           fi
           ((failed_count++))
         fi
       else
-        success_tick_msg "$((indent_level+1))" "$app_name is already up to date."
+        success_tick_msg "$((indent_level + 1))" "$app_name is already up to date."
         ((up_to_date_count++))
       fi
     fi
-  done < "$masfile"
+  done <"$masfile"
 
   end_time=$(date +%s)
   duration=$((end_time - start_time))

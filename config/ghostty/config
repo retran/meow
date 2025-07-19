@@ -3,13 +3,15 @@ title = "meow - Purr-fect Development Environment"
 window-decoration = true
 window-width = 120
 window-height = 40
+background-opacity = 0.9
+background-blur = true
 
 font-family = "JetBrainsMono Nerd Font Mono"
 font-style = "SemiBold"
 font-size = 15
 
 # Tokyo Night Theme Colors
-background = #222436
+background = #1A1B26
 foreground = #c0caf5
 cursor-color = #c0caf5
 cursor-text = #1a1b26

@@ -1,43 +1,30 @@
 #!/usr/bin/env bash
 
-# lib/core/ui.sh - Core UI functions for terminal output
+# lib/core/ui.sh - UI functions for terminal output
 
 if [[ "${BASH_SOURCE[0]}" != "${0}" ]] && [[ -n "${_LIB_CORE_UI_SOURCED:-}" ]]; then
   return 0
 fi
 _LIB_CORE_UI_SOURCED=1
 
-source "${DOTFILES_DIR}/lib/core/colors.sh"
+source "${MEOW}/lib/core/colors.sh"
 
-# Indent helper for all logging
+# Generate indentation string
 indent() {
   local level="${1:-0}"
-
   if ! [[ "$level" =~ ^[0-9]+$ ]]; then
-    echo -e "\n\e[1;31m[DEBUG] Error calling function 'indent':\e[0m" >&2
-    echo -e "\e[31m -> Expected a number, but got argument: '$1'\e[0m" >&2
-    echo -e "\e[31m -> Call stack (who called whom):\e[0m" >&2
-    # Display function stack trace using bash-compatible FUNCNAME array
-    local stack_trace=""
-    local i
-    for ((i=1; i<${#FUNCNAME[@]}; i++)); do
-      if [[ -n "$stack_trace" ]]; then
-        stack_trace+=" -> "
-      fi
-      stack_trace+="${FUNCNAME[i]}"
-    done
-    echo -e "\e[1;33m   $stack_trace\e[0m\n" >&2
+    echo -e "\n\e[1;31m[DEBUG] Error in indent(): Invalid argument\e[0m" >&2
+    echo -e "\e[31m -> Expected non-negative integer, got: '$1'\e[0m" >&2
     return 1
   fi
-
   local indent_str=""
-  for ((i=0; i<level; i++)); do
+  for ((i = 0; i < level; i++)); do
     indent_str+="  "
   done
   echo -n "$indent_str"
 }
 
-# Helper for basic colored messages
+# Internal helper for colored messages
 _base_msg() {
   local indent_level="$1"
   local color_prefix="$2"
@@ -45,7 +32,7 @@ _base_msg() {
   echo -e "$(indent "$indent_level")${color_prefix}${*}${RESET}"
 }
 
-# Helper for messages with icons
+# Internal helper for icon messages
 _icon_msg_core() {
   local indent_level="$1"
   local icon_and_color="$2"
@@ -53,19 +40,21 @@ _icon_msg_core() {
   echo -e "$(indent "$indent_level")${icon_and_color}${RESET}${NORMAL}${*}${RESET}"
 }
 
-# Helper function to print temporary output file content on error (used by ui_spinner)
+# Show command output on error
 _print_temp_output_if_exists() {
   local indent_level="$1"
   local temp_file="$2"
+
   if [[ -s "$temp_file" ]]; then
     echo ""
-    error "$indent_level" "Output:"
+    error "$indent_level" "Command output:"
     while IFS= read -r line; do
-        content "$indent_level" "$line"
-    done < "$temp_file"
+      content "$indent_level" "$line"
+    done <"$temp_file"
   fi
 }
 
+# Message functions
 msg() { _base_msg "${1:-0}" "${NORMAL}" "${@:2}"; }
 success() { _base_msg "${1:-0}" "${SUCCESS}" "${@:2}"; }
 error() { _base_msg "${1:-0}" "${ERROR}" "${@:2}" >&2; }
@@ -73,14 +62,18 @@ warning() { _base_msg "${1:-0}" "${WARNING}" "${@:2}"; }
 info() { _base_msg "${1:-0}" "${INFO}" "${@:2}"; }
 content() { _base_msg "${1:-0}" "${CONTENT}" "${@:2}"; }
 
+# Header functions
 title() { _base_msg "${1:-0}" "${HEADER}${BOLD}" "${@:2}"; }
 header() { _base_msg "${1:-0}" "${HEADER}" "${@:2}"; }
 subheader() { _base_msg "${1:-0}" "${SUBHEADER}" "${@:2}"; }
 
+# Icon messages
 action_msg() { _icon_msg_core "${1:-0}" "${INFO}➤ " "${@:2}"; }
 success_tick_msg() { _icon_msg_core "${1:-0}" "${SUCCESS}✓ " "${@:2}"; }
 info_italic_msg() { _icon_msg_core "${1:-0}" "${INFO}ℹ︎ " "${@:2}"; }
 dependency_msg() { _icon_msg_core "${1:-0}" "${NORMAL}↪ " "${@:2}"; }
+
+# Indented messages
 indented_info() { _icon_msg_core "${1:-0}" "${NORMAL}  " "${@:2}"; }
 indented_success_tick_msg() { _icon_msg_core "${1:-0}" "${SUCCESS}  ✓ " "${@:2}"; }
 indented_warning() { _icon_msg_core "${1:-0}" "${WARNING}  ⚠ " "${@:2}"; }
@@ -88,6 +81,7 @@ indented_error_msg() { _icon_msg_core "${1:-0}" "${ERROR}  ✗ " "${@:2}" >&2; }
 list_item_msg() { _icon_msg_core "${1:-0}" "${NORMAL}    " "${@:2}"; }
 emphasized_msg() { _icon_msg_core "${1:-0}" "${BOLD}" "${@:2}"; }
 
+# Interactive confirmation prompt
 ui_confirm() {
   local indent_level="${1:-0}"
   local message="${2:-Confirm}"
@@ -98,12 +92,8 @@ ui_confirm() {
   default_upper=$(echo "$default_response" | tr '[:lower:]' '[:upper:]')
 
   case "$default_upper" in
-    Y|YES)
-      prompt_suffix="(Y/n)"
-      ;;
-    *)
-      prompt_suffix="(y/N)"
-      ;;
+  Y | YES) prompt_suffix="(Y/n)" ;;
+  *) prompt_suffix="(y/N)" ;;
   esac
 
   local response
@@ -119,24 +109,14 @@ ui_confirm() {
     response_upper=$(echo "$response" | tr '[:lower:]' '[:upper:]')
 
     case "$response_upper" in
-      Y|YES)
-        return 0
-        ;;
-      N|NO)
-        return 1
-        ;;
-      *)
-        warning "$indent_level" "Please answer 'y' for yes or 'n' for no."
-        ;;
+    Y | YES) return 0 ;;
+    N | NO) return 1 ;;
+    *) warning "$indent_level" "Please answer 'y' for yes or 'n' for no." ;;
     esac
   done
 }
 
-# Spinner function
-# Usage: ui_spinner <indent_level> "Message for spinner" [--success "Success message"] [--fail "Failure message"] [--unchanged "Unchanged message"] [--pattern "Unchanged pattern"] command [arg1 arg2 ...]
-# Example: ui_spinner 1 "Installing package..." brew install package_name
-# Example with custom messages: ui_spinner 1 "Installing package..." --success "Package installed!" --fail "Package installation failed!" --unchanged "Package already up to date!" brew install package_name
-# Returns the exit code of the command
+# Spinner function with progress indicator
 ui_spinner() {
   local indent_level="$1"
   local msg="$2"
@@ -222,8 +202,7 @@ log_verbose() {
   fi
 }
 
-# Standard operation wrapper with consistent logging
-# Usage: run_operation <indent_level> <operation_name> <command> [args...]
+# Operation wrapper with timing
 run_operation() {
   local indent_level="$1"
   local operation_name="$2"
@@ -248,7 +227,7 @@ run_operation() {
   fi
 }
 
-# Standardized step logging for multi-step operations
+# Step header with optional numbering
 step_header() {
   local indent_level="$1"
   local step_name="$2"
@@ -262,7 +241,7 @@ step_header() {
   fi
 }
 
-# Standardized package operation wrapper
+# Package operation wrapper
 run_package_operation() {
   local indent_level="$1"
   local package_name="$2"

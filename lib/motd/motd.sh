@@ -1,4 +1,4 @@
-#!/usr/bin/env zsh
+#!/usr/bin/env bash
 
 # lib/motd/motd.sh - Message of the Day (MOTD) display system
 
@@ -7,23 +7,23 @@ if [[ "${BASH_SOURCE[0]}" != "${0}" ]] && [[ -n "${_LIB_MOTD_SOURCED:-}" ]]; the
 fi
 _LIB_MOTD_SOURCED=1
 
-if [[ -z "$DOTFILES_DIR" ]]; then
-  echo "Error: DOTFILES_DIR environment variable is not set." >&2
+if [[ -z "$MEOW" ]]; then
+  echo "Error: MEOW environment variable is not set." >&2
   return 1
 fi
 
-readonly MOTD_ASSETS_DIR="${DOTFILES_DIR}/assets"
-readonly MOTD_CACHE_DIR="${HOME}/.cache/shell-motd"
-readonly MOTD_ASCII_ART_FILE="${MOTD_ASSETS_DIR}/ascii/motd.ascii"
+readonly MEOW_MOTD_ASSETS_DIR="${MEOW}/assets"
+readonly MEOW_MOTD_CACHE_DIR="${HOME}/.cache/meow-motd"
+readonly MEOW_MOTD_ASCII_ART_FILE="${MEOW_MOTD_ASSETS_DIR}/ascii/motd.ascii"
 
-mkdir -p "${MOTD_CACHE_DIR}"
+mkdir -p "${MEOW_MOTD_CACHE_DIR}"
 
-source "${DOTFILES_DIR}/lib/core/colors.sh"
+source "${MEOW}/lib/core/colors.sh"
 
 load_yaml_comments() {
   local category="$1"
   local section="$2"
-  local yaml_file="${MOTD_ASSETS_DIR}/comments/${category}.yaml"
+  local yaml_file="${MEOW_MOTD_ASSETS_DIR}/comments/${category}.yaml"
 
   if [[ ! -f "$yaml_file" ]]; then
     return 1
@@ -55,7 +55,7 @@ get_comment_collection() {
         if [[ -n "$line" ]]; then
           result+=("$line")
         fi
-      done <<<"$collection_content"
+      done < <(printf '%s\n' "$collection_content")
     fi
   done
 
@@ -221,8 +221,8 @@ display_art_and_stats() {
   local -a art_array
   local -a stats_array
 
-  while IFS= read -r line; do art_array+=("$line"); done <<<"$art_content"
-  while IFS= read -r line; do stats_array+=("$line"); done <<<"$stats_content"
+  while IFS= read -r line; do art_array+=("$line"); done < <(printf '%s\n' "$art_content")
+  while IFS= read -r line; do stats_array+=("$line"); done < <(printf '%s\n' "$stats_content")
 
   local max_art_width=0
   local num_art_lines=${#art_array[@]}
@@ -272,8 +272,8 @@ show_motd() {
   fi
 
   local system_info art_content stats_content
-  system_info=$(get_system_info "$MOTD_CACHE_DIR")
-  art_content=$(load_art "$MOTD_ASCII_ART_FILE")
+  system_info=$(get_system_info "$MEOW_MOTD_CACHE_DIR")
+  art_content=$(load_art "$MEOW_MOTD_ASCII_ART_FILE")
   stats_content=$(build_system_stats "$system_info")
 
   display_art_and_stats "$art_content" "$stats_content"

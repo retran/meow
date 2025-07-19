@@ -7,12 +7,12 @@ if [[ "${BASH_SOURCE[0]}" != "${0}" ]] && [[ -n "${_LIB_SYSTEM_TMUX_SOURCED:-}" 
 fi
 _LIB_SYSTEM_TMUX_SOURCED=1
 
-source "${DOTFILES_DIR}/lib/core/ui.sh"
+source "${MEOW}/lib/core/ui.sh"
 
 setup_tmux_plugin_manager() {
   local indent_level="${1:-1}"
 
-  if ! command -v tmux &>/dev/null; then
+  if ! command -v tmux >/dev/null 2>&1; then
     indented_warning "$indent_level" "tmux is not installed, skipping Plugin Manager setup"
     return 0
   fi
@@ -24,11 +24,11 @@ setup_tmux_plugin_manager() {
     success_tick_msg "$indent_level" "tmux Plugin Manager is already installed."
     action_msg "$indent_level" "Updating tmux Plugin Manager..."
     if git -C "$HOME/.tmux/plugins/tpm" pull; then
-        success_tick_msg "$indent_level" "tmux Plugin Manager update completed."
-        return 0
+      success_tick_msg "$indent_level" "tmux Plugin Manager update completed."
+      return 0
     else
-        indented_error_msg "$indent_level" "Failed to update tmux Plugin Manager."
-        return 1
+      indented_error_msg "$indent_level" "Failed to update tmux Plugin Manager."
+      return 1
     fi
   fi
 

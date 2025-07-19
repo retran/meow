@@ -7,7 +7,7 @@ if [[ "${BASH_SOURCE[0]}" != "${0}" ]] && [[ -n "${_LIB_SYSTEM_ZSH_SOURCED:-}" ]
 fi
 _LIB_SYSTEM_ZSH_SOURCED=1
 
-source "${DOTFILES_DIR}/lib/core/ui.sh"
+source "${MEOW}/lib/core/ui.sh"
 
 setup_ohmyzsh() {
   local indent_level="${1:-1}"
@@ -18,11 +18,11 @@ setup_ohmyzsh() {
     success_tick_msg "$indent_level" "Oh My Zsh is already installed."
     action_msg "$indent_level" "Updating Oh My Zsh..."
     if zsh "$HOME/.oh-my-zsh/tools/upgrade.sh"; then
-        success_tick_msg "$indent_level" "Oh My Zsh update completed."
-        return 0
+      success_tick_msg "$indent_level" "Oh My Zsh update completed."
+      return 0
     else
-        indented_error_msg "$indent_level" "Failed to update Oh My Zsh."
-        return 1
+      indented_error_msg "$indent_level" "Failed to update Oh My Zsh."
+      return 1
     fi
   fi
 

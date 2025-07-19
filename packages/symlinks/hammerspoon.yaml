@@ -1,2 +1,2 @@
-- source: "$DOTFILES_DIR/config/hammerspoon"
+- source: "$MEOW/config/hammerspoon"
   target: "$HOME/.hammerspoon"

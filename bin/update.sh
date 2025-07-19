@@ -4,20 +4,20 @@
 
 set -euo pipefail
 
-DOTFILES_DIR="${DOTFILES_DIR:-$HOME/.meow}"
+MEOW="${MEOW:-$HOME/.meow}"
 
 if [[ -f "./config/env/env.sh" && -d "./presets" ]]; then
-  DOTFILES_DIR="$(pwd)"
+  MEOW="$(pwd)"
 fi
 
-source "${DOTFILES_DIR}/config/env/env.sh"
-source "${DOTFILES_DIR}/lib/core/bash_compat.sh"
-source "${DOTFILES_DIR}/lib/core/ui.sh"
-source "${DOTFILES_DIR}/lib/commands/update.sh"
+source "${MEOW}/config/env/env.sh"
+source "${MEOW}/lib/core/bash.sh"
+source "${MEOW}/lib/core/ui.sh"
+source "${MEOW}/lib/commands/update.sh"
 
 show_help() {
     title 0 "meow Update"
-    msg 0 "Updates packages for installed presets or a specific preset."
+    msg 0 "Update packages for installed presets or a specific preset."
     msg 0 ""
     show_bash_version_info 0
     msg 0 ""

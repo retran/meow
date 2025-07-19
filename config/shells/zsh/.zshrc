@@ -52,7 +52,7 @@ if [[ -f "$ZSH/oh-my-zsh.sh" ]]; then
   source "$ZSH/oh-my-zsh.sh"
 fi
 
-if [[ -f "$DOTFILES_DIR/config/aliases/aliases.sh" ]]; then . "$DOTFILES_DIR/config/aliases/aliases.sh"; fi
+if [[ -f "$MEOW/config/aliases/aliases.sh" ]]; then . "$MEOW/config/aliases/aliases.sh"; fi
 
 if [[ -f "/opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh" ]]; then
   . "/opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
@@ -67,7 +67,7 @@ fi
 
 if ! command -v _toggl >/dev/null 2>&1; then
   _toggl() {
-    eval $(env COMMANDLINE="${words[1,$CURRENT]}" _TOGGL_COMPLETE=complete-zsh toggl)
+    eval $(env COMMANDLINE="${words[1, $CURRENT]}" _TOGGL_COMPLETE=complete-zsh toggl)
   }
   compdef _toggl toggl
 fi
