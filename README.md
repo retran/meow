@@ -23,33 +23,25 @@ A comprehensive dotfiles management system that automates the tedious task of co
 
 <div align="center">
 
-<img src="assets/screenshot.png" alt="meow shell" width="800">
+<img src="assets/screenshots/screenshot_login.png" alt="login" width="800">
+
+<img src="assets/screenshots/screenshot_update.png" alt="update" width="800">
+
+<img src="assets/screenshots/screenshot_neovim.png" alt="vim" width="800">
 
 </div>
 
 ## 📋 Table of Contents
 
 - [🖼️ Screenshots](#️-screenshots)
-- [🌟 Key Features](#-key-features)
 - [✨ Features](#-features)
 - [📋 Prerequisites](#-prerequisites)
-- [🚀 Installation](#-installation)
 - [⚡ Quick Start](#-quick-start)
 - [🧩 Components](#-components)
 - [🔧 Troubleshooting](#-troubleshooting)
 - [🤝 Contributing](#-contributing)
 - [📄 License](#-license)
 - [🙏 Acknowledgments](#-acknowledgments)
-
-## 🌟 Key Features
-
-- **🎯 Two Main Presets**: personal and corporate
-- **📦 Multi-Package Manager**: Homebrew, pipx, npm, Go packages, and Mac App Store
-- **🔧 Pre-configured Environments**: Go, .NET, Kotlin, Godot, JavaScript, React, and more
-- **🔗 Automatic Dotfile Linking**: Seamless configuration deployment
-- **🧩 Mix and Match Components**: Custom setups for specific needs
-- **⚡ One-Command Setup**: Single script installation and updates
-- **🌐 macOS Support**: Designed specifically for macOS systems
 
 ## ✨ Features
 
@@ -85,32 +77,14 @@ Before installing `meow`, ensure you have the following:
 ### Required
 
 - **Operating System**: macOS
-- **Shell**: Bash 3.2+ (default on macOS) or Zsh
-- **Git**: For cloning the repository and version control integration
+- **Shell**: Bash 3.2+ (default on macOS)
 - **Internet Connection**: For downloading packages and tools
 
 ### Bash Compatibility
 
-`meow` is designed to work with the default bash 3.2 that ships with macOS, avoiding the chicken-and-egg problem where you need a newer bash to install a newer bash. The scripts automatically detect your bash version and run in compatibility mode when needed.
+`meow` is designed to work with the default bash 3.2 that ships with macOS, avoiding the chicken-and-egg problem where you need a newer bash to install a newer bash.
 
-- **✅ Fully supported**: bash 3.2+ (macOS default)
-- **🚀 Enhanced experience**: bash 4.0+ (after Homebrew installation)
-- **📦 Modern features**: bash 5.0+ (latest features and performance)
-
-## 🚀 Installation
-
-For a complete setup with all submodules (including `Meowvim`):
-
-```bash
-# Clone with submodules
-git clone --recurse-submodules https://github.com/retran/meow.git ~/.meow
-cd ~/.meow
-
-# Install your preferred preset
-./bin/install.sh PRESET_NAME
-```
-
-## ⚡ Quick Start
+## 🚀 Quick Start
 
 After installation, follow these steps to get started:
 
@@ -141,7 +115,7 @@ After installation:
 ### 4. Keep It Updated
 
 ```bash
-# Update installed preset
+cd ~/.meow
 ./bin/update.sh
 ```
 
@@ -156,20 +130,14 @@ After installation:
 - **🛠️ core-development** - Core development tools shared across all programming environments (depends on shell-essential)
 - **🎨 fonts** - Essential programming and design fonts
 
-### Programming Languages
+### Development Environments
 
 - **🐹 go-development** - Complete Go development environment with language server, debugger, linters, and build tools
 - **⚡ javascript** - JavaScript/TypeScript development with Node.js tools, language servers, and formatters
 - **🗾 kotlin-development** - Kotlin development environment and tools
 - **🦄 dotnet-development** - .NET development tools and SDK
-
-### Frontend & Web Development
-
 - **⚛️ react** - React development framework extending JavaScript with React-specific tooling
 - **🌐 web** - Advanced web development with CSS frameworks, build tools, deployment utilities, and HTTP testing (extends React)
-
-### Specialized Development
-
 - **🎮 game-development** - Game development tools including Godot and tools for Pico-8/Picotron
 - **📝 markdown** - Technical writing with linting, spell checking, presentation tools, and terminal rendering
 
@@ -192,6 +160,7 @@ Components support multiple package managers depending on their needs:
 - **npm**
 - **pipx**
 - **gopm**
+- **cargo**
 - **mas**
 - **VS Code extensions**
 
