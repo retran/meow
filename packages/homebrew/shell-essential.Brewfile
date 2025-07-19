@@ -33,4 +33,7 @@ brew "neovim"
 brew "pandoc"
 cask "basictex"
 
+brew "pyenv"
+brew "pipx"
+
 brew "rustup-init"

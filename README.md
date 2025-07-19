@@ -125,12 +125,12 @@ cd ~/.meow
 
 ### Foundation Components
 
-- **🐚 shell-essential** - Essential shell tools (Git, Tmux, Starship, Neovim, fzf, ripgrep, zoxide)
-- **🔧 shell-development** - Shell development tools (shellcheck, shfmt, bash-language-server, go-task, pandoc)
-- **🐍 python-development** - Python development environment (pyenv, pipx)
+- **🐚 shell-essential** - Essential shell tools (Git, Tmux, Starship, Neovim, fzf, ripgrep, zoxide, pyenv, pipx, pandoc)
+- **🔧 shell-development** - Shell development tools (shellcheck, shfmt, bash-language-server, yamllint)
+- **🐍 python-development** - Python development environment (Python extensions for VS Code)
 - **🎨 fonts** - Programming fonts (JetBrains Mono, Nerd Fonts)
 - **🖥️ desktop-essential** - GUI foundation for macOS (includes fonts, browser, terminal, VS Code)
-- **🛠️ core-development** - Core development tools (GitHub CLI, language servers, formatters)
+- **🛠️ core-development** - Core development tools (GitHub CLI, language servers, formatters, go-task)
 
 ### Development Environments
 

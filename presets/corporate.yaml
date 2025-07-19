@@ -4,7 +4,6 @@ description: >-
 depends_on:
   - components/shell-essential
   - components/shell-development
-  - components/python-development
   - components/desktop-essential
 
   - components/media

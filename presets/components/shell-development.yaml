@@ -8,4 +8,10 @@ homebrew:
   packages:
     - shell-development
 
-script: setup-shell-development.sh
+pipx:
+  packages:
+    - shell-development
+
+vscode:
+  packages:
+    - shell-development
