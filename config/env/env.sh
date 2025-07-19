@@ -7,7 +7,7 @@ if [[ "${BASH_SOURCE[0]}" != "${0}" ]] && [[ -n "${_CONFIG_XDG_ENV_SOURCED:-}" ]
 fi
 _CONFIG_XDG_ENV_SOURCED=1
 
-export DOTFILES_DIR="${DOTFILES_DIR:-${HOME}/.meow}"
+export MEOW="${MEOW:-${HOME}/.meow}"
 export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
 export XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
 export XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"

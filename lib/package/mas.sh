@@ -7,9 +7,9 @@ if [[ "${BASH_SOURCE[0]}" != "${0}" ]] && [[ -n "${_LIB_PACKAGE_MAS_SOURCED:-}" 
 fi
 _LIB_PACKAGE_MAS_SOURCED=1
 
-source "${DOTFILES_DIR}/lib/core/ui.sh"
+source "${MEOW}/lib/core/ui.sh"
 
-MAS_PACKAGES_DIR="${DOTFILES_DIR}/packages/mas"
+MAS_PACKAGES_DIR="${MEOW}/packages/mas"
 
 is_mas_app_installed() {
   local app_id="$1"

@@ -7,12 +7,12 @@ if [[ "${BASH_SOURCE[0]}" != "${0}" ]] && [[ -n "${_LIB_COMMANDS_UPDATE_SOURCED:
 fi
 _LIB_COMMANDS_UPDATE_SOURCED=1
 
-source "${DOTFILES_DIR}/lib/core/ui.sh"
-source "${DOTFILES_DIR}/lib/package/presets.sh"
-source "${DOTFILES_DIR}/lib/package/homebrew.sh"
-source "${DOTFILES_DIR}/lib/package/npm.sh"
-source "${DOTFILES_DIR}/lib/package/go.sh"
-source "${DOTFILES_DIR}/lib/package/cargo.sh"
+source "${MEOW}/lib/core/ui.sh"
+source "${MEOW}/lib/package/presets.sh"
+source "${MEOW}/lib/package/homebrew.sh"
+source "${MEOW}/lib/package/npm.sh"
+source "${MEOW}/lib/package/go.sh"
+source "${MEOW}/lib/package/cargo.sh"
 
 UPDATED_PRESETS=""
 
@@ -104,7 +104,7 @@ _update_preset_dependencies() {
 update_preset_with_dependencies() {
   local preset="$1"
   local indent_level="${2:-0}"
-  local preset_file="${DOTFILES_DIR}/presets/${preset}.yaml"
+  local preset_file="${MEOW}/presets/${preset}.yaml"
   local child_indent=$((indent_level + 1))
   local had_updates=false
 
@@ -129,7 +129,7 @@ update_preset_with_dependencies() {
   local symlink_categories_str
   symlink_categories_str=$(yq eval '.symlinks[]?' "$preset_file" 2>/dev/null)
   if [[ -n "$symlink_categories_str" && "$symlink_categories_str" != "null" ]]; then
-    source "${DOTFILES_DIR}/lib/package/symlinks.sh" # Ensure setup_symlinks is available
+    source "${MEOW}/lib/package/symlinks.sh" # Ensure setup_symlinks is available
     local symlink_categories=()
     while IFS= read -r line; do
       [[ -n "$line" ]] && symlink_categories+=("$line")
@@ -142,7 +142,7 @@ update_preset_with_dependencies() {
   local script_name
   script_name=$(yq eval '.script?' "$preset_file" 2>/dev/null)
   if [[ -n "$script_name" && "$script_name" != "null" ]]; then
-    source "${DOTFILES_DIR}/lib/package/presets.sh"
+    source "${MEOW}/lib/package/presets.sh"
     execute_preset_script "$script_name" "$preset" "$child_indent"
   fi
 
@@ -321,7 +321,7 @@ _update_npm_packages() {
 _update_go_packages() {
   local preset="$1"
   local indent_level="$2"
-  local preset_file="${DOTFILES_DIR}/presets/${preset}.yaml"
+  local preset_file="${MEOW}/presets/${preset}.yaml"
   local had_updates=false
   local had_errors=false
 
@@ -363,7 +363,7 @@ _update_go_packages() {
 _update_cargo_packages() {
   local preset="$1"
   local indent_level="$2"
-  local preset_file="${DOTFILES_DIR}/presets/${preset}.yaml"
+  local preset_file="${MEOW}/presets/${preset}.yaml"
   local had_updates=false
   local had_errors=false
 

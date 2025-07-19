@@ -7,8 +7,8 @@ if [[ "${BASH_SOURCE[0]}" != "${0}" ]] && [[ -n "${_LIB_COMMANDS_INSTALL_SOURCED
 fi
 _LIB_COMMANDS_INSTALL_SOURCED=1
 
-source "${DOTFILES_DIR}/lib/core/ui.sh"
-source "${DOTFILES_DIR}/lib/package/presets.sh"
+source "${MEOW}/lib/core/ui.sh"
+source "${MEOW}/lib/package/presets.sh"
 
 _initialize_install_session() {
     setup_homebrew
@@ -20,7 +20,7 @@ _finalize_install_session() {
 
 _get_available_presets() {
     # Return available presets to stdout (bash 3.2 compatible)
-    for file in "${DOTFILES_DIR}/presets"/*.yaml; do
+    for file in "${MEOW}/presets"/*.yaml; do
         if [[ -f "$file" ]]; then
             echo "$(basename "$file" .yaml)"
         fi

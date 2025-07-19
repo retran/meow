@@ -19,9 +19,15 @@ if ! command -v bats >/dev/null 2>&1; then
   exit 1
 fi
 
-# Run integration tests
+# Run all test files
 echo "Running integration tests..."
 bats tests/integration.bats
+
+echo "Running package manager tests..."  
+bats tests/package_manager.bats
+
+echo "Running preset management tests..."
+bats tests/preset_management.bats
 
 echo "=================================================="
 echo "All functionality tests completed successfully!"

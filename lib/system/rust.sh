@@ -7,7 +7,7 @@ if [[ "${BASH_SOURCE[0]}" != "${0}" ]] && [[ -n "${_LIB_SYSTEM_RUST_SOURCED:-}" 
 fi
 _LIB_SYSTEM_RUST_SOURCED=1
 
-source "${DOTFILES_DIR}/lib/core/ui.sh"
+source "${MEOW}/lib/core/ui.sh"
 
 setup_rustup() {
   local indent_level="$1"

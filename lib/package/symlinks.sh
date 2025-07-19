@@ -7,9 +7,9 @@ if [[ "${BASH_SOURCE[0]}" != "${0}" ]] && [[ -n "${_LIB_PACKAGE_SYMLINKS_SOURCED
 fi
 _LIB_PACKAGE_SYMLINKS_SOURCED=1
 
-source "${DOTFILES_DIR}/lib/core/ui.sh"
+source "${MEOW}/lib/core/ui.sh"
 
-SYMLINKS_DIR="${DOTFILES_DIR}/packages/symlinks"
+SYMLINKS_DIR="${MEOW}/packages/symlinks"
 
 expand_path() {
   local path="$1"

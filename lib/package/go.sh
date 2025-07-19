@@ -7,10 +7,10 @@ if [[ "${BASH_SOURCE[0]}" != "${0}" ]] && [[ -n "${_LIB_PACKAGE_GO_SOURCED:-}" ]
 fi
 _LIB_PACKAGE_GO_SOURCED=1
 
-source "${DOTFILES_DIR}/lib/core/ui.sh"
-source "${DOTFILES_DIR}/lib/package/common.sh"
+source "${MEOW}/lib/core/ui.sh"
+source "${MEOW}/lib/package/common.sh"
 
-GO_PACKAGES_DIR="${DOTFILES_DIR}/packages/go"
+GO_PACKAGES_DIR="${MEOW}/packages/go"
 
 # Check if go package is installed (by binary name)
 go_is_installed() {

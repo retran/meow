@@ -7,10 +7,10 @@ if [[ "${BASH_SOURCE[0]}" != "${0}" ]] && [[ -n "${_LIB_PACKAGE_PIPX_SOURCED:-}"
 fi
 _LIB_PACKAGE_PIPX_SOURCED=1
 
-source "${DOTFILES_DIR}/lib/core/ui.sh"
-source "${DOTFILES_DIR}/lib/package/common.sh"
+source "${MEOW}/lib/core/ui.sh"
+source "${MEOW}/lib/package/common.sh"
 
-PIPX_PACKAGES_DIR="${DOTFILES_DIR}/packages/pipx"
+PIPX_PACKAGES_DIR="${MEOW}/packages/pipx"
 
 # Check if pipx package is installed
 pipx_is_installed() {

@@ -7,10 +7,10 @@ if [[ "${BASH_SOURCE[0]}" != "${0}" ]] && [[ -n "${_LIB_PACKAGE_HOMEBREW_SOURCED
 fi
 _LIB_PACKAGE_HOMEBREW_SOURCED=1
 
-source "${DOTFILES_DIR}/lib/core/ui.sh"
-source "${DOTFILES_DIR}/lib/package/common.sh"
+source "${MEOW}/lib/core/ui.sh"
+source "${MEOW}/lib/package/common.sh"
 
-BREW_PACKAGES_DIR="${DOTFILES_DIR}/packages/homebrew"
+BREW_PACKAGES_DIR="${MEOW}/packages/homebrew"
 
 # Check if brew package is installed
 is_package_installed() {

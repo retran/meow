@@ -8,9 +8,9 @@ if [[ "${BASH_SOURCE[0]}" != "${0}" ]] && [[ -n "${_LIB_PACKAGE_VSCODE_SOURCED:-
 fi
 _LIB_PACKAGE_VSCODE_SOURCED=1
 
-source "${DOTFILES_DIR}/lib/core/ui.sh"
+source "${MEOW}/lib/core/ui.sh"
 
-VSCODE_PACKAGES_DIR="${DOTFILES_DIR}/packages/vscode"
+VSCODE_PACKAGES_DIR="${MEOW}/packages/vscode"
 
 # Helper function to check if a VS Code extension is installed
 is_vscode_extension_installed() {

@@ -7,19 +7,19 @@ if [[ "${BASH_SOURCE[0]}" != "${0}" ]] && [[ -n "${_LIB_PACKAGE_PRESETS_SOURCED:
 fi
 _LIB_PACKAGE_PRESETS_SOURCED=1
 
-source "${DOTFILES_DIR}/lib/core/ui.sh"
-source "${DOTFILES_DIR}/lib/package/homebrew.sh"
-source "${DOTFILES_DIR}/lib/package/pipx.sh"
-source "${DOTFILES_DIR}/lib/package/mas.sh"
-source "${DOTFILES_DIR}/lib/package/vscode.sh"
-source "${DOTFILES_DIR}/lib/package/npm.sh"
-source "${DOTFILES_DIR}/lib/package/go.sh"
-source "${DOTFILES_DIR}/lib/package/cargo.sh"
-source "${DOTFILES_DIR}/lib/package/symlinks.sh"
-source "${DOTFILES_DIR}/lib/system/macos.sh"
+source "${MEOW}/lib/core/ui.sh"
+source "${MEOW}/lib/package/homebrew.sh"
+source "${MEOW}/lib/package/pipx.sh"
+source "${MEOW}/lib/package/mas.sh"
+source "${MEOW}/lib/package/vscode.sh"
+source "${MEOW}/lib/package/npm.sh"
+source "${MEOW}/lib/package/go.sh"
+source "${MEOW}/lib/package/cargo.sh"
+source "${MEOW}/lib/package/symlinks.sh"
+source "${MEOW}/lib/system/macos.sh"
 
-readonly PRESETS_DIR="${DOTFILES_DIR}/presets"
-readonly INSTALLED_PRESETS_FILE="$HOME/.installed_presets"
+readonly MEOW_PRESETS_DIR="${MEOW}/presets"
+readonly MEOW_INSTALLED_PRESETS_FILE="$HOME/.meow_installed_presets"
 APPLIED_PRESETS=()
 
 # Check if a preset has been applied in the current session
@@ -53,25 +53,25 @@ save_installed_preset() {
   local preset="$1"
 
   # Ensure tracking file exists
-  touch "$INSTALLED_PRESETS_FILE"
+  touch "$MEOW_INSTALLED_PRESETS_FILE"
 
   # Add preset to tracking file if not already present
-  if ! grep -Fxq "$preset" "$INSTALLED_PRESETS_FILE" 2>/dev/null; then
-    echo "$preset" >> "$INSTALLED_PRESETS_FILE"
+  if ! grep -Fxq "$preset" "$MEOW_INSTALLED_PRESETS_FILE" 2>/dev/null; then
+    echo "$preset" >> "$MEOW_INSTALLED_PRESETS_FILE"
     debug "Saved preset '$preset' to installed presets file"
   fi
 }
 
 get_installed_presets() {
-  if [[ -f "$INSTALLED_PRESETS_FILE" ]]; then
-    cat "$INSTALLED_PRESETS_FILE" | sort | uniq
+  if [[ -f "$MEOW_INSTALLED_PRESETS_FILE" ]]; then
+    cat "$MEOW_INSTALLED_PRESETS_FILE" | sort | uniq
   fi
 }
 
 is_preset_installed() {
   local preset="$1"
-  if [[ -f "$INSTALLED_PRESETS_FILE" ]]; then
-    grep -Fxq "$preset" "$INSTALLED_PRESETS_FILE" 2>/dev/null
+  if [[ -f "$MEOW_INSTALLED_PRESETS_FILE" ]]; then
+    grep -Fxq "$preset" "$MEOW_INSTALLED_PRESETS_FILE" 2>/dev/null
   else
     return 1
   fi
@@ -82,7 +82,7 @@ apply_preset() {
   local skip_dependencies="${2:-false}"
   local parent_preset="${3:-}"
   local indent_level="${4:-0}"
-  local preset_file="${PRESETS_DIR}/${preset}.yaml"
+  local preset_file="${MEOW_PRESETS_DIR}/${preset}.yaml"
   local current_indent="$indent_level"
   local child_indent=$((current_indent + 1))
 
@@ -239,13 +239,13 @@ install_preset() {
 
 list_presets() {
   info 0 "Available presets:"
-  if [[ -d "$PRESETS_DIR" ]]; then
+  if [[ -d "$MEOW_PRESETS_DIR" ]]; then
     local count=0
-    for file in "$PRESETS_DIR"/*.yaml; do
+    for file in "$MEOW_PRESETS_DIR"/*.yaml; do
       if [[ -f "$file" ]]; then
         local preset_name
         preset_name=$(basename "$file" .yaml)
-        if [[ "$file" == "$PRESETS_DIR/components/"* ]]; then
+        if [[ "$file" == "$MEOW_PRESETS_DIR/components/"* ]]; then
           continue
         fi
         list_item_msg 1 "- $preset_name"
@@ -256,7 +256,7 @@ list_presets() {
       indented_info 0 "(No presets found)"
     fi
   else
-    indented_info 0 "(No presets directory found at $PRESETS_DIR)"
+    indented_info 0 "(No presets directory found at $MEOW_PRESETS_DIR)"
   fi
   return 0
 }
@@ -290,7 +290,7 @@ execute_preset_script() {
   local script_name="$1"
   local preset="$2"
   local indent_level="$3"
-  local script_path="${DOTFILES_DIR}/scripts/${script_name}"
+  local script_path="${MEOW}/scripts/${script_name}"
 
   step_header "$indent_level" "Executing custom script: $script_name"
 
@@ -310,7 +310,7 @@ execute_preset_script() {
   fi
 
   action_msg "$indent_level" "Running script for preset: $preset"
-  if "$script_path" "$preset" "$DOTFILES_DIR" "$indent_level"; then
+  if "$script_path" "$preset" "$MEOW" "$indent_level"; then
     success_tick_msg "$indent_level" "Script '$script_name' executed successfully"
   else
     indented_error_msg "$indent_level" "Script '$script_name' failed with exit code $?"

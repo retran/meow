@@ -7,7 +7,7 @@ if [[ "${BASH_SOURCE[0]}" != "${0}" ]] && [[ -n "${_LIB_CORE_UI_SOURCED:-}" ]]; 
 fi
 _LIB_CORE_UI_SOURCED=1
 
-source "${DOTFILES_DIR}/lib/core/colors.sh"
+source "${MEOW}/lib/core/colors.sh"
 
 # Generate indentation string
 indent() {

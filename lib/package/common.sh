@@ -7,7 +7,7 @@ if [[ "${BASH_SOURCE[0]}" != "${0}" ]] && [[ -n "${_LIB_PACKAGE_COMMON_SOURCED:-
 fi
 _LIB_PACKAGE_COMMON_SOURCED=1
 
-source "${DOTFILES_DIR}/lib/core/ui.sh"
+source "${MEOW}/lib/core/ui.sh"
 
 # Generic install packages function
 # Usage: install_packages <category> <indent_level> <package_type> <file_extension> <install_cmd> <list_check_cmd> [package_name_transform]

@@ -7,10 +7,10 @@ if [[ "${BASH_SOURCE[0]}" != "${0}" ]] && [[ -n "${_LIB_PACKAGE_NPM_SOURCED:-}" 
 fi
 _LIB_PACKAGE_NPM_SOURCED=1
 
-source "${DOTFILES_DIR}/lib/core/ui.sh"
-source "${DOTFILES_DIR}/lib/package/common.sh"
+source "${MEOW}/lib/core/ui.sh"
+source "${MEOW}/lib/package/common.sh"
 
-NPM_PACKAGES_DIR="${DOTFILES_DIR}/packages/npm"
+NPM_PACKAGES_DIR="${MEOW}/packages/npm"
 
 # Install npm packages
 install_npm_packages() {
