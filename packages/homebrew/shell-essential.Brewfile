@@ -30,4 +30,7 @@ brew "go"
 
 brew "neovim"
 
+brew "pandoc"
+cask "basictex"
+
 brew "rustup-init"
