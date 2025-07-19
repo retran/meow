@@ -79,29 +79,22 @@ install_mas_packages() {
       app_id=${temp2}
 
       if is_mas_app_installed "$app_id"; then
-        info_italic_msg "$((indent_level+1))" "$app_name already installed, skipping"
         already_installed_packages+=("$app_name")
         ((already_installed_count++))
       else
-        action_msg "$((indent_level+1))" "Installing $app_name (ID: $app_id)..."
-        local install_output
-        install_output=$(mas install "$app_id" 2>&1)
-        local install_exit_code=$?
+        local install_status
+        run_package_operation "$((indent_level+1))" "$app_name" "install" \
+          "Installing $app_name (ID: $app_id)" \
+          "Successfully installed $app_name." \
+          "Failed to install $app_name." \
+          "$app_name is already installed." \
+          mas install "$app_id"
+        install_status=$?
 
-        if [[ $install_exit_code -eq 0 ]]; then
-          success_tick_msg "$((indent_level+1))" "$app_name installed successfully"
+        if [ $install_status -eq 0 ]; then
           installed_packages+=("$app_name")
           ((installed_count++))
         else
-          if echo "$install_output" | grep -q "Not signed in"; then
-            indented_error_msg "$((indent_level+1))" "Failed to install $app_name: Not signed in to Mac App Store"
-            indented_info "$((indent_level+2))" "Please sign in through the App Store app and try again"
-          else
-            indented_error_msg "$((indent_level+1))" "Failed to install $app_name (ID: $app_id)"
-            if [[ -n "$install_output" ]]; then
-              indented_info "$((indent_level+2))" "Error: $install_output"
-            fi
-          fi
           ((failed_count++))
         fi
       fi
