@@ -30,15 +30,15 @@ install_packages_generic() {
 
   start_time=$(date +%s)
   
-  # Get package directory variable
-  local package_dir_var="${package_type^^}_PACKAGES_DIR"
+  # Get package directory variable (bash 3.2 compatible)
+  local package_dir_var="$(echo "$package_type" | tr '[:lower:]' '[:upper:]')_PACKAGES_DIR"
   local package_dir
   eval "package_dir=\$$package_dir_var"
   
-  step_header "$indent_level" "${package_type^} Packages ($category)"
+  step_header "$indent_level" "$(echo "${package_type:0:1}" | tr '[:lower:]' '[:upper:]')${package_type:1} Packages ($category)"
 
   if [[ "$category" == "all" ]]; then
-    indented_info "$((indent_level+1))" "Processing all ${package_type} package categories..."
+    indented_info "$((indent_level+1))" "Processing all package categories..."
     local overall_success=true
     for package_file in "$package_dir"/*."$file_extension"; do
       if [[ -f "$package_file" ]]; then
@@ -50,17 +50,17 @@ install_packages_generic() {
       fi
     done
     if [[ "$overall_success" == true ]]; then
-      success_tick_msg "$indent_level" "All ${package_type} package categories processed successfully."
+      success_tick_msg "$indent_level" "All $(echo "${package_type:0:1}" | tr '[:lower:]' '[:upper:]')${package_type:1} package categories processed successfully."
       return 0
     else
-      indented_warning "$indent_level" "Some ${package_type} package categories encountered issues."
+      indented_warning "$indent_level" "Some $(echo "${package_type:0:1}" | tr '[:lower:]' '[:upper:]')${package_type:1} package categories encountered issues."
       return 1
     fi
   fi
 
   local package_file="${package_dir}/${category}.${file_extension}"
   if [[ ! -f "$package_file" ]]; then
-    indented_error_msg "$indent_level" "${package_type^}file not found: $package_file"
+    indented_error_msg "$indent_level" "$(echo "${package_type:0:1}" | tr '[:lower:]' '[:upper:]')${package_type:1}file not found: $package_file"
     return 1
   fi
 
@@ -96,10 +96,10 @@ install_packages_generic() {
   duration=$((end_time - start_time))
 
   if [[ $failed_count -eq 0 ]]; then
-    success_tick_msg "$indent_level" "${package_type^} packages processed successfully in ${duration}s."
+    success_tick_msg "$indent_level" "$(echo "${package_type:0:1}" | tr '[:lower:]' '[:upper:]')${package_type:1} packages processed successfully in ${duration}s."
     return 0
   else
-    indented_warning "$indent_level" "${package_type^} packages processed with $failed_count error(s) in ${duration}s."
+    indented_warning "$indent_level" "$(echo "${package_type:0:1}" | tr '[:lower:]' '[:upper:]')${package_type:1} packages processed with $failed_count error(s) in ${duration}s."
     return 1
   fi
 }
@@ -123,22 +123,22 @@ update_packages_generic() {
   start_time=$(date +%s)
   
   # Get package directory variable
-  local package_dir_var="${package_type^^}_PACKAGES_DIR"
+  local package_dir_var="$(echo "$package_type" | tr '[:lower:]' '[:upper:]')_PACKAGES_DIR"
   local package_dir
   eval "package_dir=\$$package_dir_var"
   
-  step_header "$indent_level" "Updating ${package_type^} Packages ($category)"
+  step_header "$indent_level" "Updating $(echo "${package_type:0:1}" | tr '[:lower:]' '[:upper:]')${package_type:1} Packages ($category)"
 
   # Check if command is available
   local cmd_name
   cmd_name=$(echo "$update_cmd" | awk '{print $1}')
   if ! command -v "$cmd_name" &>/dev/null; then
-    info_italic_msg "$indent_level" "${package_type^} not available, skipping ${package_type} package updates"
+    info_italic_msg "$indent_level" "$(echo "${package_type:0:1}" | tr '[:lower:]' '[:upper:]')${package_type:1} not available, skipping ${package_type} package updates"
     return 100
   fi
 
   if [[ "$category" == "all" ]]; then
-    action_msg "$((indent_level+1))" "Processing all ${package_type}file categories..."
+    action_msg "$((indent_level+1))" "Processing all package file categories..."
     local overall_success=true
     for package_file in "$package_dir"/*."$file_extension"; do
       if [[ -f "$package_file" ]]; then
@@ -157,7 +157,7 @@ update_packages_generic() {
       success_tick_msg "$indent_level" "All ${package_type} package categories updated successfully (${duration}s)"
       return 0
     else
-      indented_warning "$indent_level" "Some ${package_type} package categories encountered issues (${duration}s)"
+      indented_warning "$indent_level" "Some package categories encountered issues (${duration}s)"
       return 1
     fi
   fi
@@ -165,7 +165,7 @@ update_packages_generic() {
   local package_file="${package_dir}/${category}.${file_extension}"
   
   if [[ ! -f "$package_file" ]]; then
-    indented_error_msg "$indent_level" "${package_type^}file not found: $package_file"
+    indented_error_msg "$indent_level" "$(echo "${package_type:0:1}" | tr '[:lower:]' '[:upper:]')${package_type:1}file not found: $package_file"
     return 1
   fi
 
@@ -210,14 +210,14 @@ update_packages_generic() {
 
   if [[ $packages_failed_count -eq 0 ]]; then
     if [[ $packages_upgraded_count -gt 0 ]]; then
-      success_tick_msg "$indent_level" "${package_type^} packages for '$category' updated successfully ($packages_upgraded_count upgraded, $packages_verified_count up-to-date) (${duration}s)"
+      success_tick_msg "$indent_level" "$(echo "${package_type:0:1}" | tr '[:lower:]' '[:upper:]')${package_type:1} packages for '$category' updated successfully ($packages_upgraded_count upgraded, $packages_verified_count up-to-date) (${duration}s)"
       return 0
     else
-      success_tick_msg "$indent_level" "All ${package_type} packages for '$category' are up-to-date ($packages_verified_count packages) (${duration}s)"
+      success_tick_msg "$indent_level" "All packages for '$category' are up-to-date ($packages_verified_count packages) (${duration}s)"
       return 100
     fi
   else
-    indented_error_msg "$indent_level" "Some ${package_type} packages for '$category' failed ($packages_failed_count failures) (${duration}s)"
+    indented_error_msg "$indent_level" "Some packages for '$category' failed ($packages_failed_count failures) (${duration}s)"
     return 1
   fi
 }
