@@ -127,6 +127,7 @@ install_brew_packages() {
     package_name=$(echo "$line" | awk '{print $2}' | tr -d "'\"")
 
     if is_package_installed "$package_name"; then
+      success_tick_msg "$((indent_level+1))" "$package_name (already installed)"
       already_installed_packages+=("$package_name")
       already_installed_count=$((already_installed_count + 1))
     else

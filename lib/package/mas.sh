@@ -79,6 +79,7 @@ install_mas_packages() {
       app_id=${temp2}
 
       if is_mas_app_installed "$app_id"; then
+        success_tick_msg "$((indent_level+1))" "$app_name (already installed)"
         already_installed_packages+=("$app_name")
         ((already_installed_count++))
       else

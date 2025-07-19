@@ -71,6 +71,7 @@ install_packages_generic() {
     package_name=$(echo "$line" | awk '{print $1}')
 
     if eval "$list_check_cmd \"\$package_name\"" >/dev/null 2>&1; then
+      success_tick_msg "$((indent_level+1))" "$package_name (already installed)"
       already_installed_packages+=("$package_name")
       already_installed_count=$((already_installed_count + 1))
     else
