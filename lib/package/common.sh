@@ -19,7 +19,7 @@ install_packages_generic() {
   local install_cmd="$5"
   local list_check_cmd="$6"
   local name_transform="${7:-cat}"
-  
+
   local package_name
   local installed_count=0
   local already_installed_count=0
@@ -29,23 +29,22 @@ install_packages_generic() {
   local already_installed_packages=()
 
   start_time=$(date +%s)
-  
-  # Get package directory variable (bash 3.2 compatible)
+
   local package_dir_var="$(echo "$package_type" | tr '[:lower:]' '[:upper:]')_PACKAGES_DIR"
   local package_dir
   eval "package_dir=\$$package_dir_var"
-  
+
   step_header "$indent_level" "$(echo "${package_type:0:1}" | tr '[:lower:]' '[:upper:]')${package_type:1} Packages ($category)"
 
   if [[ "$category" == "all" ]]; then
-    indented_info "$((indent_level+1))" "Processing all package categories..."
+    indented_info "$((indent_level + 1))" "Processing all package categories..."
     local overall_success=true
     for package_file in "$package_dir"/*."$file_extension"; do
       if [[ -f "$package_file" ]]; then
         local current_category
         current_category=$(basename "$package_file" ".$file_extension")
-        if ! install_packages_generic "$current_category" "$((indent_level+1))" "$package_type" "$file_extension" "$install_cmd" "$list_check_cmd" "$name_transform"; then
-            overall_success=false
+        if ! install_packages_generic "$current_category" "$((indent_level + 1))" "$package_type" "$file_extension" "$install_cmd" "$list_check_cmd" "$name_transform"; then
+          overall_success=false
         fi
       fi
     done
@@ -71,12 +70,12 @@ install_packages_generic() {
     package_name=$(echo "$line" | awk '{print $1}')
 
     if eval "$list_check_cmd \"\$package_name\"" >/dev/null 2>&1; then
-      success_tick_msg "$((indent_level+1))" "$package_name (already installed)"
+      success_tick_msg "$((indent_level + 1))" "$package_name (already installed)"
       already_installed_packages+=("$package_name")
       already_installed_count=$((already_installed_count + 1))
     else
       local install_status
-      run_package_operation "$((indent_level+1))" "$package_name" "install" \
+      run_package_operation "$((indent_level + 1))" "$package_name" "install" \
         "Installing $package_name" \
         "Successfully installed $package_name." \
         "Failed to install $package_name." \
@@ -91,7 +90,7 @@ install_packages_generic() {
         failed_count=$((failed_count + 1))
       fi
     fi
-  done < "$package_file"
+  done <"$package_file"
 
   end_time=$(date +%s)
   duration=$((end_time - start_time))
@@ -115,19 +114,19 @@ update_packages_generic() {
   local update_cmd="$5"
   local list_check_cmd="$6"
   local unchanged_pattern="${7:-}"
-  
+
   local packages_upgraded_count=0
   local packages_verified_count=0
   local packages_failed_count=0
   local start_time end_time duration
 
   start_time=$(date +%s)
-  
+
   # Get package directory variable
   local package_dir_var="$(echo "$package_type" | tr '[:lower:]' '[:upper:]')_PACKAGES_DIR"
   local package_dir
   eval "package_dir=\$$package_dir_var"
-  
+
   step_header "$indent_level" "Updating $(echo "${package_type:0:1}" | tr '[:lower:]' '[:upper:]')${package_type:1} Packages ($category)"
 
   # Check if command is available
@@ -139,14 +138,14 @@ update_packages_generic() {
   fi
 
   if [[ "$category" == "all" ]]; then
-    action_msg "$((indent_level+1))" "Processing all package file categories..."
+    action_msg "$((indent_level + 1))" "Processing all package file categories..."
     local overall_success=true
     for package_file in "$package_dir"/*."$file_extension"; do
       if [[ -f "$package_file" ]]; then
         local current_category
         current_category=$(basename "$package_file" ".$file_extension")
-        if ! update_packages_generic "$current_category" "$((indent_level+1))" "$package_type" "$file_extension" "$update_cmd" "$list_check_cmd" "$unchanged_pattern"; then
-            overall_success=false
+        if ! update_packages_generic "$current_category" "$((indent_level + 1))" "$package_type" "$file_extension" "$update_cmd" "$list_check_cmd" "$unchanged_pattern"; then
+          overall_success=false
         fi
       fi
     done
@@ -164,7 +163,7 @@ update_packages_generic() {
   fi
 
   local package_file="${package_dir}/${category}.${file_extension}"
-  
+
   if [[ ! -f "$package_file" ]]; then
     indented_error_msg "$indent_level" "$(echo "${package_type:0:1}" | tr '[:lower:]' '[:upper:]')${package_type:1}file not found: $package_file"
     return 1
@@ -184,8 +183,8 @@ update_packages_generic() {
       if [[ -n "$unchanged_pattern" ]]; then
         upgrade_args+=(--pattern "$unchanged_pattern")
       fi
-      
-      run_package_operation "$((indent_level+1))" "$package_name" "upgrade" \
+
+      run_package_operation "$((indent_level + 1))" "$package_name" "upgrade" \
         "Checking for updates to $package_name" \
         "Successfully upgraded $package_name." \
         "Failed to upgrade $package_name." \
@@ -202,9 +201,9 @@ update_packages_generic() {
         packages_failed_count=$((packages_failed_count + 1))
       fi
     else
-      info_italic_msg "$((indent_level+1))" "$package_name not installed, skipping"
+      info_italic_msg "$((indent_level + 1))" "$package_name not installed, skipping"
     fi
-  done < "$package_file"
+  done <"$package_file"
 
   end_time=$(date +%s)
   duration=$((end_time - start_time))

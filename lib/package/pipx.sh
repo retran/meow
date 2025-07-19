@@ -10,8 +10,6 @@ _LIB_PACKAGE_PIPX_SOURCED=1
 source "${MEOW}/lib/core/ui.sh"
 source "${MEOW}/lib/package/common.sh"
 
-PIPX_PACKAGES_DIR="${MEOW}/packages/pipx"
-
 # Check if pipx package is installed
 pipx_is_installed() {
   local package_name="$1"

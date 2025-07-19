@@ -42,7 +42,6 @@ if command -v go >/dev/null 2>&1; then
   export PATH="$GOPATH/bin:$PATH"
 fi
 
-# Rust and Cargo configuration
 if [[ -d "$HOME/.cargo" ]]; then
   source "$HOME/.cargo/env"
 fi

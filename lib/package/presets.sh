@@ -27,7 +27,7 @@ APPLIED_PRESETS=()
 # Returns: 0 if applied, 1 if not applied
 is_preset_applied() {
   local preset="$1"
-  
+
   for applied in "${APPLIED_PRESETS[@]}"; do
     if [[ "$applied" == "$preset" ]]; then
       return 0
@@ -40,10 +40,10 @@ is_preset_applied() {
 # Usage: mark_preset_applied <preset_name>
 mark_preset_applied() {
   local preset="$1"
-  
+
   APPLIED_PRESETS+=("$preset")
   debug "Marked preset '$preset' as applied"
-  
+
   save_installed_preset "$preset"
 }
 
@@ -57,7 +57,7 @@ save_installed_preset() {
 
   # Add preset to tracking file if not already present
   if ! grep -Fxq "$preset" "$MEOW_INSTALLED_PRESETS_FILE" 2>/dev/null; then
-    echo "$preset" >> "$MEOW_INSTALLED_PRESETS_FILE"
+    echo "$preset" >>"$MEOW_INSTALLED_PRESETS_FILE"
     debug "Saved preset '$preset' to installed presets file"
   fi
 }
@@ -302,7 +302,7 @@ execute_preset_script() {
   if [[ ! -x "$script_path" ]]; then
     action_msg "$indent_level" "Making script executable..."
     if chmod +x "$script_path"; then
-      success_tick_msg "$((indent_level+1))" "Script made executable"
+      success_tick_msg "$((indent_level + 1))" "Script made executable"
     else
       indented_error_msg "$indent_level" "Failed to make script executable: $script_path"
       return 1

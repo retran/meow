@@ -9,7 +9,7 @@ setup() {
 @test "core libraries can be loaded without errors" {
   run bash -c "
     export MEOW='$(pwd)'
-    source lib/core/bash_compat.sh
+    source lib/core/bash.sh
     source lib/core/colors.sh
     source lib/core/ui.sh
   "
@@ -19,7 +19,7 @@ setup() {
 @test "package management libraries load correctly" {
   run bash -c "
     export MEOW='$(pwd)'
-    source lib/core/bash_compat.sh
+    source lib/core/bash.sh
     source lib/core/colors.sh
     source lib/core/ui.sh
     source lib/package/presets.sh
@@ -30,7 +30,7 @@ setup() {
 @test "ui functions work correctly" {
   run bash -c "
     export MEOW='$(pwd)'
-    source lib/core/bash_compat.sh
+    source lib/core/bash.sh
     source lib/core/colors.sh
     source lib/core/ui.sh
     
@@ -46,7 +46,7 @@ setup() {
 @test "preset management functions exist and are callable" {
   run bash -c "
     export MEOW='$(pwd)'
-    source lib/core/bash_compat.sh
+    source lib/core/bash.sh
     source lib/core/colors.sh
     source lib/core/ui.sh
     source lib/package/presets.sh
@@ -100,7 +100,7 @@ setup() {
 @test "bash compatibility functions work" {
   run bash -c "
     export MEOW='$(pwd)'
-    source lib/core/bash_compat.sh
+    source lib/core/bash.sh
     
     # Test version detection
     get_bash_version_numeric

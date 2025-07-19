@@ -4,8 +4,7 @@
 
 setup() {
   export MEOW="$(pwd)"
-  # Create temporary test preset tracking file
-  export TEST_PRESET_FILE="/tmp/test_meow_installed_presets" 
+  export TEST_PRESET_FILE="/tmp/test_meow_installed_presets"
 }
 
 teardown() {
@@ -14,11 +13,9 @@ teardown() {
 }
 
 @test "preset files exist and are valid YAML" {
-  # Check for essential preset files
   [ -f "presets/personal.yaml" ]
   [ -f "presets/corporate.yaml" ]
-  
-  # Verify preset files are not empty
+
   [ -s "presets/personal.yaml" ]
   [ -s "presets/corporate.yaml" ]
 }
@@ -65,16 +62,13 @@ teardown() {
 }
 
 @test "components directory structure exists" {
-  # Check for components in presets
   [ -d "presets/components" ]
-  
-  # Verify some component presets exist
+
   local component_count=$(find presets/components -name "*.yaml" | wc -l)
   [ "$component_count" -gt 0 ]
 }
 
 @test "preset dependencies can be parsed" {
-  # Test with a preset that has dependencies
   if [ -f "presets/personal.yaml" ]; then
     run bash -c "
       export MEOW='$(pwd)'

@@ -19,7 +19,6 @@ _finalize_install_session() {
 }
 
 _get_available_presets() {
-    # Return available presets to stdout (bash 3.2 compatible)
     for file in "${MEOW}/presets"/*.yaml; do
         if [[ -f "$file" ]]; then
             echo "$(basename "$file" .yaml)"
@@ -32,7 +31,6 @@ _validate_preset_exists() {
     local indent_level="$2"
     local available_presets=()
 
-    # Read available presets into array (bash 3.2 compatible)
     while IFS= read -r preset_name; do
         if [[ -n "$preset_name" ]]; then
             available_presets+=("$preset_name")

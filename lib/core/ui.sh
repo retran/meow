@@ -18,7 +18,7 @@ indent() {
     return 1
   fi
   local indent_str=""
-  for ((i=0; i<level; i++)); do
+  for ((i = 0; i < level; i++)); do
     indent_str+="  "
   done
   echo -n "$indent_str"
@@ -44,13 +44,13 @@ _icon_msg_core() {
 _print_temp_output_if_exists() {
   local indent_level="$1"
   local temp_file="$2"
-  
+
   if [[ -s "$temp_file" ]]; then
     echo ""
     error "$indent_level" "Command output:"
     while IFS= read -r line; do
-        content "$indent_level" "$line"
-    done < "$temp_file"
+      content "$indent_level" "$line"
+    done <"$temp_file"
   fi
 }
 
@@ -92,8 +92,8 @@ ui_confirm() {
   default_upper=$(echo "$default_response" | tr '[:lower:]' '[:upper:]')
 
   case "$default_upper" in
-    Y|YES) prompt_suffix="(Y/n)" ;;
-    *) prompt_suffix="(y/N)" ;;
+  Y | YES) prompt_suffix="(Y/n)" ;;
+  *) prompt_suffix="(y/N)" ;;
   esac
 
   local response
@@ -109,9 +109,9 @@ ui_confirm() {
     response_upper=$(echo "$response" | tr '[:lower:]' '[:upper:]')
 
     case "$response_upper" in
-      Y|YES) return 0 ;;
-      N|NO) return 1 ;;
-      *) warning "$indent_level" "Please answer 'y' for yes or 'n' for no." ;;
+    Y | YES) return 0 ;;
+    N | NO) return 1 ;;
+    *) warning "$indent_level" "Please answer 'y' for yes or 'n' for no." ;;
     esac
   done
 }

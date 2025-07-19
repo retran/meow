@@ -24,11 +24,11 @@ setup_tmux_plugin_manager() {
     success_tick_msg "$indent_level" "tmux Plugin Manager is already installed."
     action_msg "$indent_level" "Updating tmux Plugin Manager..."
     if git -C "$HOME/.tmux/plugins/tpm" pull; then
-        success_tick_msg "$indent_level" "tmux Plugin Manager update completed."
-        return 0
+      success_tick_msg "$indent_level" "tmux Plugin Manager update completed."
+      return 0
     else
-        indented_error_msg "$indent_level" "Failed to update tmux Plugin Manager."
-        return 1
+      indented_error_msg "$indent_level" "Failed to update tmux Plugin Manager."
+      return 1
     fi
   fi
 

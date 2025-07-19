@@ -11,7 +11,7 @@ if [[ -f "./config/env/env.sh" && -d "./presets" ]]; then
 fi
 
 source "${MEOW}/config/env/env.sh"
-source "${MEOW}/lib/core/bash_compat.sh"
+source "${MEOW}/lib/core/bash.sh"
 source "${MEOW}/lib/core/ui.sh"
 source "${MEOW}/lib/commands/install.sh"
 

@@ -60,12 +60,10 @@ setup() {
 }
 
 @test "package files exist and are properly formatted" {
-  # Check for essential package files
   [ -f "packages/homebrew/core-development.Brewfile" ]
   [ -f "packages/npm/javascript.npmfile" ]
   [ -f "packages/pipx/core-development.Pipxfile" ]
-  
-  # Verify package files are not empty
+
   [ -s "packages/homebrew/core-development.Brewfile" ]
   [ -s "packages/npm/javascript.npmfile" ]
 }

@@ -67,7 +67,7 @@ fi
 
 if ! command -v _toggl >/dev/null 2>&1; then
   _toggl() {
-    eval $(env COMMANDLINE="${words[1,$CURRENT]}" _TOGGL_COMPLETE=complete-zsh toggl)
+    eval $(env COMMANDLINE="${words[1, $CURRENT]}" _TOGGL_COMPLETE=complete-zsh toggl)
   }
   compdef _toggl toggl
 fi

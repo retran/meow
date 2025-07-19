@@ -74,12 +74,12 @@ setup_symlinks() {
   step_header "$indent_level" "Setting up symlinks ($category)"
 
   if ! command -v yq >/dev/null 2>&1; then
-    indented_error_msg "$((indent_level+1))" "yq is required to parse symlink configuration. Please install yq (e.g., brew install yq)."
+    indented_error_msg "$((indent_level + 1))" "yq is required to parse symlink configuration. Please install yq (e.g., brew install yq)."
     return 1
   fi
 
   if [[ ! -f "$symlinks_file" ]]; then
-    indented_warning "$((indent_level+1))" "No symlinks file found for category '$category' at $symlinks_file."
+    indented_warning "$((indent_level + 1))" "No symlinks file found for category '$category' at $symlinks_file."
     return 0
   fi
 
@@ -87,7 +87,7 @@ setup_symlinks() {
   num_symlinks=$(yq 'length' "$symlinks_file")
 
   if ! [[ "$num_symlinks" =~ ^[0-9]+$ ]] || [[ "$num_symlinks" -eq 0 ]]; then
-    indented_info "$((indent_level+1))" "No symlinks defined in $symlinks_file."
+    indented_info "$((indent_level + 1))" "No symlinks defined in $symlinks_file."
     success_tick_msg "$indent_level" "Symlink setup for '$category' complete (0 symlinks)."
     return 0
   fi
@@ -95,11 +95,11 @@ setup_symlinks() {
   local processed_symlinks_basenames=()
   local source target
 
-  for ((i=0; i<num_symlinks; i++)); do
+  for ((i = 0; i < num_symlinks; i++)); do
     source=$(yq -r ".[$i].source" "$symlinks_file")
     target=$(yq -r ".[$i].target" "$symlinks_file")
 
-    if create_symlink "$source" "$target" $((indent_level+1)); then
+    if create_symlink "$source" "$target" $((indent_level + 1)); then
       processed_symlinks_basenames+=("$(basename "$target")")
     else
       failed_count=$((failed_count + 1))
@@ -109,7 +109,7 @@ setup_symlinks() {
   local total_processed=${#processed_symlinks_basenames[@]}
 
   if [[ $total_processed -gt 0 ]]; then
-    indented_info "$((indent_level+1))" "($total_processed symlinks created/verified for $category)"
+    indented_info "$((indent_level + 1))" "($total_processed symlinks created/verified for $category)"
   fi
 
   end_time=$(date +%s)

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# lib/core/bash_compat.sh - Bash version compatibility utilities
+# lib/core/bash.sh - Bash version compatibility utilities
 
 if [[ "${BASH_SOURCE[0]}" != "${0}" ]] && [[ -n "${_LIB_CORE_BASH_COMPAT_SOURCED:-}" ]]; then
   return 0
@@ -13,10 +13,10 @@ get_bash_version_number() {
   local major="${version%%.*}"
   local minor="${version#*.}"
   minor="${minor%%.*}"
-  
+
   major="${major:-0}"
   minor="${minor:-0}"
-  
+
   echo "$((major * 100 + minor))"
 }
 
@@ -26,9 +26,9 @@ check_bash_version() {
   local required_minor="${2:-2}"
   local required_version=$((required_major * 100 + required_minor))
   local current_version
-  
+
   current_version=$(get_bash_version_number)
-  
+
   [[ $current_version -ge $required_version ]]
 }
 
@@ -36,12 +36,12 @@ check_bash_version() {
 show_bash_version_info() {
   local indent_level="${1:-0}"
   local current_version
-  
+
   current_version=$(get_bash_version_number)
-  
+
   if [[ -n "${_LIB_CORE_UI_SOURCED:-}" ]]; then
     info "$indent_level" "Bash version: ${BASH_VERSION} (${current_version})"
-    
+
     if check_bash_version 4 0; then
       success "$indent_level" "Modern bash features available"
     else
@@ -55,7 +55,7 @@ show_bash_version_info() {
 # Show compatibility warning for old bash
 warn_bash_compatibility() {
   local indent_level="${1:-0}"
-  
+
   if ! check_bash_version 4 0; then
     if [[ -n "${_LIB_CORE_UI_SOURCED:-}" ]]; then
       info_italic_msg "$indent_level" "Running in bash 3.2 compatibility mode"

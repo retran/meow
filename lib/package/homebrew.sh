@@ -43,7 +43,6 @@ setup_homebrew() {
     if /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"; then
       success_tick_msg "$indent" "Homebrew installed successfully."
 
-      # Try to load brew into PATH
       if [[ -f "/opt/homebrew/bin/brew" ]]; then
         eval "$(/opt/homebrew/bin/brew shellenv)"
       elif [[ -f "/usr/local/bin/brew" ]]; then
@@ -93,14 +92,14 @@ install_brew_packages() {
   step_header "$indent_level" "Homebrew Packages ($category)"
 
   if [[ "$category" == "all" ]]; then
-    indented_info "$((indent_level+1))" "Processing all Brewfile categories..."
+    indented_info "$((indent_level + 1))" "Processing all Brewfile categories..."
     local overall_success=true
     for brewfile_path in "$BREW_PACKAGES_DIR"/*.Brewfile; do
       if [[ -f "$brewfile_path" ]]; then
         local current_category
         current_category=$(basename "$brewfile_path" .Brewfile)
-        if ! install_brew_packages "$current_category" "$((indent_level+1))"; then
-            overall_success=false
+        if ! install_brew_packages "$current_category" "$((indent_level + 1))"; then
+          overall_success=false
         fi
       fi
     done
@@ -123,16 +122,15 @@ install_brew_packages() {
     if [[ "$line" =~ ^#.*$ || -z "$line" ]]; then
       continue
     fi
-    # Extract package name from Brewfile format (brew "package" or cask "package")
     package_name=$(echo "$line" | awk '{print $2}' | tr -d "'\"")
 
     if is_package_installed "$package_name"; then
-      success_tick_msg "$((indent_level+1))" "$package_name (already installed)"
+      success_tick_msg "$((indent_level + 1))" "$package_name (already installed)"
       already_installed_packages+=("$package_name")
       already_installed_count=$((already_installed_count + 1))
     else
       local install_status
-      run_package_operation "$((indent_level+1))" "$package_name" "install" \
+      run_package_operation "$((indent_level + 1))" "$package_name" "install" \
         "Installing $package_name" \
         "Successfully installed $package_name." \
         "Failed to install $package_name." \
@@ -147,7 +145,7 @@ install_brew_packages() {
         failed_count=$((failed_count + 1))
       fi
     fi
-  done < "$brewfile"
+  done <"$brewfile"
 
   end_time=$(date +%s)
   duration=$((end_time - start_time))
@@ -179,14 +177,14 @@ update_brew_packages() {
   fi
 
   if [[ "$category" == "all" ]]; then
-    action_msg "$((indent_level+1))" "Processing all Brewfile categories..."
+    action_msg "$((indent_level + 1))" "Processing all Brewfile categories..."
     local overall_success=true
     for brewfile_path in "$BREW_PACKAGES_DIR"/*.Brewfile; do
       if [[ -f "$brewfile_path" ]]; then
         local current_category
         current_category=$(basename "$brewfile_path" .Brewfile)
-        if ! update_brew_packages "$current_category" "$((indent_level+1))"; then
-            overall_success=false
+        if ! update_brew_packages "$current_category" "$((indent_level + 1))"; then
+          overall_success=false
         fi
       fi
     done
@@ -204,7 +202,7 @@ update_brew_packages() {
   fi
 
   local brewfile="${BREW_PACKAGES_DIR}/${category}.Brewfile"
-  
+
   if [[ ! -f "$brewfile" ]]; then
     indented_error_msg "$indent_level" "Brewfile not found: $brewfile"
     return 1
@@ -220,7 +218,7 @@ update_brew_packages() {
 
     if is_package_installed "$package_name"; then
       local upgrade_status
-      run_package_operation "$((indent_level+1))" "$package_name" "upgrade" \
+      run_package_operation "$((indent_level + 1))" "$package_name" "upgrade" \
         "Checking for updates to $package_name" \
         "Successfully upgraded $package_name." \
         "Failed to upgrade $package_name." \
@@ -237,9 +235,9 @@ update_brew_packages() {
         packages_failed_count=$((packages_failed_count + 1))
       fi
     else
-      info_italic_msg "$((indent_level+1))" "$package_name not installed, skipping"
+      info_italic_msg "$((indent_level + 1))" "$package_name not installed, skipping"
     fi
-  done < "$brewfile"
+  done <"$brewfile"
 
   end_time=$(date +%s)
   duration=$((end_time - start_time))
@@ -269,7 +267,7 @@ update_homebrew_index() {
 
   step_header "$indent_level" "Updating Homebrew Index"
 
-  ui_spinner "$((indent_level+1))" "Updating Homebrew definitions (brew update)" --success "Homebrew definitions updated successfully." --fail "Failed to update Homebrew definitions." brew update --verbose
+  ui_spinner "$((indent_level + 1))" "Updating Homebrew definitions (brew update)" --success "Homebrew definitions updated successfully." --fail "Failed to update Homebrew definitions." brew update --verbose
 
   success_tick_msg "$indent_level" "Homebrew index update completed"
   return 0
@@ -290,9 +288,9 @@ cleanup_homebrew() {
 
   local before_size after_size
   before_size=$(du -sh "$(brew --cache)" 2>/dev/null | awk '{print $1}')
-  action_msg "$((indent_level+1))" "Current Homebrew cache size: $before_size"
+  action_msg "$((indent_level + 1))" "Current Homebrew cache size: $before_size"
 
-  if ui_spinner "$((indent_level+1))" "Running Homebrew cleanup (prune all)" --success "Homebrew cache pruned successfully." --fail "Failed to prune Homebrew cache." brew cleanup --prune=all; then
+  if ui_spinner "$((indent_level + 1))" "Running Homebrew cleanup (prune all)" --success "Homebrew cache pruned successfully." --fail "Failed to prune Homebrew cache." brew cleanup --prune=all; then
     after_size=$(du -sh "$(brew --cache)" 2>/dev/null | awk '{print $1}')
     end_time=$(date +%s)
     duration=$((end_time - start_time))
@@ -305,5 +303,3 @@ cleanup_homebrew() {
     return 1
   fi
 }
-
-

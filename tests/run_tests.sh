@@ -10,16 +10,13 @@ REPO_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 cd "$REPO_DIR"
 
 echo "Running functionality tests for meow shell scripts..."
-echo "=================================================="
 
-# Check if bats is available
 if ! command -v bats >/dev/null 2>&1; then
   echo "Error: bats testing framework is not installed"
   echo "Install with: sudo apt install bats (Ubuntu) or brew install bats (macOS)"
   exit 1
 fi
 
-# Run all test files
 echo "Running integration tests..."
 bats tests/integration.bats
 
@@ -29,5 +26,4 @@ bats tests/package_manager.bats
 echo "Running preset management tests..."
 bats tests/preset_management.bats
 
-echo "=================================================="
 echo "All functionality tests completed successfully!"
