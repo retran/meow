@@ -25,7 +25,7 @@ is_package_installed() {
     return 0
   fi
 
-  if brew list "$package_name" &>/dev/null; then
+  if brew list "$package_name" >/dev/null 2>&1; then
     return 0
   fi
 
@@ -37,7 +37,7 @@ setup_homebrew() {
   local indent="${1:-0}"
   step_header "$indent" "Setting up Homebrew"
 
-  if ! command -v brew &>/dev/null; then
+  if ! command -v brew >/dev/null 2>&1; then
     indented_warning "$indent" "Homebrew not found. Installing..."
 
     if /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"; then
@@ -52,7 +52,7 @@ setup_homebrew() {
         eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
       fi
 
-      if command -v brew &>/dev/null; then
+      if command -v brew >/dev/null 2>&1; then
         success_tick_msg "$indent" "Homebrew environment loaded successfully."
       else
         indented_warning "$indent" "Please restart your shell to use Homebrew."
@@ -65,7 +65,7 @@ setup_homebrew() {
     success_tick_msg "$indent" "Homebrew is already installed."
   fi
 
-  if command -v brew &>/dev/null; then
+  if command -v brew >/dev/null 2>&1; then
     action_msg "$indent" "Updating Homebrew package index..."
     if brew update >/dev/null 2>&1; then
       success_tick_msg "$indent" "Homebrew package index updated successfully."
@@ -172,7 +172,7 @@ update_brew_packages() {
   start_time=$(date +%s)
   step_header "$indent_level" "Updating Homebrew Packages ($category)"
 
-  if ! command -v brew &>/dev/null; then
+  if ! command -v brew >/dev/null 2>&1; then
     info_italic_msg "$indent_level" "Homebrew not available, skipping Homebrew package updates"
     return 100
   fi
@@ -261,7 +261,7 @@ update_brew_packages() {
 update_homebrew_index() {
   local indent_level="${1:-0}"
 
-  if ! command -v brew &>/dev/null; then
+  if ! command -v brew >/dev/null 2>&1; then
     indented_warning "$indent_level" "Homebrew not installed. Skipping Homebrew index update."
     return 1
   fi
@@ -280,7 +280,7 @@ cleanup_homebrew() {
   local start_time end_time duration
   start_time=$(date +%s)
 
-  if ! command -v brew &>/dev/null; then
+  if ! command -v brew >/dev/null 2>&1; then
     info_italic_msg "$indent_level" "Homebrew not available, skipping cleanup"
     return 0
   fi

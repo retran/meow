@@ -73,7 +73,7 @@ setup_symlinks() {
   start_time=$(date +%s)
   step_header "$indent_level" "Setting up symlinks ($category)"
 
-  if ! command -v yq &>/dev/null; then
+  if ! command -v yq >/dev/null 2>&1; then
     indented_error_msg "$((indent_level+1))" "yq is required to parse symlink configuration. Please install yq (e.g., brew install yq)."
     return 1
   fi

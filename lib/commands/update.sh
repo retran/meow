@@ -50,13 +50,13 @@ _validate_preset_file() {
 _ensure_yq_available() {
   local indent_level="$1"
 
-  if command -v yq &>/dev/null; then
+  if command -v yq >/dev/null 2>&1; then
     return 0
   fi
 
   indented_warning "$indent_level" "yq is required, attempting to install"
 
-  if ! command -v brew &>/dev/null; then
+  if ! command -v brew >/dev/null 2>&1; then
     indented_error_msg "$indent_level" "Homebrew not found, cannot install yq automatically"
     return 1
   fi
@@ -266,7 +266,7 @@ _update_package_type() {
     return 100
   fi
 
-  if ! command -v "$command_name" &>/dev/null; then
+  if ! command -v "$command_name" >/dev/null 2>&1; then
     local capitalized_type
     capitalized_type=$(echo "$package_type" | sed 's/^./\U&/')
     info_italic_msg "$indent_level" "$capitalized_type not available, skipping $package_type package updates for '$category'"
@@ -325,7 +325,7 @@ _update_go_packages() {
   local had_updates=false
   local had_errors=false
 
-  if ! command -v go &>/dev/null; then
+  if ! command -v go >/dev/null 2>&1; then
     info_italic_msg "$indent_level" "Go not available, skipping go package updates for '${preset#components/}'"
     return 100
   fi
@@ -367,7 +367,7 @@ _update_cargo_packages() {
   local had_updates=false
   local had_errors=false
 
-  if ! command -v cargo &>/dev/null; then
+  if ! command -v cargo >/dev/null 2>&1; then
     info_italic_msg "$indent_level" "Cargo not available, skipping cargo package updates for '${preset#components/}'"
     return 100
   fi

@@ -17,7 +17,7 @@ go_is_installed() {
   local package_name="$1"
   local binary_name
   binary_name=$(basename "$package_name" | sed 's/@.*//')
-  command -v "$binary_name" &>/dev/null
+  command -v "$binary_name" >/dev/null 2>&1
 }
 
 # Install go packages
@@ -34,7 +34,7 @@ update_go_packages() {
 setup_go() {
   local indent="${1:-0}"
 
-  if ! command -v go &>/dev/null; then
+  if ! command -v go >/dev/null 2>&1; then
     step_header "$indent" "Setting up Go"
 
     indented_warning "$indent" "Go is not installed. This should be handled by homebrew packages."

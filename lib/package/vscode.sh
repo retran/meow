@@ -25,7 +25,7 @@ is_vscode_extension_installed() {
 check_vscode_available() {
   local indent_level="$1"
 
-  if ! command -v code &>/dev/null; then
+  if ! command -v code >/dev/null 2>&1; then
     info_italic_msg "$indent_level" "VS Code CLI not available, skipping VS Code extension updates"
     return 1
   fi

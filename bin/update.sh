@@ -17,7 +17,7 @@ source "${MEOW}/lib/commands/update.sh"
 
 show_help() {
     title 0 "meow Update"
-    msg 0 "Updates packages for installed presets or a specific preset."
+    msg 0 "Update packages for installed presets or a specific preset."
     msg 0 ""
     show_bash_version_info 0
     msg 0 ""

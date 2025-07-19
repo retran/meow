@@ -70,7 +70,7 @@ install_packages_generic() {
     fi
     package_name=$(echo "$line" | awk '{print $1}')
 
-    if eval "$list_check_cmd \"\$package_name\"" &>/dev/null; then
+    if eval "$list_check_cmd \"\$package_name\"" >/dev/null 2>&1; then
       already_installed_packages+=("$package_name")
       already_installed_count=$((already_installed_count + 1))
     else
@@ -132,7 +132,7 @@ update_packages_generic() {
   # Check if command is available
   local cmd_name
   cmd_name=$(echo "$update_cmd" | awk '{print $1}')
-  if ! command -v "$cmd_name" &>/dev/null; then
+  if ! command -v "$cmd_name" >/dev/null 2>&1; then
     info_italic_msg "$indent_level" "$(echo "${package_type:0:1}" | tr '[:lower:]' '[:upper:]')${package_type:1} not available, skipping ${package_type} package updates"
     return 100
   fi
@@ -177,7 +177,7 @@ update_packages_generic() {
     local package_name
     package_name=$(echo "$line" | awk '{print $1}')
 
-    if eval "$list_check_cmd \"\$package_name\"" &>/dev/null; then
+    if eval "$list_check_cmd \"\$package_name\"" >/dev/null 2>&1; then
       local upgrade_status
       local upgrade_args=()
       if [[ -n "$unchanged_pattern" ]]; then

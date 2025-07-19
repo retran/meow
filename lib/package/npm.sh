@@ -26,10 +26,10 @@ update_npm_packages() {
 setup_npm() {
   local indent="${1:-0}"
 
-  if ! command -v npm &>/dev/null; then
+  if ! command -v npm >/dev/null 2>&1; then
     step_header "$indent" "Setting up npm"
 
-    if command -v node &>/dev/null; then
+    if command -v node >/dev/null 2>&1; then
       indented_warning "$indent" "Node.js is available but npm is not found in PATH"
       return 1
     else

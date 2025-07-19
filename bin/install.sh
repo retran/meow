@@ -16,8 +16,8 @@ source "${MEOW}/lib/core/ui.sh"
 source "${MEOW}/lib/commands/install.sh"
 
 show_help() {
-  title 0 "dotfiles Install"
-  msg 0 "Installs your system with your preferred configuration."
+  title 0 "meow Install"
+  msg 0 "Install your system with your preferred configuration."
   msg 0 ""
   show_bash_version_info 0
   msg 0 ""

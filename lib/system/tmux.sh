@@ -12,7 +12,7 @@ source "${MEOW}/lib/core/ui.sh"
 setup_tmux_plugin_manager() {
   local indent_level="${1:-1}"
 
-  if ! command -v tmux &>/dev/null; then
+  if ! command -v tmux >/dev/null 2>&1; then
     indented_warning "$indent_level" "tmux is not installed, skipping Plugin Manager setup"
     return 0
   fi

@@ -32,7 +32,7 @@ update_cargo_packages() {
 setup_cargo() {
   local indent="${1:-0}"
 
-  if ! command -v cargo &>/dev/null; then
+  if ! command -v cargo >/dev/null 2>&1; then
     step_header "$indent" "Setting up Cargo"
 
     indented_warning "$indent" "Cargo is not installed. This should be handled by homebrew packages."

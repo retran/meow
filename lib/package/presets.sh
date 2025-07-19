@@ -106,9 +106,9 @@ apply_preset() {
     return 0
   fi
 
-  if ! command -v jq &>/dev/null; then
+  if ! command -v jq >/dev/null 2>&1; then
     indented_warning "$child_indent" "jq is required. Attempting to install..."
-    if command -v brew &>/dev/null; then
+    if command -v brew >/dev/null 2>&1; then
       if brew install jq >/dev/null 2>&1; then
         success_tick_msg "$child_indent" "jq installed successfully via Homebrew."
       else
@@ -121,9 +121,9 @@ apply_preset() {
     fi
   fi
 
-  if ! command -v yq &>/dev/null; then
+  if ! command -v yq >/dev/null 2>&1; then
     indented_warning "$child_indent" "yq is required. Attempting to install..."
-    if command -v brew &>/dev/null; then
+    if command -v brew >/dev/null 2>&1; then
       if brew install yq >/dev/null 2>&1; then
         success_tick_msg "$child_indent" "yq installed successfully via Homebrew."
       else
