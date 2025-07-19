@@ -23,7 +23,7 @@ fi
 echo "Running integration tests..."
 bats tests/integration.bats
 
-echo "Running package manager tests..."  
+echo "Running package manager tests..."
 bats tests/package_manager.bats
 
 echo "Running preset management tests..."
