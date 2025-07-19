@@ -10,6 +10,8 @@ _LIB_PACKAGE_CARGO_SOURCED=1
 source "${MEOW}/lib/core/ui.sh"
 source "${MEOW}/lib/package/common.sh"
 
+CARGO_PACKAGES_DIR="${MEOW}/packages/cargo"
+
 # Check if cargo package is installed
 cargo_is_installed() {
   local package_name="$1"

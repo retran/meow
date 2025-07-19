@@ -10,6 +10,8 @@ _LIB_PACKAGE_NPM_SOURCED=1
 source "${MEOW}/lib/core/ui.sh"
 source "${MEOW}/lib/package/common.sh"
 
+NPM_PACKAGES_DIR="${MEOW}/packages/npm"
+
 # Install npm packages
 install_npm_packages() {
   install_packages_generic "$1" "$2" "npm" "npmfile" "npm install -g" "npm list -g --depth=0"
