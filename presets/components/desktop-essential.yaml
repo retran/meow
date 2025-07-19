@@ -16,6 +16,5 @@ symlinks:
   - hammerspoon
   - ghostty
   - vscode
-  - neovide
 
 script: setup-macos.sh
