@@ -1,2 +1,2 @@
-- source: "$DOTFILES_DIR/config/nvim"
+- source: "$MEOW/config/nvim"
   target: "$HOME/.config/nvim"

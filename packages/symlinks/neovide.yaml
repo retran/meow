@@ -1,2 +1,2 @@
-- source: "$DOTFILES_DIR/config/neovide"
+- source: "$MEOW/config/neovide"
   target: "$HOME/.config/neovide"

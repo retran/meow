@@ -1,2 +1,2 @@
-- source: "$DOTFILES_DIR/config/tmux/.tmux.conf"
+- source: "$MEOW/config/tmux/.tmux.conf"
   target: "$HOME/.tmux.conf"

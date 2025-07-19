@@ -1,2 +1,2 @@
-- source: "$DOTFILES_DIR/config/ghostty"
+- source: "$MEOW/config/ghostty"
   target: "$HOME/.config/ghostty"
