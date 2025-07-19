@@ -265,7 +265,6 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 **Editors & Development:**
 - [Neovim](https://neovim.io/) - Hyperextensible text editor
 - [Visual Studio Code](https://code.visualstudio.com/) - Code editor
-- [Neovide](https://neovide.dev/) - Neovim GUI client
 - [Ghostty](https://ghostty.org/) - Terminal emulator
 
 **Command Line Utilities:**
