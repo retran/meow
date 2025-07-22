@@ -3,11 +3,9 @@
 ZSH_THEME="robbyrussell"
 
 plugins=(
-  # macOS & Homebrew
   macos
   brew
 
-  # Utilities
   copyfile
   copypath
   urltools
@@ -16,13 +14,10 @@ plugins=(
   encode64
   dotenv
 
-  # Tools
   tmux
   ssh
   colored-man-pages
-  1password
 
-  # Version Control
   git
   git-lfs
   git-extras
@@ -30,7 +25,6 @@ plugins=(
   github
   gh
 
-  # Development
   docker
   docker-compose
   gcloud
