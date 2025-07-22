@@ -247,7 +247,7 @@ display_art_and_stats() {
     fi
   done
 
-  for ((i = 0; i < max_total_lines - 1; i++)); do
+  for ((i = 0; i < max_total_lines; i++)); do
     local art_line="${art_array[i]:-}"
     local stats_line="${stats_array[i]:-}"
 
@@ -277,4 +277,5 @@ show_motd() {
   stats_content=$(build_system_stats "$system_info")
 
   display_art_and_stats "$art_content" "$stats_content"
+  tput cnorm
 }

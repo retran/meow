@@ -287,7 +287,6 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 **Productivity & Automation:**
 - [Raycast](https://raycast.com/) - macOS productivity tool
 - [Hammerspoon](https://www.hammerspoon.org/) - macOS automation
-- [1Password](https://1password.com/) - Password manager
 - [mas](https://github.com/mas-cli/mas) - Mac App Store CLI
 
 **Fonts & Design:**

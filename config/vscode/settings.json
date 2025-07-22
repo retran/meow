@@ -22,5 +22,6 @@
     "githubPullRequests.createOnPublishBranch": "never",
     "[markdown]": {
         "editor.defaultFormatter": "yzhang.markdown-all-in-one"
-    }
+    },
+    "github.copilot.nextEditSuggestions.enabled": true
 }
