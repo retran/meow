@@ -35,7 +35,7 @@ plugins=(
   vscode
 )
 
-if [[ -n "$GHOSTTY_BIN_DIR" ]]; then
+ if [[ -n "$GHOSTTY_BIN_DIR" ]]; then
   ZSH_TMUX_AUTOSTART=true
 else
   ZSH_TMUX_AUTOSTART=false

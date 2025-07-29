@@ -9,6 +9,7 @@ brew "htop"
 brew "eza"
 
 brew "git"
+brew "lazygit"
 
 brew "fd"
 brew "fzf"
@@ -41,3 +42,5 @@ brew "pyenv"
 brew "pipx"
 
 brew "rustup-init"
+
+brew "bitwarden-cli"
