@@ -80,7 +80,7 @@ validate_preset_argument() {
 main() {
   # Check bash compatibility early
   warn_bash_compatibility 0
-  
+
   for arg in "$@"; do
     if [[ "$arg" == "--help" || "$arg" == "-h" ]]; then
       show_help

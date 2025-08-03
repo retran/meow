@@ -4,13 +4,8 @@ description: >-
 
 depends_on:
   - components/core-development
+  - components/node
 
 npm:
   packages:
     - markdown
-
-go:
-  packages:
-    - markdown
-
-

@@ -4,8 +4,8 @@ description: >-
   and development frameworks
 
 depends_on:
-  - components/javascript
+  - components/js-development
 
 npm:
   packages:
-    - react
+    - react-development

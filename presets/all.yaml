@@ -1,0 +1,29 @@
+description: >-
+  Personal laptop setup with packages for gaming and pet projects
+
+depends_on:
+  - components/shell-essential
+  - components/shell-development
+  - components/python-development
+  - components/desktop-essential
+
+  - components/media
+
+  - components/gaming
+
+  - components/core-development
+  - components/go-development
+#  - components/rust-development
+#  - components/dotnet-development
+#  - components/kotlin-development
+  - components/game-development
+#  - components/javascript
+#  - components/react
+#  - components/web
+
+  - components/markdown
+
+  - components/productivity
+
+  - components/corporate-communication
+  - components/personal-communication

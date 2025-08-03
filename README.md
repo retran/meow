@@ -101,7 +101,7 @@ Based on your needs:
 # Personal environment
 curl -fsSL https://github.com/retran/meow/archive/main.tar.gz | tar -xz -C ~ && mv ~/meow-main ~/.meow && cd ~/.meow && git submodule update --init --recursive && ./bin/install.sh personal
 
-# Corporate environment  
+# Corporate environment
 curl -fsSL https://github.com/retran/meow/archive/main.tar.gz | tar -xz -C ~ && mv ~/meow-main ~/.meow && cd ~/.meow && git submodule update --init --recursive && ./bin/install.sh corporate
 ```
 
@@ -256,20 +256,15 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 `meow` builds on the excellent work of the open-source community and development tools:
 
-**Core Tools:**
 - [Homebrew](https://brew.sh/) - macOS package manager
 - [Git](https://git-scm.com/) - Version control system
 - [GitHub CLI](https://cli.github.com/) - Git hosting command line interface
 - [tmux](https://github.com/tmux/tmux) - Terminal multiplexer
 - [Starship](https://starship.rs/) - Cross-shell prompt
 - [zsh](https://zsh.sourceforge.io/) - Z shell
-
-**Editors & Development:**
 - [Neovim](https://neovim.io/) - Hyperextensible text editor
 - [Visual Studio Code](https://code.visualstudio.com/) - Code editor
 - [Ghostty](https://ghostty.org/) - Terminal emulator
-
-**Command Line Utilities:**
 - [fzf](https://github.com/junegunn/fzf) - Fuzzy finder
 - [ripgrep](https://github.com/BurntSushi/ripgrep) - Text search tool
 - [fd](https://github.com/sharkdp/fd) - File finder
@@ -277,19 +272,13 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 - [zoxide](https://github.com/ajeetdsouza/zoxide) - Smart directory navigation
 - [jq](https://stedolan.github.io/jq/) - JSON processor
 - [yq](https://github.com/mikefarah/yq/) - YAML processor
-
-**Development Languages & Tools:**
 - [Go](https://golang.org/) - Programming language
 - [Node.js](https://nodejs.org/) - JavaScript runtime
 - [Rust](https://www.rust-lang.org/) - Systems programming language
 - [TypeScript](https://www.typescriptlang.org/) - Typed JavaScript
-
-**Productivity & Automation:**
 - [Raycast](https://raycast.com/) - macOS productivity tool
 - [Hammerspoon](https://www.hammerspoon.org/) - macOS automation
 - [mas](https://github.com/mas-cli/mas) - Mac App Store CLI
-
-**Fonts & Design:**
 - [JetBrains Mono](https://www.jetbrains.com/lp/mono/) - Developer typeface
 - [Nerd Fonts](https://www.nerdfonts.com/) - Iconic font collection
 

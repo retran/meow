@@ -2,6 +2,7 @@ description: "Game development tools and environment"
 
 depends_on:
   - components/core-development
+  - components/lua-development
 
 homebrew:
   packages:

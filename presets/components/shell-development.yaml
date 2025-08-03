@@ -3,6 +3,7 @@ description: >-
 
 depends_on:
   - components/shell-essential
+  - components/pipx
 
 homebrew:
   packages:

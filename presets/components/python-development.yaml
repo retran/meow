@@ -2,7 +2,8 @@ description: >-
   Python development environment and package management tools
 
 depends_on:
-  - components/shell-essential
+  - components/core-development
+  - components/pipx
 
 homebrew:
   packages:

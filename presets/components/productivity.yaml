@@ -2,6 +2,7 @@ description: "Productivity applications"
 
 depends_on:
   - components/desktop-essential
+  - components/pipx
 
 homebrew:
   packages:
