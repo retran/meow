@@ -7,8 +7,6 @@ fd-find
 fzf
 ripgrep
 zoxide
-jq
-yq
 glow
 zsh
 tmux

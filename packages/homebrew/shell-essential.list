@@ -12,8 +12,6 @@ fd
 fzf
 ripgrep
 zoxide
-jq
-yq
 glow
 zsh
 zsh-autosuggestions
