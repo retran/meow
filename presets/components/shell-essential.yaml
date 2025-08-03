@@ -13,6 +13,10 @@ apk:
   packages:
     - shell-essential
 
+pacman:
+  packages:
+    - shell-essential
+
 symlinks:
   - git
   - tmux

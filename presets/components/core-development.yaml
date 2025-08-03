@@ -14,8 +14,11 @@ apt:
   packages:
     - core-development
 
-
 apk:
+  packages:
+    - core-development
+
+pacman:
   packages:
     - core-development
 

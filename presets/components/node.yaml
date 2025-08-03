@@ -14,3 +14,7 @@ apt:
 apk:
   packages:
     - node
+
+pacman:
+  packages:
+    - node

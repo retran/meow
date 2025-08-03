@@ -14,3 +14,7 @@ apt:
 apk:
   packages:
     - pipx
+
+pacman:
+  packages:
+    - pipx

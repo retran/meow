@@ -18,6 +18,10 @@ apk:
   packages:
     - shell-development
 
+pacman:
+  packages:
+    - shell-development
+
 pipx:
   packages:
     - shell-development
