@@ -117,6 +117,10 @@ apply_preset() {
     _apply_packages_for_manager apt      "$file" "$child_indent"
   elif [[ "$IS_ALPINE" == "true" ]]; then
     _apply_packages_for_manager apk      "$file" "$child_indent"
+  elif [[ "$IS_ARCH" == "true" ]]; then
+    _apply_packages_for_manager pacman   "$file" "$child_indent"
+  else
+    indented_error_msg "$child_indent" "No supported package manager detected"
   fi
 
   # Cross-platform package managers
