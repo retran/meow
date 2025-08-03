@@ -3,16 +3,14 @@ description: >-
 
 depends_on:
   - components/shell-essential
-  - components/shell-development
   - components/desktop-essential
 
   - components/media
 
+  - components/shell-development
+  - components/lua-development
   - components/core-development
   - components/go-development
-  - components/javascript
-  - components/react
-  - components/web
 
   - components/markdown
 

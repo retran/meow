@@ -3,14 +3,8 @@ description: >-
   build tools, performance monitoring, and deployment utilities
 
 depends_on:
-  - components/react
+  - components/react-development
 
 npm:
   packages:
-    - web
-
-go:
-  packages:
-    - web
-
-
+    - web-development

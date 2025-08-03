@@ -1,0 +1,12 @@
+description: "Lua development tools and environment"
+
+depends_on:
+  - components/shell-essential
+
+homebrew:
+  packages:
+    - lua-development
+
+vscode:
+  packages:
+    - lua-development

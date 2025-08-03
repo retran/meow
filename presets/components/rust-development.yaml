@@ -10,3 +10,5 @@ cargo:
 vscode:
   packages:
     - rust-development
+
+script: setup-rust-development.sh

@@ -9,7 +9,6 @@ brew "htop"
 brew "eza"
 
 brew "git"
-brew "lazygit"
 
 brew "fd"
 brew "fzf"
@@ -19,6 +18,8 @@ brew "zoxide"
 brew "jq"
 brew "yq"
 
+brew "glow"
+
 brew "zsh"
 brew "zsh-autosuggestions"
 brew "zsh-syntax-highlighting"
@@ -26,21 +27,6 @@ brew "tmux"
 brew "starship"
 brew "reattach-to-user-namespace"
 
-brew "node"
-brew "go"
+brew "bitwarden-cli"
 
 brew "neovim"
-brew "lua-language-server"
-brew "luacheck"
-brew "luarocks"
-brew "stylua"
-
-brew "pandoc"
-cask "basictex"
-
-brew "pyenv"
-brew "pipx"
-
-brew "rustup-init"
-
-brew "bitwarden-cli"

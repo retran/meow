@@ -1,9 +1,10 @@
 brew "mas"
 
-cask "bitwarden"
-cask "google-chrome"
 cask "hammerspoon"
 cask "raycast"
-cask "appcleaner"
 cask "ghostty"
+cask "google-chrome"
+cask "bitwarden"
+cask "appcleaner"
 cask "visual-studio-code"
+cask "drawio"

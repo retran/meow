@@ -1,0 +1,8 @@
+description: "Node.js and npm environment"
+
+depends_on:
+  - components/shell-essential
+
+homebrew:
+  packages:
+    - node
