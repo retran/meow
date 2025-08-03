@@ -8,6 +8,8 @@ fi
 _LIB_PACKAGE_SYMLINKS_SOURCED=1
 
 source "${MEOW}/lib/core/ui.sh"
+source "${MEOW}/lib/package/homebrew.sh"
+source "${MEOW}/lib/package/apt.sh"
 
 SYMLINKS_DIR="${MEOW}/packages/symlinks"
 
@@ -68,13 +70,14 @@ setup_symlinks() {
   local indent_level="${2:-1}"
   local symlinks_file="${SYMLINKS_DIR}/${category}.yaml"
   local failed_count=0
+  local processed_count=0
   local start_time end_time duration
 
   start_time=$(date +%s)
   step_header "$indent_level" "Setting up symlinks ($category)"
 
   if ! command -v yq >/dev/null 2>&1; then
-    indented_error_msg "$((indent_level + 1))" "yq is required to parse symlink configuration. Please install yq (e.g., brew install yq)."
+    indented_error_msg "$((indent_level + 1))" "yq is required to parse symlink configuration. Please install yq."
     return 1
   fi
 
@@ -92,24 +95,33 @@ setup_symlinks() {
     return 0
   fi
 
-  local processed_symlinks_basenames=()
-  local source target
-
   for ((i = 0; i < num_symlinks; i++)); do
+    local source target os
     source=$(yq -r ".[$i].source" "$symlinks_file")
     target=$(yq -r ".[$i].target" "$symlinks_file")
+    os=$(yq -r ".[$i].os // \"any\"" "$symlinks_file")
 
-    if create_symlink "$source" "$target" $((indent_level + 1)); then
-      processed_symlinks_basenames+=("$(basename "$target")")
+    local should_create=false
+    if [[ "$os" == "any" ]]; then
+      should_create=true
+    elif [[ "$os" == "macos" && "$IS_MACOS" == "true" ]]; then
+      should_create=true
+    elif [[ "$os" == "linux" && "$IS_DEBIAN_BASED" == "true" ]]; then
+      should_create=true
+    fi
+
+    if [[ "$should_create" == "true" ]]; then
+      processed_count=$((processed_count + 1))
+      if ! create_symlink "$source" "$target" $((indent_level + 1)); then
+        failed_count=$((failed_count + 1))
+      fi
     else
-      failed_count=$((failed_count + 1))
+      debug "Skipping symlink for $(basename "$target") due to OS mismatch (required: '${os}')"
     fi
   done
 
-  local total_processed=${#processed_symlinks_basenames[@]}
-
-  if [[ $total_processed -gt 0 ]]; then
-    indented_info "$((indent_level + 1))" "($total_processed symlinks created/verified for $category)"
+  if [[ $processed_count -gt 0 ]]; then
+    indented_info "$((indent_level + 1))" "($processed_count symlinks processed for this OS)"
   fi
 
   end_time=$(date +%s)
@@ -126,6 +138,7 @@ setup_symlinks() {
 
 debug() {
   if [ "${DEBUG:-0}" = "1" ]; then
+    # shellcheck disable=SC2005
     echo "$(indent 0)${MAGENTA}DEBUG:${RESET} $*" >&2
   fi
 }

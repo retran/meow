@@ -6,3 +6,7 @@ depends_on:
 homebrew:
   packages:
     - node
+
+apt:
+  packages:
+    - node

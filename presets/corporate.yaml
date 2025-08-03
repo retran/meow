@@ -1,18 +1,11 @@
 description: >-
-  Corporate laptop setup focused on Go development and work productivity
+  Corporate laptop setup
 
 depends_on:
   - components/shell-essential
   - components/desktop-essential
-
   - components/media
-
-  - components/shell-development
-  - components/lua-development
   - components/core-development
-  - components/go-development
-
   - components/markdown
-
   - components/corporate-communication
   - components/productivity

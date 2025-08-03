@@ -10,19 +10,36 @@ _LIB_COMMANDS_UPDATE_SOURCED=1
 source "${MEOW}/lib/core/ui.sh"
 source "${MEOW}/lib/package/presets.sh"
 source "${MEOW}/lib/package/homebrew.sh"
+source "${MEOW}/lib/package/apt.sh"
 source "${MEOW}/lib/package/npm.sh"
 source "${MEOW}/lib/package/go.sh"
 source "${MEOW}/lib/package/cargo.sh"
 
 UPDATED_PRESETS=""
 
+# Dynamically initialize the correct package manager based on OS
 _initialize_update_session() {
-  setup_homebrew
+  local indent=0
   UPDATED_PRESETS=""
+  step_header "$indent" "Initializing package manager for update"
+  
+  if [[ "$IS_DEBIAN_BASED" == "true" ]]; then
+    indented_info "$((indent + 1))" "Debian-based system detected. Using APT."
+    setup_apt "$((indent + 1))"
+  elif [[ "$IS_MACOS" == "true" ]]; then
+    indented_info "$((indent + 1))" "macOS system detected. Using Homebrew."
+    setup_homebrew "$((indent + 1))"
+  fi
 }
 
+# Dynamically clean up using the correct package manager based on OS
 _finalize_update_session() {
-    cleanup_homebrew
+  local indent=0
+  if [[ "$IS_DEBIAN_BASED" == "true" ]]; then
+    cleanup_apt "$((indent + 1))"
+  elif [[ "$IS_MACOS" == "true" ]]; then
+    cleanup_homebrew "$((indent + 1))"
+  fi
 }
 
 _check_preset_already_updated() {
@@ -30,7 +47,7 @@ _check_preset_already_updated() {
   local indent_level="$2"
 
   if [[ "$UPDATED_PRESETS" == *"|$preset|"* ]]; then
-    info_italic_msg "$indent_level" "Preset '$preset' already updated, skipping"
+    info_italic_msg "$indent_level" "Preset '$preset' already updated in this session, skipping"
     return 0
   fi
   return 1
@@ -54,17 +71,26 @@ _ensure_yq_available() {
     return 0
   fi
 
-  indented_warning "$indent_level" "yq is required, attempting to install"
+  indented_warning "$indent_level" "yq is required, attempting to install..."
 
-  if ! command -v brew >/dev/null 2>&1; then
-    indented_error_msg "$indent_level" "Homebrew not found, cannot install yq automatically"
-    return 1
-  fi
-
-  if brew install yq >/dev/null 2>&1; then
-    success_tick_msg "$indent_level" "yq installed successfully via Homebrew"
+  if [[ "$IS_DEBIAN_BASED" == "true" ]]; then
+    if sudo apt-get install -y yq >/dev/null 2>&1; then
+      success_tick_msg "$indent_level" "yq installed successfully via APT"
+      return 0
+    else
+      indented_error_msg "$indent_level" "Failed to install yq via APT. Please install it manually."
+      return 1
+    fi
+  elif [[ "$IS_MACOS" == "true" ]]; then
+    if brew install yq >/dev/null 2>&1; then
+      success_tick_msg "$indent_level" "yq installed successfully via Homebrew"
+      return 0
+    else
+      indented_error_msg "$indent_level" "Failed to install yq via Homebrew. Please install it manually."
+      return 1
+    fi
   else
-    indented_error_msg "$indent_level" "Failed to install yq via Homebrew"
+    indented_error_msg "$indent_level" "Cannot automatically install yq on this OS. Please install it manually."
     return 1
   fi
 }
@@ -99,6 +125,122 @@ _update_preset_dependencies() {
     dependency_msg "$indent_level" "Updating dependency: $dependency (for $preset)"
     update_preset_with_dependencies "$dependency" "$indent_level"
   done
+}
+
+# Generic function to update packages for a given package manager
+_update_package_manager() {
+  local manager_name="$1"
+  local cli_command="$2"
+  local preset="$3"
+  local indent_level="$4"
+  
+  local preset_file="${MEOW}/presets/${preset}.yaml"
+  local had_updates=false
+  local had_errors=false
+
+  if ! command -v "$cli_command" >/dev/null 2>&1; then
+    # Silently skip if the tool is not installed, no message needed
+    return 100
+  fi
+
+  _ensure_yq_available "$indent_level" || return 1
+
+  local categories_str
+  categories_str=$(yq eval ".${manager_name}.packages[]?" "$preset_file" 2>/dev/null)
+
+  if [[ -z "$categories_str" || "$categories_str" == "null" ]]; then
+    return 100 # No packages of this type in the preset
+  fi
+  
+  local update_function_name="update_${manager_name}_packages"
+  if ! declare -F "$update_function_name" >/dev/null; then
+    # This is a safeguard in case a package manager library is missing
+    indented_error_msg "$indent_level" "Update function ${update_function_name} not found."
+    return 1
+  fi
+
+  while IFS= read -r category; do
+    local update_status
+    "$update_function_name" "$category" "$indent_level"
+    update_status=$?
+
+    if [[ $update_status -eq 0 ]]; then
+      had_updates=true
+    elif [[ $update_status -eq 1 ]]; then
+      had_errors=true
+    fi
+  done < <(printf '%s\n' "$categories_str")
+
+  if [[ $had_errors == true ]]; then
+    return 1
+  elif [[ $had_updates == true ]]; then
+    return 0
+  else
+    return 100
+  fi
+}
+
+
+update_preset_packages() {
+  local preset="$1"
+  local indent_level="${2:-1}"
+  local had_updates=false
+  local had_error=false
+  local status
+
+  # OS-specific package managers
+  if [[ "$IS_MACOS" == "true" ]]; then
+    _update_package_manager "homebrew" "brew" "$preset" "$indent_level"
+    status=$?
+    [[ $status -eq 0 ]] && had_updates=true
+    [[ $status -eq 1 ]] && had_error=true
+
+    _update_package_manager "mas" "mas" "$preset" "$indent_level"
+    status=$?
+    [[ $status -eq 0 ]] && had_updates=true
+    [[ $status -eq 1 ]] && had_error=true
+  fi
+
+  if [[ "$IS_DEBIAN_BASED" == "true" ]]; then
+    _update_package_manager "apt" "apt-get" "$preset" "$indent_level"
+    status=$?
+    [[ $status -eq 0 ]] && had_updates=true
+    [[ $status -eq 1 ]] && had_error=true
+  fi
+  
+  # Cross-platform package managers
+  _update_package_manager "pipx" "pipx" "$preset" "$indent_level"
+  status=$?
+  [[ $status -eq 0 ]] && had_updates=true
+  [[ $status -eq 1 ]] && had_error=true
+  
+  _update_package_manager "npm" "npm" "$preset" "$indent_level"
+  status=$?
+  [[ $status -eq 0 ]] && had_updates=true
+  [[ $status -eq 1 ]] && had_error=true
+
+  _update_package_manager "go" "go" "$preset" "$indent_level"
+  status=$?
+  [[ $status -eq 0 ]] && had_updates=true
+  [[ $status -eq 1 ]] && had_error=true
+  
+  _update_package_manager "cargo" "cargo" "$preset" "$indent_level"
+  status=$?
+  [[ $status -eq 0 ]] && had_updates=true
+  [[ $status -eq 1 ]] && had_error=true
+
+  _update_package_manager "vscode" "code" "$preset" "$indent_level"
+  status=$?
+  [[ $status -eq 0 ]] && had_updates=true
+  [[ $status -eq 1 ]] && had_error=true
+
+  if [[ $had_error == true ]]; then
+    return 1
+  elif [[ $had_updates == true ]]; then
+    return 0
+  else
+    return 100
+  fi
 }
 
 update_preset_with_dependencies() {
@@ -157,374 +299,6 @@ update_preset_with_dependencies() {
   fi
 }
 
-update_preset_packages() {
-  local preset="$1"
-  local indent_level="${2:-1}"
-  local had_updates=false
-  local had_error=false
-
-  local homebrew_status pipx_status mas_status npm_status go_status cargo_status vscode_status
-
-  _update_homebrew_packages "$preset" "$indent_level"
-  homebrew_status=$?
-  if [[ $homebrew_status -eq 0 ]]; then
-    had_updates=true
-  elif [[ $homebrew_status -eq 1 ]]; then
-    had_error=true
-  fi
-
-  _update_pipx_packages "$preset" "$indent_level"
-  pipx_status=$?
-  if [[ $pipx_status -eq 0 ]]; then
-    had_updates=true
-  elif [[ $pipx_status -eq 1 ]]; then
-    had_error=true
-  fi
-
-  _update_mas_packages "$preset" "$indent_level"
-  mas_status=$?
-  if [[ $mas_status -eq 0 ]]; then
-    had_updates=true
-  elif [[ $mas_status -eq 1 ]]; then
-    had_error=true
-  fi
-
-  _update_npm_packages "$preset" "$indent_level"
-  npm_status=$?
-  if [[ $npm_status -eq 0 ]]; then
-    had_updates=true
-  elif [[ $npm_status -eq 1 ]]; then
-    had_error=true
-  fi
-
-  _update_go_packages "$preset" "$indent_level"
-  go_status=$?
-  if [[ $go_status -eq 0 ]]; then
-    had_updates=true
-  elif [[ $go_status -eq 1 ]]; then
-    had_error=true
-  fi
-
-  _update_cargo_packages "$preset" "$indent_level"
-  cargo_status=$?
-  if [[ $cargo_status -eq 0 ]]; then
-    had_updates=true
-  elif [[ $cargo_status -eq 1 ]]; then
-    had_error=true
-  fi
-
-  _update_vscode_extensions "$preset" "$indent_level"
-  vscode_status=$?
-  if [[ $vscode_status -eq 0 ]]; then
-    had_updates=true
-  elif [[ $vscode_status -eq 1 ]]; then
-    had_error=true
-  fi
-
-  if [[ $had_error == true ]]; then
-    return 1
-  elif [[ $had_updates == true ]]; then
-    return 0
-  else
-    return 100
-  fi
-}
-
-
-_update_homebrew_packages() {
-  local preset="$1"
-  local indent_level="$2"
-  local preset_file="${MEOW}/presets/${preset}.yaml"
-  local had_updates=false
-  local had_errors=false
-
-  if ! command -v brew >/dev/null 2>&1; then
-    info_italic_msg "$indent_level" "Homebrew not available, skipping homebrew package updates for '$preset'"
-    return 100
-  fi
-
-  _ensure_yq_available "$indent_level" || return 1
-
-  local brew_categories_str
-  brew_categories_str=$(yq eval '.homebrew.packages[]?' "$preset_file" 2>/dev/null)
-
-  if [[ -z "$brew_categories_str" || "$brew_categories_str" == "null" ]]; then
-    return 100
-  fi
-
-  while IFS= read -r category; do
-    local update_status
-    update_brew_packages "$category" "$indent_level"
-    update_status=$?
-
-    if [[ $update_status -eq 0 ]]; then
-      had_updates=true
-    elif [[ $update_status -eq 1 ]]; then
-      had_errors=true
-    fi
-  done < <(printf '%s\n' "$brew_categories_str")
-
-  if [[ $had_errors == true ]]; then
-    return 1
-  elif [[ $had_updates == true ]]; then
-    return 0
-  else
-    return 100
-  fi
-}
-
-_update_pipx_packages() {
-  local preset="$1"
-  local indent_level="$2"
-  local preset_file="${MEOW}/presets/${preset}.yaml"
-  local had_updates=false
-  local had_errors=false
-
-  if ! command -v pipx >/dev/null 2>&1; then
-    info_italic_msg "$indent_level" "Pipx not available, skipping pipx package updates for '$preset'"
-    return 100
-  fi
-
-  _ensure_yq_available "$indent_level" || return 1
-
-  local pipx_categories_str
-  pipx_categories_str=$(yq eval '.pipx.packages[]?' "$preset_file" 2>/dev/null)
-
-  if [[ -z "$pipx_categories_str" || "$pipx_categories_str" == "null" ]]; then
-    return 100
-  fi
-
-  while IFS= read -r category; do
-    local update_status
-    update_pipx_packages "$category" "$indent_level"
-    update_status=$?
-
-    if [[ $update_status -eq 0 ]]; then
-      had_updates=true
-    elif [[ $update_status -eq 1 ]]; then
-      had_errors=true
-    fi
-  done < <(printf '%s\n' "$pipx_categories_str")
-
-  if [[ $had_errors == true ]]; then
-    return 1
-  elif [[ $had_updates == true ]]; then
-    return 0
-  else
-    return 100
-  fi
-}
-
-_update_mas_packages() {
-  local preset="$1"
-  local indent_level="$2"
-  local preset_file="${MEOW}/presets/${preset}.yaml"
-  local had_updates=false
-  local had_errors=false
-
-  if ! command -v mas >/dev/null 2>&1; then
-    info_italic_msg "$indent_level" "MAS not available, skipping mas package updates for '$preset'"
-    return 100
-  fi
-
-  _ensure_yq_available "$indent_level" || return 1
-
-  local mas_categories_str
-  mas_categories_str=$(yq eval '.mas.packages[]?' "$preset_file" 2>/dev/null)
-
-  if [[ -z "$mas_categories_str" || "$mas_categories_str" == "null" ]]; then
-    return 100
-  fi
-
-  while IFS= read -r category; do
-    local update_status
-    update_mas_packages "$category" "$indent_level"
-    update_status=$?
-
-    if [[ $update_status -eq 0 ]]; then
-      had_updates=true
-    elif [[ $update_status -eq 1 ]]; then
-      had_errors=true
-    fi
-  done < <(printf '%s\n' "$mas_categories_str")
-
-  if [[ $had_errors == true ]]; then
-    return 1
-  elif [[ $had_updates == true ]]; then
-    return 0
-  else
-    return 100
-  fi
-}
-
-_update_npm_packages() {
-  local preset="$1"
-  local indent_level="$2"
-  local preset_file="${MEOW}/presets/${preset}.yaml"
-  local had_updates=false
-  local had_errors=false
-
-  if ! command -v npm >/dev/null 2>&1; then
-    info_italic_msg "$indent_level" "NPM not available, skipping npm package updates for '$preset'"
-    return 100
-  fi
-
-  _ensure_yq_available "$indent_level" || return 1
-
-  local npm_categories_str
-  npm_categories_str=$(yq eval '.npm.packages[]?' "$preset_file" 2>/dev/null)
-
-  if [[ -z "$npm_categories_str" || "$npm_categories_str" == "null" ]]; then
-    return 100
-  fi
-
-  while IFS= read -r category; do
-    local update_status
-    update_npm_packages "$category" "$indent_level"
-    update_status=$?
-
-    if [[ $update_status -eq 0 ]]; then
-      had_updates=true
-    elif [[ $update_status -eq 1 ]]; then
-      had_errors=true
-    fi
-  done < <(printf '%s\n' "$npm_categories_str")
-
-  if [[ $had_errors == true ]]; then
-    return 1
-  elif [[ $had_updates == true ]]; then
-    return 0
-  else
-    return 100
-  fi
-}
-
-_update_go_packages() {
-  local preset="$1"
-  local indent_level="$2"
-  local preset_file="${MEOW}/presets/${preset}.yaml"
-  local had_updates=false
-  local had_errors=false
-
-  if ! command -v go >/dev/null 2>&1; then
-    info_italic_msg "$indent_level" "Go not available, skipping go package updates for '$preset'"
-    return 100
-  fi
-
-  _ensure_yq_available "$indent_level" || return 1
-
-  local go_categories_str
-  go_categories_str=$(yq eval '.go.packages[]?' "$preset_file" 2>/dev/null)
-
-  if [[ -z "$go_categories_str" || "$go_categories_str" == "null" ]]; then
-    return 100
-  fi
-
-  while IFS= read -r category; do
-    local update_status
-    update_go_packages "$category" "$indent_level"
-    update_status=$?
-
-    if [[ $update_status -eq 0 ]]; then
-      had_updates=true
-    elif [[ $update_status -eq 1 ]]; then
-      had_errors=true
-    fi
-  done < <(printf '%s\n' "$go_categories_str")
-
-  if [[ $had_errors == true ]]; then
-    return 1
-  elif [[ $had_updates == true ]]; then
-    return 0
-  else
-    return 100
-  fi
-}
-
-_update_cargo_packages() {
-  local preset="$1"
-  local indent_level="$2"
-  local preset_file="${MEOW}/presets/${preset}.yaml"
-  local had_updates=false
-  local had_errors=false
-
-  if ! command -v cargo >/dev/null 2>&1; then
-    info_italic_msg "$indent_level" "Cargo not available, skipping cargo package updates for '$preset'"
-    return 100
-  fi
-
-  _ensure_yq_available "$indent_level" || return 1
-
-  local cargo_categories_str
-  cargo_categories_str=$(yq eval '.cargo.packages[]?' "$preset_file" 2>/dev/null)
-
-  if [[ -z "$cargo_categories_str" || "$cargo_categories_str" == "null" ]]; then
-    return 100
-  fi
-
-  while IFS= read -r category; do
-    local update_status
-    update_cargo_packages "$category" "$indent_level"
-    update_status=$?
-
-    if [[ $update_status -eq 0 ]]; then
-      had_updates=true
-    elif [[ $update_status -eq 1 ]]; then
-      had_errors=true
-    fi
-  done < <(printf '%s\n' "$cargo_categories_str")
-
-  if [[ $had_errors == true ]]; then
-    return 1
-  elif [[ $had_updates == true ]]; then
-    return 0
-  else
-    return 100
-  fi
-}
-
-_update_vscode_extensions() {
-  local preset="$1"
-  local indent_level="$2"
-  local preset_file="${MEOW}/presets/${preset}.yaml"
-  local had_updates=false
-  local had_errors=false
-
-  if ! command -v code >/dev/null 2>&1; then
-    info_italic_msg "$indent_level" "VSCode not available, skipping vscode extension updates for '$preset'"
-    return 100
-  fi
-
-  _ensure_yq_available "$indent_level" || return 1
-
-  local vscode_categories_str
-  vscode_categories_str=$(yq eval '.vscode.packages[]?' "$preset_file" 2>/dev/null)
-
-  if [[ -z "$vscode_categories_str" || "$vscode_categories_str" == "null" ]]; then
-    return 100
-  fi
-
-  while IFS= read -r category; do
-    local update_status
-    update_vscode_extensions "$category" "$indent_level"
-    update_status=$?
-
-    if [[ $update_status -eq 0 ]]; then
-      had_updates=true
-    elif [[ $update_status -eq 1 ]]; then
-      had_errors=true
-    fi
-  done < <(printf '%s\n' "$vscode_categories_str")
-
-  if [[ $had_errors == true ]]; then
-    return 1
-  elif [[ $had_updates == true ]]; then
-    return 0
-  else
-    return 100
-  fi
-}
-
 _process_presets() {
   local installed_presets="$1"
   local indent="$2"
@@ -558,7 +332,7 @@ _validate_installed_presets() {
 
   if [[ -z "$installed_presets" ]]; then
     indented_warning "$indent_level" "No presets found in installed presets list"
-    info "$indent_level" "Use './bin/install.sh PRESET_NAME' to install presets first"
+    info "$indent_level" "Use './bin/meow install PRESET_NAME' to install presets first"
     info "$indent_level" "Available presets can be found in the 'presets/' directory"
     return 1
   fi

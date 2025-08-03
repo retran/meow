@@ -9,6 +9,7 @@ _LIB_PACKAGE_PRESETS_SOURCED=1
 
 source "${MEOW}/lib/core/ui.sh"
 source "${MEOW}/lib/package/homebrew.sh"
+source "${MEOW}/lib/package/apt.sh"
 source "${MEOW}/lib/package/pipx.sh"
 source "${MEOW}/lib/package/mas.sh"
 source "${MEOW}/lib/package/vscode.sh"
@@ -22,12 +23,8 @@ readonly MEOW_PRESETS_DIR="${MEOW}/presets"
 readonly MEOW_INSTALLED_PRESETS_FILE="$HOME/.meow_installed_presets"
 APPLIED_PRESETS=()
 
-# Check if a preset has been applied in the current session
-# Usage: is_preset_applied <preset_name>
-# Returns: 0 if applied, 1 if not applied
 is_preset_applied() {
   local preset="$1"
-
   for applied in "${APPLIED_PRESETS[@]}"; do
     if [[ "$applied" == "$preset" ]]; then
       return 0
@@ -36,26 +33,16 @@ is_preset_applied() {
   return 1
 }
 
-# Mark a preset as applied in the current session and persist to disk
-# Usage: mark_preset_applied <preset_name>
 mark_preset_applied() {
   local preset="$1"
-
   APPLIED_PRESETS+=("$preset")
   debug "Marked preset '$preset' as applied"
-
   save_installed_preset "$preset"
 }
 
-# Persist preset installation to the tracking file
-# Usage: save_installed_preset <preset_name>
 save_installed_preset() {
   local preset="$1"
-
-  # Ensure tracking file exists
   touch "$MEOW_INSTALLED_PRESETS_FILE"
-
-  # Add preset to tracking file if not already present
   if ! grep -Fxq "$preset" "$MEOW_INSTALLED_PRESETS_FILE" 2>/dev/null; then
     echo "$preset" >>"$MEOW_INSTALLED_PRESETS_FILE"
     debug "Saved preset '$preset' to installed presets file"
@@ -74,6 +61,58 @@ is_preset_installed() {
     grep -Fxq "$preset" "$MEOW_INSTALLED_PRESETS_FILE" 2>/dev/null
   else
     return 1
+  fi
+}
+
+# Helper to install a tool if it's missing, using the correct package manager
+_ensure_tool_available() {
+  local tool="$1"
+  local indent_level="$2"
+
+  if command -v "$tool" >/dev/null 2>&1; then
+    return 0
+  fi
+
+  indented_warning "$indent_level" "'$tool' is required. Attempting to install..."
+  if [[ "$IS_MACOS" == "true" ]]; then
+    if brew install "$tool" >/dev/null 2>&1; then
+      success_tick_msg "$indent_level" "'$tool' installed successfully via Homebrew."
+    else
+      indented_error_msg "$indent_level" "Failed to install '$tool' via Homebrew."
+      return 1
+    fi
+  elif [[ "$IS_DEBIAN_BASED" == "true" ]]; then
+    if sudo apt-get install -y "$tool" >/dev/null 2>&1; then
+      success_tick_msg "$indent_level" "'$tool' installed successfully via APT."
+    else
+      indented_error_msg "$indent_level" "Failed to install '$tool' via APT."
+      return 1
+    fi
+  else
+    indented_error_msg "$indent_level" "Cannot install '$tool' automatically on this OS."
+    return 1
+  fi
+}
+
+# Generic helper to apply packages for a given manager
+_apply_packages_for_manager() {
+  local manager_name="$1"
+  local preset_file="$2"
+  local indent_level="$3"
+
+  local install_function_name="install_${manager_name}_packages"
+  if ! declare -F "$install_function_name" >/dev/null; then
+    indented_error_msg "$indent_level" "Install function ${install_function_name} not found."
+    return
+  fi
+
+  local categories_str
+  categories_str=$(yq eval ".${manager_name}.packages[]?" "$preset_file" 2>/dev/null)
+
+  if [[ -n "$categories_str" && "$categories_str" != "null" ]]; then
+    while IFS= read -r category; do
+      [[ -n "$category" ]] && "$install_function_name" "$category" "$indent_level"
+    done < <(printf '%s\n' "$categories_str")
   fi
 }
 
@@ -98,44 +137,14 @@ apply_preset() {
   fi
 
   if is_preset_applied "$preset"; then
-    if [[ -n "$parent_preset" ]]; then
-      dependency_msg "$child_indent" "Depends on: $preset (already applied, skipping explicit re-application for $parent_preset)"
-    else
-      info_italic_msg "$child_indent" "Preset '$preset' already applied, skipping."
-    fi
+    info_italic_msg "$child_indent" "Preset '$preset' already applied, skipping."
     return 0
   fi
 
-  if ! command -v jq >/dev/null 2>&1; then
-    indented_warning "$child_indent" "jq is required. Attempting to install..."
-    if command -v brew >/dev/null 2>&1; then
-      if brew install jq >/dev/null 2>&1; then
-        success_tick_msg "$child_indent" "jq installed successfully via Homebrew."
-      else
-        indented_error_msg "$child_indent" "Failed to install jq via Homebrew."
-        return 1
-      fi
-    else
-      indented_error_msg "$child_indent" "Homebrew not found. Cannot install jq automatically."
-      return 1
-    fi
-  fi
+  _ensure_tool_available "jq" "$child_indent" || return 1
+  _ensure_tool_available "yq" "$child_indent" || return 1
 
-  if ! command -v yq >/dev/null 2>&1; then
-    indented_warning "$child_indent" "yq is required. Attempting to install..."
-    if command -v brew >/dev/null 2>&1; then
-      if brew install yq >/dev/null 2>&1; then
-        success_tick_msg "$child_indent" "yq installed successfully via Homebrew."
-      else
-        indented_error_msg "$child_indent" "Failed to install yq via Homebrew."
-        return 1
-      fi
-    else
-      indented_error_msg "$child_indent" "Homebrew not found. Cannot install yq automatically."
-      return 1
-    fi
-  fi
-
+  # Handle dependencies
   if [[ "$skip_dependencies" != "true" ]]; then
     local dependencies_str
     dependencies_str=$(yq eval '.depends_on[]' "$preset_file" 2>/dev/null)
@@ -147,69 +156,26 @@ apply_preset() {
       for dependency in "${dependencies[@]}"; do
         if ! is_preset_applied "$dependency"; then
           apply_preset "$dependency" false "$preset" "$child_indent"
-        else
-          dependency_msg "$child_indent" "Depends on: $dependency (already applied, skipping explicit re-application for $preset)"
         fi
       done
     fi
   fi
 
-  local brew_categories_str
-  brew_categories_str=$(yq eval '.homebrew.packages[]?' "$preset_file" 2>/dev/null)
-  if [[ -n "$brew_categories_str" && "$brew_categories_str" != "null" ]]; then
-    while IFS= read -r category; do
-      install_brew_packages "$category" "$child_indent"
-    done < <(printf '%s\n' "$brew_categories_str")
+  # Apply packages using the generic helper
+  if [[ "$IS_MACOS" == "true" ]]; then
+    _apply_packages_for_manager "homebrew" "$preset_file" "$child_indent"
+    _apply_packages_for_manager "mas" "$preset_file" "$child_indent"
   fi
-
-  local pipx_categories_str
-  pipx_categories_str=$(yq eval '.pipx.packages[]?' "$preset_file" 2>/dev/null)
-  if [[ -n "$pipx_categories_str" && "$pipx_categories_str" != "null" ]]; then
-    while IFS= read -r category; do
-      install_pipx_packages "$category" "$child_indent"
-    done < <(printf '%s\n' "$pipx_categories_str")
+  if [[ "$IS_DEBIAN_BASED" == "true" ]]; then
+    _apply_packages_for_manager "apt" "$preset_file" "$child_indent"
   fi
+  _apply_packages_for_manager "pipx" "$preset_file" "$child_indent"
+  _apply_packages_for_manager "vscode" "$preset_file" "$child_indent"
+  _apply_packages_for_manager "npm" "$preset_file" "$child_indent"
+  _apply_packages_for_manager "go" "$preset_file" "$child_indent"
+  _apply_packages_for_manager "cargo" "$preset_file" "$child_indent"
 
-  local mas_categories_str
-  mas_categories_str=$(yq eval '.mas.packages[]?' "$preset_file" 2>/dev/null)
-  if [[ -n "$mas_categories_str" && "$mas_categories_str" != "null" ]]; then
-    while IFS= read -r category; do
-      install_mas_packages "$category" "$child_indent"
-    done < <(printf '%s\n' "$mas_categories_str")
-  fi
-
-  local vscode_categories_str
-  vscode_categories_str=$(yq eval '.vscode.packages[]?' "$preset_file" 2>/dev/null)
-  if [[ -n "$vscode_categories_str" && "$vscode_categories_str" != "null" ]]; then
-    while IFS= read -r category; do
-      install_vscode_extensions "$category" "$child_indent"
-    done < <(printf '%s\n' "$vscode_categories_str")
-  fi
-
-  local npm_categories_str
-  npm_categories_str=$(yq eval '.npm.packages[]?' "$preset_file" 2>/dev/null)
-  if [[ -n "$npm_categories_str" && "$npm_categories_str" != "null" ]]; then
-    while IFS= read -r category; do
-      install_npm_packages "$category" "$child_indent"
-    done < <(printf '%s\n' "$npm_categories_str")
-  fi
-
-  local go_categories_str
-  go_categories_str=$(yq eval '.go.packages[]?' "$preset_file" 2>/dev/null)
-  if [[ -n "$go_categories_str" && "$go_categories_str" != "null" ]]; then
-    while IFS= read -r category; do
-      install_go_packages "$category" "$child_indent"
-    done < <(printf '%s\n' "$go_categories_str")
-  fi
-
-  local cargo_categories_str
-  cargo_categories_str=$(yq eval '.cargo.packages[]?' "$preset_file" 2>/dev/null)
-  if [[ -n "$cargo_categories_str" && "$cargo_categories_str" != "null" ]]; then
-    while IFS= read -r category; do
-      install_cargo_packages "$category" "$child_indent"
-    done < <(printf '%s\n' "$cargo_categories_str")
-  fi
-
+  # Handle symlinks
   local symlink_categories_str
   symlink_categories_str=$(yq eval '.symlinks[]?' "$preset_file" 2>/dev/null)
   if [[ -n "$symlink_categories_str" && "$symlink_categories_str" != "null" ]]; then
@@ -222,6 +188,7 @@ apply_preset() {
     done
   fi
 
+  # Handle custom script
   local script_name
   script_name=$(yq eval '.script?' "$preset_file" 2>/dev/null)
   if [[ -n "$script_name" && "$script_name" != "null" ]]; then

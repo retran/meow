@@ -1,0 +1,7 @@
+description: >-
+  Core development container setup
+
+depends_on:
+  - components/shell-essential
+  - components/core-development
+  - components/markdown

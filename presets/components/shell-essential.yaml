@@ -4,15 +4,19 @@ description: >-
 homebrew:
   packages:
     - shell-essential
+apt:
+  packages:
+    - shell-essential
 
 symlinks:
   - git
   - tmux
   - starship
   - zsh
-  - bash
   - secrets
   - nvim
   - eza
+  - bash
+  - fd
 
 script: setup-shell-essential.sh

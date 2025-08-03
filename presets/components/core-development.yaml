@@ -10,10 +10,10 @@ homebrew:
   packages:
     - core-development
 
-pipx:
+apt:
   packages:
     - core-development
 
-vscode:
+pipx:
   packages:
     - core-development

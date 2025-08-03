@@ -4,20 +4,11 @@ description: >-
 depends_on:
   - components/shell-essential
   - components/desktop-essential
-
-  - components/docker
-
-  - components/shell-development
-  - components/lua-development
-  - components/core-development
-  - components/game-development
-
-  - components/markdown
-
+  - components/personal-communication
   - components/productivity
-
   - components/media
-
   - components/gaming
 
-  - components/personal-communication
+  - components/core-development
+  - components/game-development
+  - components/markdown

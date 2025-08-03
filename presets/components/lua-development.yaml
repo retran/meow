@@ -7,6 +7,10 @@ homebrew:
   packages:
     - lua-development
 
+apt:
+  packages:
+    - lua-development
+
 vscode:
   packages:
     - lua-development

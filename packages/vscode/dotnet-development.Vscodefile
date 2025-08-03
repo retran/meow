@@ -1,4 +1,0 @@
-extension "ms-dotnettools.csdevkit"
-extension "ms-dotnettools.csharp"
-extension "ms-dotnettools.vscode-dotnet-runtime"
-extension "ms-vscode.powershell"

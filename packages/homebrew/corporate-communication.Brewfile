@@ -1,2 +1,0 @@
-cask "slack"
-cask "zoom"
