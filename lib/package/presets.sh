@@ -62,6 +62,10 @@ _ensure_tool_available() {
     sudo apk add --no-cache "$tool" >/dev/null 2>&1 &&
       success_tick_msg "$indent" "'$tool' installed" ||
       { indented_error_msg "$indent" "Failed to install $tool"; return 1; }
+  elif [[ "$IS_ARCH" == "true" ]]; then
+    sudo pacman -Sy --noconfirm --needed "$tool" >/dev/null 2>&1 &&
+      success_tick_msg "$indent" "'$tool' installed" ||
+      { indented_error_msg "$indent" "Failed to install $tool"; return 1; }
   else
     indented_error_msg "$indent" "Cannot install $tool automatically on this OS"
     return 1
@@ -154,4 +158,3 @@ execute_preset_script() {
     return 1
   fi
 }
-
