@@ -20,21 +20,21 @@ if [[ -f "/etc/os-release" ]]; then
   # shellcheck disable=SC1091
   source "/etc/os-release"
 
-  ID="${ID,,}"
-  ID_LIKE="${ID_LIKE,,}"
+  ID_LOWER="${ID,,}"
+  ID_LIKE_LOWER="${ID_LIKE,,}" 2>/dev/null || ID_LIKE_LOWER=""
 
   # Alpine
-  if [[ "$ID" == "alpine" ]]; then
+  if [[ "$ID_LOWER" == "alpine" ]]; then
     IS_ALPINE=true
   fi
 
   # Arch Linux
-  if [[ "$ID" == "arch" || "$ID_LIKE" == *"arch"* ]]; then
+  if [[ "$ID_LOWER" == "arch" || "$ID_LIKE_LOWER" == *"arch"* ]]; then
     IS_ARCH=true
   fi
 
   # Debian‐based
-  if [[ "$ID_LIKE" == *"debian"* ]]; then
+  if [[ "$ID_LIKE_LOWER" == *"debian"* ]]; then
     IS_DEBIAN_BASED=true
   fi
 fi
