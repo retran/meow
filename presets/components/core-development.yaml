@@ -14,6 +14,11 @@ apt:
   packages:
     - core-development
 
+
+apk:
+  packages:
+    - core-development
+
 pipx:
   packages:
     - core-development

@@ -10,3 +10,7 @@ homebrew:
 apt:
   packages:
     - pipx
+
+apk:
+  packages:
+    - pipx

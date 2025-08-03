@@ -14,6 +14,10 @@ apt:
   packages:
     - shell-development
 
+apk:
+  packages:
+    - shell-development
+
 pipx:
   packages:
     - shell-development

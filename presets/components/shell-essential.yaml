@@ -4,7 +4,12 @@ description: >-
 homebrew:
   packages:
     - shell-essential
+
 apt:
+  packages:
+    - shell-essential
+
+apk:
   packages:
     - shell-essential
 

@@ -10,3 +10,7 @@ homebrew:
 apt:
   packages:
     - node
+
+apk:
+  packages:
+    - node
