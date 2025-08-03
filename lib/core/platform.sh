@@ -21,7 +21,13 @@ if [[ -f "/etc/os-release" ]]; then
   source "/etc/os-release"
 
   ID_LOWER="${ID,,}"
-  ID_LIKE_LOWER="${ID_LIKE,,}" 2>/dev/null || ID_LIKE_LOWER=""
+
+  # Проверяем, определена ли ID_LIKE
+  if [[ -n "${ID_LIKE+x}" ]]; then
+    ID_LIKE_LOWER="${ID_LIKE,,}"
+  else
+    ID_LIKE_LOWER=""
+  fi
 
   # Alpine
   if [[ "$ID_LOWER" == "alpine" ]]; then
