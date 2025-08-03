@@ -18,7 +18,7 @@ setup_ohmyzsh() {
     success_tick_msg "$indent_level" "Oh My Zsh is already installed."
     action_msg "$indent_level" "Updating Oh My Zsh..."
 
-    if ZSH="$HOME/.oh-my-zsh" zsh -i "$HOME/.oh-my-zsh/tools/upgrade.sh" --unattended; then
+    if ZSH="$HOME/.oh-my-zsh" zsh -i "$HOME/.oh-my-zsh/tools/upgrade.sh" &>/dev/null; then
       success_tick_msg "$indent_level" "Oh My Zsh update completed."
       return 0
     else
@@ -30,7 +30,7 @@ setup_ohmyzsh() {
   action_msg "$indent_level" "Installing Oh My Zsh..."
 
   if RUNZSH=no CHSH=no KEEP_ZSHRC=yes \
-    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"; then
+      sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" &>/dev/null; then
     success_tick_msg "$indent_level" "Oh My Zsh installation completed."
     return 0
   else

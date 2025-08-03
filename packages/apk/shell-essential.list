@@ -3,12 +3,10 @@ direnv
 htop
 eza
 git
-fd-find
+fd
 fzf
 ripgrep
 zoxide
-glow
 zsh
-tmux
 starship
 neovim
