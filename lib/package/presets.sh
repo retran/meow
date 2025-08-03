@@ -40,6 +40,13 @@ save_installed_preset() {
     echo "$preset" >>"$MEOW_INSTALLED_PRESETS_FILE"
 }
 
+get_installed_presets() {
+  if [[ -f "$MEOW_INSTALLED_PRESETS_FILE" ]]; then
+    # читаем все строки, убираем дубликаты и возвращаем
+    sort --unique "$MEOW_INSTALLED_PRESETS_FILE"
+  fi
+}
+
 _ensure_tool_available() {
   local tool="$1" indent="$2"
   command -v "$tool" >/dev/null 2>&1 && return 0
