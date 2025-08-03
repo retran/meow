@@ -105,7 +105,6 @@ _update_preset_dependencies() {
   done
 }
 
-# Generic function to update packages for a given package manager
 _update_package_manager() {
   local manager_name="$1"
   local cli_command="$2"
@@ -256,7 +255,6 @@ _process_presets() {
   while IFS= read -r preset; do
     [[ -z "$preset" ]] && continue
 
-    # пропускаем пресеты, уже обработанные в зависимостях
     if [[ "$UPDATED_PRESETS" == *"|$preset|"* ]]; then
       info_italic_msg "$indent" "Skipping preset '$preset' (already processed)"
       continue
