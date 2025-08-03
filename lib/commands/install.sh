@@ -9,6 +9,7 @@ _LIB_COMMANDS_INSTALL_SOURCED=1
 
 source "${MEOW}/lib/core/ui.sh"
 source "${MEOW}/lib/core/platform.sh"
+source "${MEOW}/lib/core/tools.sh"
 source "${MEOW}/lib/package/presets.sh"
 
 _initialize_install_session() {
@@ -35,6 +36,11 @@ _initialize_install_session() {
     indented_warning "$((indent + 1))" "No supported package manager found for this OS. Skipping system setup."
     return 1
   fi
+
+  ensure_yq || {
+    indented_error_msg "$((indent + 1))" "Failed to ensure yq installation"
+    return 1
+  }
 }
 
 _finalize_install_session() {

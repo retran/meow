@@ -47,32 +47,6 @@ get_installed_presets() {
   fi
 }
 
-_ensure_tool_available() {
-  local tool="$1" indent="$2"
-  command -v "$tool" >/dev/null 2>&1 && return 0
-  indented_warning "$indent" "'$tool' required, installing..."
-  if [[ "$IS_MACOS" == "true" ]]; then
-    brew install "$tool" >/dev/null 2>&1 &&
-      success_tick_msg "$indent" "'$tool' installed" ||
-      { indented_error_msg "$indent" "Failed to install $tool"; return 1; }
-  elif [[ "$IS_DEBIAN_BASED" == "true" ]]; then
-    sudo apt-get install -y "$tool" >/dev/null 2>&1 &&
-      success_tick_msg "$indent" "'$tool' installed" ||
-      { indented_error_msg "$indent" "Failed to install $tool"; return 1; }
-  elif [[ "$IS_ALPINE" == "true" ]]; then
-    sudo apk add --no-cache "$tool" >/dev/null 2>&1 &&
-      success_tick_msg "$indent" "'$tool' installed" ||
-      { indented_error_msg "$indent" "Failed to install $tool"; return 1; }
-  elif [[ "$IS_ARCH" == "true" ]]; then
-    sudo pacman -Sy --noconfirm --needed "$tool" >/dev/null 2>&1 &&
-      success_tick_msg "$indent" "'$tool' installed" ||
-      { indented_error_msg "$indent" "Failed to install $tool"; return 1; }
-  else
-    indented_error_msg "$indent" "Cannot install $tool automatically on this OS"
-    return 1
-  fi
-}
-
 _apply_packages_for_manager() {
   local mgr="$1" preset_file="$2" indent="$3"
   local fn="install_${mgr}_packages"
@@ -91,9 +65,6 @@ apply_preset() {
   local file="${MEOW}/presets/${preset}.yaml"
 
   step_header "$indent" "Applying preset: $preset"
-
-  _ensure_tool_available jq "$child_indent" || return 1
-  _ensure_tool_available yq "$child_indent" || return 1
 
   if is_preset_applied "$preset"; then
     info_italic_msg "$child_indent" "Preset '$preset' already applied, skipping."

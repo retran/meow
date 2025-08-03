@@ -9,6 +9,7 @@ _LIB_COMMANDS_UPDATE_SOURCED=1
 
 source "${MEOW}/lib/core/ui.sh"
 source "${MEOW}/lib/core/platform.sh"
+source "${MEOW}/lib/core/tools.sh"
 source "${MEOW}/lib/package/presets.sh"
 
 UPDATED_PRESETS=""
@@ -26,7 +27,18 @@ _initialize_update_session() {
   elif [[ "$IS_MACOS" == "true" ]]; then
     indented_info "$((indent + 1))" "macOS detected. Using Homebrew."
     setup_homebrew "$((indent + 1))"
+  elif [[ "$IS_ARCH" == "true" ]]; then
+    indented_info "$((indent + 1))" "Arch Linux detected. Using pacman."
+    setup_pacman "$((indent + 1))"
+  else
+    indented_warning "$((indent + 1))" "No supported package manager found for this OS. Skipping system setup."
+    return 1
   fi
+
+  ensure_yq || {
+    indented_error_msg "$((indent + 1))" "Failed to ensure yq installation"
+    return 1
+  }
 }
 
 _finalize_update_session() {
@@ -61,35 +73,6 @@ _validate_preset_file() {
     return 1
   fi
   return 0
-}
-
-_ensure_yq_available() {
-  local indent_level="$1"
-
-  if command -v yq >/dev/null 2>&1; then
-    return 0
-  fi
-
-  indented_warning "$indent_level" "yq is required, attempting to install..."
-
-  if [[ "$IS_DEBIAN_BASED" == "true" ]]; then
-    sudo apt-get install -y yq >/dev/null 2>&1 &&
-      success_tick_msg "$indent_level" "yq installed via APT" ||
-      {
-        indented_error_msg "$indent_level" "Failed to install yq via APT"
-        return 1
-      }
-  elif [[ "$IS_MACOS" == "true" ]]; then
-    brew install yq >/dev/null 2>&1 &&
-      success_tick_msg "$indent_level" "yq installed via Homebrew" ||
-      {
-        indented_error_msg "$indent_level" "Failed to install yq via Homebrew"
-        return 1
-      }
-  else
-    indented_error_msg "$indent_level" "Cannot install yq automatically on this OS"
-    return 1
-  fi
 }
 
 _parse_preset_dependencies() {
@@ -136,8 +119,6 @@ _update_package_manager() {
   if ! command -v "$cli_command" >/dev/null 2>&1; then
     return 100
   fi
-
-  _ensure_yq_available "$indent_level" || return 1
 
   local categories_str
   categories_str=$(yq eval ".${manager_name}.packages[]?" "$preset_file" 2>/dev/null)
@@ -220,11 +201,9 @@ update_preset_with_dependencies() {
   local child_indent=$((indent_level + 1))
   local had_updates=false
 
-  # не обновляем дважды
   _check_preset_already_updated "$preset" "$indent_level" && return 100
 
   _validate_preset_file "$preset_file" "$indent_level" || return 1
-  _ensure_yq_available "$child_indent" || return 1
 
   step_header "$indent_level" "Updating preset: $preset"
 
