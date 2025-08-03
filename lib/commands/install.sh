@@ -2,27 +2,28 @@
 
 # lib/commands/install.sh - Command library for installing dotfiles
 
-if [[ "${BASH_SOURCE[0]}" != "${0}" ]] && [[ -n "${_LIB_COMMANDS_INSTALL_SOURCED:-}" ]]; then
+if [[ -n "${_LIB_COMMANDS_INSTALL_SOURCED:-}" ]]; then
   return 0
 fi
 _LIB_COMMANDS_INSTALL_SOURCED=1
 
-# Source all dependencies: UI, presets, and all package manager libraries
 source "${MEOW}/lib/core/ui.sh"
+source "${MEOW}/lib/core/platform.sh"
 source "${MEOW}/lib/package/presets.sh"
 source "${MEOW}/lib/package/homebrew.sh"
 source "${MEOW}/lib/package/apt.sh"
+source "${MEOW}/lib/package/apk.sh"
 
-# Dynamically initialize the correct package manager based on OS
 _initialize_install_session() {
   local indent=0
   step_header "$indent" "Initializing package manager"
 
-  # IS_DEBIAN_BASED is set in apt.sh
-  if [[ "$IS_DEBIAN_BASED" == "true" ]]; then
+  if [[ "$IS_ALPINE" == "true" ]]; then
+    indented_info "$((indent + 1))" "Alpine Linux detected. Using apk."
+    setup_apk "$((indent + 1))"
+  elif [[ "$IS_DEBIAN_BASED" == "true" ]]; then
     indented_info "$((indent + 1))" "Debian-based system detected. Using APT."
     setup_apt "$((indent + 1))"
-  # IS_MACOS is set in homebrew.sh
   elif [[ "$IS_MACOS" == "true" ]]; then
     indented_info "$((indent + 1))" "macOS system detected. Using Homebrew."
     setup_homebrew "$((indent + 1))"
@@ -32,11 +33,12 @@ _initialize_install_session() {
   fi
 }
 
-# Dynamically clean up using the correct package manager based on OS
 _finalize_install_session() {
   local indent=0
 
-  if [[ "$IS_DEBIAN_BASED" == "true" ]]; then
+  if [[ "$IS_ALPINE" == "true" ]]; then
+    cleanup_apk "$((indent + 1))"
+  elif [[ "$IS_DEBIAN_BASED" == "true" ]]; then
     cleanup_apt "$((indent + 1))"
   elif [[ "$IS_MACOS" == "true" ]]; then
     cleanup_homebrew "$((indent + 1))"
@@ -45,31 +47,21 @@ _finalize_install_session() {
 
 _get_available_presets() {
   for file in "${MEOW}/presets"/*.yaml; do
-    if [[ -f "$file" ]]; then
-      echo "$(basename "$file" .yaml)"
-    fi
+    [[ -f "$file" ]] && echo "$(basename "$file" .yaml)"
   done
 }
 
 _validate_preset_exists() {
   local preset="$1"
   local indent_level="$2"
-  local available_presets=()
-
-  while IFS= read -r preset_name; do
-    if [[ -n "$preset_name" ]]; then
-      available_presets+=("$preset_name")
-    fi
-  done < <(_get_available_presets)
-
-  if [[ " ${available_presets[*]} " =~ " ${preset} " ]]; then
+  local available=()
+  while IFS= read -r p; do [[ -n "$p" ]] && available+=("$p"); done < <(_get_available_presets)
+  if [[ " ${available[*]} " =~ " ${preset} " ]]; then
     info "$indent_level" "Found preset: $preset"
     return 0
   else
     indented_warning "$indent_level" "Preset '$preset' not found. Available presets:"
-    for preset_name in "${available_presets[@]}"; do
-      list_item_msg "$((indent_level + 1))" "$preset_name"
-    done
+    for p in "${available[@]}"; do list_item_msg "$((indent_level + 1))" "$p"; done
     return 1
   fi
 }
@@ -77,38 +69,27 @@ _validate_preset_exists() {
 _install_preset_content() {
   local preset="$1"
   local indent_level="$2"
-
-  if ! apply_preset "$preset" "" "" "$indent_level"; then
-    return 1
-  fi
-
+  apply_preset "$preset" "" "" "$indent_level" || return 1
   save_installed_preset "$preset"
 }
 
 _report_install_results() {
   local preset="$1"
-  local indent_level="$2"
-
-  success_tick_msg "$indent_level" "Installation completed successfully with preset: $preset"
-  info "$indent_level" "You may need to restart your shell for all changes to take effect."
-  info "$indent_level" "Run 'source ~/.zshrc' or 'source ~/.bashrc' to reload your shell configuration."
+  local indent="$2"
+  success_tick_msg "$indent" "Installation completed successfully with preset: $preset"
+  info "$indent" "Restart your shell or run 'source ~/.zshrc' / 'source ~/.bashrc'."
 }
 
 install_preset() {
   local preset="$1"
   local indent=0
-
   header "$indent" "Installing meow with preset: $preset"
-
   _validate_preset_exists "$preset" "$indent" || return 1
-
-  if ! _initialize_install_session; then
-    indented_error_msg "$indent" "Failed to initialize a package manager. Aborting installation."
+  _initialize_install_session || {
+    indented_error_msg "$indent" "Init failed"
     return 1
-  fi
-
+  }
   _install_preset_content "$preset" "$indent" || return 1
   _finalize_install_session
-
   _report_install_results "$preset" "$indent"
 }

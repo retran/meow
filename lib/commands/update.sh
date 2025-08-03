@@ -2,28 +2,32 @@
 
 # lib/commands/update.sh - Command library for updating dotfiles
 
-if [[ "${BASH_SOURCE[0]}" != "${0}" ]] && [[ -n "${_LIB_COMMANDS_UPDATE_SOURCED:-}" ]]; then
+if [[ -n "${_LIB_COMMANDS_UPDATE_SOURCED:-}" ]]; then
   return 0
 fi
 _LIB_COMMANDS_UPDATE_SOURCED=1
 
 source "${MEOW}/lib/core/ui.sh"
+source "${MEOW}/lib/core/platform.sh"
 source "${MEOW}/lib/package/presets.sh"
 source "${MEOW}/lib/package/homebrew.sh"
 source "${MEOW}/lib/package/apt.sh"
+source "${MEOW}/lib/package/apk.sh"
 source "${MEOW}/lib/package/npm.sh"
 source "${MEOW}/lib/package/go.sh"
 source "${MEOW}/lib/package/cargo.sh"
+source "${MEOW}/lib/package/vscode.sh"
 
 UPDATED_PRESETS=""
 
-# Dynamically initialize the correct package manager based on OS
 _initialize_update_session() {
   local indent=0
-  UPDATED_PRESETS=""
   step_header "$indent" "Initializing package manager for update"
-  
-  if [[ "$IS_DEBIAN_BASED" == "true" ]]; then
+
+  if [[ "$IS_ALPINE" == "true" ]]; then
+    indented_info "$((indent + 1))" "Alpine Linux detected. Using apk."
+    setup_apk "$((indent + 1))"
+  elif [[ "$IS_DEBIAN_BASED" == "true" ]]; then
     indented_info "$((indent + 1))" "Debian-based system detected. Using APT."
     setup_apt "$((indent + 1))"
   elif [[ "$IS_MACOS" == "true" ]]; then
@@ -32,10 +36,12 @@ _initialize_update_session() {
   fi
 }
 
-# Dynamically clean up using the correct package manager based on OS
 _finalize_update_session() {
   local indent=0
-  if [[ "$IS_DEBIAN_BASED" == "true" ]]; then
+
+  if [[ "$IS_ALPINE" == "true" ]]; then
+    cleanup_apk "$((indent + 1))"
+  elif [[ "$IS_DEBIAN_BASED" == "true" ]]; then
     cleanup_apt "$((indent + 1))"
   elif [[ "$IS_MACOS" == "true" ]]; then
     cleanup_homebrew "$((indent + 1))"
@@ -133,7 +139,7 @@ _update_package_manager() {
   local cli_command="$2"
   local preset="$3"
   local indent_level="$4"
-  
+
   local preset_file="${MEOW}/presets/${preset}.yaml"
   local had_updates=false
   local had_errors=false
@@ -151,7 +157,7 @@ _update_package_manager() {
   if [[ -z "$categories_str" || "$categories_str" == "null" ]]; then
     return 100 # No packages of this type in the preset
   fi
-  
+
   local update_function_name="update_${manager_name}_packages"
   if ! declare -F "$update_function_name" >/dev/null; then
     # This is a safeguard in case a package manager library is missing
@@ -180,7 +186,6 @@ _update_package_manager() {
   fi
 }
 
-
 update_preset_packages() {
   local preset="$1"
   local indent_level="${2:-1}"
@@ -207,13 +212,13 @@ update_preset_packages() {
     [[ $status -eq 0 ]] && had_updates=true
     [[ $status -eq 1 ]] && had_error=true
   fi
-  
+
   # Cross-platform package managers
   _update_package_manager "pipx" "pipx" "$preset" "$indent_level"
   status=$?
   [[ $status -eq 0 ]] && had_updates=true
   [[ $status -eq 1 ]] && had_error=true
-  
+
   _update_package_manager "npm" "npm" "$preset" "$indent_level"
   status=$?
   [[ $status -eq 0 ]] && had_updates=true
@@ -223,7 +228,7 @@ update_preset_packages() {
   status=$?
   [[ $status -eq 0 ]] && had_updates=true
   [[ $status -eq 1 ]] && had_error=true
-  
+
   _update_package_manager "cargo" "cargo" "$preset" "$indent_level"
   status=$?
   [[ $status -eq 0 ]] && had_updates=true
