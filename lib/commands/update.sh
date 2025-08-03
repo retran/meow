@@ -34,6 +34,33 @@ _initialize_update_session() {
     indented_info "$((indent + 1))" "macOS system detected. Using Homebrew."
     setup_homebrew "$((indent + 1))"
   fi
+
+  # ----------------------------------------
+  # Устанавливаем yq сразу после настройки пакетного менеджера
+  local yi=$((indent + 1))
+  if ! command -v yq >/dev/null 2>&1; then
+    indented_info "$yi" "Installing yq..."
+    if [[ "$IS_MACOS" == "true" ]]; then
+      brew install yq >/dev/null 2>&1 &&
+        success_tick_msg "$yi" "yq installed via Homebrew" ||
+        indented_error_msg "$yi" "Failed to install yq via Homebrew"
+    else
+      local arch
+      arch=$(uname -m)
+      case "$arch" in
+        x86_64) arch=amd64 ;;
+        aarch64) arch=arm64 ;;
+        arm64) arch=arm64 ;;
+        *) arch=amd64 ;;
+      esac
+      local url="https://github.com/mikefarah/yq/releases/latest/download/yq_linux_${arch}"
+      sudo wget -q "$url" -O /usr/local/bin/yq &&
+        sudo chmod +x /usr/local/bin/yq &&
+        success_tick_msg "$yi" "yq v4 downloaded (${arch})" ||
+        indented_error_msg "$yi" "Failed to download yq binary"
+    fi
+  fi
+  # ----------------------------------------
 }
 
 _finalize_update_session() {
@@ -70,37 +97,6 @@ _validate_preset_file() {
   return 0
 }
 
-_ensure_yq_available() {
-  local indent_level="$1"
-
-  if command -v yq >/dev/null 2>&1; then
-    return 0
-  fi
-
-  indented_warning "$indent_level" "yq is required, attempting to install..."
-
-  if [[ "$IS_DEBIAN_BASED" == "true" ]]; then
-    if sudo apt-get install -y yq >/dev/null 2>&1; then
-      success_tick_msg "$indent_level" "yq installed successfully via APT"
-      return 0
-    else
-      indented_error_msg "$indent_level" "Failed to install yq via APT. Please install it manually."
-      return 1
-    fi
-  elif [[ "$IS_MACOS" == "true" ]]; then
-    if brew install yq >/dev/null 2>&1; then
-      success_tick_msg "$indent_level" "yq installed successfully via Homebrew"
-      return 0
-    else
-      indented_error_msg "$indent_level" "Failed to install yq via Homebrew. Please install it manually."
-      return 1
-    fi
-  else
-    indented_error_msg "$indent_level" "Cannot automatically install yq on this OS. Please install it manually."
-    return 1
-  fi
-}
-
 _parse_preset_dependencies() {
   local preset_file="$1"
   local dependencies_var="$2"
@@ -113,9 +109,7 @@ _parse_preset_dependencies() {
   fi
 
   while IFS= read -r line; do
-    if [[ -n "$line" ]]; then
-      eval "${dependencies_var}+=(\"$line\")"
-    fi
+    [[ -n "$line" ]] && eval "${dependencies_var}+=(\"$line\")"
   done < <(printf '%s\n' "$dependencies_str")
 }
 
@@ -145,36 +139,24 @@ _update_package_manager() {
   local had_errors=false
 
   if ! command -v "$cli_command" >/dev/null 2>&1; then
-    # Silently skip if the tool is not installed, no message needed
     return 100
   fi
 
-  _ensure_yq_available "$indent_level" || return 1
-
   local categories_str
   categories_str=$(yq eval ".${manager_name}.packages[]?" "$preset_file" 2>/dev/null)
-
-  if [[ -z "$categories_str" || "$categories_str" == "null" ]]; then
-    return 100 # No packages of this type in the preset
-  fi
+  [[ -z "$categories_str" || "$categories_str" == "null" ]] && return 100
 
   local update_function_name="update_${manager_name}_packages"
   if ! declare -F "$update_function_name" >/dev/null; then
-    # This is a safeguard in case a package manager library is missing
     indented_error_msg "$indent_level" "Update function ${update_function_name} not found."
     return 1
   fi
 
   while IFS= read -r category; do
-    local update_status
     "$update_function_name" "$category" "$indent_level"
-    update_status=$?
-
-    if [[ $update_status -eq 0 ]]; then
-      had_updates=true
-    elif [[ $update_status -eq 1 ]]; then
-      had_errors=true
-    fi
+    rc=$?
+    [[ $rc -eq 0 ]] && had_updates=true
+    [[ $rc -eq 1 ]] && had_errors=true
   done < <(printf '%s\n' "$categories_str")
 
   if [[ $had_errors == true ]]; then
@@ -191,61 +173,28 @@ update_preset_packages() {
   local indent_level="${2:-1}"
   local had_updates=false
   local had_error=false
-  local status
 
-  # OS-specific package managers
+  # OS-specific managers
   if [[ "$IS_MACOS" == "true" ]]; then
     _update_package_manager "homebrew" "brew" "$preset" "$indent_level"
-    status=$?
-    [[ $status -eq 0 ]] && had_updates=true
-    [[ $status -eq 1 ]] && had_error=true
-
+    rc=$? && [[ $rc -eq 0 ]] && had_updates=true
     _update_package_manager "mas" "mas" "$preset" "$indent_level"
-    status=$?
-    [[ $status -eq 0 ]] && had_updates=true
-    [[ $status -eq 1 ]] && had_error=true
+    rc=$? && [[ $rc -eq 0 ]] && had_updates=true
   fi
-
   if [[ "$IS_DEBIAN_BASED" == "true" ]]; then
     _update_package_manager "apt" "apt-get" "$preset" "$indent_level"
-    status=$?
-    [[ $status -eq 0 ]] && had_updates=true
-    [[ $status -eq 1 ]] && had_error=true
+    rc=$? && [[ $rc -eq 0 ]] && had_updates=true
   fi
 
-  # Cross-platform package managers
-  _update_package_manager "pipx" "pipx" "$preset" "$indent_level"
-  status=$?
-  [[ $status -eq 0 ]] && had_updates=true
-  [[ $status -eq 1 ]] && had_error=true
+  # Cross-platform
+  for mgr in pipx npm go cargo vscode; do
+    _update_package_manager "$mgr" "$mgr" "$preset" "$indent_level"
+    rc=$? && [[ $rc -eq 0 ]] && had_updates=true
+  done
 
-  _update_package_manager "npm" "npm" "$preset" "$indent_level"
-  status=$?
-  [[ $status -eq 0 ]] && had_updates=true
-  [[ $status -eq 1 ]] && had_error=true
-
-  _update_package_manager "go" "go" "$preset" "$indent_level"
-  status=$?
-  [[ $status -eq 0 ]] && had_updates=true
-  [[ $status -eq 1 ]] && had_error=true
-
-  _update_package_manager "cargo" "cargo" "$preset" "$indent_level"
-  status=$?
-  [[ $status -eq 0 ]] && had_updates=true
-  [[ $status -eq 1 ]] && had_error=true
-
-  _update_package_manager "vscode" "code" "$preset" "$indent_level"
-  status=$?
-  [[ $status -eq 0 ]] && had_updates=true
-  [[ $status -eq 1 ]] && had_error=true
-
-  if [[ $had_error == true ]]; then
-    return 1
-  elif [[ $had_updates == true ]]; then
-    return 0
-  else
-    return 100
-  fi
+  [[ $had_error == true ]] && return 1
+  [[ $had_updates == true ]] && return 0
+  return 100
 }
 
 update_preset_with_dependencies() {
@@ -257,44 +206,27 @@ update_preset_with_dependencies() {
 
   _check_preset_already_updated "$preset" "$indent_level" && return 100
   _validate_preset_file "$preset_file" "$indent_level" || return 1
-  _ensure_yq_available "$child_indent" || return 1
 
   step_header "$indent_level" "Updating preset: $preset"
 
   _update_preset_dependencies "$preset" "$preset_file" "$child_indent"
-
-  local package_status
   update_preset_packages "$preset" "$child_indent"
-  package_status=$?
+  rc=$?
+  [[ $rc -eq 0 ]] && had_updates=true
+  [[ $rc -eq 1 ]] && return 1
 
-  if [[ $package_status -eq 0 ]]; then
-    had_updates=true
-  elif [[ $package_status -eq 1 ]]; then
-    return 1
-  fi
+  # Symlinks
+  local symlinks
+  symlinks=$(yq eval '.symlinks[]?' "$preset_file" 2>/dev/null)
+  [[ -n "$symlinks" && "$symlinks" != "null" ]] &&
+    while IFS= read -r cat; do setup_symlinks "$cat" "$child_indent"; done < <(printf '%s\n' "$symlinks")
 
-  local symlink_categories_str
-  symlink_categories_str=$(yq eval '.symlinks[]?' "$preset_file" 2>/dev/null)
-  if [[ -n "$symlink_categories_str" && "$symlink_categories_str" != "null" ]]; then
-    source "${MEOW}/lib/package/symlinks.sh" # Ensure setup_symlinks is available
-    local symlink_categories=()
-    while IFS= read -r line; do
-      [[ -n "$line" ]] && symlink_categories+=("$line")
-    done < <(printf '%s\n' "$symlink_categories_str")
-    for category_name in "${symlink_categories[@]}"; do
-      setup_symlinks "$category_name" "$child_indent"
-    done
-  fi
+  # Script
+  local script
+  script=$(yq eval '.script?' "$preset_file" 2>/dev/null)
+  [[ -n "$script" && "$script" != "null" ]] && execute_preset_script "$script" "$preset" "$child_indent"
 
-  local script_name
-  script_name=$(yq eval '.script?' "$preset_file" 2>/dev/null)
-  if [[ -n "$script_name" && "$script_name" != "null" ]]; then
-    source "${MEOW}/lib/package/presets.sh"
-    execute_preset_script "$script_name" "$preset" "$child_indent"
-  fi
-
-  UPDATED_PRESETS="${UPDATED_PRESETS}|$preset|"
-
+  UPDATED_PRESETS+="|$preset|"
   if [[ $had_updates == true ]]; then
     success_tick_msg "$indent_level" "Preset '$preset' updated successfully"
     return 0
@@ -307,96 +239,72 @@ update_preset_with_dependencies() {
 _process_presets() {
   local installed_presets="$1"
   local indent="$2"
-  local preset_count_var="$3"
-  local successful_updates_var="$4"
-  local failed_updates_var="$5"
-  local uptodate_updates_var="$6"
+  local pcount="$3" scount="$4" fcount="$5" ucount="$6"
 
   while IFS= read -r preset; do
     [[ -z "$preset" ]] && continue
-
-    eval "$preset_count_var=\$((\$$preset_count_var + 1))"
-
-    local update_status
+    eval "$pcount=\$((\$$pcount + 1))"
     update_preset_with_dependencies "$preset" $((indent + 1))
-    update_status=$?
-
-    if [[ $update_status -eq 0 ]]; then
-      eval "$successful_updates_var=\$((\$$successful_updates_var + 1))"
-    elif [[ $update_status -eq 100 ]]; then
-      eval "$uptodate_updates_var=\$((\$$uptodate_updates_var + 1))"
+    rc=$?
+    if [[ $rc -eq 0 ]]; then
+      eval "$scount=\$((\$$scount + 1))"
+    elif [[ $rc -eq 100 ]]; then
+      eval "$ucount=\$((\$$ucount + 1))"
     else
-      eval "$failed_updates_var=\$((\$$failed_updates_var + 1))"
+      eval "$fcount=\$((\$$fcount + 1))"
     fi
   done < <(printf '%s\n' "$installed_presets")
 }
 
 _validate_installed_presets() {
-  local installed_presets="$1"
-  local indent_level="$2"
-
-  if [[ -z "$installed_presets" ]]; then
+  local ips="$1" indent_level="$2"
+  if [[ -z "$ips" ]]; then
     indented_warning "$indent_level" "No presets found in installed presets list"
     info "$indent_level" "Use './bin/meow install PRESET_NAME' to install presets first"
-    info "$indent_level" "Available presets can be found in the 'presets/' directory"
+    info "$indent_level" "Available presets in 'presets/'"
     return 1
   fi
   return 0
 }
 
 _report_update_results() {
-  local indent="$1"
-  local preset_count="$2"
-  local successful_updates="$3"
-  local failed_updates="$4"
-  local uptodate_updates="$5"
-
-  if [[ $preset_count -eq 0 ]]; then
-    indented_warning "$indent" "No installed presets found to update"
+  local indent="$1" pcount="$2" scount="$3" fcount="$4" ucount="$5"
+  if [[ $pcount -eq 0 ]]; then
+    indented_warning "$indent" "No installed presets to update"
     return 1
-  elif [[ $failed_updates -eq 0 ]]; then
-    if [[ $successful_updates -gt 0 ]]; then
-      if [[ $uptodate_updates -gt 0 ]]; then
-        success_tick_msg "$indent" "Processed $preset_count installed presets: $successful_updates updated, $uptodate_updates already up-to-date"
-      else
-        success_tick_msg "$indent" "All $successful_updates installed presets updated successfully"
-      fi
+  elif [[ $fcount -eq 0 ]]; then
+    if [[ $scount -gt 0 ]]; then
+      success_tick_msg "$indent" "Processed $pcount presets: $scount updated, $ucount up-to-date"
     else
-      success_tick_msg "$indent" "All $uptodate_updates installed presets are already up-to-date"
+      success_tick_msg "$indent" "All $ucount presets are already up-to-date"
     fi
   else
-    indented_warning "$indent" "Processed $preset_count presets: $successful_updates updated, $uptodate_updates up-to-date, $failed_updates failed"
+    indented_warning "$indent" "Processed $pcount presets: $scount updated, $ucount up-to-date, $fcount failed"
     return 1
   fi
 }
 
 update_installed_presets() {
   local indent=0
-
   UPDATED_PRESETS=""
   header "$indent" "Updating all installed presets"
 
   local installed_presets
   installed_presets=$(get_installed_presets)
-
   _validate_installed_presets "$installed_presets" $((indent + 1)) || return 1
 
   _initialize_update_session
 
-  local preset_count=0
-  local successful_updates=0
-  local failed_updates=0
-  local uptodate_updates=0
-
-  _process_presets "$installed_presets" "$indent" preset_count successful_updates failed_updates uptodate_updates
+  local preset_count=0 successful=0 failed=0 up-to-date=0
+  _process_presets "$installed_presets" "$indent" \
+    preset_count successful failed up-to-date
 
   _finalize_update_session
-  _report_update_results "$indent" "$preset_count" "$successful_updates" "$failed_updates" "$uptodate_updates"
+  _report_update_results "$indent" "$preset_count" "$successful" "$failed" "$up-to-date"
 }
 
 update_preset() {
   local preset="$1"
-
   header 0 "Updating preset: $preset"
   _initialize_update_session
   update_preset_with_dependencies "$preset" 0

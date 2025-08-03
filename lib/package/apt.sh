@@ -32,23 +32,10 @@ setup_apt() {
     return 1
   }
 
-  # Initial APT index update
   ui_spinner "$((indent + 1))" "Updating APT index" \
     --success "APT index updated" \
     --fail "Failed to update APT index" \
     sudo apt-get update
-
-  # Ensure we have the latest yq (v4+) from the community PPA
-  if ! grep -Rq "rmescandon/yq" /etc/apt/sources.list /etc/apt/sources.list.d; then
-    ui_spinner "$((indent + 1))" "Adding yq PPA" \
-      --success "yq PPA added" \
-      --fail "Failed to add yq PPA" \
-      bash -c "sudo apt-get install -y software-properties-common && sudo add-apt-repository -y ppa:rmescandon/yq"
-    ui_spinner "$((indent + 1))" "Updating APT index after adding yq PPA" \
-      --success "APT index updated with yq PPA" \
-      --fail "Failed to update APT index after yq PPA" \
-      sudo apt-get update
-  fi
 }
 
 install_apt_packages() {
