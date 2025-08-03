@@ -10,13 +10,6 @@ _LIB_COMMANDS_UPDATE_SOURCED=1
 source "${MEOW}/lib/core/ui.sh"
 source "${MEOW}/lib/core/platform.sh"
 source "${MEOW}/lib/package/presets.sh"
-source "${MEOW}/lib/package/homebrew.sh"
-source "${MEOW}/lib/package/apt.sh"
-source "${MEOW}/lib/package/apk.sh"
-source "${MEOW}/lib/package/npm.sh"
-source "${MEOW}/lib/package/go.sh"
-source "${MEOW}/lib/package/cargo.sh"
-source "${MEOW}/lib/package/vscode.sh"
 
 UPDATED_PRESETS=""
 

@@ -10,10 +10,6 @@ _LIB_COMMANDS_INSTALL_SOURCED=1
 source "${MEOW}/lib/core/ui.sh"
 source "${MEOW}/lib/core/platform.sh"
 source "${MEOW}/lib/package/presets.sh"
-source "${MEOW}/lib/package/homebrew.sh"
-source "${MEOW}/lib/package/apt.sh"
-source "${MEOW}/lib/package/apk.sh"
-source "${MEOW}/lib/package/pacman.sh"
 
 _initialize_install_session() {
   local indent=0
