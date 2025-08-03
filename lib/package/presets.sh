@@ -42,8 +42,7 @@ save_installed_preset() {
 
 get_installed_presets() {
   if [[ -f "$MEOW_INSTALLED_PRESETS_FILE" ]]; then
-    # читаем все строки, убираем дубликаты и возвращаем
-    sort --unique "$MEOW_INSTALLED_PRESETS_FILE"
+    sort -u "$MEOW_INSTALLED_PRESETS_FILE"
   fi
 }
 
@@ -54,24 +53,15 @@ _ensure_tool_available() {
   if [[ "$IS_MACOS" == "true" ]]; then
     brew install "$tool" >/dev/null 2>&1 &&
       success_tick_msg "$indent" "'$tool' installed" ||
-      {
-        indented_error_msg "$indent" "Failed to install $tool"
-        return 1
-      }
+      { indented_error_msg "$indent" "Failed to install $tool"; return 1; }
   elif [[ "$IS_DEBIAN_BASED" == "true" ]]; then
     sudo apt-get install -y "$tool" >/dev/null 2>&1 &&
       success_tick_msg "$indent" "'$tool' installed" ||
-      {
-        indented_error_msg "$indent" "Failed to install $tool"
-        return 1
-      }
+      { indented_error_msg "$indent" "Failed to install $tool"; return 1; }
   elif [[ "$IS_ALPINE" == "true" ]]; then
     sudo apk add --no-cache "$tool" >/dev/null 2>&1 &&
       success_tick_msg "$indent" "'$tool' installed" ||
-      {
-        indented_error_msg "$indent" "Failed to install $tool"
-        return 1
-      }
+      { indented_error_msg "$indent" "Failed to install $tool"; return 1; }
   else
     indented_error_msg "$indent" "Cannot install $tool automatically on this OS"
     return 1
@@ -96,14 +86,16 @@ apply_preset() {
   local file="${MEOW}/presets/${preset}.yaml"
 
   step_header "$indent" "Applying preset: $preset"
-  _ensure_tool_available "jq" "$child_indent" || return 1
-  _ensure_tool_available "yq" "$child_indent" || return 1
+
+  _ensure_tool_available jq "$child_indent" || return 1
+  _ensure_tool_available yq "$child_indent" || return 1
 
   if is_preset_applied "$preset"; then
     info_italic_msg "$child_indent" "Preset '$preset' already applied, skipping."
     return 0
   fi
 
+  # Handle dependencies
   if [[ "$skip_deps" != "true" ]]; then
     local deps
     deps=$(yq eval '.depends_on[]?' "$file" 2>/dev/null)
@@ -113,26 +105,30 @@ apply_preset() {
       done
   fi
 
+  # OS-specific package managers
   if [[ "$IS_MACOS" == "true" ]]; then
-    _apply_packages_for_manager "homebrew" "$file" "$child_indent"
-    _apply_packages_for_manager "mas" "$file" "$child_indent"
+    _apply_packages_for_manager homebrew "$file" "$child_indent"
+    _apply_packages_for_manager mas      "$file" "$child_indent"
   elif [[ "$IS_DEBIAN_BASED" == "true" ]]; then
-    _apply_packages_for_manager "apt" "$file" "$child_indent"
+    _apply_packages_for_manager apt      "$file" "$child_indent"
   elif [[ "$IS_ALPINE" == "true" ]]; then
-    _apply_packages_for_manager "apk" "$file" "$child_indent"
+    _apply_packages_for_manager apk      "$file" "$child_indent"
   fi
 
-  _apply_packages_for_manager "pipx" "$file" "$child_indent"
-  _apply_packages_for_manager "npm" "$file" "$child_indent"
-  _apply_packages_for_manager "go" "$file" "$child_indent"
-  _apply_packages_for_manager "cargo" "$file" "$child_indent"
-  _apply_packages_for_manager "vscode" "$file" "$child_indent"
+  # Cross-platform package managers
+  _apply_packages_for_manager pipx   "$file" "$child_indent"
+  _apply_packages_for_manager npm    "$file" "$child_indent"
+  _apply_packages_for_manager go     "$file" "$child_indent"
+  _apply_packages_for_manager cargo  "$file" "$child_indent"
+  _apply_packages_for_manager vscode "$file" "$child_indent"
 
+  # Symlinks
   local syms
   syms=$(yq eval '.symlinks[]?' "$file" 2>/dev/null)
   [[ -n "$syms" && "$syms" != "null" ]] &&
     for c in $syms; do setup_symlinks "$c" "$child_indent"; done
 
+  # Custom post-install script
   local script
   script=$(yq eval '.script?' "$file" 2>/dev/null)
   [[ -n "$script" && "$script" != "null" ]] &&
@@ -141,3 +137,21 @@ apply_preset() {
   APPLIED_PRESETS+=("$preset")
   success_tick_msg "$child_indent" "Preset '$preset' applied successfully."
 }
+
+execute_preset_script() {
+  local script_name="$1" preset="$2" indent="$3"
+  local script_path="${MEOW}/scripts/${script_name}"
+  step_header "$indent" "Executing custom script: $script_name"
+  if [[ ! -f "$script_path" ]]; then
+    indented_error_msg "$indent" "Script not found: $script_path"
+    return 1
+  fi
+  [[ ! -x "$script_path" ]] && chmod +x "$script_path"
+  if "$script_path" "$preset" "$MEOW" "$indent"; then
+    success_tick_msg "$indent" "Script '$script_name' executed successfully."
+  else
+    indented_error_msg "$indent" "Script '$script_name' failed with exit code $?."
+    return 1
+  fi
+}
+

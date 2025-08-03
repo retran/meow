@@ -1,0 +1,14 @@
+bash
+direnv
+htop
+eza
+git
+fd-find
+fzf
+ripgrep
+zoxide
+glow
+zsh
+tmux
+starship
+neovim
