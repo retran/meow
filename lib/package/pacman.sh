@@ -13,7 +13,7 @@ PACMAN_PACKAGES_DIR="${MEOW}/packages/pacman"
 
 _cache_installed_pacman_packages() {
   if [[ -z "${_PACMAN_INSTALLED_PACKAGES:-}" ]]; then
-    action_msg "${1:-0}" "Caching pacman package list..."
+    action_msg 0 "Caching pacman package list..."
     _PACMAN_INSTALLED_PACKAGES="$(pacman -Qq 2>/dev/null)"
   fi
 }

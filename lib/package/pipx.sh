@@ -13,7 +13,7 @@ PIPX_PACKAGES_DIR="${MEOW}/packages/pipx"
 
 _cache_installed_pipx_packages() {
   if [[ -z "${_PIPX_INSTALLED_PACKAGES:-}" ]]; then
-    action_msg "${1:-0}" "Caching pipx package list..."
+    action_msg 0 "Caching pipx package list..."
     _PIPX_INSTALLED_PACKAGES="$(pipx list --short 2>/dev/null | awk '{print $1}')"
   fi
 }

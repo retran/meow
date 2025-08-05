@@ -13,7 +13,7 @@ HOMEBREW_PACKAGES_DIR="${MEOW}/packages/homebrew"
 
 _cache_installed_brew_packages() {
   if [[ -z "${_BREW_INSTALLED_PACKAGES:-}" ]]; then
-    action_msg "${1:-0}" "Caching Homebrew package list..."
+    action_msg 0 "Caching Homebrew package list..."
     _BREW_INSTALLED_PACKAGES="$(
       brew list --formula -1 2>/dev/null
       brew list --cask   -1 2>/dev/null

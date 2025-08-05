@@ -13,7 +13,7 @@ CARGO_PACKAGES_DIR="${MEOW}/packages/cargo"
 
 _cache_installed_cargo_packages() {
   if [[ -z "${_CARGO_INSTALLED_PACKAGES:-}" ]]; then
-    action_msg "${1:-0}" "Caching Cargo package list..."
+    action_msg 0 "Caching Cargo package list..."
     _CARGO_INSTALLED_PACKAGES="$(cargo install --list 2>/dev/null | awk '/:/ {print $1}')"
   fi
 }

@@ -13,7 +13,7 @@ APT_PACKAGES_DIR="${MEOW}/packages/apt"
 
 _cache_installed_apt_packages() {
   if [[ -z "${_APT_INSTALLED_PACKAGES:-}" ]]; then
-    action_msg "${1:-0}" "Caching APT package list..."
+    action_msg 0 "Caching APT package list..."
     _APT_INSTALLED_PACKAGES="$(dpkg-query -f='${binary:Package}\n' -W 2>/dev/null)"
   fi
 }

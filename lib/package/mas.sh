@@ -13,7 +13,7 @@ MAS_PACKAGES_DIR="${MEOW}/packages/mas"
 
 _cache_installed_mas_packages() {
   if [[ -z "${_MAS_INSTALLED_PACKAGES:-}" ]]; then
-    action_msg "${1:-0}" "Caching MAS installed apps..."
+    action_msg 0 "Caching MAS installed apps..."
     _MAS_INSTALLED_PACKAGES="$(mas list | awk -F'[()]' '{print $2}')"
   fi
 }

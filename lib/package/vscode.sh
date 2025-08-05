@@ -13,7 +13,7 @@ VSCODE_PACKAGES_DIR="${MEOW}/packages/vscode"
 
 _cache_installed_vscode_extensions() {
   if [[ -z "${_VSCODE_INSTALLED_EXTENSIONS:-}" ]]; then
-    action_msg "${1:-0}" "Caching VS Code extensions list..."
+    action_msg 0 "Caching VS Code extensions list..."
     if command -v code >/dev/null 2>&1; then
       _VSCODE_INSTALLED_EXTENSIONS="$(code --list-extensions 2>/dev/null)"
     else

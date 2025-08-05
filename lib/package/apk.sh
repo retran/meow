@@ -13,7 +13,7 @@ APK_PACKAGES_DIR="${MEOW}/packages/apk"
 
 _cache_installed_apk_packages() {
   if [[ -z "${_APK_INSTALLED_PACKAGES:-}" ]]; then
-    action_msg "${1:-0}" "Caching apk package list..."
+    action_msg 0 "Caching apk package list..."
     _APK_INSTALLED_PACKAGES="$(apk info)"
   fi
 }

@@ -13,7 +13,7 @@ NPM_PACKAGES_DIR="${MEOW}/packages/npm"
 
 _cache_installed_npm_packages() {
   if [[ -z "${_NPM_INSTALLED_PACKAGES:-}" ]]; then
-    action_msg "${1:-0}" "Caching npm package list..."
+    action_msg 0 "Caching npm package list..."
     _NPM_INSTALLED_PACKAGES="$(
       npm list -g --depth=0 --parseable 2>/dev/null |
         sed 's|.*/||;s/@.*//'

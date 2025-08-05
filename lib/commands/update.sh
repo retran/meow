@@ -14,45 +14,6 @@ source "${MEOW}/lib/package/presets.sh"
 
 UPDATED_PRESETS=""
 
-_initialize_update_session() {
-  local indent=0
-  step_header "$indent" "Initializing package manager for update"
-
-  if [[ "$IS_ALPINE" == "true" ]]; then
-    indented_info "$((indent + 1))" "Alpine Linux detected. Using apk."
-    setup_apk "$((indent + 1))"
-  elif [[ "$IS_DEBIAN_BASED" == "true" ]]; then
-    indented_info "$((indent + 1))" "Debian-based system detected. Using APT."
-    setup_apt "$((indent + 1))"
-  elif [[ "$IS_MACOS" == "true" ]]; then
-    indented_info "$((indent + 1))" "macOS detected. Using Homebrew."
-    setup_homebrew "$((indent + 1))"
-  elif [[ "$IS_ARCH" == "true" ]]; then
-    indented_info "$((indent + 1))" "Arch Linux detected. Using pacman."
-    setup_pacman "$((indent + 1))"
-  else
-    indented_warning "$((indent + 1))" "No supported package manager found for this OS. Skipping system setup."
-    return 1
-  fi
-
-  ensure_yq || {
-    indented_error_msg "$((indent + 1))" "Failed to ensure yq installation"
-    return 1
-  }
-}
-
-_finalize_update_session() {
-  local indent=0
-
-  if [[ "$IS_ALPINE" == "true" ]]; then
-    cleanup_apk "$((indent + 1))"
-  elif [[ "$IS_DEBIAN_BASED" == "true" ]]; then
-    cleanup_apt "$((indent + 1))"
-  elif [[ "$IS_MACOS" == "true" ]]; then
-    cleanup_homebrew "$((indent + 1))"
-  fi
-}
-
 _check_preset_already_updated() {
   local preset="$1"
   local indent_level="$2"
@@ -325,7 +286,10 @@ update_installed_presets() {
 
   _validate_installed_presets "$installed_presets" $((indent + 1)) || return 1
 
-  _initialize_update_session
+  _initialize_session || {
+    indented_error_msg "$indent" "Init failed"
+    return 1
+  }
 
   local preset_count=0
   local successful_updates=0
@@ -333,15 +297,17 @@ update_installed_presets() {
   local uptodate_updates=0
 
   _process_presets "$installed_presets" "$indent" preset_count successful_updates failed_updates uptodate_updates
-
-  _finalize_update_session
+  _finalize_session
   _report_update_results "$indent" "$preset_count" "$successful_updates" "$failed_updates" "$uptodate_updates"
 }
 
 update_preset() {
   local preset="$1"
   header 0 "Updating preset: $preset"
-  _initialize_update_session
+  _initialize_session || {
+    indented_error_msg "$indent" "Init failed"
+    return 1
+  }
+  _finalize_session
   update_preset_with_dependencies "$preset" 0
-  _finalize_update_session
 }

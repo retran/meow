@@ -22,7 +22,6 @@ if [[ -f "/etc/os-release" ]]; then
 
   ID_LOWER="${ID,,}"
 
-  # Проверяем, определена ли ID_LIKE
   if [[ -n "${ID_LIKE+x}" ]]; then
     ID_LIKE_LOWER="${ID_LIKE,,}"
   else
