@@ -3,6 +3,18 @@ description: "Go development tools and environment"
 depends_on:
   - components/core-development
 
+apk:
+  packages:
+    go-development
+
+apt:
+  packages:
+    go-development
+
+pacman:
+  pacman:
+    go-development
+
 homebrew:
   packages:
     - go-development
