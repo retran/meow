@@ -1,5 +1,5 @@
 description: >-
-  Core development container setup
+  Core development litterbox setup
 
 depends_on:
   - components/shell-essential

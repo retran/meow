@@ -28,7 +28,7 @@ export LANG="en_US.UTF-8"
 export LC_ALL="en_US.UTF-8"
 
 _meow_set_if_command_exists "EDITOR" "nvim" "vim" "nano"
-if [[ -n "$EDITOR" ]]; then
+if [[ -n "${EDITOR:-}" ]]; then
   export VISUAL="$EDITOR"
 fi
 
