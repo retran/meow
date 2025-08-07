@@ -65,3 +65,7 @@ export NPM_CONFIG_PREFIX="${HOME}/.npm-global"
 if [[ -d "$NPM_CONFIG_PREFIX/bin" ]]; then
   export PATH="$NPM_CONFIG_PREFIX/bin:$PATH"
 fi
+
+if [[ -f "$HOME/.orbstack/shell/init.zsh" ]]; then
+  source "$HOME/.orbstack/shell/init.zsh"
+fi
