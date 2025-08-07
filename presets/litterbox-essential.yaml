@@ -4,4 +4,5 @@ description: >-
 depends_on:
   - components/shell-essential
   - components/core-development
-  - components/markdown 
+  - components/docker-cli
+  - components/markdown

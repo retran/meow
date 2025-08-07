@@ -8,7 +8,7 @@ depends_on:
   - components/productivity
   - components/media
   - components/gaming
-
   - components/core-development
+  - components/docker-desktop
   - components/game-development
   - components/markdown

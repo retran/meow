@@ -6,6 +6,7 @@ depends_on:
   - components/desktop-essential
   - components/media
   - components/core-development
+  - components/docker-desktop
   - components/markdown
   - components/corporate-communication
   - components/productivity

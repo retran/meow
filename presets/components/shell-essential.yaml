@@ -1,6 +1,10 @@
 description: >-
   Essential shell tools that can be installed on systems without GUI
 
+depends_on:
+  - components/pipx
+  - components/node
+
 homebrew:
   packages:
     - shell-essential
@@ -14,6 +18,10 @@ apk:
     - shell-essential
 
 pacman:
+  packages:
+    - shell-essential
+
+npm:
   packages:
     - shell-essential
 
