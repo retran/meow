@@ -21,7 +21,7 @@ main() {
 
   step_header "$indent_level" "Running Setup Script for 'shell-essential'"
 
-  # Install Zsh plugins on Debian‐based and Alpine Linux
+  # Install Zsh plugins on Debian-based and Alpine Linux
   if [[ "$IS_DEBIAN_BASED" == "true" || "$IS_ALPINE" == "true" ]]; then
     action_msg "$child_indent" "Checking Zsh plugins..."
 
