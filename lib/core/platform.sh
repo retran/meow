@@ -38,7 +38,7 @@ if [[ -f "/etc/os-release" ]]; then
     IS_ARCH=true
   fi
 
-  # Debian‐based
+  # Debian-based
   if [[ "$ID_LIKE_LOWER" == *"debian"* ]]; then
     IS_DEBIAN_BASED=true
   fi
