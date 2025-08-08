@@ -1,5 +1,12 @@
 title = "meow - Purr-fect Development Environment"
 
+quit-after-last-window-closed = true
+quit-after-last-window-closed-delay = 1s
+
+macos-option-as-alt = left
+
+auto-update = check
+
 window-decoration = true
 window-width = 120
 window-height = 40
