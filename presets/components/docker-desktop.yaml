@@ -1,4 +1,4 @@
-description: ""
+description: "Docker Desktop for macOS development environments."
 
 depends_on:
   - components/desktop-essential
