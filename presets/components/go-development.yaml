@@ -16,7 +16,7 @@ apt:
     - go-development
 
 pacman:
-  pacman:
+  packages:
     - go-development
 
 go:
