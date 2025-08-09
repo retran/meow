@@ -73,11 +73,6 @@ apply_preset() {
 
   # Handle dependencies
   if [[ "$skip_deps" != "true" ]]; then
-    local deps
-    deps=$(yq eval '.depends_on[]?' "$file" 2>/dev/null)
-    [[ -n "$deps" && "$deps" != "null" ]] &&
-      for d in $deps; do
-        apply_preset "$d" false "$preset" "$child_indent"
     while IFS= read -r d; do
       [[ -n "$d" && "$d" != "null" ]] && apply_preset "$d" false "$preset" "$child_indent"
     done < <(yq eval '.depends_on[]?' "$file" 2>/dev/null)
@@ -86,22 +81,22 @@ apply_preset() {
   # OS-specific package managers
   if [[ "$IS_MACOS" == "true" ]]; then
     _apply_packages_for_manager homebrew "$file" "$child_indent"
-    _apply_packages_for_manager mas      "$file" "$child_indent"
+    _apply_packages_for_manager mas "$file" "$child_indent"
   elif [[ "$IS_DEBIAN_BASED" == "true" ]]; then
-    _apply_packages_for_manager apt      "$file" "$child_indent"
+    _apply_packages_for_manager apt "$file" "$child_indent"
   elif [[ "$IS_ALPINE" == "true" ]]; then
-    _apply_packages_for_manager apk      "$file" "$child_indent"
+    _apply_packages_for_manager apk "$file" "$child_indent"
   elif [[ "$IS_ARCH" == "true" ]]; then
-    _apply_packages_for_manager pacman   "$file" "$child_indent"
+    _apply_packages_for_manager pacman "$file" "$child_indent"
   else
     indented_error_msg "$child_indent" "No supported package manager detected"
   fi
 
   # Cross-platform package managers
-  _apply_packages_for_manager pipx   "$file" "$child_indent"
-  _apply_packages_for_manager npm    "$file" "$child_indent"
-  _apply_packages_for_manager go     "$file" "$child_indent"
-  _apply_packages_for_manager cargo  "$file" "$child_indent"
+  _apply_packages_for_manager pipx "$file" "$child_indent"
+  _apply_packages_for_manager npm "$file" "$child_indent"
+  _apply_packages_for_manager go "$file" "$child_indent"
+  _apply_packages_for_manager cargo "$file" "$child_indent"
   _apply_packages_for_manager vscode "$file" "$child_indent"
 
   # Symlinks

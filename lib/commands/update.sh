@@ -9,6 +9,7 @@ _LIB_COMMANDS_UPDATE_SOURCED=1
 
 source "${MEOW}/lib/core/ui.sh"
 source "${MEOW}/lib/core/platform.sh"
+source "${MEOW}/lib/core/session.sh"
 source "${MEOW}/lib/core/tools.sh"
 source "${MEOW}/lib/package/presets.sh"
 
