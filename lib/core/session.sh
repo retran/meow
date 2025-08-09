@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# lib/commands/install.sh - Command library for installing dotfiles
+# lib/core/session.sh - Session management for package managers
 
 if [[ -n "${_LIB_CORE_SESSION_SOURCED:-}" ]]; then
   return 0
