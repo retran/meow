@@ -139,6 +139,6 @@ setup_symlinks() {
 debug() {
   if [ "${DEBUG:-0}" = "1" ]; then
     # shellcheck disable=SC2005
-    echo "$(indent 0)${MAGENTA}DEBUG:${RESET} $*" >&2
+    printf '%s\n' "$(indent 0)${MAGENTA}DEBUG:${RESET} $*" >&2
   fi
 }
