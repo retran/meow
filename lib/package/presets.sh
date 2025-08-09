@@ -78,7 +78,9 @@ apply_preset() {
     [[ -n "$deps" && "$deps" != "null" ]] &&
       for d in $deps; do
         apply_preset "$d" false "$preset" "$child_indent"
-      done
+    while IFS= read -r d; do
+      [[ -n "$d" && "$d" != "null" ]] && apply_preset "$d" false "$preset" "$child_indent"
+    done < <(yq eval '.depends_on[]?' "$file" 2>/dev/null)
   fi
 
   # OS-specific package managers
