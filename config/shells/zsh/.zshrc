@@ -16,7 +16,6 @@ base_plugins=(
 
   git
   git-lfs
-  git-extras
   git-escape-magic
   github
   gh
