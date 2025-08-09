@@ -1,3 +1,0 @@
-extension "ms-python.debugpy"
-extension "ms-python.python"
-extension "ms-python.vscode-pylance"

@@ -3,13 +3,28 @@ description: >-
 
 depends_on:
   - components/shell-essential
-  - components/pipx
 
 homebrew:
   packages:
     - shell-development
 
+apt:
+  packages:
+    - shell-development
+
+apk:
+  packages:
+    - shell-development
+
+pacman:
+  packages:
+    - shell-development
+
 pipx:
+  packages:
+    - shell-development
+
+npm:
   packages:
     - shell-development
 

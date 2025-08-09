@@ -1,8 +1,17 @@
 description: "Python package installer"
 
-depends_on:
-  - components/shell-essential
-
 homebrew:
+  packages:
+    - pipx
+
+apt:
+  packages:
+    - pipx
+
+apk:
+  packages:
+    - pipx
+
+pacman:
   packages:
     - pipx

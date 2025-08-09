@@ -7,6 +7,18 @@ homebrew:
   packages:
     - lua-development
 
+apt:
+  packages:
+    - lua-development
+
+apk:
+  packages:
+    - lua-development
+
+pacman:
+  packages:
+    - lua-development
+
 vscode:
   packages:
     - lua-development

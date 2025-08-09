@@ -1,0 +1,8 @@
+description: >-
+  Core development litterbox setup
+
+depends_on:
+  - components/shell-essential
+  - components/core-development
+  - components/docker-cli
+  - components/markdown

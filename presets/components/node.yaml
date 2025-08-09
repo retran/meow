@@ -1,8 +1,20 @@
 description: "Node.js and npm environment"
 
-depends_on:
-  - components/shell-essential
-
 homebrew:
   packages:
     - node
+
+apt:
+  packages:
+    - node
+
+apk:
+  packages:
+    - node
+
+pacman:
+  packages:
+    - node
+
+
+script: setup-node.sh

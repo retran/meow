@@ -1,3 +1,0 @@
-extension "rust-lang.rust-analyzer"
-extension "vadimcn.vscode-lldb"
-extension "tamasfe.even-better-toml"

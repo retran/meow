@@ -7,6 +7,18 @@ homebrew:
   packages:
     - go-development
 
+apk:
+  packages:
+    - go-development
+
+apt:
+  packages:
+    - go-development
+
+pacman:
+  packages:
+    - go-development
+
 go:
   packages:
     - go-development

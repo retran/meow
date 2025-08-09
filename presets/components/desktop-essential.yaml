@@ -17,4 +17,8 @@ symlinks:
   - ghostty
   - vscode
 
+vscode:
+  packages:
+    - vscode-core
+
 script: setup-macos.sh

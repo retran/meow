@@ -1,7 +1,27 @@
 description: >-
   Essential shell tools that can be installed on systems without GUI
 
+depends_on:
+  - components/pipx
+  - components/node
+
 homebrew:
+  packages:
+    - shell-essential
+
+apt:
+  packages:
+    - shell-essential
+
+apk:
+  packages:
+    - shell-essential
+
+pacman:
+  packages:
+    - shell-essential
+
+npm:
   packages:
     - shell-essential
 
@@ -10,9 +30,10 @@ symlinks:
   - tmux
   - starship
   - zsh
-  - bash
   - secrets
   - nvim
   - eza
+  - bash
+  - fd
 
 script: setup-shell-essential.sh

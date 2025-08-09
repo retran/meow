@@ -1,8 +1,0 @@
-description: "Python package installer"
-
-depends_on:
-  - components/shell-essential
-
-homebrew:
-  packages:
-    - docker

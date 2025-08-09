@@ -2,10 +2,7 @@
 
 ZSH_THEME="robbyrussell"
 
-plugins=(
-  macos
-  brew
-
+base_plugins=(
   copyfile
   copypath
   urltools
@@ -14,13 +11,11 @@ plugins=(
   encode64
   dotenv
 
-  tmux
   ssh
   colored-man-pages
 
   git
   git-lfs
-  git-extras
   git-escape-magic
   github
   gh
@@ -35,7 +30,18 @@ plugins=(
   vscode
 )
 
- if [[ -n "$GHOSTTY_BIN_DIR" ]]; then
+os_plugins=()
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  os_plugins+=(
+    macos
+    brew
+    tmux
+  )
+fi
+
+plugins=(${base_plugins[@]} ${os_plugins[@]})
+
+if [[ -n "$GHOSTTY_BIN_DIR" ]]; then
   ZSH_TMUX_AUTOSTART=true
 else
   ZSH_TMUX_AUTOSTART=false
@@ -46,13 +52,16 @@ if [[ -f "$ZSH/oh-my-zsh.sh" ]]; then
   source "$ZSH/oh-my-zsh.sh"
 fi
 
-if [[ -f "$MEOW/config/aliases/aliases.sh" ]]; then . "$MEOW/config/aliases/aliases.sh"; fi
+if [[ -f "$MEOW/config/aliases/aliases.sh" ]]; then
+  source "$MEOW/config/aliases/aliases.sh"
+fi
 
 if [[ -f "/opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh" ]]; then
-  . "/opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
+  source "/opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
 fi
+
 if [[ -f "/opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]]; then
-  . "/opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+  source "/opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
 fi
 
 if command -v pyenv &>/dev/null; then
@@ -66,10 +75,15 @@ if ! command -v _toggl >/dev/null 2>&1; then
   compdef _toggl toggl
 fi
 
-if [[ -f $HOME/fzf.zsh ]]; then . $HOME/.fzf.zsh; fi
+if [[ -f "$HOME/.fzf.zsh" ]]; then
+  source "$HOME/.fzf.zsh"
+fi
 
 if command -v zoxide &>/dev/null; then
   eval "$(zoxide init zsh --cmd cd)"
 fi
 
-eval "$(starship init zsh)"
+if command -v starship &>/dev/null; then
+  eval "$(starship init zsh)"
+fi
+

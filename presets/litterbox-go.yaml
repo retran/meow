@@ -1,0 +1,7 @@
+description: >-
+  Go development litterbox setup
+
+depends_on:
+  - components/shell-essential
+  - components/core-development
+  - components/go-development
