@@ -51,7 +51,7 @@ install_packages_generic() {
   local install_cmd="$4"
   local check_cmd="$5"
 
-  local package_dir_var="${manager_name^^}_PACKAGES_DIR"
+  local package_dir_var="$(echo "$manager_name" | tr '[:lower:]' '[:upper:]')_PACKAGES_DIR"
   local package_dir="${!package_dir_var}"
 
   step_header "$indent_level" "${manager_name^} Packages ($category)"
