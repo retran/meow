@@ -92,7 +92,7 @@ generate:
           - A list of portability problems. For each, provide the problematic line and a cross-platform solution,
             often using 'uname' to detect the OS.
 
-    sh:pr:
+    pr:
       provider: "gemini"
       model: "gemini-2.5-pro"
       userPrompt: >-
