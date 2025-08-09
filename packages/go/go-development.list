@@ -11,3 +11,6 @@ github.com/onsi/ginkgo/v2/ginkgo@latest
 gotest.tools/gotestsum@latest
 github.com/spf13/cobra-cli@latest
 github.com/goreleaser/goreleaser@latest
+github.com/sigstore/cosign/v2/cmd/cosign@latest
+github.com/anchore/syft/cmd/syft@latest
+github.com/google/ko@latest
