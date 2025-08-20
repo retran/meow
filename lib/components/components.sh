@@ -1,38 +1,16 @@
 #!/usr/bin/env bash
 
-# =============================================================================
-# Component Management System
-# =============================================================================
-#
-# This module provides comprehensive component management functionality for the
-# meow configuration system, including:
-#
-# - Component installation and dependency resolution
-# - Package management across multiple platforms
-# - Repository cloning and updating
-# - Symlink configuration management
-# - Component availability and compatibility checking
-#
-# Author: meow configuration system
-# =============================================================================
-
-# Prevent multiple sourcing
-if [[ -n "${_LIB_COMMANDS_COMPONENT_SOURCED:-}" ]]; then
+if [[ -n "${_LIB_CORE_COMPONENTS_SOURCED:-}" ]]; then
   return 0
 fi
-_LIB_COMMANDS_COMPONENT_SOURCED=1
+_LIB_CORE_COMPONENTS_SOURCED=1
 
-# =============================================================================
-# DEPENDENCIES AND CONFIGURATION
-# =============================================================================
-
-# Core library dependencies
 source "${MEOW}/lib/core/ui.sh"
 source "${MEOW}/lib/core/platform.sh"
 source "${MEOW}/lib/core/session.sh"
 source "${MEOW}/lib/core/tools.sh"
+source "${MEOW}/lib/core/yaml.sh"
 
-# Package manager dependencies
 source "${MEOW}/lib/package/common.sh"
 source "${MEOW}/lib/package/homebrew.sh"
 source "${MEOW}/lib/package/mas.sh"
@@ -51,94 +29,6 @@ readonly MEOW_INSTALLED_COMPONENTS_DIR="${MEOW}/.installed/components"
 readonly MEOW_MANUALLY_INSTALLED_COMPONENTS_DIR="${MEOW}/.installed/components-manual"
 MEOW_INSTALLED_PRESETS_DIR="${MEOW}/.installed/presets"
 
-# =============================================================================
-# YAML PROCESSING UTILITIES
-# =============================================================================
-#
-# These utility functions provide a centralized interface for reading YAML
-# configuration files with consistent error handling and data processing.
-# All yq operations are abstracted through these functions to reduce code
-# duplication and improve maintainability.
-# =============================================================================
-
-# Read a single YAML value from a file
-# Args:
-#   $1 - YAML file path
-#   $2 - YAML path expression (e.g., ".description", ".repository.url")
-# Returns:
-#   The YAML value or exits with error code if file/path not found
-_read_yaml_value() {
-  local yaml_file="$1"
-  local yaml_path="$2"
-
-  [[ -f "$yaml_file" ]] || return 1
-  yq eval "$yaml_path" "$yaml_file" 2>/dev/null
-}
-
-# Read a YAML array and return items line by line
-# Args:
-#   $1 - YAML file path
-#   $2 - YAML array path expression (e.g., ".depends_on[]?", ".platforms[]?")
-# Returns:
-#   Array items printed line by line, or exits with error code if empty/not found
-_read_yaml_array() {
-  local yaml_file="$1"
-  local yaml_path="$2"
-
-  [[ -f "$yaml_file" ]] || return 1
-  local result
-  result=$(yq eval "$yaml_path" "$yaml_file" 2>/dev/null) || return 1
-  [[ -n "$result" && "$result" != "null" ]] || return 1
-  printf '%s\n' "$result"
-}
-
-# Process each item in a YAML array with a callback function
-# Args:
-#   $1 - YAML file path
-#   $2 - YAML array path expression
-#   $3 - Callback function name
-#   $4+ - Additional arguments passed to callback
-# Usage:
-#   _process_yaml_array "component.yaml" ".packages[]?" "install_package"
-_process_yaml_array() {
-  local yaml_file="$1"
-  local yaml_path="$2"
-  local callback="$3"
-  shift 3
-
-  local array_content
-  array_content=$(_read_yaml_array "$yaml_file" "$yaml_path") || return 0
-
-  while IFS= read -r item; do
-    [[ -n "$item" && "$item" != "null" ]] || continue
-    "$callback" "$item" "$@"
-  done < <(printf '%s\n' "$array_content")
-}
-
-# Check if a YAML path exists and has a non-null value
-# Args:
-#   $1 - YAML file path
-#   $2 - YAML path expression
-# Returns:
-#   0 if path exists with non-null value, 1 otherwise
-_yaml_path_exists() {
-  local yaml_file="$1"
-  local yaml_path="$2"
-
-  [[ -f "$yaml_file" ]] || return 1
-  local value
-  value=$(_read_yaml_value "$yaml_file" "$yaml_path")
-  [[ -n "$value" && "$value" != "null" ]]
-}
-
-# =============================================================================
-# COMPONENT STATE MANAGEMENT
-# =============================================================================
-#
-# Functions for tracking component installation state and managing the
-# symlinks that represent installed components.
-# =============================================================================
-
 # Check if a component is currently installed
 # Args: $1 - component name
 # Returns: 0 if installed, 1 if not installed
@@ -154,14 +44,6 @@ is_component_manually_installed() {
   local component="$1"
   [[ -L "${MEOW_MANUALLY_INSTALLED_COMPONENTS_DIR}/${component}" ]]
 }
-
-# =============================================================================
-# SYMLINK MANAGEMENT
-# =============================================================================
-#
-# Functions for managing component installation tracking through symlinks.
-# Components are marked as installed/uninstalled via symbolic links.
-# =============================================================================
 
 # Create symlink to mark component as installed
 # Args: $1 - component name
@@ -198,14 +80,6 @@ remove_component_symlink() {
   # Remove from manually installed components
   rm -f "${MEOW_MANUALLY_INSTALLED_COMPONENTS_DIR}/${component}"
 }
-
-# =============================================================================
-# PACKAGE MANAGEMENT
-# =============================================================================
-#
-# Functions for installing and updating packages across different package
-# managers based on component configurations.
-# =============================================================================
 
 # Install all packages defined for a component across applicable package managers
 # Args:
@@ -252,7 +126,7 @@ _install_packages_for_manager() {
   declare -F "$fn" >/dev/null || return
 
   # Process package categories using YAML helper
-  _process_yaml_array "$component_file" ".${mgr}.packages[]?" "$fn"
+  process_yaml_array "$component_file" ".${mgr}.packages[]?" "$fn"
 }
 
 # Helper: Get normalized path to component file
@@ -267,14 +141,6 @@ _get_component_file_path() {
     echo "${MEOW}/components/${component}/component.yaml"
   fi
 }
-
-# =============================================================================
-# PACKAGE UPDATING
-# =============================================================================
-#
-# Functions for updating packages across different package managers for
-# installed components.
-# =============================================================================
 
 # Update packages for a specific package manager within a component
 # Args:
@@ -307,7 +173,7 @@ _update_package_manager() {
 
   # Process each package category with the update function
   local array_content
-  array_content=$(_read_yaml_array "$component_file" ".${manager_name}.packages[]?") || return 0
+  array_content=$(read_yaml_array "$component_file" ".${manager_name}.packages[]?") || return 0
 
   while IFS= read -r category; do
     [[ -n "$category" && "$category" != "null" ]] || continue
@@ -375,14 +241,6 @@ update_component_packages() {
   fi
 }
 
-# =============================================================================
-# COMPONENT AVAILABILITY AND COMPATIBILITY
-# =============================================================================
-#
-# Functions for checking component availability, platform compatibility,
-# and dependency resolution.
-# =============================================================================
-
 # Check if a component is available on the current platform and has satisfied dependencies
 # Args: $1 - component name
 # Returns: 0 if available, 1 if not available
@@ -393,7 +251,7 @@ is_component_available() {
   [[ -f "$component_file" ]] || return 1
 
   # Check platform compatibility if platforms are specified
-  if _yaml_path_exists "$component_file" ".platforms"; then
+  if yaml_path_exists "$component_file" ".platforms"; then
     local current_platform=""
     if [[ "$IS_MACOS" == "true" ]]; then
       current_platform="macos"
@@ -404,7 +262,7 @@ is_component_available() {
     if [[ -n "$current_platform" ]]; then
       local platform_supported=false
       local platforms
-      platforms=$(_read_yaml_array "$component_file" ".platforms[]?")
+      platforms=$(read_yaml_array "$component_file" ".platforms[]?")
 
       while IFS= read -r platform; do
         [[ -n "$platform" && "$platform" != "null" ]] || continue
@@ -420,7 +278,7 @@ is_component_available() {
 
   # Check that all dependencies are available (recursive check)
   local depends_on
-  depends_on=$(_read_yaml_array "$component_file" ".depends_on[]?") || return 0
+  depends_on=$(read_yaml_array "$component_file" ".depends_on[]?") || return 0
 
   while IFS= read -r dep; do
     [[ -n "$dep" && "$dep" != "null" ]] || continue
@@ -449,7 +307,7 @@ list_components() {
       local component_name
       component_name=$(basename "$dir")
       local description
-      description=$(_read_yaml_value "$dir/component.yaml" ".description")
+      description=$(read_yaml_value "$dir/component.yaml" ".description")
       [[ -n "$description" && "$description" != "null" ]] || description="No description"
       core_components+=("$component_name:$description")
     fi
@@ -473,14 +331,6 @@ list_components() {
   fi
 }
 
-# =============================================================================
-# REPOSITORY MANAGEMENT
-# =============================================================================
-#
-# Functions for handling components that include Git repositories,
-# including cloning, updating, and configuration management.
-# =============================================================================
-
 # Check if component has repository configuration
 # Args: $1 - component name
 # Returns: 0 if component has repository config, 1 otherwise
@@ -489,7 +339,7 @@ has_component_repository_config() {
   local component_file="${MEOW}/components/${component}/component.yaml"
 
   [[ -f "$component_file" ]] || return 1
-  _yaml_path_exists "$component_file" ".repository.url"
+  yaml_path_exists "$component_file" ".repository.url"
 }
 
 # Get repository URL from component configuration
@@ -499,7 +349,7 @@ get_component_repository_url() {
   local component="$1"
   local component_file="${MEOW}/components/${component}/component.yaml"
 
-  _read_yaml_value "$component_file" ".repository.url"
+  read_yaml_value "$component_file" ".repository.url"
 }
 
 # Get repository branch or tag from component configuration
@@ -510,8 +360,8 @@ get_component_repository_branch() {
   local component_file="${MEOW}/components/${component}/component.yaml"
 
   local branch tag
-  branch=$(_read_yaml_value "$component_file" ".repository.branch")
-  tag=$(_read_yaml_value "$component_file" ".repository.tag")
+  branch=$(read_yaml_value "$component_file" ".repository.branch")
+  tag=$(read_yaml_value "$component_file" ".repository.tag")
 
   if [[ -n "$tag" && "$tag" != "null" ]]; then
     echo "$tag"
@@ -590,7 +440,7 @@ cleanup_component_repository() {
   [[ -f "$component_file" ]] || return 0
 
   # Skip if component doesn't have repository config
-  if ! _yaml_path_exists "$component_file" ".repository"; then
+  if ! yaml_path_exists "$component_file" ".repository"; then
     return 0
   fi
 
@@ -627,18 +477,10 @@ setup_component() {
   fi
 }
 
-# =============================================================================
-# DEPENDENCY MANAGEMENT
-# =============================================================================
-#
-# Functions for resolving component dependencies and managing components that
-# depend on other components.
-# =============================================================================
-
 # Get all components that depend on a given component
 get_components_depending_on() {
   local target_component="$1"
-  local result=()
+  local components=()
 
   # Check all installed components
   for component_symlink in "${MEOW_INSTALLED_COMPONENTS_DIR}"/*; do
@@ -652,7 +494,7 @@ get_components_depending_on() {
 
     # Check if this component depends on the target
     local deps
-    deps=$(_read_yaml_array "$component_file" ".depends_on[]?") || continue
+    deps=$(read_yaml_array "$component_file" ".depends_on[]?") || continue
 
     while IFS= read -r dep; do
       [[ -n "$dep" && "$dep" != "null" ]] || continue
@@ -661,13 +503,13 @@ get_components_depending_on() {
       dep="${dep#components/}"
 
       if [[ "$dep" == "$target_component" ]]; then
-        result+=("$component_name")
+        components+=("$component_name")
         break
       fi
     done < <(printf '%s\n' "$deps")
   done
 
-  printf '%s\n' "${result[@]}"
+  printf '%s\n' "${components[@]}"
 }
 
 # Get all presets that depend on a given component
@@ -682,7 +524,7 @@ get_presets_depending_on_excluding() {
   # TODO move to proper module by usage
   local target_component="$1"
   local exclude_preset="$2"
-  local result=()
+  local presets=()
 
   # Check all installed presets
   for preset_symlink in "${MEOW_INSTALLED_PRESETS_DIR}"/*; do
@@ -700,19 +542,19 @@ get_presets_depending_on_excluding() {
 
     # Check if this preset depends on the target component
     local required_deps optional_deps
-    required_deps=$(_read_yaml_array "$preset_file" ".required[]?")
+    required_deps=$(read_yaml_array "$preset_file" ".required[]?")
 
     # Check required dependencies
     while IFS= read -r dep; do
       [[ -n "$dep" && "$dep" != "null" ]] || continue
       if [[ "$dep" == "$target_component" ]]; then
-        result+=("$preset_name")
+        presets+=("$preset_name")
         break 2 # Break out of both loops
       fi
     done < <(printf '%s\n' "$required_deps")
   done
 
-  printf '%s\n' "${result[@]}"
+  printf '%s\n' "${presets[@]}"
 }
 
 get_component_dependencies() {
@@ -724,7 +566,7 @@ get_component_dependencies() {
 
   # Read dependencies from component.yaml using our helper function
   local depends_on
-  depends_on=$(_read_yaml_array "$component_file" ".depends_on[]?") || return 0
+  depends_on=$(read_yaml_array "$component_file" ".depends_on[]?") || return 0
 
   # Clear the array and populate it with dependencies
   deps_array_ref=()
@@ -739,14 +581,6 @@ get_component_dependencies() {
 
   return 0
 }
-
-# =============================================================================
-# MAIN COMPONENT OPERATIONS
-# =============================================================================
-#
-# Core functions for installing and updating components. These functions handle
-# the complete component lifecycle including dependencies, packages, and setup.
-# =============================================================================
 
 # Public wrapper for installing components - handles session management
 # Args:
@@ -789,11 +623,11 @@ install_component() {
   declare -ga MEOW_INSTALLING_COMPONENTS=()
 
   # Install all components in one session
-  local result=0
+  local flag=0
   for component in "${components[@]}"; do
     if ! _install_component_internal "$component" "$is_manual"; then
       error "Failed to install component: $component"
-      result=1
+      flag=1
       # Continue with other components rather than stopping
     fi
   done
@@ -801,7 +635,7 @@ install_component() {
   # Cleanup
   _finalize_session
   unset MEOW_INSTALLING_COMPONENTS
-  return $result
+  return "$flag"
 }
 
 # Internal recursive function for installing components
@@ -931,11 +765,11 @@ update_component() {
   declare -ga MEOW_UPDATED_COMPONENTS=()
 
   # Update all components in one session
-  local result=0
+  local flag=0
   for component in "${components[@]}"; do
     if ! _update_component_internal "$component"; then
       error "Failed to update component: $component"
-      result=1
+      flag=1
       # Continue with other components rather than stopping
     fi
   done
@@ -943,7 +777,7 @@ update_component() {
   # Cleanup
   _finalize_session
   unset MEOW_UPDATED_COMPONENTS
-  return $result
+  return "$flag"
 }
 
 # Internal recursive function for updating components
@@ -1043,7 +877,7 @@ setup_component_symlinks() {
   [[ -f "$component_file" ]] || return 0
 
   # Check if component has symlinks configuration
-  if ! _yaml_path_exists "$component_file" ".symlinks"; then
+  if ! yaml_path_exists "$component_file" ".symlinks"; then
     return 0
   fi
 
@@ -1051,7 +885,7 @@ setup_component_symlinks() {
 
   # Read symlinks array and process each category
   local symlinks
-  symlinks=$(_read_yaml_array "$component_file" ".symlinks[]?") || return 0
+  symlinks=$(read_yaml_array "$component_file" ".symlinks[]?") || return 0
 
   local had_symlinks=false
   while IFS= read -r symlink_category; do

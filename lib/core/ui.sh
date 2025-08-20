@@ -154,7 +154,7 @@ ui_spinner() {
   local final_unchanged_msg="${unchanged_msg:-${msg} (no changes needed).}"
 
   local return_status=$cmd_exit_status
-  if [ $cmd_exit_status -eq 0 ]; then
+  if [ "$cmd_exit_status" -eq 0 ]; then
     if [[ -n "$unchanged_pattern" && -s "$temp_output_file" ]] && grep -qE -- "$unchanged_pattern" "$temp_output_file"; then
       success_tick_msg "$final_unchanged_msg"
       return_status=100
@@ -168,7 +168,7 @@ ui_spinner() {
 
   rm -f "$temp_output_file"
 
-  return $return_status
+  return "$return_status"
 }
 
 # Operation wrapper with timing

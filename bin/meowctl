@@ -72,9 +72,6 @@ show_uninstall_help() {
   msg "  $0 uninstall personal"
   msg "  $0 uninstall all"
   msg ""
-  msg "Note: This only removes preset tracking. Components remain installed."
-  msg "Use 'meowctl component uninstall <component>' to remove individual components."
-  msg ""
 }
 
 show_update_help() {
@@ -169,16 +166,17 @@ parse_global_options() {
 
 validate_preset_name() {
   local preset="$1"
+
   if [[ -z "$preset" ]]; then
     error "Preset name cannot be empty"
     return 1
   fi
+
   if [[ ! "$preset" =~ ^[a-zA-Z0-9_-]+$ ]]; then
     error "Invalid preset name '$preset'. Use only alphanumeric characters, underscores, and dashes."
     return 1
   fi
 
-  # Check if preset exists (new format)
   local preset_file="${MEOW}/presets/${preset}/preset.yaml"
   if [[ ! -f "$preset_file" ]]; then
     error "Preset '$preset' not found"
@@ -190,14 +188,17 @@ validate_preset_name() {
 
 validate_component_name() {
   local component="$1"
+
   if [[ -z "$component" ]]; then
     error "Component name cannot be empty"
     return 1
   fi
+
   if [[ ! "$component" =~ ^[a-zA-Z0-9_-]+$ ]]; then
     error "Invalid component name '$component'. Use only alphanumeric characters, underscores, and dashes."
     return 1
   fi
+
   return 0
 }
 
@@ -217,7 +218,7 @@ cmd_component() {
   esac
 
   shift
-  source "${MEOW}/lib/core/components.sh"
+  source "${MEOW}/lib/components/components.sh"
 
   case "$subcommand" in
     list)
@@ -307,7 +308,7 @@ cmd_install() {
     exit 1
   fi
 
-  source "${MEOW}/lib/core/presets.sh"
+  source "${MEOW}/lib/presets/presets.sh"
   install_preset "$preset"
 }
 
@@ -342,7 +343,7 @@ cmd_uninstall() {
     exit 1
   fi
 
-  source "${MEOW}/lib/core/presets.sh"
+  source "${MEOW}/lib/presets/presets.sh"
 
   if [[ "$preset" == "all" ]]; then
     uninstall_all_presets
@@ -370,7 +371,7 @@ cmd_list() {
       ;;
   esac
 
-  source "${MEOW}/lib/core/presets.sh"
+  source "${MEOW}/lib/presets/presets.sh"
   list_presets
 }
 
@@ -438,20 +439,13 @@ cmd_update() {
     fi
   fi
 
-  source "${MEOW}/lib/core/presets.sh"
+  source "${MEOW}/lib/presets/presets.sh"
+
   if [[ -n "$preset" && "$preset" != "all" ]]; then
     update_preset "$preset"
   elif [[ "$preset" == "all" ]]; then
-    # Update all installed presets
-    for preset_symlink in "${MEOW_INSTALLED_PRESETS_DIR}"/*; do
-      [[ -L "$preset_symlink" ]] || continue
-      local preset_name
-      preset_name=$(basename "$preset_symlink")
-      header 0 "Updating preset: $preset_name"
-      update_preset "$preset_name" 1
-    done
+    update_all_installed_components
   else
-    # No preset specified - update all installed components
     update_all_installed_components
   fi
 }
@@ -472,7 +466,7 @@ cmd_backup() {
   esac
 
   shift
-  source "${MEOW}/lib/package/symlinks.sh"
+  source "${MEOW}/lib/symlinks/symlinks.sh"
 
   case "$subcommand" in
     list)

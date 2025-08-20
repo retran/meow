@@ -78,7 +78,7 @@ install_packages_generic() {
         "Successfully installed $package_name" \
         "Failed to install $package_name" \
         "" \
-        $install_cmd "$package_name"
+        "$install_cmd" "$package_name"
       if [[ $? -eq 0 ]]; then
         ((installed_count++)) || true
       else
@@ -148,7 +148,7 @@ update_packages_generic() {
           "Successfully updated $package_name" \
           "Failed to update $package_name" \
           "" \
-          $update_cmd "$package_name"
+          "$update_cmd" "$package_name"
         if [[ $? -eq 0 ]]; then
           ((updated_count++)) || true
         else
