@@ -1,0 +1,24 @@
+description: "Essential desktop tools, fonts, browser, and utilities for macOS"
+
+platforms:
+  - macos
+
+depends_on:
+  - shell-essential
+  - fonts
+
+homebrew:
+  packages:
+    - desktop-essential
+
+mas:
+  packages:
+    - desktop-essential
+
+symlinks:
+  - alacritty
+  - vscode
+
+vscode:
+  packages:
+    - vscode-core

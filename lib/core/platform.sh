@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 
-# lib/core/platform.sh - Detect OS once for all scripts
-
-if [[ -n "${_LIB_CORE_PLATFORM_SOURCED:-}" ]]; then
+if [[ "${BASH_SOURCE[0]}" != "${0}" ]] && [[ -n "${_LIB_CORE_PLATFORM_SOURCED:-}" ]]; then
   return 0
 fi
 _LIB_CORE_PLATFORM_SOURCED=1
@@ -43,4 +41,3 @@ if [[ -f "/etc/os-release" ]]; then
     IS_DEBIAN_BASED=true
   fi
 fi
-

@@ -1,0 +1,10 @@
+description: "Adaptive keyboard layout switching based on connected hardware (Hammerspoon script)"
+
+platforms:
+  - macos
+
+depends_on:
+  - desktop-essential
+
+symlinks:
+  - adaptive-keyboard-layouts

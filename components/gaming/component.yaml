@@ -1,0 +1,11 @@
+description: "Gaming applications"
+
+platforms:
+  - macos
+
+depends_on:
+  - desktop-essential
+
+homebrew:
+  packages:
+    - gaming

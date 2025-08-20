@@ -1,0 +1,2 @@
+- source: "$MEOW/.installed/downloads/meowvim"
+  target: "$HOME/.config/nvim"

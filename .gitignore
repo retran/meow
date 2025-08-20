@@ -16,5 +16,9 @@ tests/tmp/
 # Logs
 *.log
 
+# State
+.installed/
+
 # Secrets
-config/secrets/.secrets
+private/git/.gitconfig
+private/secrets/.secrets

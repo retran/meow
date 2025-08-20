@@ -1,0 +1,15 @@
+description: "Time tracking with Toggl CLI and desktop app"
+
+platforms:
+  - macos
+
+pipx:
+  packages:
+    - toggl
+
+mas:
+  packages:
+    - toggl
+
+symlinks:
+  - toggl

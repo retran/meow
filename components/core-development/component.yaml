@@ -1,0 +1,26 @@
+description: "Core development tools common to all programming"
+
+depends_on:
+  - shell-essential
+  - shell-development
+  - lua-development
+
+homebrew:
+  packages:
+    - core-development
+
+apt:
+  packages:
+    - core-development
+
+apk:
+  packages:
+    - core-development
+
+pacman:
+  packages:
+    - core-development
+
+pipx:
+  packages:
+    - core-development

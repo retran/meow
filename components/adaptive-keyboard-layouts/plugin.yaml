@@ -1,0 +1,7 @@
+name: adaptive-keyboard-layouts
+type: hammerspoon
+platforms: [macos]
+description: "Adaptive keyboard layout switching based on connected hardware"
+available_when: [desktop-essential]
+components: []
+symlinks: []

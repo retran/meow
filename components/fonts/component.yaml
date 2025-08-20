@@ -1,0 +1,8 @@
+description: "Font packages"
+
+platforms:
+  - macos
+
+homebrew:
+  packages:
+    - fonts

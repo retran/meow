@@ -1,0 +1,11 @@
+description: "Corporate communication tools"
+
+platforms:
+  - macos
+
+depends_on:
+  - desktop-essential
+
+homebrew:
+  packages:
+    - corporate-communication

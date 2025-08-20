@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-# lib/motd/motd.sh - Message of the Day (MOTD) display system
-
 if [[ "${BASH_SOURCE[0]}" != "${0}" ]] && [[ -n "${_LIB_MOTD_SOURCED:-}" ]]; then
   return 0
 fi
@@ -80,7 +78,6 @@ get_system_info() {
   os_info=$(uname -srm)
   uptime_info=$(uptime | sed -E 's/^.*up *//; s/, *[0-9]+ user.*//; s/, *load average.*//; s/^[ \\t]*//; s/[ \\t]*$//')
   home_disk_space=$(df -h "$HOME" | awk 'NR==2 {print $4 "B free / " $5 " used"}')
-  ram_stats=""
 
   if [[ "$OSTYPE" == "darwin"* ]]; then
     ram_stats=$(top -l 1 -n 0 | grep PhysMem: | awk '{print $2 " used, " $6 " unused"}')

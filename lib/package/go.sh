@@ -1,15 +1,11 @@
 #!/usr/bin/env bash
 
-# lib/package/go.sh - Go package management
-
 if [[ -n "${_LIB_PACKAGE_GO_SOURCED:-}" ]]; then
   return 0
 fi
 _LIB_PACKAGE_GO_SOURCED=1
 
 source "${MEOW}/lib/package/common.sh"
-
-GO_PACKAGES_DIR="${MEOW}/packages/go"
 
 is_go_package_installed() {
   local pkg="$1"
@@ -19,21 +15,21 @@ is_go_package_installed() {
 }
 
 setup_go() {
-  local indent="${1:-0}"
-  step_header "$indent" "Setting up Go"
+  step_header "Setting up Go"
   command -v go >/dev/null 2>&1 || {
-    indented_error_msg "$indent" "Go not found"
+    error_msg "Go not found"
     return 1
   }
-  success_tick_msg "$indent" "Go available"
+  success_tick_msg "Go available"
 }
 
 install_go_packages() {
-  install_packages_generic "$1" "$2" "go" "go install" "is_go_package_installed"
+  GO_PACKAGES_DIR="${MEOW}/packages/go"
+  install_packages_generic "$1" "go" "go install" "is_go_package_installed"
 }
 
 update_go_packages() {
-  update_packages_generic "$1" "$2" "go" "go install" "is_go_package_installed" \
+  GO_PACKAGES_DIR="${MEOW}/packages/go"
+  update_packages_generic "$1" "go" "go install" "is_go_package_installed" \
     "(go: installing executables|go: no module dependencies)"
 }
-

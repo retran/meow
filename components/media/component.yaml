@@ -1,0 +1,15 @@
+description: "Media and graphics tools"
+
+platforms:
+  - macos
+
+depends_on:
+  - desktop-essential
+
+homebrew:
+  packages:
+    - media
+
+mas:
+  packages:
+    - media

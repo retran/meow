@@ -1,0 +1,48 @@
+# yamllint configuration for meow project
+# =======================================
+
+extends: default
+
+rules:
+  # Line length - allow longer lines for readability
+  line-length:
+    max: 120
+    level: warning
+
+  # Comments - allow comments to start at any column
+  comments:
+    min-spaces-from-content: 1
+
+  # Document start - not required for simple configs
+  document-start: disable
+
+  # Indentation - 2 spaces
+  indentation:
+    spaces: 2
+    indent-sequences: true
+
+  # Brackets - allow both styles
+  brackets:
+    max-spaces-inside: 1
+    max-spaces-inside-empty: 0
+
+  # Braces - allow both styles
+  braces:
+    max-spaces-inside: 1
+    max-spaces-inside-empty: 0
+
+  # Empty lines
+  empty-lines:
+    max: 2
+    max-start: 1
+    max-end: 1
+
+  # Truthy values - allow yes/no, true/false, on/off
+  truthy:
+    allowed-values: ['true', 'false', 'yes', 'no', 'on', 'off']
+    check-keys: false
+
+  # Octal values - allow for file permissions
+  octal-values:
+    forbid-implicit-octal: false
+    forbid-explicit-octal: false

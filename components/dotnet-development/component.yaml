@@ -1,0 +1,24 @@
+description: ".NET development tools and environment"
+
+depends_on:
+  - core-development
+
+homebrew:
+  packages:
+    - dotnet-development
+
+apk:
+  packages:
+    - dotnet-development
+
+apt:
+  packages:
+    - dotnet-development
+
+pacman:
+  packages:
+    - dotnet-development
+
+vscode:
+  packages:
+    - dotnet-development

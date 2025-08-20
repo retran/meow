@@ -1,0 +1,11 @@
+description: "Neovim configuration with automatic git repository management"
+
+repository:
+  url: "https://github.com/retran/meowvim"
+  branch: "retran/fixes-before-0.1"
+
+depends_on:
+  - shell-essential
+
+symlinks:
+  - meowvim

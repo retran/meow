@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-# config/env/env.sh - XDG Base Directory specification compliant environment
-
 if [[ "${BASH_SOURCE[0]}" != "${0}" ]] && [[ -n "${_CONFIG_XDG_ENV_SOURCED:-}" ]]; then
   return 0
 fi
@@ -19,6 +17,8 @@ _meow_set_if_command_exists() {
 }
 
 export MEOW="${MEOW:-${HOME}/.meow}"
+
+export MEOW="${MEOW:-${HOME}/.meow}"
 export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
 export XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
 export XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
@@ -34,12 +34,10 @@ fi
 
 _meow_set_if_command_exists "PAGER" "less" "more"
 
-if [[ -f "$HOME/.secrets" ]]; then
-  source "$HOME/.secrets"
-fi
-
+# Local bin path
 export PATH="$HOME/.local/bin:$PATH"
 
+# macOS Homebrew configuration
 if [[ "$(uname -s)" == "Darwin" ]]; then
   export HOMEBREW_PREFIX="/opt/homebrew"
   export HOMEBREW_NO_ANALYTICS=1
@@ -47,25 +45,79 @@ if [[ "$(uname -s)" == "Darwin" ]]; then
   export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
 fi
 
-export PYENV_ROOT="$HOME/.pyenv"
-if [[ -d "$PYENV_ROOT/bin" ]]; then
-  export PATH="$PYENV_ROOT/bin:$PATH"
+# Load secrets if available
+if [[ -f "$HOME/.secrets" ]]; then
+  source "$HOME/.secrets"
 fi
 
-if command -v go >/dev/null 2>&1; then
-  export GOPATH="${GOPATH:-$(go env GOPATH)}"
-  export PATH="$GOPATH/bin:$PATH"
+# Source env scripts from installed components
+if [[ -d "${MEOW}/.installed/components" ]]; then
+  # Use nullglob to avoid errors when no files match
+  setopt nullglob 2>/dev/null || true
+  for component_link in "${MEOW}/.installed/components"/*; do
+    [[ -L "$component_link" ]] || continue
+    component_name=$(basename "$component_link")
+    env_script="${MEOW}/components/${component_name}/env.sh"
+    if [[ -f "$env_script" ]]; then
+      # shellcheck source=/dev/null
+      source "$env_script"
+    fi
+  done
+  unsetopt nullglob 2>/dev/null || true
 fi
 
-if [[ -d "$HOME/.cargo" ]]; then
-  source "$HOME/.cargo/env"
+# Source env scripts from installed presets
+if [[ -d "${MEOW}/.installed/presets" ]]; then
+  # Use nullglob to avoid errors when no files match
+  setopt nullglob 2>/dev/null || true
+  for preset_link in "${MEOW}/.installed/presets"/*; do
+    [[ -L "$preset_link" ]] || continue
+    preset_name=$(basename "$preset_link")
+    env_script="${MEOW}/presets/${preset_name}/env.sh"
+    if [[ -f "$env_script" ]]; then
+      # shellcheck source=/dev/null
+      source "$env_script"
+    fi
+  done
+  unsetopt nullglob 2>/dev/null || true
 fi
 
-export NPM_CONFIG_PREFIX="${HOME}/.npm-global"
-if [[ -d "$NPM_CONFIG_PREFIX/bin" ]]; then
-  export PATH="$NPM_CONFIG_PREFIX/bin:$PATH"
-fi
+# Function to check if plugin is available (component installed)
+_is_plugin_available() {
+  local plugin="$1"
+  local plugin_file="${MEOW}/plugins/${plugin}/plugin.yaml"
 
-if [[ -f "$HOME/.orbstack/shell/init.zsh" ]]; then
-  source "$HOME/.orbstack/shell/init.zsh"
+  [[ -f "$plugin_file" ]] || return 1
+
+  local available_when
+  available_when=$(yq eval '.available_when' "$plugin_file" 2>/dev/null)
+
+  # If no available_when specified, plugin is always available
+  if [[ -z "$available_when" || "$available_when" == "null" ]]; then
+    return 0
+  fi
+
+  # Check if required component is installed
+  local component_symlink="${MEOW}/.installed/components/${available_when}"
+  [[ -L "$component_symlink" ]]
+}
+
+# Source plugin environment scripts
+if [[ -d "${MEOW}/.installed/plugins" ]]; then
+  # Use nullglob to avoid errors when no files match
+  setopt nullglob 2>/dev/null || true
+  for plugin_link in "${MEOW}/.installed/plugins"/*; do
+    [[ -L "$plugin_link" ]] || continue
+    plugin_name=$(basename "$plugin_link")
+
+    # Only load env.sh if plugin is available
+    if _is_plugin_available "$plugin_name"; then
+      env_script="${MEOW}/plugins/${plugin_name}/env.sh"
+      if [[ -f "$env_script" ]]; then
+        # shellcheck source=/dev/null
+        source "$env_script"
+      fi
+    fi
+  done
+  unsetopt nullglob 2>/dev/null || true
 fi

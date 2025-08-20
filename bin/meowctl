@@ -1,0 +1,594 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+MEOW="${MEOW:-$HOME/.meow}"
+
+if [[ -f "./config/env/env.sh" && -d "./presets" ]]; then
+  MEOW="$(pwd)"
+fi
+
+source "${MEOW}/config/env/env.sh"
+source "${MEOW}/lib/core/bash.sh"
+source "${MEOW}/lib/core/ui.sh"
+
+show_main_help() {
+  title "meowctl - Unified meow control"
+  msg "Manage your meow dotfiles and development environment."
+  msg ""
+  show_bash_version_info
+  msg ""
+  msg "Usage: $0 <command> [options] [arguments]"
+  msg ""
+  msg "Commands:"
+  msg "  install <preset>         Install a preset"
+  msg "  update [preset]          Update preset or all installed components"
+  msg "  uninstall <preset>       Uninstall a preset (or 'all' for all presets)"
+  msg "  list                     List available presets"
+  msg "  component <subcommand>   Manage components"
+  msg "  backup <subcommand>      Manage symlink backups"
+  msg "  help [command]           Show help for command"
+  msg ""
+  msg "Global Options:"
+  msg "  --help, -h               Show help"
+  msg ""
+  msg "Examples:"
+  msg "  $0 install personal"
+  msg "  $0 update --pull"
+  msg "  $0 list"
+  msg "  $0 component list"
+  msg "  $0 backup list"
+  msg ""
+}
+
+show_install_help() {
+  title "meowctl install"
+  msg "Install a meow preset."
+  msg ""
+  msg "Usage: $0 install <preset>"
+  msg ""
+  msg "Available presets:"
+  msg "  personal                 Complete development setup with all packages"
+  msg "  corporate                Work-focused development environment"
+  msg "  litterbox-*              Container-optimized environments"
+  msg ""
+  msg "Examples:"
+  msg "  $0 install personal"
+  msg "  $0 install corporate"
+  msg ""
+}
+
+show_uninstall_help() {
+  title "meowctl uninstall"
+  msg "Uninstall a meow preset."
+  msg ""
+  msg "Usage: $0 uninstall <preset|all>"
+  msg ""
+  msg "Arguments:"
+  msg "  <preset>                 Name of the preset to uninstall"
+  msg "  all                      Uninstall all installed presets"
+  msg ""
+  msg "Examples:"
+  msg "  $0 uninstall personal"
+  msg "  $0 uninstall all"
+  msg ""
+  msg "Note: This only removes preset tracking. Components remain installed."
+  msg "Use 'meowctl component uninstall <component>' to remove individual components."
+  msg ""
+}
+
+show_update_help() {
+  title "meowctl update"
+  msg "Update installed presets or components."
+  msg ""
+  msg "Usage: $0 update [preset|all] [options]"
+  msg ""
+  msg "Arguments:"
+  msg "  <preset>                 Name of the preset to update"
+  msg "  all                      Update all installed presets"
+  msg "  (no argument)            Update all installed components (default)"
+  msg ""
+  msg "Options:"
+  msg "  --pull                   Git pull before update"
+  msg ""
+  msg "Examples:"
+  msg "  $0 update                Update all installed components"
+  msg "  $0 update all            Update all installed presets"
+  msg "  $0 update personal       Update specific preset"
+  msg "  $0 update --pull         Git pull then update all components"
+  msg ""
+}
+
+show_component_help() {
+  title "meowctl component"
+  msg "Manage meow components."
+  msg ""
+  msg "Usage: $0 component <subcommand> [arguments]"
+  msg ""
+  msg "Subcommands:"
+  msg "  list                           List all available components"
+  msg "  install <component> [...]      Install one or more components"
+  msg "  update <component> [...]       Update one or more components and their dependencies"
+  msg "  uninstall <component>          Uninstall a component"
+  msg ""
+  msg "Examples:"
+  msg "  $0 component list"
+  msg "  $0 component install shell-essential"
+  msg "  $0 component install shell-essential go-development docker-cli"
+  msg "  $0 component uninstall docker-cli"
+  msg "  $0 component update go-development"
+  msg "  $0 component update shell-essential go-development"
+  msg ""
+}
+
+show_list_help() {
+  title "meowctl list"
+  msg "List available presets."
+  msg ""
+  msg "Usage: $0 list"
+  msg ""
+  msg "Examples:"
+  msg "  $0 list"
+  msg ""
+}
+
+show_backup_help() {
+  title "meowctl backup"
+  msg "Manage symlink backups."
+  msg ""
+  msg "Usage: $0 backup <subcommand> [arguments]"
+  msg ""
+  msg "Subcommands:"
+  msg "  list [pattern]           List all backups or by pattern"
+  msg "  restore <file>           Restore from backup"
+  msg ""
+  msg "Examples:"
+  msg "  $0 backup list"
+  msg "  $0 backup restore .vimrc.backup.20231201_120000"
+  msg ""
+}
+
+parse_global_options() {
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --help | -h)
+        echo "help"
+        return
+        ;;
+      --*)
+        error "Unknown global option: $1"
+        exit 1
+        ;;
+      *)
+        echo "$@"
+        return
+        ;;
+    esac
+  done
+}
+
+validate_preset_name() {
+  local preset="$1"
+  if [[ -z "$preset" ]]; then
+    error "Preset name cannot be empty"
+    return 1
+  fi
+  if [[ ! "$preset" =~ ^[a-zA-Z0-9_-]+$ ]]; then
+    error "Invalid preset name '$preset'. Use only alphanumeric characters, underscores, and dashes."
+    return 1
+  fi
+
+  # Check if preset exists (new format)
+  local preset_file="${MEOW}/presets/${preset}/preset.yaml"
+  if [[ ! -f "$preset_file" ]]; then
+    error "Preset '$preset' not found"
+    return 1
+  fi
+
+  return 0
+}
+
+validate_component_name() {
+  local component="$1"
+  if [[ -z "$component" ]]; then
+    error "Component name cannot be empty"
+    return 1
+  fi
+  if [[ ! "$component" =~ ^[a-zA-Z0-9_-]+$ ]]; then
+    error "Invalid component name '$component'. Use only alphanumeric characters, underscores, and dashes."
+    return 1
+  fi
+  return 0
+}
+
+cmd_component() {
+  local subcommand="${1:-}"
+
+  case "$subcommand" in
+    --help | -h)
+      show_component_help
+      exit 0
+      ;;
+    "")
+      error "No component subcommand specified"
+      show_component_help
+      exit 1
+      ;;
+  esac
+
+  shift
+  source "${MEOW}/lib/core/components.sh"
+
+  case "$subcommand" in
+    list)
+      if [[ $# -gt 0 ]]; then
+        error "Too many arguments for component list command"
+        exit 1
+      fi
+      list_components
+      ;;
+    install)
+      if [[ $# -eq 0 ]]; then
+        error "No components specified for install command"
+        exit 1
+      fi
+      # Validate all component names first
+      for component in "$@"; do
+        if ! validate_component_name "$component"; then
+          exit 1
+        fi
+      done
+      install_component --manual "$@"
+      ;;
+    uninstall)
+      local component="${1:-}"
+      if [[ -z "$component" ]]; then
+        error "No component specified for uninstall command"
+        exit 1
+      fi
+      if [[ $# -gt 1 ]]; then
+        error "Too many arguments for component uninstall command"
+        exit 1
+      fi
+      if ! validate_component_name "$component"; then
+        exit 1
+      fi
+      uninstall_component "$component"
+      ;;
+    update)
+      if [[ $# -eq 0 ]]; then
+        error "No components specified for update command"
+        exit 1
+      fi
+      # Validate all component names first
+      for component in "$@"; do
+        if ! validate_component_name "$component"; then
+          exit 1
+        fi
+      done
+      update_component "$@"
+      ;;
+    *)
+      error "Unknown component subcommand: $subcommand"
+      show_component_help
+      exit 1
+      ;;
+  esac
+}
+
+cmd_install() {
+  local preset=""
+
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --help | -h)
+        show_install_help
+        exit 0
+        ;;
+      --*)
+        error "Unknown install option: $1"
+        exit 1
+        ;;
+      *)
+        if [[ -z "$preset" ]]; then
+          preset="$1"
+        else
+          error "Too many arguments for install command"
+          exit 1
+        fi
+        shift
+        ;;
+    esac
+  done
+
+  if [[ -z "$preset" ]]; then
+    error "No preset specified"
+    show_install_help
+    exit 1
+  fi
+
+  source "${MEOW}/lib/core/presets.sh"
+  install_preset "$preset"
+}
+
+cmd_uninstall() {
+  local preset=""
+
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --help | -h)
+        show_uninstall_help
+        exit 0
+        ;;
+      --*)
+        error "Unknown uninstall option: $1"
+        exit 1
+        ;;
+      *)
+        if [[ -z "$preset" ]]; then
+          preset="$1"
+        else
+          error "Too many arguments for uninstall command"
+          exit 1
+        fi
+        shift
+        ;;
+    esac
+  done
+
+  if [[ -z "$preset" ]]; then
+    error "No preset specified"
+    show_uninstall_help
+    exit 1
+  fi
+
+  source "${MEOW}/lib/core/presets.sh"
+
+  if [[ "$preset" == "all" ]]; then
+    uninstall_all_presets
+  else
+    uninstall_preset "$preset"
+  fi
+}
+
+cmd_list() {
+  case "${1:-}" in
+    --help | -h)
+      show_list_help
+      exit 0
+      ;;
+    --*)
+      error "Unknown list option: $1"
+      exit 1
+      ;;
+    "")
+      # No arguments, list presets
+      ;;
+    *)
+      error "Too many arguments for list command"
+      exit 1
+      ;;
+  esac
+
+  source "${MEOW}/lib/core/presets.sh"
+  list_presets
+}
+
+cmd_update() {
+  local preset=""
+  local pull=false
+  local extra_args=()
+
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --help | -h)
+        show_update_help
+        exit 0
+        ;;
+      --pull)
+        if [[ "$pull" == true ]]; then
+          warning 0 "Multiple --pull flags specified, ignoring duplicates"
+        fi
+        pull=true
+        shift
+        ;;
+      --*)
+        error "Unknown update option: $1"
+        exit 1
+        ;;
+      *)
+        if [[ -z "$preset" ]]; then
+          preset="$1"
+        else
+          extra_args+=("$1")
+        fi
+        shift
+        ;;
+    esac
+  done
+
+  if [[ ${#extra_args[@]} -gt 0 ]]; then
+    error "Too many arguments for update command: ${extra_args[*]}"
+    exit 1
+  fi
+
+  if [[ -n "$preset" && "$preset" != "all" ]] && ! validate_preset_name "$preset"; then
+    exit 1
+  fi
+
+  if [[ "$pull" == true ]]; then
+    step_header 0 "Updating meow repository"
+
+    if ! git -C "$MEOW" rev-parse --git-dir >/dev/null 2>&1; then
+      error "Not a git repository: $MEOW"
+      exit 1
+    fi
+
+    if ! git -C "$MEOW" diff-index --quiet HEAD -- 2>/dev/null; then
+      warning 0 "You have uncommitted changes in $MEOW"
+      warning 0 "Consider committing or stashing them before updating"
+    fi
+
+    if git -C "$MEOW" pull; then
+      success_tick_msg 0 "Repository updated successfully"
+    else
+      error "Failed to update repository"
+      error "You may need to resolve merge conflicts manually"
+      exit 1
+    fi
+  fi
+
+  source "${MEOW}/lib/core/presets.sh"
+  if [[ -n "$preset" && "$preset" != "all" ]]; then
+    update_preset "$preset"
+  elif [[ "$preset" == "all" ]]; then
+    # Update all installed presets
+    for preset_symlink in "${MEOW_INSTALLED_PRESETS_DIR}"/*; do
+      [[ -L "$preset_symlink" ]] || continue
+      local preset_name
+      preset_name=$(basename "$preset_symlink")
+      header 0 "Updating preset: $preset_name"
+      update_preset "$preset_name" 1
+    done
+  else
+    # No preset specified - update all installed components
+    update_all_installed_components
+  fi
+}
+
+cmd_backup() {
+  local subcommand="${1:-}"
+
+  case "$subcommand" in
+    --help | -h)
+      show_backup_help
+      exit 0
+      ;;
+    "")
+      error "No backup subcommand specified"
+      show_backup_help
+      exit 1
+      ;;
+  esac
+
+  shift
+  source "${MEOW}/lib/package/symlinks.sh"
+
+  case "$subcommand" in
+    list)
+      local pattern="${1:-}"
+      if [[ $# -gt 1 ]]; then
+        error "Too many arguments for backup list command"
+        exit 1
+      fi
+      list_backups "$pattern"
+      ;;
+    restore)
+      local backup_file="${1:-}"
+      if [[ -z "$backup_file" ]]; then
+        error "No backup file specified for restore command"
+        exit 1
+      fi
+      if [[ $# -gt 1 ]]; then
+        error "Too many arguments for backup restore command"
+        exit 1
+      fi
+      restore_backup "$backup_file"
+      ;;
+    *)
+      error "Unknown backup subcommand: $subcommand"
+      show_backup_help
+      exit 1
+      ;;
+  esac
+}
+
+cmd_help() {
+  local command="${1:-}"
+
+  case "$command" in
+    install)
+      show_install_help
+      ;;
+    uninstall)
+      show_uninstall_help
+      ;;
+    component)
+      show_component_help
+      ;;
+    list)
+      show_list_help
+      ;;
+    update)
+      show_update_help
+      ;;
+    plugin)
+      show_plugin_help
+      ;;
+    backup)
+      show_backup_help
+      ;;
+    "")
+      show_main_help
+      ;;
+    *)
+      error "Unknown command: $command"
+      show_main_help
+      exit 1
+      ;;
+  esac
+}
+
+main() {
+  warn_bash_compatibility 0
+
+  local remaining_args
+  remaining_args=$(parse_global_options "$@")
+
+  if [[ "$remaining_args" == "help" ]]; then
+    show_main_help
+    exit 0
+  fi
+
+  set -- $remaining_args
+
+  local command="${1:-}"
+
+  if [[ -z "$command" ]]; then
+    show_main_help
+    exit 0
+  fi
+
+  shift
+
+  case "$command" in
+    install)
+      cmd_install "$@"
+      ;;
+    uninstall)
+      cmd_uninstall "$@"
+      ;;
+    component)
+      cmd_component "$@"
+      ;;
+    list)
+      cmd_list "$@"
+      ;;
+    update)
+      cmd_update "$@"
+      ;;
+    backup)
+      cmd_backup "$@"
+      ;;
+    help)
+      cmd_help "$@"
+      ;;
+    *)
+      error "Unknown command: $command"
+      show_main_help
+      exit 1
+      ;;
+  esac
+}
+
+main "$@"

@@ -1,0 +1,13 @@
+description: >-
+  Full-stack development litterbox setup with Go backend and JavaScript/React frontend
+
+platforms:
+  - linux
+
+required:
+  - shell-essential
+  - core-development
+  - go-development
+  - docker-cli
+  - markdown
+  - web-development

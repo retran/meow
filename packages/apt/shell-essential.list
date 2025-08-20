@@ -1,5 +1,8 @@
 bash
+curl
+wget
 direnv
+watch
 htop
 eza
 git
@@ -9,5 +12,10 @@ ripgrep
 zoxide
 glow
 zsh
+zsh-autosuggestions
+zsh-syntax-highlighting
+tmux
 starship
 neovim
+httpie
+bat

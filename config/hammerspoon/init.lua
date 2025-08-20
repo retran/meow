@@ -1,66 +1,68 @@
-local dasKeyboardLayoutScript = "/Users/retran/.meow/scripts/set_das_keyboard_layouts.sh"
-local macbookProKeyboardLayoutScript = "/Users/retran/.meow/scripts/set_mbp_keyboard_layouts.sh"
+-- config/hammerspoon/init.lua - Hammerspoon configuration with plugin support
 
-local dasKeyboard = {
-  vendorID = 0x24f0,
-  productID = 0x0140,
-}
+local pluginSystem = {}
+local enabledPlugins = {}
 
-local function runScript(scriptPath, description)
-  local task = hs.task.new(scriptPath, function(exitCode, stdOut, stdErr)
-    if exitCode ~= 0 then
-      hs.alert.show(description .. " failed", 2)
-    end
-  end)
-  if not task then
-    hs.alert.show("Failed to execute script", 2)
-    return
-  end
-  task:start()
-end
+local function isPluginEnabled(pluginName)
+  local enabledDir = os.getenv("HOME") .. "/.meow/.installed/plugins/"
+  local pluginPath = enabledDir .. pluginName
 
-local function isDasKeyboardConnected()
-  for _, device in ipairs(hs.usb.attachedDevices()) do
-    if device.vendorID == dasKeyboard.vendorID and device.productID == dasKeyboard.productID then
-      return true
-    end
+  local f = io.open(pluginPath, "r")
+  if f then
+    f:close()
+    return true
   end
   return false
 end
 
-local function setKeyboardLayoutForCurrentState(showAlert)
-  local showAlert = showAlert == nil and true or showAlert
+local function loadPlugin(pluginName)
+  if not isPluginEnabled(pluginName) then
+    return false
+  end
 
-  if isDasKeyboardConnected() then
-    runScript(dasKeyboardLayoutScript, "Das Keyboard")
-    if showAlert then
-      hs.alert.show("Das Keyboard connected.", 1.5)
+  local pluginPath = os.getenv("HOME") .. "/.meow/plugins/" .. pluginName .. "/init.lua"
+  local success, plugin = pcall(dofile, pluginPath)
+
+  if success and plugin then
+    enabledPlugins[pluginName] = plugin
+
+    if type(plugin.init) == "function" then
+      local initSuccess, err = pcall(plugin.init)
+      if not initSuccess then
+        print("Failed to initialize plugin " .. pluginName .. ": " .. tostring(err))
+        return false
+      end
     end
+
+    print("Loaded plugin: " .. pluginName)
+    return true
   else
-    runScript(macbookProKeyboardLayoutScript, "MacBook Pro Keyboard")
-    if showAlert then
-      hs.alert.show("Das Keyboard disconnected.", 1.5)
-    end
+    print("Failed to load plugin " .. pluginName .. ": " .. tostring(plugin))
+    return false
   end
 end
 
-local function deviceConnected(event)
-  if event.vendorID == dasKeyboard.vendorID and event.productID == dasKeyboard.productID then
-    if event.eventType == "added" then
-      setKeyboardLayoutForCurrentState(true)
-    elseif event.eventType == "removed" then
-      setKeyboardLayoutForCurrentState(true)
+local function cleanupPlugins()
+  for pluginName, plugin in pairs(enabledPlugins) do
+    if type(plugin.cleanup) == "function" then
+      pcall(plugin.cleanup)
     end
+  end
+  enabledPlugins = {}
+end
+
+local function loadEnabledPlugins()
+  local pluginsDir = os.getenv("HOME") .. "/.meow/.installed/plugins"
+
+  local handle = io.popen("ls " .. pluginsDir .. " 2>/dev/null")
+  if handle then
+    for pluginName in handle:lines() do
+      loadPlugin(pluginName)
+    end
+    handle:close()
   end
 end
 
-if usbWatcher then
-  usbWatcher:stop()
-end
+cleanupPlugins()
 
-usbWatcher = hs.usb.watcher.new(deviceConnected)
-usbWatcher:start()
-
-setKeyboardLayoutForCurrentState(true)
-
-hs.alert.show("🚀 Keyboard layout manager ready", 2)
+loadEnabledPlugins()

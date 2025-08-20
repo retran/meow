@@ -1,89 +1,85 @@
 #!/usr/bin/env zsh
 
-ZSH_THEME="robbyrussell"
+# config/shells/zsh configuration file for Meow
 
-base_plugins=(
-  copyfile
-  copypath
-  urltools
-  safe-paste
-  command-not-found
-  encode64
-  dotenv
+# Function to check if plugin is available (component installed)
+_is_plugin_available() {
+  local plugin="$1"
+  local plugin_file="${MEOW}/plugins/${plugin}/plugin.yaml"
 
-  ssh
-  colored-man-pages
+  [[ -f "$plugin_file" ]] || return 1
 
-  git
-  git-lfs
-  git-escape-magic
-  github
-  gh
+  local available_when
+  available_when=$(yq eval '.available_when' "$plugin_file" 2>/dev/null)
 
-  docker
-  docker-compose
-  gcloud
-  python
-  dotnet
-  bazel
-  gradle
-  vscode
-)
+  # If no available_when specified, plugin is always available
+  if [[ -z "$available_when" || "$available_when" == "null" ]]; then
+    return 0
+  fi
 
-os_plugins=()
-if [[ "$OSTYPE" == "darwin"* ]]; then
-  os_plugins+=(
-    macos
-    brew
-    tmux
-  )
+  # Check if required component is installed
+  local component_symlink="${MEOW}/.installed/components/${available_when}"
+  [[ -L "$component_symlink" ]]
+}
+
+# Source component interactive shell scripts
+if [[ -d "${MEOW}/.installed/components" ]]; then
+  # Use nullglob to avoid errors when no files match
+  setopt nullglob 2>/dev/null || true
+  for component_link in "${MEOW}/.installed/components"/*; do
+    [[ -L "$component_link" ]] || continue
+    component_name=$(basename "$component_link")
+    init_script="${MEOW}/components/${component_name}/init.sh"
+    if [[ -f "$init_script" ]]; then
+      # shellcheck source=/dev/null
+      source "$init_script"
+    fi
+  done
+  unsetopt nullglob 2>/dev/null || true
 fi
 
-plugins=(${base_plugins[@]} ${os_plugins[@]})
-
-if [[ -n "$GHOSTTY_BIN_DIR" ]]; then
-  ZSH_TMUX_AUTOSTART=true
-else
-  ZSH_TMUX_AUTOSTART=false
+# Source preset interactive shell scripts
+if [[ -d "${MEOW}/.installed/presets" ]]; then
+  # Use nullglob to avoid errors when no files match
+  setopt nullglob 2>/dev/null || true
+  for preset_link in "${MEOW}/.installed/presets"/*; do
+    [[ -L "$preset_link" ]] || continue
+    preset_name=$(basename "$preset_link")
+    init_script="${MEOW}/presets/${preset_name}/init.sh"
+    if [[ -f "$init_script" ]]; then
+      # shellcheck source=/dev/null
+      source "$init_script"
+    fi
+  done
+  unsetopt nullglob 2>/dev/null || true
 fi
 
-export ZSH="$HOME/.oh-my-zsh"
-if [[ -f "$ZSH/oh-my-zsh.sh" ]]; then
-  source "$ZSH/oh-my-zsh.sh"
+# Source plugin interactive shell scripts
+if [[ -d "${MEOW}/.installed/plugins" ]]; then
+  # Use nullglob to avoid errors when no files match
+  setopt nullglob 2>/dev/null || true
+  for plugin_link in "${MEOW}/.installed/plugins"/*; do
+    [[ -L "$plugin_link" ]] || continue
+    plugin_name=$(basename "$plugin_link")
+
+    # Only load init.sh if plugin is available
+    if _is_plugin_available "$plugin_name"; then
+      init_script="${MEOW}/plugins/${plugin_name}/init.sh"
+      if [[ -f "$init_script" ]]; then
+        # shellcheck source=/dev/null
+        source "$init_script"
+      fi
+    fi
+  done
+  unsetopt nullglob 2>/dev/null || true
 fi
 
-if [[ -f "$MEOW/config/aliases/aliases.sh" ]]; then
-  source "$MEOW/config/aliases/aliases.sh"
-fi
-
+# Load zsh-autosuggestions
 if [[ -f "/opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh" ]]; then
   source "/opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
 fi
 
+# Load zsh-syntax-highlighting
 if [[ -f "/opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]]; then
   source "/opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
 fi
-
-if command -v pyenv &>/dev/null; then
-  eval "$(pyenv init -)"
-fi
-
-if ! command -v _toggl >/dev/null 2>&1; then
-  _toggl() {
-    eval $(env COMMANDLINE="${words[1, $CURRENT]}" _TOGGL_COMPLETE=complete-zsh toggl)
-  }
-  compdef _toggl toggl
-fi
-
-if [[ -f "$HOME/.fzf.zsh" ]]; then
-  source "$HOME/.fzf.zsh"
-fi
-
-if command -v zoxide &>/dev/null; then
-  eval "$(zoxide init zsh --cmd cd)"
-fi
-
-if command -v starship &>/dev/null; then
-  eval "$(starship init zsh)"
-fi
-

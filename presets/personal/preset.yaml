@@ -1,0 +1,17 @@
+description: >-
+  Personal laptop setup with packages for entertainment, social networking, and pet projects
+
+platforms:
+  - macos
+
+required:
+  - shell-essential
+  - desktop-essential
+  - core-development
+  - game-development
+  - markdown
+  - docker-desktop
+  - personal-communication
+  - productivity
+  - media
+  - gaming

@@ -1,0 +1,11 @@
+description: >-
+  Core development litterbox setup with essential tools for development
+
+platforms:
+  - linux
+
+required:
+  - shell-essential
+  - core-development
+  - docker-cli
+  - markdown

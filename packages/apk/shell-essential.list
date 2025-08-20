@@ -1,5 +1,8 @@
 bash
+curl
+wget
 direnv
+watch
 htop
 eza
 git
@@ -10,3 +13,7 @@ zoxide
 zsh
 starship
 neovim
+httpie
+bat
+tmux
+glow

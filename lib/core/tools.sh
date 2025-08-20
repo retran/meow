@@ -5,17 +5,19 @@ if [[ -n "${_LIB_CORE_TOOLS_SOURCED:-}" ]]; then
 fi
 _LIB_CORE_TOOLS_SOURCED=1
 
-YQ_VERSION="${YQ_VERSION:-4.47.1}"
+YQ_VERSION="${YQ_VERSION:-v4.47.1}"
 
 ensure_yq() {
-  local version_output
-
   if command -v yq >/dev/null 2>&1; then
-    version_output=$(yq --version 2>&1)
-    if [[ "$version_output" == *"version \"$YQ_VERSION\""* ]]; then
+    local actual_version
+    actual_version=$(yq --version | awk '{print $4}')
+
+    if [[ "$actual_version" == "$YQ_VERSION" ]]; then
+      echo "⇒ yq ${YQ_VERSION} is already installed."
       return 0
     fi
-    echo "⇒ Found yq, but version mismatch: $version_output"
+
+    echo "⇒ Found yq, but version mismatch. Expected: '$YQ_VERSION', Found: '$actual_version'"
   fi
 
   echo "⇒ Installing yq v${YQ_VERSION}..."
@@ -23,16 +25,22 @@ ensure_yq() {
   local OS ARCH BIN_NAME URL DEST TMPBIN
 
   case "$(uname -s)" in
-    Linux)   OS="linux" ;;
-    Darwin)  OS="darwin" ;;
-    *) echo "Unsupported OS: $(uname -s)" >&2; return 1 ;;
+    Linux) OS="linux" ;;
+    Darwin) OS="darwin" ;;
+    *)
+      echo "Unsupported OS: $(uname -s)" >&2
+      return 1
+      ;;
   esac
 
   case "$(uname -m)" in
-    x86_64)    ARCH="amd64" ;;
-    aarch64)   ARCH="arm64" ;;
-    arm64)     ARCH="arm64" ;;
-    *) echo "Unsupported architecture: $(uname -m)" >&2; return 1 ;;
+    x86_64 | aarch64 | arm64)
+      [[ "$(uname -m)" == "x86_64" ]] && ARCH="amd64" || ARCH="arm64"
+      ;;
+    *)
+      echo "Unsupported architecture: $(uname -m)" >&2
+      return 1
+      ;;
   esac
 
   BIN_NAME="yq_${OS}_${ARCH}"

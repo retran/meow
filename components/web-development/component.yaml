@@ -1,0 +1,14 @@
+description: >-
+  Complete web development environment extending React with CSS frameworks,
+  build tools, performance monitoring, and deployment utilities
+
+depends_on:
+  - react-development
+
+npm:
+  packages:
+    - web-development
+
+vscode:
+  packages:
+    - web-development

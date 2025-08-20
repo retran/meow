@@ -1,0 +1,16 @@
+description: "Game development tools and environment"
+
+platforms:
+  - macos
+
+depends_on:
+  - core-development
+  - lua-development
+
+homebrew:
+  packages:
+    - game-development
+
+vscode:
+  packages:
+    - game-development

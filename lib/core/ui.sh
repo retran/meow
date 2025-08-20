@@ -9,96 +9,72 @@ _LIB_CORE_UI_SOURCED=1
 
 source "${MEOW}/lib/core/colors.sh"
 
-# Generate indentation string
-indent() {
-  local level="${1:-0}"
-  if ! [[ "$level" =~ ^[0-9]+$ ]]; then
-    echo -e "\n\e[1;31m[DEBUG] Error in indent(): Invalid argument\e[0m" >&2
-    echo -e "\e[31m -> Expected non-negative integer, got: '$1'\e[0m" >&2
-    return 1
-  fi
-  local indent_str=""
-  for ((i = 0; i < level; i++)); do
-    indent_str+="  "
-  done
-  echo -n "$indent_str"
-}
-
 # Internal helper for colored messages
 _base_msg() {
-  local indent_level="$1"
-  local color_prefix="$2"
-  shift 2
-  echo -e "$(indent "$indent_level")${color_prefix}${*}${RESET}"
+  local color_prefix="$1"
+  shift
+  echo -e "${color_prefix}${*}${RESET}"
 }
 
 # Internal helper for icon messages
 _icon_msg_core() {
-  local indent_level="$1"
-  local icon_and_color="$2"
-  shift 2
-  echo -e "$(indent "$indent_level")${icon_and_color}${RESET}${NORMAL}${*}${RESET}"
+  local icon_and_color="$1"
+  shift
+  echo -e "${icon_and_color}${RESET}${NORMAL}${*}${RESET}"
 }
 
 # Show command output on error
 _print_temp_output_if_exists() {
-  local indent_level="$1"
-  local temp_file="$2"
+  local temp_file="$1"
 
   if [[ -s "$temp_file" ]]; then
     echo ""
-    error "$indent_level" "Command output:"
+    error "Command output:"
     while IFS= read -r line; do
-      content "$indent_level" "$line"
+      content "$line"
     done <"$temp_file"
   fi
 }
 
 # Message functions
-msg() { _base_msg "${1:-0}" "${NORMAL}" "${@:2}"; }
-success() { _base_msg "${1:-0}" "${SUCCESS}" "${@:2}"; }
-error() { _base_msg "${1:-0}" "${ERROR}" "${@:2}" >&2; }
-warning() { _base_msg "${1:-0}" "${WARNING}" "${@:2}"; }
-info() { _base_msg "${1:-0}" "${INFO}" "${@:2}"; }
-content() { _base_msg "${1:-0}" "${CONTENT}" "${@:2}"; }
+msg() { _base_msg "${NORMAL}" "$@"; }
+success() { _base_msg "${SUCCESS}" "$@"; }
+error() { _base_msg "${ERROR}" "$@" >&2; }
+warning() { _base_msg "${WARNING}" "$@"; }
+info() { _base_msg "${INFO}" "$@"; }
+content() { _base_msg "${CONTENT}" "$@"; }
 
 # Header functions
-title() { _base_msg "${1:-0}" "${HEADER}${BOLD}" "${@:2}"; }
-header() { _base_msg "${1:-0}" "${HEADER}" "${@:2}"; }
-subheader() { _base_msg "${1:-0}" "${SUBHEADER}" "${@:2}"; }
+title() { _base_msg "${HEADER}${BOLD}" "$@"; }
+header() { _base_msg "${HEADER}" "$@"; }
+subheader() { _base_msg "${SUBHEADER}" "$@"; }
 
 # Icon messages
-action_msg() { _icon_msg_core "${1:-0}" "${INFO}➤ " "${@:2}"; }
-success_tick_msg() { _icon_msg_core "${1:-0}" "${SUCCESS}✓ " "${@:2}"; }
-info_italic_msg() { _icon_msg_core "${1:-0}" "${INFO}ℹ︎ " "${@:2}"; }
-dependency_msg() { _icon_msg_core "${1:-0}" "${NORMAL}↪ " "${@:2}"; }
-
-# Indented messages
-indented_info() { _icon_msg_core "${1:-0}" "${NORMAL}  " "${@:2}"; }
-indented_success_tick_msg() { _icon_msg_core "${1:-0}" "${SUCCESS}  ✓ " "${@:2}"; }
-indented_warning() { _icon_msg_core "${1:-0}" "${WARNING}  ⚠ " "${@:2}"; }
-indented_error_msg() { _icon_msg_core "${1:-0}" "${ERROR}  ✗ " "${@:2}" >&2; }
-list_item_msg() { _icon_msg_core "${1:-0}" "${NORMAL}    " "${@:2}"; }
-emphasized_msg() { _icon_msg_core "${1:-0}" "${BOLD}" "${@:2}"; }
+action_msg() { _icon_msg_core "${INFO}➤ " "$@"; }
+success_tick_msg() { _icon_msg_core "${SUCCESS}✓ " "$@"; }
+info_italic_msg() { _icon_msg_core "${INFO}ℹ︎ " "$@"; }
+dependency_msg() { _icon_msg_core "${NORMAL}↪ " "$@"; }
+error_msg() { _icon_msg_core "${ERROR}  ✗ " "$@" >&2; }
+list_item_msg() { _icon_msg_core "${NORMAL}    " "$@"; }
+emphasized_msg() { _icon_msg_core "${BOLD}" "$@"; }
 
 # Interactive confirmation prompt
 ui_confirm() {
-  local indent_level="${1:-0}"
-  local message="${2:-Confirm}"
-  local default_response="${3:-N}"
+  local message="${1:-Confirm}"
+  local default_response="${2:-N}"
   local prompt_suffix
   local default_upper
 
   default_upper=$(echo "$default_response" | tr '[:lower:]' '[:upper:]')
 
   case "$default_upper" in
-  Y | YES) prompt_suffix="(Y/n)" ;;
-  *) prompt_suffix="(y/N)" ;;
+    Y | YES) prompt_suffix="(Y/n)" ;;
+    *) prompt_suffix="(y/N)" ;;
   esac
 
   local response
   while true; do
-    echo -ne "$(indent "$indent_level")${INFO}❓ ${RESET}${NORMAL}${message} ${prompt_suffix} ${RESET}"
+    echo -ne "${INFO}❓ ${RESET}${NORMAL}${message} ${prompt_suffix} ${RESET}"
     read -r response </dev/tty
 
     if [[ -z "$response" ]]; then
@@ -109,25 +85,24 @@ ui_confirm() {
     response_upper=$(echo "$response" | tr '[:lower:]' '[:upper:]')
 
     case "$response_upper" in
-    Y | YES) return 0 ;;
-    N | NO) return 1 ;;
-    *) warning "$indent_level" "Please answer 'y' for yes or 'n' for no." ;;
+      Y | YES) return 0 ;;
+      N | NO) return 1 ;;
+      *) warning "Please answer 'y' for yes or 'n' for no." ;;
     esac
   done
 }
 
 # Spinner function with progress indicator
 ui_spinner() {
-  local indent_level="$1"
-  local msg="$2"
-  shift 2
+  local msg="$1"
+  shift
 
   local success_msg=""
   local fail_msg=""
   local unchanged_msg=""
   local unchanged_pattern=""
 
-  while [[ "$1" == "--success" || "$1" == "--fail" || "$1" == "--unchanged" || "$1" == "--pattern" ]]; do
+  while [[ $# -gt 0 && ("$1" == "--success" || "$1" == "--fail" || "$1" == "--unchanged" || "$1" == "--pattern") ]]; do
     if [[ "$1" == "--success" ]]; then
       success_msg="$2"
       shift 2
@@ -155,7 +130,7 @@ ui_spinner() {
 
   tput civis
 
-  echo -ne "$(indent "$indent_level")${spinner_color}${spinstr:0:1}${RESET} ${NORMAL}${msg}${RESET}"
+  echo -ne "${spinner_color}${spinstr:0:1}${RESET} ${NORMAL}${msg}${RESET}"
 
   "${cmd_and_args[@]}" >"$temp_output_file" 2>"$temp_output_file" &
   pid=$!
@@ -163,7 +138,7 @@ ui_spinner() {
   local i=0
   while kill -0 "$pid" 2>/dev/null; do
     i=$(((i + 1) % ${#spinstr}))
-    echo -ne "$(tput cr)$(indent "$indent_level")${spinner_color}${spinstr:$i:1}${RESET} ${NORMAL}${msg}${RESET}"
+    echo -ne "$(tput cr)${spinner_color}${spinstr:$i:1}${RESET} ${NORMAL}${msg}${RESET}"
     sleep "$delay"
   done
 
@@ -181,14 +156,14 @@ ui_spinner() {
   local return_status=$cmd_exit_status
   if [ $cmd_exit_status -eq 0 ]; then
     if [[ -n "$unchanged_pattern" && -s "$temp_output_file" ]] && grep -qE -- "$unchanged_pattern" "$temp_output_file"; then
-      success_tick_msg "$indent_level" "$final_unchanged_msg"
+      success_tick_msg "$final_unchanged_msg"
       return_status=100
     else
-      success_tick_msg "$indent_level" "$final_success_msg"
+      success_tick_msg "$final_success_msg"
     fi
   else
-    indented_error_msg "$indent_level" "$final_fail_msg"
-    _print_temp_output_if_exists "$indent_level" "$temp_output_file"
+    error_msg "$final_fail_msg"
+    _print_temp_output_if_exists "$temp_output_file"
   fi
 
   rm -f "$temp_output_file"
@@ -196,19 +171,12 @@ ui_spinner() {
   return $return_status
 }
 
-log_verbose() {
-  if [[ "${VERBOSE:-0}" -eq 1 || "${DEBUG:-0}" -eq 1 ]]; then
-    echo "$(indent "${1:-0}")${MAGENTA}VERBOSE:${RESET} ${*:2}" >&2
-  fi
-}
-
 # Operation wrapper with timing
 run_operation() {
-  local indent_level="$1"
-  local operation_name="$2"
-  shift 2
+  local operation_name="$1"
+  shift
 
-  action_msg "$indent_level" "Starting $operation_name..."
+  action_msg "Starting $operation_name..."
   local start_time
   start_time=$(date +%s)
 
@@ -216,53 +184,51 @@ run_operation() {
     local end_time
     end_time=$(date +%s)
     local duration=$((end_time - start_time))
-    success_tick_msg "$indent_level" "$operation_name completed (${duration}s)"
+    success_tick_msg "$operation_name completed (${duration}s)"
     return 0
   else
     local end_time
     end_time=$(date +%s)
     local duration=$((end_time - start_time))
-    indented_error_msg "$indent_level" "$operation_name failed (${duration}s)"
+    error_msg "$operation_name failed (${duration}s)"
     return 1
   fi
 }
 
 # Step header with optional numbering
 step_header() {
-  local indent_level="$1"
-  local step_name="$2"
-  local step_count="${3:-}"
-  local total_steps="${4:-}"
+  local step_name="$1"
+  local step_count="${2:-}"
+  local total_steps="${3:-}"
 
   if [[ -n "$step_count" && -n "$total_steps" ]]; then
-    title "$indent_level" "$step_name (${step_count}/${total_steps})"
+    title "$step_name (${step_count}/${total_steps})"
   else
-    title "$indent_level" "$step_name"
+    title "$step_name"
   fi
 }
 
 # Package operation wrapper
 run_package_operation() {
-  local indent_level="$1"
-  local package_name="$2"
-  local operation="$3"
-  local spinner_msg="$4"
-  local success_msg="${5:-Successfully ${operation}ed $package_name.}"
-  local fail_msg="${6:-Failed to ${operation} $package_name.}"
-  local unchanged_msg="${7:-$package_name is already up to date.}"
-  shift 7
+  local package_name="$1"
+  local operation="$2"
+  local spinner_msg="$3"
+  local success_msg="${4:-Successfully ${operation}ed $package_name.}"
+  local fail_msg="${5:-Failed to ${operation} $package_name.}"
+  local unchanged_msg="${6:-$package_name is already up to date.}"
+  shift 6
 
   if [[ "$1" == "--pattern" ]]; then
     local pattern="$2"
     shift 2
-    ui_spinner "$indent_level" "$spinner_msg" \
+    ui_spinner "$spinner_msg" \
       --success "$success_msg" \
       --fail "$fail_msg" \
       --unchanged "$unchanged_msg" \
       --pattern "$pattern" \
       "$@"
   else
-    ui_spinner "$indent_level" "$spinner_msg" \
+    ui_spinner "$spinner_msg" \
       --success "$success_msg" \
       --fail "$fail_msg" \
       --unchanged "$unchanged_msg" \
