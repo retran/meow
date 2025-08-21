@@ -4,17 +4,18 @@ keyboardLayouts.config = {
   dasKeyboard = {
     vendorID = 0x24f0,
     productID = 0x0140,
-    layoutScript = "/Users/retran/.meow/.installed/components/adaptive-keyboard-layouts/scripts/set_das_keyboard_layouts.sh"
+    layoutScript = "set_das_keyboard_layouts.sh"
   },
   macbookPro = {
-    layoutScript = "/Users/retran/.meow/.installed/components/adaptive-keyboard-layouts/scripts/set_mbp_keyboard_layouts.sh"
+    layoutScript = "set_mbp_keyboard_layouts.sh"
   }
 }
 
 local function runScript(scriptPath, description)
-  local task = hs.task.new(scriptPath, function(exitCode, stdOut, stdErr)
+  local basePath = "~/.meow/.installed/components/adaptive-keyboard-layouts/scripts/"
+  local task = hs.task.new(basePath .. scriptPath, function(exitCode, stdOut, stdErr)
     if exitCode ~= 0 then
-      hs.alert.show(description .. " failed", 2)
+      hs.alert.show(scriptPath .. " failed", 2)
     end
   end)
   if not task then

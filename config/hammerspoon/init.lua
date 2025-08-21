@@ -36,7 +36,6 @@ local function loadConfig(componentName)
     print("Loaded plugin: " .. componentName)
     return true
   else
-    print("Failed to load plugin " .. componentName .. ": " .. tostring(component))
     return false
   end
 end
