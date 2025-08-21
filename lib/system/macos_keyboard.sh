@@ -5,14 +5,21 @@ if [[ "${BASH_SOURCE[0]}" != "${0}" ]] && [[ -n "${_LIB_SYSTEM_MACOS_KEYBOARD_SO
 fi
 _LIB_SYSTEM_MACOS_KEYBOARD_SOURCED=1
 
+MEOW="${MEOW:-$HOME/.meow}"
+
+source "${MEOW}/lib/core/defs.sh"
 source "${MEOW}/lib/core/ui.sh"
 
-# Set keyboard layouts for macOS
+# Set keyboard layouts for macOS.
+# This function configures the enabled input sources (keyboard layouts)
+# and preserves the currently selected layout if it's one of the Russian layouts.
+#
 # Usage: set_macos_keyboard_layouts LAYOUT_TYPE
-# LAYOUT_TYPE: "das" or "mbp"
+# LAYOUT_TYPE: "das" for Das Keyboard or "mbp" for MacBook Pro internal keyboard.
 set_macos_keyboard_layouts() {
   local layout_type="$1"
 
+  # Ensure the script is running on macOS.
   if [[ "$OSTYPE" != "darwin"* ]]; then
     warning "macOS keyboard layout configuration only works on macOS"
     return 1
@@ -21,6 +28,7 @@ set_macos_keyboard_layouts() {
   local russian_layout_id
   local russian_layout_name
 
+  # Determine the correct Russian layout ID and name based on the keyboard type.
   case "$layout_type" in
     "das")
       russian_layout_id="19458"
@@ -36,22 +44,41 @@ set_macos_keyboard_layouts() {
       ;;
   esac
 
-  local is_russian_selected
-  is_russian_selected=$(defaults read com.apple.HIToolbox AppleSelectedInputSources | grep -c "$russian_layout_name" || echo "0")
+  # Check if the specific Russian layout is currently selected.
+  # We use `rg -q` (ripgrep) which is "quiet" and only returns an exit code,
+  # making it ideal for conditional checks without capturing output.
+  local is_russian_selected=0
+  if defaults read com.apple.HIToolbox AppleSelectedInputSources | rg -q "$russian_layout_name"; then
+    is_russian_selected=1
+  fi
 
   action_msg "Configuring keyboard layouts for $layout_type..."
 
-  # Set enabled input sources
+  # Set the enabled input sources to "ABC" (U.S.) and the chosen Russian layout.
+  # This overwrites the existing list of enabled layouts.
   defaults write com.apple.HIToolbox AppleEnabledInputSources -array \
     '<dict>
-          <key>InputSourceKind</key>
-          <string>Keyboard Layout</string>
-          <key>KeyboardLayout ID</key>
-          <integer>252</integer>
-          <key>KeyboardLayout Name</key>
-          <string>ABC</string>
-      </dict>' \
+        <key>InputSourceKind</key>
+        <string>Keyboard Layout</string>
+        <key>KeyboardLayout ID</key>
+        <integer>252</integer>
+        <key>KeyboardLayout Name</key>
+        <string>ABC</string>
+    </dict>' \
     "<dict>
+        <key>InputSourceKind</key>
+        <string>Keyboard Layout</string>
+        <key>KeyboardLayout ID</key>
+        <integer>$russian_layout_id</integer>
+        <key>KeyboardLayout Name</key>
+        <string>$russian_layout_name</string>
+    </dict>"
+
+  # If the Russian layout was active before, restore it as the selected source.
+  if [[ "$is_russian_selected" -eq 1 ]]; then
+    action_msg "Restoring active Russian layout..."
+    defaults write com.apple.HIToolbox AppleSelectedInputSources -array \
+      "<dict>
           <key>InputSourceKind</key>
           <string>Keyboard Layout</string>
           <key>KeyboardLayout ID</key>
@@ -59,22 +86,10 @@ set_macos_keyboard_layouts() {
           <key>KeyboardLayout Name</key>
           <string>$russian_layout_name</string>
       </dict>"
-
-  # Restore Russian layout if it was selected
-  if [[ "$is_russian_selected" -gt 0 ]]; then
-    action_msg "Restoring active Russian layout..."
-    defaults write com.apple.HIToolbox AppleSelectedInputSources -array \
-      "<dict>
-            <key>InputSourceKind</key>
-            <string>Keyboard Layout</string>
-            <key>KeyboardLayout ID</key>
-            <integer>$russian_layout_id</integer>
-            <key>KeyboardLayout Name</key>
-            <string>$russian_layout_name</string>
-        </dict>"
   fi
 
-  # Restart the input menu agent
+  # Restart the input menu agent to apply the changes immediately.
+  # Errors are suppressed in case the process isn't running.
   pkill TextInputMenuAgent 2>/dev/null || true
 
   success_tick_msg "Keyboard layouts configured for $layout_type"

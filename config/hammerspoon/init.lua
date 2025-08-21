@@ -1,11 +1,10 @@
--- config/hammerspoon/init.lua - Hammerspoon configuration with plugin support
+-- config/hammerspoon/init.lua - Hammerspoon configuration with component support
 
-local pluginSystem = {}
-local enabledPlugins = {}
+local installedComponents = {}
 
-local function isPluginEnabled(pluginName)
-  local enabledDir = os.getenv("HOME") .. "/.meow/.installed/plugins/"
-  local pluginPath = enabledDir .. pluginName
+local function isComponentInstalled(component)
+  local enabledDir = os.getenv("HOME") .. "/.meow/.installed/components/"
+  local pluginPath = enabledDir .. component .. "/component.yaml"
 
   local f = io.open(pluginPath, "r")
   if f then
@@ -15,54 +14,55 @@ local function isPluginEnabled(pluginName)
   return false
 end
 
-local function loadPlugin(pluginName)
-  if not isPluginEnabled(pluginName) then
+local function loadConfig(componentName)
+  if not isComponentInstalled(componentName) then
     return false
   end
 
-  local pluginPath = os.getenv("HOME") .. "/.meow/plugins/" .. pluginName .. "/init.lua"
-  local success, plugin = pcall(dofile, pluginPath)
+  local path = os.getenv("HOME") .. "/.meow/.installed/components/" .. componentName .. "/config/init.lua"
+  local success, component = pcall(dofile, path)
 
-  if success and plugin then
-    enabledPlugins[pluginName] = plugin
+  if success and component then
+    installedComponents[componentName] = component
 
-    if type(plugin.init) == "function" then
-      local initSuccess, err = pcall(plugin.init)
+    if type(component.init) == "function" then
+      local initSuccess, err = pcall(component.init)
       if not initSuccess then
-        print("Failed to initialize plugin " .. pluginName .. ": " .. tostring(err))
+        print("Failed to initialize plugin " .. componentName .. ": " .. tostring(err))
         return false
       end
     end
 
-    print("Loaded plugin: " .. pluginName)
+    print("Loaded plugin: " .. componentName)
     return true
   else
-    print("Failed to load plugin " .. pluginName .. ": " .. tostring(plugin))
+    print("Failed to load plugin " .. componentName .. ": " .. tostring(component))
     return false
   end
 end
 
-local function cleanupPlugins()
-  for pluginName, plugin in pairs(enabledPlugins) do
+local function cleanupComponents()
+  for pluginName, plugin in pairs(installedComponents) do
     if type(plugin.cleanup) == "function" then
       pcall(plugin.cleanup)
     end
   end
-  enabledPlugins = {}
+  installedComponents = {}
 end
 
-local function loadEnabledPlugins()
-  local pluginsDir = os.getenv("HOME") .. "/.meow/.installed/plugins"
+local function loadInstalledPlugins()
+  local pluginsDir = os.getenv("HOME") .. "/.meow/.installed/components/"
 
   local handle = io.popen("ls " .. pluginsDir .. " 2>/dev/null")
   if handle then
-    for pluginName in handle:lines() do
-      loadPlugin(pluginName)
+    for componentName in handle:lines() do
+      -- TODO skip components that are not hammerspoon components
+      loadConfig(componentName)
     end
     handle:close()
   end
 end
 
-cleanupPlugins()
+cleanupComponents()
 
-loadEnabledPlugins()
+loadInstalledPlugins()

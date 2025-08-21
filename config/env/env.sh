@@ -65,4 +65,3 @@ if [[ -d "${MEOW}/.installed/components" ]]; then
   done
   unsetopt nullglob 2>/dev/null || true
 fi
-

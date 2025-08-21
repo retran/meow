@@ -13,7 +13,3 @@ readonly MEOW_INSTALLED_COMPONENTS_DIR="${MEOW}/.installed/components"
 readonly MEOW_MANUALLY_INSTALLED_COMPONENTS_DIR="${MEOW}/.installed/components-manual"
 
 readonly MEOW_DOWNLOADS_DIR="${MEOW}/.downloads"
-
-
-
-

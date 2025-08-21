@@ -1,14 +1,13 @@
 local keyboardLayouts = {}
 
--- Configuration for different keyboards
 keyboardLayouts.config = {
   dasKeyboard = {
     vendorID = 0x24f0,
     productID = 0x0140,
-    layoutScript = "/Users/retran/.meow/plugins/adaptive-keyboard-layouts/set_das_keyboard_layouts.sh"
+    layoutScript = "/Users/retran/.meow/.installed/components/adaptive-keyboard-layouts/scripts/set_das_keyboard_layouts.sh"
   },
   macbookPro = {
-    layoutScript = "/Users/retran/.meow/plugins/adaptive-keyboard-layouts/set_mbp_keyboard_layouts.sh"
+    layoutScript = "/Users/retran/.meow/.installed/components/adaptive-keyboard-layouts/scripts/set_mbp_keyboard_layouts.sh"
   }
 }
 
@@ -62,25 +61,19 @@ local function deviceConnected(event)
   end
 end
 
--- Plugin initialization function
 function keyboardLayouts.init()
-  -- Stop existing watcher if any
   if keyboardLayouts.usbWatcher then
     keyboardLayouts.usbWatcher:stop()
   end
 
-  -- Create and start USB watcher
   keyboardLayouts.usbWatcher = hs.usb.watcher.new(deviceConnected)
   keyboardLayouts.usbWatcher:start()
 
-  -- Set initial layout
   setKeyboardLayoutForCurrentState(true)
 
   hs.alert.show("⌨️ Adaptive keyboard layouts ready", 2)
-  print("⌨️ Adaptive keyboard layouts plugin loaded")
 end
 
--- Plugin cleanup function
 function keyboardLayouts.cleanup()
   if keyboardLayouts.usbWatcher then
     keyboardLayouts.usbWatcher:stop()
