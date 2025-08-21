@@ -10,29 +10,35 @@ source "${MEOW}/lib/core/platform.sh"
 source "${MEOW}/lib/core/tools.sh"
 
 _initialize_session() {
-  step_header "Initializing package manager"
-
   if [[ "$IS_ALPINE" == "true" ]]; then
-    info "" "Alpine Linux detected. Using apk."
-    setup_apk ""
+    ui_spinner "Initializing apk package manager" \
+      --success "apk package manager ready" \
+      --fail "apk initialization failed" \
+      setup_apk ""
   elif [[ "$IS_DEBIAN_BASED" == "true" ]]; then
-    info "" "Debian-based system detected. Using APT."
-    setup_apt ""
+    ui_spinner "Initializing APT package manager" \
+      --success "APT package manager ready" \
+      --fail "APT initialization failed" \
+      setup_apt ""
   elif [[ "$IS_ARCH" == "true" ]]; then
-    info "" "Arch Linux detected. Using pacman."
-    setup_pacman ""
+    ui_spinner "Initializing pacman package manager" \
+      --success "pacman package manager ready" \
+      --fail "pacman initialization failed" \
+      setup_pacman ""
   elif [[ "$IS_MACOS" == "true" ]]; then
-    info "" "macOS system detected. Using Homebrew."
-    setup_homebrew ""
+    ui_spinner "Initializing Homebrew package manager" \
+      --success "Homebrew package manager ready" \
+      --fail "Homebrew initialization failed" \
+      setup_homebrew ""
   else
-    warning "" "No supported package manager found for this OS. Skipping system setup."
+    warning_msg "No supported package manager found for this OS. Skipping system setup."
     return 1
   fi
 
-  ensure_yq || {
-    error_msg "" "Failed to ensure yq installation"
+  if ! ensure_yq; then
+    error_msg "Failed to ensure yq installation"
     return 1
-  }
+  fi
 }
 
 _finalize_session() {

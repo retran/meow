@@ -36,3 +36,16 @@ update_pipx_packages() {
 uninstall_pipx_packages() {
   uninstall_packages_generic "$1" "pipx" "pipx uninstall" "is_pipx_package_installed"
 }
+
+cleanup_pipx() {
+  # Add empty line before cleanup for better grouping
+  echo ""
+
+  # pipx doesn't have a built-in cleanup command, so we'll skip
+  if [[ "$MEOW_VERBOSE" == "true" ]]; then
+    step_header "Cleaning pipx (no-op)"
+    success_tick_msg "pipx cleanup skipped"
+  else
+    success_tick_msg "pipx cleanup skipped"
+  fi
+}

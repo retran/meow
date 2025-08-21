@@ -17,25 +17,23 @@ setup_tmux_plugin_manager() {
 
   if [[ -d "$HOME/.tmux/plugins/tpm" ]]; then
     success_tick_msg "tmux Plugin Manager is already installed."
-    action_msg "Updating tmux Plugin Manager..."
-    if git -C "$HOME/.tmux/plugins/tpm" pull; then
-      success_tick_msg "tmux Plugin Manager update completed"
-      return 0
-    else
-      error_msg "Failed to update tmux Plugin Manager."
-      return 1
-    fi
+
+    ui_spinner "Updating tmux Plugin Manager" \
+      --success "tmux Plugin Manager update completed" \
+      --fail "Failed to update tmux Plugin Manager" \
+      git -C "$HOME/.tmux/plugins/tpm" pull
+
+    return $?
   fi
 
   mkdir -p "$HOME/.tmux/plugins"
 
-  if git clone https://github.com/tmux-plugins/tpm "$HOME/.tmux/plugins/tpm"; then
-    success_tick_msg "tmux Plugin Manager installation completed"
-    return 0
-  else
-    error_msg "Failed to install tmux Plugin Manager."
-    return 1
-  fi
+  ui_spinner "Installing tmux Plugin Manager" \
+    --success "tmux Plugin Manager installation completed" \
+    --fail "Failed to install tmux Plugin Manager" \
+    git clone https://github.com/tmux-plugins/tpm "$HOME/.tmux/plugins/tpm"
+
+  return $?
 }
 
 configure_tmux() {

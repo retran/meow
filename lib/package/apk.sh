@@ -17,16 +17,26 @@ is_apk_package_installed() {
 }
 
 setup_apk() {
-  step_header "Setting up Alpine apk"
+  if [[ "$MEOW_VERBOSE" == "true" ]]; then
+    step_header "Setting up apk"
+  fi
+
   command -v apk >/dev/null 2>&1 || {
-    error_msg "apk not found"
     return 1
   }
-  ui_spinner "Updating apk index" \
-    --success "apk index updated" \
-    --fail "Failed to update apk index" \
-    sudo apk update
-  success_tick_msg "apk ready"
+
+  if [[ "$MEOW_VERBOSE" == "true" ]]; then
+    ui_spinner "Updating apk index" \
+      --success "apk index updated" \
+      --fail "Failed to update apk index" \
+      sudo apk update
+  else
+    sudo apk update >/dev/null 2>&1
+  fi
+
+  if [[ "$MEOW_VERBOSE" == "true" ]]; then
+    success_tick_msg "apk ready"
+  fi
 }
 
 install_apk_packages() {
@@ -42,6 +52,11 @@ uninstall_apk_packages() {
 }
 
 cleanup_apk() {
-  step_header "Cleaning apk (no-op)"
-  success_tick_msg "apk cleanup skipped"
+  if [[ "$MEOW_VERBOSE" == "true" ]]; then
+    step_header "Cleaning apk"
+    success_tick_msg "apk cleanup completed (no cache to clean)"
+  else
+    # In non-verbose mode, just skip silently since apk doesn't need cleanup
+    success_tick_msg "apk cleanup completed"
+  fi
 }

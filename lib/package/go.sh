@@ -33,7 +33,10 @@ update_go_packages() {
 }
 
 uninstall_go_packages() {
-  step_header "Go Package Removal ($1)"
+  # Show header only in verbose mode
+  if [[ "$MEOW_VERBOSE" == "true" ]]; then
+    step_header "Go Package Removal ($1)"
+  fi
   local package_file="${MEOW_COMPONENTS_DIR}/$1/packages/go.list"
   if [[ -f "$package_file" ]]; then
     warning "Go packages cannot be automatically uninstalled via go command"
@@ -61,4 +64,17 @@ uninstall_go_packages() {
     done <"$package_file"
   fi
   return 0
+}
+
+cleanup_go() {
+  # Add empty line before cleanup for better grouping
+  echo ""
+
+  # Go doesn't have a built-in cleanup command
+  if [[ "$MEOW_VERBOSE" == "true" ]]; then
+    step_header "Cleaning Go (no-op)"
+    success_tick_msg "Go cleanup skipped"
+  else
+    success_tick_msg "Go cleanup skipped"
+  fi
 }

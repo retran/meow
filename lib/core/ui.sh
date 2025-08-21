@@ -9,6 +9,15 @@ _LIB_CORE_UI_SOURCED=1
 
 source "${MEOW}/lib/core/colors.sh"
 
+# Global verbosity control
+MEOW_VERBOSE="${MEOW_VERBOSE:-false}"
+
+# Error/warning tracking for final summary
+declare -g MEOW_ERROR_COUNT=0
+declare -g MEOW_WARNING_COUNT=0
+declare -ga MEOW_ERRORS=()
+declare -ga MEOW_WARNINGS=()
+
 # Internal helper for colored messages
 _base_msg() {
   local color_prefix="$1"
@@ -28,21 +37,48 @@ _print_temp_output_if_exists() {
   local temp_file="$1"
 
   if [[ -s "$temp_file" ]]; then
-    echo ""
-    error "Command output:"
-    while IFS= read -r line; do
-      content "$line"
-    done <"$temp_file"
+    if [[ "$MEOW_VERBOSE" == "true" ]]; then
+      echo ""
+      error "Command output:"
+      while IFS= read -r line; do
+        content "$line"
+      done <"$temp_file"
+    else
+      # In non-verbose mode, show only the first few lines and suggest verbose mode
+      echo ""
+      error "Command failed. First few lines:"
+      head -n 3 "$temp_file" | while IFS= read -r line; do
+        content "$line"
+      done
+      local line_count
+      line_count=$(wc -l < "$temp_file")
+      if [[ $line_count -gt 3 ]]; then
+        info "... ($((line_count - 3)) more lines hidden. Run with --verbose for full output)"
+      fi
+    fi
   fi
 }
 
 # Message functions
 msg() { _base_msg "${NORMAL}" "$@"; }
 success() { _base_msg "${SUCCESS}" "$@"; }
-error() { _base_msg "${ERROR}" "$@" >&2; }
-warning() { _base_msg "${WARNING}" "$@"; }
+error() {
+  _base_msg "${ERROR}" "$@" >&2
+  ((MEOW_ERROR_COUNT++)) || true
+  MEOW_ERRORS+=("$*")
+}
+warning() {
+  _base_msg "${WARNING}" "$@"
+  ((MEOW_WARNING_COUNT++)) || true
+  MEOW_WARNINGS+=("$*")
+}
 info() { _base_msg "${INFO}" "$@"; }
 content() { _base_msg "${CONTENT}" "$@"; }
+
+# Verbose-only messages
+verbose_msg() { [[ "$MEOW_VERBOSE" == "true" ]] && msg "$@"; }
+verbose_info() { [[ "$MEOW_VERBOSE" == "true" ]] && info "$@"; }
+verbose_action_msg() { [[ "$MEOW_VERBOSE" == "true" ]] && action_msg "$@"; }
 
 # Header functions
 title() { _base_msg "${HEADER}${BOLD}" "$@"; }
@@ -54,9 +90,23 @@ action_msg() { _icon_msg_core "${INFO}➤ " "$@"; }
 success_tick_msg() { _icon_msg_core "${SUCCESS}✓ " "$@"; }
 info_italic_msg() { _icon_msg_core "${INFO}ℹ︎ " "$@"; }
 dependency_msg() { _icon_msg_core "${NORMAL}↪ " "$@"; }
-error_msg() { _icon_msg_core "${ERROR}  ✗ " "$@" >&2; }
+error_msg() {
+  _icon_msg_core "${ERROR}✗ " "$@" >&2
+  ((MEOW_ERROR_COUNT++)) || true
+  MEOW_ERRORS+=("$*")
+}
+warning_msg() {
+  _icon_msg_core "${WARNING}⚠️ " "$@"
+  ((MEOW_WARNING_COUNT++)) || true
+  MEOW_WARNINGS+=("$*")
+}
 list_item_msg() { _icon_msg_core "${NORMAL}    " "$@"; }
 emphasized_msg() { _icon_msg_core "${BOLD}" "$@"; }
+indent_msg() { _icon_msg_core "${NORMAL}  ↳ " "$@"; }
+
+# Verbose-only icon messages
+verbose_action_msg() { [[ "$MEOW_VERBOSE" == "true" ]] && action_msg "$@"; }
+verbose_success_tick_msg() { [[ "$MEOW_VERBOSE" == "true" ]] && success_tick_msg "$@"; }
 
 # Interactive confirmation prompt
 ui_confirm() {
@@ -90,6 +140,53 @@ ui_confirm() {
       *) warning "Please answer 'y' for yes or 'n' for no." ;;
     esac
   done
+}
+
+# Silent spinner - shows spinner during operation, then removes the line completely
+ui_silent_spinner() {
+  local msg="$1"
+  shift
+
+  local temp_output_file
+  temp_output_file=$(mktemp)
+
+  # Start spinner animation in background
+  {
+    local spinner_chars="⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"
+    local i=0
+    while true; do
+      local char="${spinner_chars:$((i % ${#spinner_chars})):1}"
+      echo -ne "\r${char} ${msg}"
+      sleep 0.1
+      ((i++))
+    done
+  } &
+  local spinner_pid=$!
+
+  # Run the actual command
+  "$@" >"$temp_output_file" 2>&1 &
+  local cmd_pid=$!
+
+  # Wait for command to complete
+  wait "$cmd_pid"
+  local cmd_exit_status=$?
+
+  # Stop spinner
+  kill "$spinner_pid" 2>/dev/null
+  wait "$spinner_pid" 2>/dev/null
+
+  # Clear the line completely
+  echo -ne "\r$(tput el)"
+
+  # Clean up temp file
+  if [[ $cmd_exit_status -ne 0 && -s "$temp_output_file" ]]; then
+    # If command failed and there's output, we might want to show it
+    # But for now, we'll keep it silent and let the caller handle errors
+    :
+  fi
+
+  rm -f "$temp_output_file"
+  return "$cmd_exit_status"
 }
 
 # Spinner function with progress indicator
@@ -234,4 +331,82 @@ run_package_operation() {
       --unchanged "$unchanged_msg" \
       "$@"
   fi
+}
+
+# Show final summary with errors and warnings
+show_final_summary() {
+  local operation="$1"
+  local target="${2:-}"
+  local success="${3:-true}"
+  local start_time="${4:-}"
+
+  # Calculate duration if start time provided
+  local duration_text=""
+  if [[ -n "$start_time" ]]; then
+    local end_time
+    end_time=$(date +%s)
+    local duration=$((end_time - start_time))
+    duration_text=" (${duration}s)"
+  fi
+
+  if [[ "$success" == "true" && $MEOW_ERROR_COUNT -eq 0 ]]; then
+    if [[ -n "$target" ]]; then
+      success_tick_msg "$operation '$target' completed successfully$duration_text"
+    else
+      success_tick_msg "$operation completed successfully$duration_text"
+    fi
+  else
+    if [[ -n "$target" ]]; then
+      error_msg "$operation '$target' finished with errors$duration_text"
+    else
+      error_msg "$operation finished with errors$duration_text"
+    fi
+  fi
+
+  # Show summary counts
+  local summary_parts=()
+  if [[ $MEOW_ERROR_COUNT -gt 0 ]]; then
+    summary_parts+=("${MEOW_ERROR_COUNT} error$([ $MEOW_ERROR_COUNT -gt 1 ] && echo "s" || true)")
+  fi
+  if [[ $MEOW_WARNING_COUNT -gt 0 ]]; then
+    summary_parts+=("${MEOW_WARNING_COUNT} warning$([ $MEOW_WARNING_COUNT -gt 1 ] && echo "s" || true)")
+  fi
+
+  if [[ ${#summary_parts[@]} -gt 0 ]]; then
+    local summary_text
+    summary_text=$(IFS=", "; echo "${summary_parts[*]}")
+    if [[ $MEOW_ERROR_COUNT -gt 0 ]]; then
+      error "Summary: $summary_text"
+    else
+      warning "Summary: $summary_text"
+    fi
+
+    # Show detailed errors and warnings in verbose mode or if there are errors
+    if [[ "$MEOW_VERBOSE" == "true" || $MEOW_ERROR_COUNT -gt 0 ]]; then
+      if [[ ${#MEOW_ERRORS[@]} -gt 0 ]]; then
+        echo ""
+        error "Errors encountered:"
+        for err in "${MEOW_ERRORS[@]}"; do
+          list_item_msg "$err"
+        done
+      fi
+
+      if [[ "$MEOW_VERBOSE" == "true" && ${#MEOW_WARNINGS[@]} -gt 0 ]]; then
+        echo ""
+        warning "Warnings encountered:"
+        for warn in "${MEOW_WARNINGS[@]}"; do
+          list_item_msg "$warn"
+        done
+      fi
+    fi
+  fi
+  return 0
+}
+
+# Reset error/warning counters (for use in tests or multiple operations)
+reset_summary_counters() {
+  MEOW_ERROR_COUNT=0
+  MEOW_WARNING_COUNT=0
+  MEOW_ERRORS=()
+  MEOW_WARNINGS=()
 }

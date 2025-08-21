@@ -12,27 +12,21 @@ setup_ohmyzsh() {
 
   if [[ -d "$HOME/.oh-my-zsh" ]]; then
     success_tick_msg "Oh My Zsh is already installed."
-    action_msg "Updating Oh My Zsh..."
 
-    if ZSH="$HOME/.oh-my-zsh" zsh -i "$HOME/.oh-my-zsh/tools/upgrade.sh" &>/dev/null; then
-      success_tick_msg "Oh My Zsh update completed"
-      return 0
-    else
-      error_msg "Failed to update Oh My Zsh."
-      return 1
-    fi
+    ui_spinner "Updating Oh My Zsh" \
+      --success "Oh My Zsh update completed" \
+      --fail "Failed to update Oh My Zsh" \
+      sh -c 'ZSH="$HOME/.oh-my-zsh" zsh -i "$HOME/.oh-my-zsh/tools/upgrade.sh"'
+
+    return $?
   fi
 
-  action_msg "Installing Oh My Zsh..."
+  ui_spinner "Installing Oh My Zsh" \
+    --success "Oh My Zsh installation completed" \
+    --fail "Failed to install Oh My Zsh" \
+    sh -c 'RUNZSH=no CHSH=no KEEP_ZSHRC=yes sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"'
 
-  if RUNZSH=no CHSH=no KEEP_ZSHRC=yes \
-    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" &>/dev/null; then
-    success_tick_msg "Oh My Zsh installation completed"
-    return 0
-  else
-    error_msg "Failed to install Oh My Zsh."
-    return 1
-  fi
+  return $?
 }
 
 configure_zsh() {

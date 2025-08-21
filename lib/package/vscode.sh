@@ -60,3 +60,16 @@ uninstall_vscode_packages() {
 
   uninstall_packages_generic "$component" "vscode" "code --uninstall-extension" "is_vscode_package_installed"
 }
+
+cleanup_vscode() {
+  # Add empty line before cleanup for better grouping
+  echo ""
+
+  # VS Code doesn't have a built-in cleanup command for extensions
+  if [[ "$MEOW_VERBOSE" == "true" ]]; then
+    step_header "Cleaning VS Code (no-op)"
+    success_tick_msg "VS Code cleanup skipped"
+  else
+    success_tick_msg "VS Code cleanup skipped"
+  fi
+}

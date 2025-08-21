@@ -30,10 +30,12 @@ show_main_help() {
   msg "  help [command]           Show help for command"
   msg ""
   msg "Global Options:"
+  msg "  --verbose, -v            Show detailed output"
   msg "  --help, -h               Show help"
   msg ""
   msg "Examples:"
   msg "  $0 install personal"
+  msg "  $0 install personal --verbose"
   msg "  $0 update --pull"
   msg "  $0 list"
   msg "  $0 component list"
@@ -149,6 +151,10 @@ show_backup_help() {
 parse_global_options() {
   while [[ $# -gt 0 ]]; do
     case "$1" in
+      --verbose | -v)
+        export MEOW_VERBOSE="true"
+        shift
+        ;;
       --help | -h)
         echo "help"
         return
@@ -207,6 +213,11 @@ cmd_component() {
   local subcommand="${1:-}"
 
   case "$subcommand" in
+    --verbose | -v)
+      export MEOW_VERBOSE="true"
+      subcommand="${2:-}"
+      shift 2
+      ;;
     --help | -h)
       show_component_help
       exit 0
@@ -216,9 +227,11 @@ cmd_component() {
       show_component_help
       exit 1
       ;;
+    *)
+      shift
+      ;;
   esac
 
-  shift
   source "${MEOW}/lib/components/components.sh"
 
   case "$subcommand" in
@@ -230,17 +243,48 @@ cmd_component() {
       list_components
       ;;
     install)
-      if [[ $# -eq 0 ]]; then
+      # Parse verbose flag if it appears after subcommand
+      local install_args=()
+      while [[ $# -gt 0 ]]; do
+        case "$1" in
+          --verbose | -v)
+            export MEOW_VERBOSE="true"
+            shift
+            ;;
+          *)
+            install_args+=("$1")
+            shift
+            ;;
+        esac
+      done
+
+      if [[ ${#install_args[@]} -eq 0 ]]; then
         error "No components specified for install command"
         exit 1
       fi
+
       # Validate all component names first
-      for component in "$@"; do
+      for component in "${install_args[@]}"; do
         if ! validate_component_name "$component"; then
           exit 1
         fi
       done
-      install_component --manual "$@"
+
+      reset_summary_counters
+
+      local start_time
+      start_time=$(date +%s)
+
+      local install_result=0
+      install_component --manual "${install_args[@]}" || install_result=$?
+
+      if [[ $install_result -eq 0 ]]; then
+        show_final_summary "Component installation" "${install_args[*]}" "true" "$start_time"
+        exit 0
+      else
+        show_final_summary "Component installation" "${install_args[*]}" "false" "$start_time"
+        exit 1
+      fi
       ;;
     uninstall)
       local force_flag=""
@@ -249,6 +293,10 @@ cmd_component() {
       # Parse arguments
       while [[ $# -gt 0 ]]; do
         case "$1" in
+          --verbose | -v)
+            export MEOW_VERBOSE="true"
+            shift
+            ;;
           --force)
             force_flag="--force"
             shift
@@ -274,20 +322,59 @@ cmd_component() {
         exit 1
       fi
 
-      uninstall_component "$component" $force_flag
+      reset_summary_counters
+
+      local start_time
+      start_time=$(date +%s)
+
+      if uninstall_component "$component" $force_flag; then
+        show_final_summary "Component uninstall" "$component" "true" "$start_time"
+        exit 0
+      else
+        show_final_summary "Component uninstall" "$component" "false" "$start_time"
+        exit 1
+      fi
       ;;
     update)
-      if [[ $# -eq 0 ]]; then
+      # Parse verbose flag if it appears after subcommand
+      local update_args=()
+      while [[ $# -gt 0 ]]; do
+        case "$1" in
+          --verbose | -v)
+            export MEOW_VERBOSE="true"
+            shift
+            ;;
+          *)
+            update_args+=("$1")
+            shift
+            ;;
+        esac
+      done
+
+      if [[ ${#update_args[@]} -eq 0 ]]; then
         error "No components specified for update command"
         exit 1
       fi
+
       # Validate all component names first
-      for component in "$@"; do
+      for component in "${update_args[@]}"; do
         if ! validate_component_name "$component"; then
           exit 1
         fi
       done
-      update_component "$@"
+
+      reset_summary_counters
+
+      local start_time
+      start_time=$(date +%s)
+
+      if update_component "${update_args[@]}"; then
+        show_final_summary "Component update" "${update_args[*]}" "true" "$start_time"
+        exit 0
+      else
+        show_final_summary "Component update" "${update_args[*]}" "false" "$start_time"
+        exit 1
+      fi
       ;;
     *)
       error "Unknown component subcommand: $subcommand"
@@ -302,6 +389,10 @@ cmd_install() {
 
   while [[ $# -gt 0 ]]; do
     case "$1" in
+      --verbose | -v)
+        export MEOW_VERBOSE="true"
+        shift
+        ;;
       --help | -h)
         show_install_help
         exit 0
@@ -329,7 +420,18 @@ cmd_install() {
   fi
 
   source "${MEOW}/lib/presets/presets.sh"
-  install_preset "$preset"
+  reset_summary_counters
+
+  local start_time
+  start_time=$(date +%s)
+
+  if install_preset "$preset"; then
+    show_final_summary "Installation" "$preset" "true" "$start_time"
+    exit 0
+  else
+    show_final_summary "Installation" "$preset" "false" "$start_time"
+    exit 1
+  fi
 }
 
 cmd_uninstall() {
@@ -337,6 +439,10 @@ cmd_uninstall() {
 
   while [[ $# -gt 0 ]]; do
     case "$1" in
+      --verbose | -v)
+        export MEOW_VERBOSE="true"
+        shift
+        ;;
       --help | -h)
         show_uninstall_help
         exit 0
@@ -364,12 +470,24 @@ cmd_uninstall() {
   fi
 
   source "${MEOW}/lib/presets/presets.sh"
+  reset_summary_counters
 
+  local start_time
+  start_time=$(date +%s)
+
+  local uninstall_success=true
   if [[ "$preset" == "all" ]]; then
-    uninstall_all_presets
+    if ! uninstall_all_presets; then
+      uninstall_success=false
+    fi
   else
-    uninstall_preset "$preset"
+    if ! uninstall_preset "$preset"; then
+      uninstall_success=false
+    fi
   fi
+
+  show_final_summary "Uninstall" "$preset" "$uninstall_success" "$start_time"
+  [[ "$uninstall_success" == "true" ]] && exit 0 || exit 1
 }
 
 cmd_list() {
@@ -402,13 +520,17 @@ cmd_update() {
 
   while [[ $# -gt 0 ]]; do
     case "$1" in
+      --verbose | -v)
+        export MEOW_VERBOSE="true"
+        shift
+        ;;
       --help | -h)
         show_update_help
         exit 0
         ;;
       --pull)
         if [[ "$pull" == true ]]; then
-          warning 0 "Multiple --pull flags specified, ignoring duplicates"
+          warning "Multiple --pull flags specified, ignoring duplicates"
         fi
         pull=true
         shift
@@ -437,43 +559,64 @@ cmd_update() {
     exit 1
   fi
 
+  reset_summary_counters
+
   if [[ "$pull" == true ]]; then
-    step_header 0 "Updating meow repository"
+    step_header "Updating meow repository"
 
     if ! git -C "$MEOW" rev-parse --git-dir >/dev/null 2>&1; then
       error "Not a git repository: $MEOW"
+      show_final_summary "Update" "$preset" "false"
       exit 1
     fi
 
     if ! git -C "$MEOW" diff-index --quiet HEAD -- 2>/dev/null; then
-      warning 0 "You have uncommitted changes in $MEOW"
-      warning 0 "Consider committing or stashing them before updating"
+      warning "You have uncommitted changes in $MEOW"
+      warning "Consider committing or stashing them before updating"
     fi
 
-    if git -C "$MEOW" pull; then
-      success_tick_msg 0 "Repository updated successfully"
-    else
-      error "Failed to update repository"
+    ui_spinner "Updating meow repository" \
+      --success "Repository updated successfully" \
+      --fail "Failed to update repository" \
+      git -C "$MEOW" pull
+
+    if [[ $? -ne 0 ]]; then
       error "You may need to resolve merge conflicts manually"
+      show_final_summary "Update" "$preset" "false"
       exit 1
     fi
   fi
 
   source "${MEOW}/lib/presets/presets.sh"
 
+  local update_success=true
   if [[ -n "$preset" && "$preset" != "all" ]]; then
-    update_preset "$preset"
+    if ! update_preset "$preset"; then
+      update_success=false
+    fi
   elif [[ "$preset" == "all" ]]; then
-    update_all_installed_components
+    if ! update_all_installed_components; then
+      update_success=false
+    fi
   else
-    update_all_installed_components
+    if ! update_all_installed_components; then
+      update_success=false
+    fi
   fi
+
+  show_final_summary "Update" "$preset" "$update_success"
+  [[ "$update_success" == "true" ]] && exit 0 || exit 1
 }
 
 cmd_backup() {
   local subcommand="${1:-}"
 
   case "$subcommand" in
+    --verbose | -v)
+      export MEOW_VERBOSE="true"
+      subcommand="${2:-}"
+      shift 2
+      ;;
     --help | -h)
       show_backup_help
       exit 0
@@ -483,30 +626,64 @@ cmd_backup() {
       show_backup_help
       exit 1
       ;;
+    *)
+      shift
+      ;;
   esac
 
-  shift
   source "${MEOW}/lib/symlinks/symlinks.sh"
 
   case "$subcommand" in
     list)
-      local pattern="${1:-}"
-      if [[ $# -gt 1 ]]; then
+      # Parse verbose flag if it appears after subcommand
+      local list_args=()
+      while [[ $# -gt 0 ]]; do
+        case "$1" in
+          --verbose | -v)
+            export MEOW_VERBOSE="true"
+            shift
+            ;;
+          *)
+            list_args+=("$1")
+            shift
+            ;;
+        esac
+      done
+
+      if [[ ${#list_args[@]} -gt 1 ]]; then
         error "Too many arguments for backup list command"
         exit 1
       fi
+
+      local pattern="${list_args[0]:-}"
       list_backups "$pattern"
       ;;
     restore)
-      local backup_file="${1:-}"
-      if [[ -z "$backup_file" ]]; then
+      # Parse verbose flag if it appears after subcommand
+      local restore_args=()
+      while [[ $# -gt 0 ]]; do
+        case "$1" in
+          --verbose | -v)
+            export MEOW_VERBOSE="true"
+            shift
+            ;;
+          *)
+            restore_args+=("$1")
+            shift
+            ;;
+        esac
+      done
+
+      if [[ ${#restore_args[@]} -eq 0 ]]; then
         error "No backup file specified for restore command"
         exit 1
       fi
-      if [[ $# -gt 1 ]]; then
+      if [[ ${#restore_args[@]} -gt 1 ]]; then
         error "Too many arguments for backup restore command"
         exit 1
       fi
+
+      local backup_file="${restore_args[0]}"
       restore_backup "$backup_file"
       ;;
     *)

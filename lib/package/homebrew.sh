@@ -17,17 +17,30 @@ is_homebrew_package_installed() {
 }
 
 setup_homebrew() {
-  step_header "Setting up Homebrew"
+  if [[ "$MEOW_VERBOSE" == "true" ]]; then
+    step_header "Setting up Homebrew"
+  fi
+
   command -v brew >/dev/null 2>&1 || {
-    warning "Homebrew not found. Installing..."
-    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" ||
-      {
-        error_msg "Homebrew installation failed"
-        return 1
-      }
-    eval "$("$(brew --prefix)"/bin/brew shellenv)"
+    if [[ "$MEOW_VERBOSE" == "true" ]]; then
+      warning "Homebrew not found. Installing..."
+      ui_spinner "Installing Homebrew" \
+        --success "Homebrew installed successfully" \
+        --fail "Homebrew installation failed" \
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    else
+      /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" >/dev/null 2>&1
+    fi
+
+    if [[ $? -ne 0 ]]; then
+      return 1
+    fi
+    eval "$("$(brew --prefix)"/bin/brew shellenv)" 2>/dev/null
   }
-  success_tick_msg "Homebrew available"
+
+  if [[ "$MEOW_VERBOSE" == "true" ]]; then
+    success_tick_msg "Homebrew available"
+  fi
 }
 
 install_homebrew_packages() {
@@ -44,9 +57,16 @@ uninstall_homebrew_packages() {
 }
 
 cleanup_homebrew() {
-  step_header "Cleaning Homebrew"
-  ui_spinner "Pruning Homebrew" \
-    --success "Homebrew cache cleaned" \
-    --fail "Homebrew cleanup failed" \
-    brew cleanup --prune=all
+  if [[ "$MEOW_VERBOSE" == "true" ]]; then
+    step_header "Cleaning Homebrew"
+    ui_spinner "Pruning cache and unused packages" \
+      --success "Homebrew cleanup completed" \
+      --fail "Homebrew cleanup failed" \
+      brew cleanup --prune=all
+  else
+    ui_spinner "Cleaning Homebrew" \
+      --success "Homebrew cleanup completed" \
+      --fail "Homebrew cleanup failed" \
+      brew cleanup --prune=all
+  fi
 }

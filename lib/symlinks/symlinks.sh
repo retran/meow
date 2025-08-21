@@ -27,7 +27,7 @@ create_symlink() {
   debug "Attempting to create symlink: $expanded_target -> $expanded_source"
 
   if [[ ! -e "$expanded_source" ]]; then
-    warning "Source $expanded_source does not exist. Skipping symlink for $(basename "$expanded_target")"
+    warning_msg "Source $expanded_source does not exist. Skipping symlink for $(basename "$expanded_target")"
     return 0
   fi
 
@@ -39,7 +39,7 @@ create_symlink() {
   fi
 
   if [[ -L "$expanded_target" && "$(readlink "$expanded_target")" == "$expanded_source" ]]; then
-    success_tick_msg "$(basename "$expanded_target") (already correct)"
+    verbose_success_tick_msg "$(basename "$expanded_target") (already correct)"
     return 0
   fi
 
@@ -57,7 +57,7 @@ create_symlink() {
       backup_path="${expanded_target}.backup.$(date +%Y%m%d_%H%M%S)"
       debug "Creating backup of existing file: $expanded_target -> $backup_path"
       if mv "$expanded_target" "$backup_path"; then
-        info "$(basename "$expanded_target") (backed up to $(basename "$backup_path"))"
+        verbose_info "$(basename "$expanded_target") (backed up to $(basename "$backup_path"))"
       else
         error_msg "Failed to backup existing file at $expanded_target."
         return 1
@@ -66,7 +66,7 @@ create_symlink() {
   fi
 
   if ln -s "$expanded_source" "$expanded_target"; then
-    success_tick_msg "$(basename "$expanded_target") (created)"
+    verbose_success_tick_msg "$(basename "$expanded_target") (created)"
     return 0
   else
     error_msg "Failed to create symlink: $expanded_target -> $expanded_source"
@@ -127,7 +127,7 @@ setup_component_symlinks_from_file() {
     fi
   done
 
-  if [[ $processed_count -gt 0 ]]; then
+  if [[ $processed_count -gt 0 && "$MEOW_VERBOSE" == "true" ]]; then
     info "($processed_count symlinks processed for this OS)"
   fi
 
@@ -135,7 +135,7 @@ setup_component_symlinks_from_file() {
   duration=$((end_time - start_time))
 
   if [[ $failed_count -eq 0 ]]; then
-    success_tick_msg "Symlinks for '$symlink_name' completed (${duration}s)"
+    verbose_success_tick_msg "Symlinks for '$symlink_name' completed (${duration}s)"
     return 0
   else
     error_msg "Symlinks for '$symlink_name' failed with $failed_count failure(s) (${duration}s)"

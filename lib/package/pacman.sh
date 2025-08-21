@@ -17,16 +17,26 @@ is_pacman_package_installed() {
 }
 
 setup_pacman() {
-  step_header "Setting up pacman"
+  if [[ "$MEOW_VERBOSE" == "true" ]]; then
+    step_header "Setting up pacman"
+  fi
+
   command -v pacman >/dev/null 2>&1 || {
-    error_msg "pacman not found"
     return 1
   }
-  ui_spinner "Syncing package database" \
-    --success "pacman database synced" \
-    --fail "Failed to sync pacman database" \
-    sudo pacman -Sy
-  success_tick_msg "pacman ready"
+
+  if [[ "$MEOW_VERBOSE" == "true" ]]; then
+    ui_spinner "Syncing package database" \
+      --success "pacman database synced" \
+      --fail "Failed to sync pacman database" \
+      sudo pacman -Sy
+  else
+    sudo pacman -Sy >/dev/null 2>&1
+  fi
+
+  if [[ "$MEOW_VERBOSE" == "true" ]]; then
+    success_tick_msg "pacman ready"
+  fi
 }
 
 install_pacman_packages() {
@@ -42,9 +52,16 @@ uninstall_pacman_packages() {
 }
 
 cleanup_pacman() {
-  step_header "Cleaning pacman cache"
-  ui_spinner "Cleaning pacman cache" \
-    --success "pacman cache cleaned" \
-    --fail "pacman cache cleanup failed" \
-    sudo pacman -Sc --noconfirm
+  if [[ "$MEOW_VERBOSE" == "true" ]]; then
+    step_header "Cleaning pacman"
+    ui_spinner "Pruning cache" \
+      --success "pacman cleanup completed" \
+      --fail "pacman cleanup failed" \
+      sudo pacman -Sc --noconfirm
+  else
+    ui_spinner "Cleaning pacman" \
+      --success "pacman cleanup completed" \
+      --fail "pacman cleanup failed" \
+      sudo pacman -Sc --noconfirm
+  fi
 }

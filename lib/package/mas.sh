@@ -35,17 +35,34 @@ update_mas_packages() {
 
 uninstall_mas_packages() {
   # mas CLI не поддерживает удаление приложений, поэтому просто информируем об этом
-  step_header "Mac App Store Package Removal ($1)"
+  if [[ "$MEOW_VERBOSE" == "true" ]]; then
+    step_header "Mac App Store Package Removal ($1)"
+  fi
   local package_file="${MEOW_COMPONENTS_DIR}/$1/packages/mas.list"
   if [[ -f "$package_file" ]]; then
     warning "Mac App Store apps cannot be automatically uninstalled via mas CLI"
-    info "Please manually uninstall the following apps through Launchpad or Applications folder:"
-    while IFS= read -r line; do
-      local package_name
-      package_name=$(parse_package_line "$line")
-      [[ -z "$package_name" ]] && continue
-      info "  - $package_name"
-    done <"$package_file"
+    if [[ "$MEOW_VERBOSE" == "true" ]]; then
+      info "Please manually uninstall the following apps through Launchpad or Applications folder:"
+      while IFS= read -r line; do
+        local package_name
+        package_name=$(parse_package_line "$line")
+        [[ -z "$package_name" ]] && continue
+        info "  - $package_name"
+      done <"$package_file"
+    fi
   fi
   return 0
+}
+
+cleanup_mas() {
+  # Add empty line before cleanup for better grouping
+  echo ""
+
+  # Mac App Store doesn't have a built-in cleanup command
+  if [[ "$MEOW_VERBOSE" == "true" ]]; then
+    step_header "Cleaning Mac App Store (no-op)"
+    success_tick_msg "Mac App Store cleanup skipped"
+  else
+    success_tick_msg "Mac App Store cleanup skipped"
+  fi
 }

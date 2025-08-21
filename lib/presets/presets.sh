@@ -77,6 +77,51 @@ get_preset_required_components() {
   yq eval '.required[]?' "$preset_file" 2>/dev/null | grep -v "^null$" || true
 }
 
+# Collect all components and dependencies for preset installation in topological order
+collect_preset_components_for_installation() {
+  local preset="$1"
+  local -n result_ref="$2"
+  local all_components=()
+
+  # Get preset components
+  local preset_components
+  preset_components=$(get_preset_required_components "$preset")
+
+  if [[ -n "$preset_components" ]]; then
+    while IFS= read -r component; do
+      [[ -z "$component" ]] && continue
+      all_components+=("$component")
+    done <<<"$preset_components"
+  fi
+
+  # For each preset component, collect all its dependencies recursively
+  local collected_components=()
+  for component in "${all_components[@]}"; do
+    # Use existing function to collect dependencies
+    local component_and_deps=()
+    collect_all_dependencies_for_installation "$component" component_and_deps
+
+    # Add all components to our list (avoiding duplicates)
+    for comp in "${component_and_deps[@]}"; do
+      local already_added=false
+      for existing in "${collected_components[@]}"; do
+        if [[ "$existing" == "$comp" ]]; then
+          already_added=true
+          break
+        fi
+      done
+      if [[ "$already_added" == "false" ]]; then
+        collected_components+=("$comp")
+      fi
+    done
+  done
+
+  # Now do final topological sort on all collected components
+  local sorted_components=()
+  topological_sort_for_installation collected_components sorted_components
+  result_ref=("${sorted_components[@]}")
+}
+
 # Install a preset (install all required components)
 install_preset() {
   local preset="$1"
@@ -99,27 +144,131 @@ install_preset() {
     return 0
   fi
 
-  header "Installing preset: $preset"
+  # Show beautiful header
+  title "==> Installing Preset: $preset"
 
-  # Install required components
-  step_header "Installing required components"
-  local required_components
-  required_components=$(get_preset_required_components "$preset")
+  # Get all components in topological order
+  local installation_order=()
+  collect_preset_components_for_installation "$preset" installation_order
 
-  if [[ -n "$required_components" ]]; then
-    # Convert components to array and install in one session
-    local components_array=()
-    while IFS= read -r component; do
-      [[ -z "$component" ]] && continue
-      components_array+=("$component")
-    done <<<"$required_components"
+  if [[ ${#installation_order[@]} -eq 0 ]]; then
+    info "No components to install for this preset"
+  else
+    # Show summary of what will be installed
+    local preset_components
+    preset_components=$(get_preset_required_components "$preset")
+    local preset_components_array=()
 
-    if [[ ${#components_array[@]} -gt 0 ]]; then
-      info "Installing ${#components_array[@]} required components: ${components_array[*]}"
-      if ! install_component --auto "${components_array[@]}"; then
-        error "Failed to install required components"
-        return 1
+    if [[ -n "$preset_components" ]]; then
+      while IFS= read -r component; do
+        [[ -z "$component" ]] && continue
+        preset_components_array+=("$component")
+      done <<<"$preset_components"
+    fi
+
+    # Filter out already installed components for the summary
+    local components_to_install=()
+    for comp in "${installation_order[@]}"; do
+      if ! is_component_installed "$comp"; then
+        components_to_install+=("$comp")
       fi
+    done
+
+    # Show what will be installed
+    action_msg "Will install ${#preset_components_array[@]} preset components with dependencies"
+    if [[ ${#components_to_install[@]} -gt 0 ]]; then
+      indent_msg "Total components to install: ${#components_to_install[@]}"
+
+      if [[ "$MEOW_VERBOSE" == "true" ]]; then
+        step_header "Installation order:"
+        for comp in "${installation_order[@]}"; do
+          local status=""
+          if is_component_installed "$comp"; then
+            status=" (already installed)"
+          fi
+
+          local is_preset_component=false
+          for preset_comp in "${preset_components_array[@]}"; do
+            if [[ "$preset_comp" == "$comp" ]]; then
+              is_preset_component=true
+              break
+            fi
+          done
+
+          if [[ "$is_preset_component" == "true" ]]; then
+            verbose_info "  ➤ $comp (preset component)$status"
+          else
+            verbose_info "  ↪ $comp (dependency)$status"
+          fi
+        done
+      else
+        # Show compact summary
+        local deps_list=""
+        local preset_comp_list=""
+        for comp in "${components_to_install[@]}"; do
+          local is_preset_component=false
+          for preset_comp in "${preset_components_array[@]}"; do
+            if [[ "$preset_comp" == "$comp" ]]; then
+              is_preset_component=true
+              break
+            fi
+          done
+
+          if [[ "$is_preset_component" == "true" ]]; then
+            if [[ -z "$preset_comp_list" ]]; then
+              preset_comp_list="$comp"
+            else
+              preset_comp_list="$preset_comp_list, $comp"
+            fi
+          else
+            if [[ -z "$deps_list" ]]; then
+              deps_list="$comp"
+            else
+              deps_list="$deps_list, $comp"
+            fi
+          fi
+        done
+
+        if [[ -n "$preset_comp_list" ]]; then
+          indent_msg "Preset components: $preset_comp_list"
+        fi
+        if [[ -n "$deps_list" ]]; then
+          indent_msg "Dependencies: $deps_list"
+        fi
+      fi
+    else
+      indent_msg "All components already installed"
+    fi
+
+    echo ""
+
+    # Initialize session and tracking array
+    _initialize_session || {
+      error "Session initialization failed"
+      return 1
+    }
+
+    declare -ga MEOW_INSTALLING_COMPONENTS=()
+
+    # Install all components in topological order
+    local install_success=true
+    for component in "${installation_order[@]}"; do
+      # All components installed via preset are automatic (not manual)
+      # Only components installed directly via 'meowctl component install' should be manual
+      if ! _install_single_component "$component" false false; then
+        error "Failed to install component: $component"
+        install_success=false
+        break
+      fi
+    done
+
+    # Cleanup
+    _finalize_session
+    unset MEOW_INSTALLING_COMPONENTS
+
+    if [[ "$install_success" != "true" ]]; then
+      error "Failed to install required components"
+      return 1
     fi
   fi
 
@@ -127,7 +276,6 @@ install_preset() {
   mkdir -p "$MEOW_INSTALLED_PRESETS_DIR"
   ln -s "${MEOW_PRESETS_DIR}/${preset}" "${MEOW_INSTALLED_PRESETS_DIR}/${preset}"
 
-  success_tick_msg "Preset '$preset' installed successfully"
   return 0
 }
 

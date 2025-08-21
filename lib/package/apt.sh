@@ -17,17 +17,26 @@ is_apt_package_installed() {
 }
 
 setup_apt() {
-  step_header "Setting up APT"
+  if [[ "$MEOW_VERBOSE" == "true" ]]; then
+    step_header "Setting up APT"
+  fi
 
   command -v apt-get >/dev/null 2>&1 || {
-    error_msg "apt-get not found"
     return 1
   }
 
-  ui_spinner "Updating APT index" \
-    --success "APT index updated" \
-    --fail "Failed to update APT index" \
-    sudo apt-get update
+  if [[ "$MEOW_VERBOSE" == "true" ]]; then
+    ui_spinner "Updating APT index" \
+      --success "APT index updated" \
+      --fail "Failed to update APT index" \
+      sudo apt-get update
+  else
+    sudo apt-get update >/dev/null 2>&1
+  fi
+
+  if [[ "$MEOW_VERBOSE" == "true" ]]; then
+    success_tick_msg "APT ready"
+  fi
 }
 
 install_apt_packages() {
@@ -44,13 +53,20 @@ uninstall_apt_packages() {
 }
 
 cleanup_apt() {
-  step_header "Cleaning APT"
-  ui_spinner "Autoremove unused packages" \
-    --success "APT autoremove done" \
-    --fail "APT autoremove failed" \
-    sudo apt-get autoremove -y
-  ui_spinner "Cleaning APT cache" \
-    --success "APT cache cleaned" \
-    --fail "APT cache cleanup failed" \
-    sudo apt-get clean
+  if [[ "$MEOW_VERBOSE" == "true" ]]; then
+    step_header "Cleaning APT"
+    ui_spinner "Removing unused packages" \
+      --success "APT autoremove completed" \
+      --fail "APT autoremove failed" \
+      sudo apt-get autoremove -y
+    ui_spinner "Cleaning cache" \
+      --success "APT cleanup completed" \
+      --fail "APT cleanup failed" \
+      sudo apt-get clean
+  else
+    ui_spinner "Cleaning APT" \
+      --success "APT cleanup completed" \
+      --fail "APT cleanup failed" \
+      bash -c "sudo apt-get autoremove -y && sudo apt-get clean"
+  fi
 }

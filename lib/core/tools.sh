@@ -13,7 +13,7 @@ ensure_yq() {
     actual_version=$(yq --version | awk '{print $4}')
 
     if [[ "$actual_version" == "$YQ_VERSION" ]]; then
-      echo "⇒ yq ${YQ_VERSION} is already installed."
+      verbose_info "⇒ yq ${YQ_VERSION} is already installed."
       return 0
     fi
 

@@ -38,6 +38,20 @@ uninstall_npm_packages() {
   uninstall_packages_generic "$1" "npm" "npm uninstall -g" "is_npm_package_installed"
 }
 
-uninstall_npm_packages() {
-  uninstall_packages_generic "$1" "npm" "npm uninstall -g" "is_npm_package_installed"
+cleanup_npm() {
+  # Add empty line before cleanup for better grouping
+  echo ""
+
+  if [[ "$MEOW_VERBOSE" == "true" ]]; then
+    step_header "Cleaning npm cache"
+    ui_spinner "Cleaning npm cache" \
+      --success "npm cache cleaned" \
+      --fail "npm cache cleanup failed" \
+      npm cache clean --force
+  else
+    ui_spinner "Cleaning npm" \
+      --success "npm cache cleaned" \
+      --fail "npm cleanup failed" \
+      npm cache clean --force
+  fi
 }
