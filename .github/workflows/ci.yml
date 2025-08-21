@@ -64,7 +64,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-latest]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -79,11 +79,6 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y shellcheck yamllint yq
-
-      - name: Install dependencies (macOS)
-        if: matrix.os == 'macos-latest'
-        run: |
-          brew install shellcheck yamllint yq shfmt go-task
 
       - name: Run all linting
         run: task lint
