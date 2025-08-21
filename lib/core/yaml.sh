@@ -51,7 +51,7 @@ process_yaml_array() {
   shift 3
 
   local array_content
-  array_content=$(_read_yaml_array "$yaml_file" "$yaml_path") || return 0
+  array_content=$(read_yaml_array "$yaml_file" "$yaml_path") || return 0
 
   while IFS= read -r item; do
     [[ -n "$item" && "$item" != "null" ]] || continue
@@ -71,6 +71,6 @@ yaml_path_exists() {
 
   [[ -f "$yaml_file" ]] || return 1
   local value
-  value=$(_read_yaml_value "$yaml_file" "$yaml_path")
+  value=$(read_yaml_value "$yaml_file" "$yaml_path")
   [[ -n "$value" && "$value" != "null" ]]
 }

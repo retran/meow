@@ -675,7 +675,7 @@ echo "publisher.extension-name" > packages/vscode/my-custom-component.list
 5. **Create symlink configurations** (optional):
 
 ```yaml
-# packages/symlinks/my-custom-component.yaml
+# symlinks/my-custom-component.yaml
 - source: "$MEOW/config/my-tool/config.yaml"
   target: "$HOME/.config/my-tool/config.yaml"
 ```
@@ -786,8 +786,9 @@ system.
 Components can include initialization scripts and configuration files that are automatically set up during installation:
 
 **Symlink Configuration Example:**
+
 ```yaml
-# packages/symlinks/my-component.yaml
+# symlinks/my-component.yaml
 - source: "$MEOW/config/my-tool/config.yaml"
   target: "$HOME/.config/my-tool/config.yaml"
   backup: true
@@ -797,6 +798,7 @@ Components can include initialization scripts and configuration files that are a
 ```
 
 **Shell Integration Example:**
+
 ```bash
 # config/my-component/init.sh
 #!/usr/bin/env bash

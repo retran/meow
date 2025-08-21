@@ -5,12 +5,11 @@ if [[ -n "${_LIB_PACKAGE_PRESET_SYSTEM_SOURCED:-}" ]]; then
 fi
 _LIB_PACKAGE_PRESET_SYSTEM_SOURCED=1
 
+source "${MEOW}/lib/core/defs.sh"
 source "${MEOW}/lib/core/platform.sh"
 source "${MEOW}/lib/core/colors.sh"
 source "${MEOW}/lib/core/ui.sh"
-source "${MEOW}/lib/core/components.sh"
-
-MEOW_INSTALLED_PRESETS_DIR="${MEOW}/.installed/presets"
+source "${MEOW}/lib/components/components.sh"
 
 # Check if preset is installed
 is_preset_installed() {
@@ -62,7 +61,7 @@ is_preset_available() {
 # Get preset file path
 get_preset_file() {
   local preset="$1"
-  echo "${MEOW}/presets/${preset}/preset.yaml"
+  echo "${MEOW_PRESETS_DIR}/${preset}/preset.yaml"
 }
 
 # Get required components for a preset
@@ -126,7 +125,7 @@ install_preset() {
 
   # Mark preset as installed
   mkdir -p "$MEOW_INSTALLED_PRESETS_DIR"
-  ln -sf "../../presets/${preset}/preset.yaml" "${MEOW_INSTALLED_PRESETS_DIR}/${preset}"
+  ln -s "${MEOW_PRESETS_DIR}/${preset}" "${MEOW_INSTALLED_PRESETS_DIR}/${preset}"
 
   success_tick_msg "Preset '$preset' installed successfully"
   return 0
@@ -208,7 +207,7 @@ update_all_installed_components() {
   info "Found ${#components[@]} installed components: ${components[*]}"
 
   # Source components library and update all components
-  source "${MEOW}/lib/core/components.sh"
+  source "${MEOW}/lib/components/components.sh"
   update_component "${components[@]}"
 }
 
@@ -216,7 +215,7 @@ update_all_installed_components() {
 list_presets() {
   header "Available Presets"
 
-  for preset_dir in "${MEOW}/presets"/*; do
+  for preset_dir in "${MEOW_PRESETS_DIR}"/*; do
     [[ ! -d "$preset_dir" ]] && continue
 
     local preset_name

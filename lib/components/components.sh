@@ -5,6 +5,7 @@ if [[ -n "${_LIB_CORE_COMPONENTS_SOURCED:-}" ]]; then
 fi
 _LIB_CORE_COMPONENTS_SOURCED=1
 
+source "${MEOW}/lib/core/defs.sh"
 source "${MEOW}/lib/core/ui.sh"
 source "${MEOW}/lib/core/platform.sh"
 source "${MEOW}/lib/core/session.sh"
@@ -22,12 +23,8 @@ source "${MEOW}/lib/package/npm.sh"
 source "${MEOW}/lib/package/go.sh"
 source "${MEOW}/lib/package/cargo.sh"
 source "${MEOW}/lib/package/vscode.sh"
-source "${MEOW}/lib/package/symlinks.sh"
 
-# Component installation directories
-readonly MEOW_INSTALLED_COMPONENTS_DIR="${MEOW}/.installed/components"
-readonly MEOW_MANUALLY_INSTALLED_COMPONENTS_DIR="${MEOW}/.installed/components-manual"
-MEOW_INSTALLED_PRESETS_DIR="${MEOW}/.installed/presets"
+source "${MEOW}/lib/symlinks/symlinks.sh"
 
 # Check if a component is currently installed
 # Args: $1 - component name
@@ -50,7 +47,7 @@ is_component_manually_installed() {
 # Side effects: Creates symlinks in installation tracking directories
 install_component_symlink() {
   local component="$1"
-  local component_path="${MEOW}/components/${component}/component.yaml"
+  local component_path="${MEOW_COMPONENTS_DIR}/${component}/component.yaml"
 
   if [[ ! -f "$component_path" ]]; then
     echo "Component file not found: $component_path" >&2
@@ -59,12 +56,12 @@ install_component_symlink() {
 
   # Create main installation tracking symlink
   mkdir -p "$MEOW_INSTALLED_COMPONENTS_DIR"
-  ln -sf "../../components/${component}/component.yaml" "${MEOW_INSTALLED_COMPONENTS_DIR}/${component}"
+  ln -s "${MEOW_COMPONENTS_DIR}/${component}" "${MEOW_INSTALLED_COMPONENTS_DIR}/${component}"
 
   # Mark as manually installed if flag is set
   if [[ "${MEOW_COMPONENT_MANUAL_INSTALL:-}" == "true" ]]; then
     mkdir -p "$MEOW_MANUALLY_INSTALLED_COMPONENTS_DIR"
-    ln -sf "../../components/${component}/component.yaml" "${MEOW_MANUALLY_INSTALLED_COMPONENTS_DIR}/${component}"
+    ln -s "${MEOW_COMPONENTS_DIR}/${component}" "${MEOW_MANUALLY_INSTALLED_COMPONENTS_DIR}/${component}"
   fi
 }
 
@@ -75,10 +72,10 @@ remove_component_symlink() {
   local component="$1"
 
   # Remove from installed components
-  rm -f "${MEOW_INSTALLED_COMPONENTS_DIR}/${component}"
+  rm -rf "${MEOW_INSTALLED_COMPONENTS_DIR}/${component}"
 
   # Remove from manually installed components
-  rm -f "${MEOW_MANUALLY_INSTALLED_COMPONENTS_DIR}/${component}"
+  rm -rf "${MEOW_MANUALLY_INSTALLED_COMPONENTS_DIR}/${component}"
 }
 
 # Install all packages defined for a component across applicable package managers
@@ -86,7 +83,7 @@ remove_component_symlink() {
 #   $1 - component name
 install_component_packages() {
   local component="$1"
-  local component_file="${MEOW}/components/${component}/component.yaml"
+  local component_file="${MEOW_COMPONENTS_DIR}/${component}/component.yaml"
 
   if [[ ! -f "$component_file" ]]; then
     error "Component file not found: $component_file"
@@ -136,9 +133,9 @@ _get_component_file_path() {
   local component="$1"
   if [[ "$component" == components/* ]]; then
     local component_name="${component#components/}"
-    echo "${MEOW}/components/${component_name}/component.yaml"
+    echo "${MEOW_COMPONENTS_DIR}/${component_name}/component.yaml"
   else
-    echo "${MEOW}/components/${component}/component.yaml"
+    echo "${MEOW_COMPONENTS_DIR}/${component}/component.yaml"
   fi
 }
 
@@ -246,7 +243,7 @@ update_component_packages() {
 # Returns: 0 if available, 1 if not available
 is_component_available() {
   local component="$1"
-  local component_file="${MEOW}/components/${component}/component.yaml"
+  local component_file="${MEOW_COMPONENTS_DIR}/${component}/component.yaml"
 
   [[ -f "$component_file" ]] || return 1
 
@@ -302,7 +299,7 @@ list_components() {
   local core_components=()
 
   # Collect all components with descriptions
-  for dir in "${MEOW}/components"/*/; do
+  for dir in "$MEOW_COMPONENTS_DIR"/*/; do
     if [[ -d "$dir" && -f "$dir/component.yaml" ]]; then
       local component_name
       component_name=$(basename "$dir")
@@ -336,7 +333,7 @@ list_components() {
 # Returns: 0 if component has repository config, 1 otherwise
 has_component_repository_config() {
   local component="$1"
-  local component_file="${MEOW}/components/${component}/component.yaml"
+  local component_file="${MEOW_COMPONENTS_DIR}/${component}/component.yaml"
 
   [[ -f "$component_file" ]] || return 1
   yaml_path_exists "$component_file" ".repository.url"
@@ -347,7 +344,7 @@ has_component_repository_config() {
 # Returns: Repository URL or empty if not configured
 get_component_repository_url() {
   local component="$1"
-  local component_file="${MEOW}/components/${component}/component.yaml"
+  local component_file="${MEOW_COMPONENTS_DIR}/${component}/component.yaml"
 
   read_yaml_value "$component_file" ".repository.url"
 }
@@ -357,7 +354,7 @@ get_component_repository_url() {
 # Returns: Branch/tag name, defaults to "main" if not specified
 get_component_repository_branch() {
   local component="$1"
-  local component_file="${MEOW}/components/${component}/component.yaml"
+  local component_file="${MEOW_COMPONENTS_DIR}/${component}/component.yaml"
 
   local branch tag
   branch=$(read_yaml_value "$component_file" ".repository.branch")
@@ -377,7 +374,7 @@ get_component_repository_branch() {
 #   $1 - component name
 clone_component_repository() {
   local component="$1"
-  local installed_dir="${MEOW}/.installed/downloads/${component}"
+  local installed_dir="${MEOW_DOWNLOADS_DIR}/${component}"
 
   # Remove existing repository if present
   if [[ -d "$installed_dir" ]]; then
@@ -390,7 +387,7 @@ clone_component_repository() {
   repo_url=$(get_component_repository_url "$component")
   branch_or_tag=$(get_component_repository_branch "$component")
 
-  step_header "Cloning repository to .installed/downloads/$component"
+  step_header "Cloning repository to .downloads/$component"
 
   # Clone repository
   mkdir -p "$(dirname "$installed_dir")"
@@ -408,11 +405,11 @@ clone_component_repository() {
 #   $1 - component name
 update_component_repository() {
   local component="$1"
-  local installed_dir="${MEOW}/.installed/downloads/${component}"
+  local installed_dir="${MEOW_DOWNLOADS_DIR}/${component}"
 
   # Clone if repository doesn't exist
   if [[ ! -d "$installed_dir" ]]; then
-    warning "Repository not found, cloning instead"
+    warning "Repository not found, cloning to .downloads/$component instead"
     clone_component_repository "$component"
     return $?
   fi
@@ -435,7 +432,7 @@ update_component_repository() {
 #   $1 - component name
 cleanup_component_repository() {
   local component="$1"
-  local component_file="${MEOW}/components/${component}/component.yaml"
+  local component_file="${MEOW_COMPONENTS_DIR}/${component}/component.yaml"
 
   [[ -f "$component_file" ]] || return 0
 
@@ -444,7 +441,7 @@ cleanup_component_repository() {
     return 0
   fi
 
-  local repo_dir="${MEOW}/.installed/downloads/${component}"
+  local repo_dir="${MEOW_DOWNLOADS_DIR}/${component}"
 
   # Remove repository directory if it exists
   if [[ -d "${repo_dir}/.git" ]]; then
@@ -459,11 +456,11 @@ cleanup_component_repository() {
   fi
 }
 
-# Execute component initialization script
+# Execute component setup script
 setup_component() {
   local component="$1"
-  local component_dir="${MEOW}/components/${component}"
-  local init_script="${component_dir}/setup.sh"
+  local component_dir="${MEOW_INSTALLED_COMPONENTS_DIR}/${component}"
+  local init_script="${component_dir}/scripts/setup.sh"
 
   if [[ -f "$init_script" ]]; then
     step_header "Running component setup: $component"
@@ -487,9 +484,8 @@ get_components_depending_on() {
     [[ -L "$component_symlink" ]] || continue
 
     local component_name
-    component_name=$(basename "$component_symlink")
 
-    local component_file="${MEOW}/components/${component_name}/component.yaml"
+    local component_file="${component_symlink}/component.yaml"
     [[ -f "$component_file" ]] || continue
 
     # Check if this component depends on the target
@@ -503,6 +499,7 @@ get_components_depending_on() {
       dep="${dep#components/}"
 
       if [[ "$dep" == "$target_component" ]]; then
+        component_name=$(basename "$component_symlink")
         components+=("$component_name")
         break
       fi
@@ -537,7 +534,7 @@ get_presets_depending_on_excluding() {
     [[ "$preset_name" == "$exclude_preset" ]] && continue
 
     # Get preset file path (new format only)
-    local preset_file="${MEOW}/presets/${preset_name}/preset.yaml"
+    local preset_file="${preset_symlink}/preset.yaml"
     [[ -f "$preset_file" ]] || continue
 
     # Check if this preset depends on the target component
@@ -560,7 +557,7 @@ get_presets_depending_on_excluding() {
 get_component_dependencies() {
   local component="$1"
   local -n deps_array_ref="$2" # Use nameref to modify the passed array
-  local component_file="${MEOW}/components/${component}/component.yaml"
+  local component_file="${MEOW_COMPONENTS_DIR}/${component}/component.yaml"
 
   [[ -f "$component_file" ]] || return 1
 
@@ -658,7 +655,7 @@ _install_component_internal() {
   fi
 
   # Check if component exists
-  local component_file="${MEOW}/components/${component}/component.yaml"
+  local component_file="${MEOW_COMPONENTS_DIR}/${component}/component.yaml"
   if [[ ! -f "$component_file" ]]; then
     error "Component '$component' not found"
     return 1
@@ -675,7 +672,7 @@ _install_component_internal() {
     # If manually installing and not already manually tracked, add to manual tracking
     if [[ "$is_manual" == "true" ]] && ! is_component_manually_installed "$component"; then
       mkdir -p "$MEOW_MANUALLY_INSTALLED_COMPONENTS_DIR"
-      ln -sf "../../components/${component}/component.yaml" "${MEOW_MANUALLY_INSTALLED_COMPONENTS_DIR}/${component}"
+      ln -s "${MEOW_COMPONENTS_DIR}/${component}" "${MEOW_MANUALLY_INSTALLED_COMPONENTS_DIR}/${component}"
       success_tick_msg "Component '$component' marked as manually installed"
     else
       warning "Component '$component' is already installed"
@@ -799,7 +796,7 @@ _update_component_internal() {
   fi
 
   # Check if component exists
-  local component_file="${MEOW}/components/${component}/component.yaml"
+  local component_file="${MEOW_COMPONENTS_DIR}/${component}/component.yaml"
   if [[ ! -f "$component_file" ]]; then
     error "Component '$component' not found"
     return 1
@@ -872,7 +869,7 @@ _update_component_internal() {
 #   $1 - component name
 setup_component_symlinks() {
   local component="$1"
-  local component_file="${MEOW}/components/${component}/component.yaml"
+  local component_file="${MEOW_COMPONENTS_DIR}/${component}/component.yaml"
 
   [[ -f "$component_file" ]] || return 0
 

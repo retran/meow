@@ -18,6 +18,7 @@ tests/tmp/
 
 # State
 .installed/
+.downloads/
 
 # Secrets
 private/git/.gitconfig

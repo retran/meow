@@ -9,7 +9,7 @@ source "${MEOW}/lib/core/ui.sh"
 source "${MEOW}/lib/package/homebrew.sh"
 source "${MEOW}/lib/package/apt.sh"
 
-SYMLINKS_DIR="${MEOW}/packages/symlinks"
+SYMLINKS_DIR="${MEOW}/symlinks"
 
 expand_path() {
   local path="$1"

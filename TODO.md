@@ -10,4 +10,5 @@
 [ ] reduce duplication and redundant code after refactoring
 [ ] move configs to components folders
 [ ] fix shellcheck issues
+[ ] fix compatibility
 [ ] review
