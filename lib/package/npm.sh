@@ -6,6 +6,7 @@ fi
 _LIB_PACKAGE_NPM_SOURCED=1
 
 source "${MEOW}/lib/package/common.sh"
+source "${MEOW}/lib/core/dry_run.sh"
 
 _cache_installed_npm_packages() {
   cache_package_list "npm" "npm list -g --depth=0 --parseable 2>/dev/null | sed 's|.*/||;s/@.*//'"
@@ -17,12 +18,23 @@ is_npm_package_installed() {
 }
 
 setup_npm() {
-  step_header "Setting up npm"
+  package_manager_setup_msg "npm"
+
+  # Handle dry-run mode
+  if is_dry_run; then
+    if ! command -v npm >/dev/null 2>&1; then
+      dry_run_info "npm not found - would fail setup"
+    else
+      dry_run_info "npm already available, no setup needed"
+    fi
+    return 0
+  fi
+
   if ! command -v npm >/dev/null 2>&1; then
     error_msg "npm not found"
     return 1
   fi
-  success_tick_msg "npm available"
+  package_manager_ready_msg "npm"
 }
 
 install_npm_packages() {

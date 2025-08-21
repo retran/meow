@@ -2,7 +2,11 @@
 
 [ ] uninstall preset
 
+[ ] component to control neovim keyboard layout
+
 [ ] logs
+    [ ] extract all strings to separate module
+    [ ] colored messages
     [ ] verbose
     [ ] preset operations
     [ ] backup operations

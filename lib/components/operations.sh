@@ -8,6 +8,7 @@ _LIB_COMPONENTS_OPERATIONS_SOURCED=1
 source "${MEOW}/lib/core/defs.sh"
 source "${MEOW}/lib/core/ui.sh"
 source "${MEOW}/lib/core/session.sh"
+source "${MEOW}/lib/core/dry_run.sh"
 
 source "${MEOW}/lib/components/core.sh"
 source "${MEOW}/lib/components/packages.sh"
@@ -102,7 +103,7 @@ install_component() {
     indent_msg "Total components to install: ${#components_to_install[@]}"
 
     if [[ "$MEOW_VERBOSE" == "true" ]]; then
-      step_header "Installation order:"
+      install_order_msg
       for comp in "${multiple_installation_order[@]}"; do
         local status=""
         if is_component_installed "$comp"; then
@@ -257,12 +258,12 @@ _install_single_component() {
 
   # Show component header
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    header "Installing component: $component"
+    component_install_msg "$component"
   else
     if [[ "$is_dependency" == "true" ]]; then
       dependency_msg "Installing component: $component"
     else
-      action_msg "Installing component: $component"
+      component_install_msg "$component"
     fi
   fi
 
@@ -283,7 +284,7 @@ _install_single_component() {
   # Handle repository-based components
   if has_component_repository_config "$component"; then
     if [[ "$MEOW_VERBOSE" == "true" ]]; then
-      step_header "Installing repository-based component: $component"
+      repo_component_install_msg "$component"
     fi
 
     # Clone repository
@@ -299,7 +300,7 @@ _install_single_component() {
   # Run component initialization if available (after component is marked as installed)
   setup_component "$component"
 
-  success_tick_msg "Component '$component' installed successfully"
+  component_installed_msg "$component"
   unset MEOW_COMPONENT_MANUAL_INSTALL
   return 0
 }
@@ -362,7 +363,7 @@ update_component() {
   indent_msg "Total components to update: ${#multiple_update_order[@]}"
 
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    step_header "Update order:"
+    update_order_msg
     for comp in "${multiple_update_order[@]}"; do
       local is_requested_component=false
       for requested_comp in "${components[@]}"; do
@@ -543,12 +544,12 @@ _update_single_component() {
 
   # Show component header
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    header "Updating component: $component"
+    component_update_msg "$component"
   else
     if [[ "$is_dependency" == "true" ]]; then
       dependency_msg "Updating component: $component"
     else
-      action_msg "Updating component: $component"
+      component_update_msg "$component"
     fi
   fi
 
@@ -583,7 +584,7 @@ _update_single_component() {
   # Update symlinks
   setup_component_symlinks "$component"
 
-  success_tick_msg "Component '$component' updated successfully"
+  component_updated_msg "$component"
   return 0
 }
 
@@ -893,10 +894,10 @@ _uninstall_single_component() {
 
   # Show component header
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    title "Uninstalling component: $component"
+    component_uninstall_msg "$component"
   else
     if [[ "$is_requested_component" == "true" ]]; then
-      action_msg "Uninstalling component: $component"
+      component_uninstall_msg "$component"
     else
       dependency_msg "Removing unused dependency: $component"
     fi
@@ -937,7 +938,7 @@ _uninstall_single_component() {
   verbose_success_tick_msg "Component tracking removed"
 
   if [[ "$success" == "true" ]]; then
-    success_tick_msg "Component '$component' uninstalled successfully"
+    component_uninstalled_msg "$component"
     return 0
   else
     return 1

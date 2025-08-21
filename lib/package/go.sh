@@ -6,6 +6,7 @@ fi
 _LIB_PACKAGE_GO_SOURCED=1
 
 source "${MEOW}/lib/package/common.sh"
+source "${MEOW}/lib/core/dry_run.sh"
 
 is_go_package_installed() {
   local pkg="$1"
@@ -16,6 +17,17 @@ is_go_package_installed() {
 
 setup_go() {
   step_header "Setting up Go"
+
+  # Handle dry-run mode
+  if is_dry_run; then
+    if ! command -v go >/dev/null 2>&1; then
+      dry_run_info "Go not found - would fail setup"
+    else
+      dry_run_info "Go already available, ready for package installation"
+    fi
+    return 0
+  fi
+
   command -v go >/dev/null 2>&1 || {
     error_msg "Go not found"
     return 1
@@ -69,6 +81,13 @@ uninstall_go_packages() {
 cleanup_go() {
   # Add empty line before cleanup for better grouping
   echo ""
+
+  # Handle dry-run mode
+  if is_dry_run; then
+    dry_run_info "Go cleanup would be skipped (no cleanup needed)"
+    dry_run_info "  Go modules are cached in GOMODCACHE, managed by Go itself"
+    return 0
+  fi
 
   # Go doesn't have a built-in cleanup command
   if [[ "$MEOW_VERBOSE" == "true" ]]; then

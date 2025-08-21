@@ -7,6 +7,7 @@ _LIB_PACKAGE_COMMON_SOURCED=1
 
 source "${MEOW}/lib/core/ui.sh"
 source "${MEOW}/lib/core/platform.sh"
+source "${MEOW}/lib/core/dry_run.sh"
 
 cache_package_list() {
   local manager="$1"
@@ -93,6 +94,13 @@ install_packages_generic() {
       verbose_success_tick_msg "$package_name (already installed)"
       ((already_installed_count++)) || true
     else
+      # Handle dry-run mode
+      if is_dry_run; then
+        dry_run_package_operation "$manager_name" "install" "$package_name"
+        ((installed_count++)) || true
+        continue
+      fi
+
       if [[ "$MEOW_VERBOSE" == "true" ]]; then
         run_package_operation "$package_name" \
           "install" \
@@ -224,6 +232,13 @@ update_packages_generic() {
         verbose_success_tick_msg "$package_name (up-to-date)"
         ((up_to_date_count++)) || true
       else
+        # Handle dry-run mode
+        if is_dry_run; then
+          dry_run_package_operation "$manager_name" "update" "$package_name"
+          ((updated_count++)) || true
+          continue
+        fi
+
         if [[ "$MEOW_VERBOSE" == "true" ]]; then
           run_package_operation "$package_name" \
             "update" \
@@ -310,6 +325,13 @@ uninstall_packages_generic() {
     [[ -z "$package_name" ]] && continue
 
     if eval "$check_cmd \"$package_name\""; then
+      # Handle dry-run mode
+      if is_dry_run; then
+        dry_run_package_operation "$manager_name" "remove" "$package_name"
+        ((uninstalled_count++)) || true
+        continue
+      fi
+
       if [[ "$MEOW_VERBOSE" == "true" ]]; then
         run_package_operation "$package_name" \
           "uninstall" \

@@ -7,6 +7,7 @@ _LIB_PACKAGE_SYMLINKS_SOURCED=1
 
 source "${MEOW}/lib/core/ui.sh"
 source "${MEOW}/lib/core/defs.sh"
+source "${MEOW}/lib/core/dry_run.sh"
 source "${MEOW}/lib/package/homebrew.sh"
 source "${MEOW}/lib/package/apt.sh"
 
@@ -27,7 +28,34 @@ create_symlink() {
   debug "Attempting to create symlink: $expanded_target -> $expanded_source"
 
   if [[ ! -e "$expanded_source" ]]; then
+    if is_dry_run; then
+      dry_run_info "Would skip symlink (source does not exist): $expanded_target -> $expanded_source"
+      return 0
+    fi
     warning_msg "Source $expanded_source does not exist. Skipping symlink for $(basename "$expanded_target")"
+    return 0
+  fi
+
+  # Check current state and handle dry-run accordingly
+  if [[ -L "$expanded_target" && "$(readlink "$expanded_target")" == "$expanded_source" ]]; then
+    if is_dry_run; then
+      dry_run_info "Symlink already correct: $expanded_target -> $expanded_source"
+    else
+      verbose_success_tick_msg "$(basename "$expanded_target") (already correct)"
+    fi
+    return 0
+  fi
+
+  # Handle dry-run mode for cases where changes would be made
+  if is_dry_run; then
+    if [[ -L "$expanded_target" ]]; then
+      dry_run_info "Would update symlink: $expanded_target -> $expanded_source"
+      dry_run_info "  Current target: $(readlink "$expanded_target")"
+    elif [[ -e "$expanded_target" ]]; then
+      dry_run_info "Would backup existing file and create symlink: $expanded_target -> $expanded_source"
+    else
+      dry_run_info "Would create new symlink: $expanded_target -> $expanded_source"
+    fi
     return 0
   fi
 
@@ -36,11 +64,6 @@ create_symlink() {
   else
     error_msg "Failed to create parent directory for $expanded_target."
     return 1
-  fi
-
-  if [[ -L "$expanded_target" && "$(readlink "$expanded_target")" == "$expanded_source" ]]; then
-    verbose_success_tick_msg "$(basename "$expanded_target") (already correct)"
-    return 0
   fi
 
   if [[ -e "$expanded_target" || -L "$expanded_target" ]]; then
@@ -199,6 +222,11 @@ restore_backup() {
   local original_file="${backup_file%.backup.*}"
 
   echo "Restoring backup: $(basename "$backup_file") -> $(basename "$original_file")"
+
+  # Handle dry-run mode
+  if dry_run_file_operation "restore_file" "$original_file" "$backup_file"; then
+    return 0
+  fi
 
   if [[ -e "$original_file" || -L "$original_file" ]]; then
     echo "  Target location already exists, creating backup of current state"

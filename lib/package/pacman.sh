@@ -6,6 +6,7 @@ fi
 _LIB_PACKAGE_PACMAN_SOURCED=1
 
 source "${MEOW}/lib/package/common.sh"
+source "${MEOW}/lib/core/dry_run.sh"
 
 _cache_installed_pacman_packages() {
   cache_package_list "pacman" "pacman -Qq 2>/dev/null"
@@ -19,6 +20,18 @@ is_pacman_package_installed() {
 setup_pacman() {
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
     step_header "Setting up pacman"
+  fi
+
+  # Handle dry-run mode
+  if is_dry_run; then
+    if ! command -v pacman >/dev/null 2>&1; then
+      dry_run_info "pacman not found - would fail setup"
+    else
+      dry_run_info "Would sync pacman package database"
+      dry_run_info "  Command: sudo pacman -Sy"
+      dry_run_info "  Would refresh available package information"
+    fi
+    return 0
   fi
 
   command -v pacman >/dev/null 2>&1 || {
@@ -52,6 +65,14 @@ uninstall_pacman_packages() {
 }
 
 cleanup_pacman() {
+  # Handle dry-run mode
+  if is_dry_run; then
+    dry_run_info "Would clean pacman package cache"
+    dry_run_info "  Command: sudo pacman -Sc --noconfirm"
+    dry_run_info "  Would remove cached packages not currently installed"
+    return 0
+  fi
+
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
     step_header "Cleaning pacman"
     ui_spinner "Pruning cache" \

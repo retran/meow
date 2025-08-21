@@ -11,6 +11,7 @@ fi
 source "${MEOW}/lib/env/env.sh"
 source "${MEOW}/lib/core/bash.sh"
 source "${MEOW}/lib/core/ui.sh"
+source "${MEOW}/lib/core/dry_run.sh"
 
 show_main_help() {
   title "meowctl - Unified meow control"
@@ -31,11 +32,13 @@ show_main_help() {
   msg ""
   msg "Global Options:"
   msg "  --verbose, -v            Show detailed output"
+  msg "  --dry-run                Show what would be done without making changes"
   msg "  --help, -h               Show help"
   msg ""
   msg "Examples:"
   msg "  $0 install personal"
   msg "  $0 install personal --verbose"
+  msg "  $0 install personal --dry-run"
   msg "  $0 update --pull"
   msg "  $0 list"
   msg "  $0 component list"
@@ -105,13 +108,17 @@ show_component_help() {
   msg "Usage: $0 component <subcommand> [arguments]"
   msg ""
   msg "Subcommands:"
-  msg "  list                           List all available components"
+  msg "  list [--names-only]            List all available components with status"
   msg "  install <component> [...]      Install one or more components"
   msg "  update <component> [...]       Update one or more components and their dependencies"
   msg "  uninstall [--force] <component> Uninstall a component (--force skips dependency checks)"
   msg ""
+  msg "Options for list:"
+  msg "  --names-only                   Show only component names without status"
+  msg ""
   msg "Examples:"
   msg "  $0 component list"
+  msg "  $0 component list --names-only"
   msg "  $0 component install shell-essential"
   msg "  $0 component install shell-essential go-development docker-cli"
   msg "  $0 component uninstall docker-cli"
@@ -153,6 +160,10 @@ parse_global_options() {
     case "$1" in
       --verbose | -v)
         export MEOW_VERBOSE="true"
+        shift
+        ;;
+      --dry-run)
+        export MEOW_DRY_RUN="true"
         shift
         ;;
       --help | -h)
@@ -218,6 +229,11 @@ cmd_component() {
       subcommand="${2:-}"
       shift 2
       ;;
+    --dry-run)
+      export MEOW_DRY_RUN="true"
+      subcommand="${2:-}"
+      shift 2
+      ;;
     --help | -h)
       show_component_help
       exit 0
@@ -236,11 +252,29 @@ cmd_component() {
 
   case "$subcommand" in
     list)
-      if [[ $# -gt 0 ]]; then
-        error "Too many arguments for component list command"
-        exit 1
+      local show_simple="false"
+      while [[ $# -gt 0 ]]; do
+        case "$1" in
+          --names-only)
+            show_simple="true"
+            shift
+            ;;
+          --help | -h)
+            show_component_help
+            exit 0
+            ;;
+          *)
+            error "Unknown option for component list: $1"
+            exit 1
+            ;;
+        esac
+      done
+
+      if [[ "$show_simple" == "true" ]]; then
+        list_components false false  # show_installed_only=false, show_verbose=false
+      else
+        list_components false true   # show_installed_only=false, show_verbose=true
       fi
-      list_components
       ;;
     install)
       # Parse verbose flag if it appears after subcommand
@@ -249,6 +283,10 @@ cmd_component() {
         case "$1" in
           --verbose | -v)
             export MEOW_VERBOSE="true"
+            shift
+            ;;
+          --dry-run)
+            export MEOW_DRY_RUN="true"
             shift
             ;;
           *)
@@ -297,6 +335,10 @@ cmd_component() {
             export MEOW_VERBOSE="true"
             shift
             ;;
+          --dry-run)
+            export MEOW_DRY_RUN="true"
+            shift
+            ;;
           --force)
             force_flag="--force"
             shift
@@ -342,6 +384,10 @@ cmd_component() {
         case "$1" in
           --verbose | -v)
             export MEOW_VERBOSE="true"
+            shift
+            ;;
+          --dry-run)
+            export MEOW_DRY_RUN="true"
             shift
             ;;
           *)
@@ -393,6 +439,10 @@ cmd_install() {
         export MEOW_VERBOSE="true"
         shift
         ;;
+      --dry-run)
+        export MEOW_DRY_RUN="true"
+        shift
+        ;;
       --help | -h)
         show_install_help
         exit 0
@@ -441,6 +491,10 @@ cmd_uninstall() {
     case "$1" in
       --verbose | -v)
         export MEOW_VERBOSE="true"
+        shift
+        ;;
+      --dry-run)
+        export MEOW_DRY_RUN="true"
         shift
         ;;
       --help | -h)
@@ -524,6 +578,10 @@ cmd_update() {
         export MEOW_VERBOSE="true"
         shift
         ;;
+      --dry-run)
+        export MEOW_DRY_RUN="true"
+        shift
+        ;;
       --help | -h)
         show_update_help
         exit 0
@@ -575,15 +633,21 @@ cmd_update() {
       warning "Consider committing or stashing them before updating"
     fi
 
-    ui_spinner "Updating meow repository" \
-      --success "Repository updated successfully" \
-      --fail "Failed to update repository" \
-      git -C "$MEOW" pull
+    # Handle dry-run mode for git pull
+    if dry_run_git_operation "pull" "$MEOW"; then
+      # In dry-run mode, just continue
+      :
+    else
+      ui_spinner "Updating meow repository" \
+        --success "Repository updated successfully" \
+        --fail "Failed to update repository" \
+        git -C "$MEOW" pull
 
-    if [[ $? -ne 0 ]]; then
-      error "You may need to resolve merge conflicts manually"
-      show_final_summary "Update" "$preset" "false"
-      exit 1
+      if [[ $? -ne 0 ]]; then
+        error "You may need to resolve merge conflicts manually"
+        show_final_summary "Update" "$preset" "false"
+        exit 1
+      fi
     fi
   fi
 
@@ -617,6 +681,11 @@ cmd_backup() {
       subcommand="${2:-}"
       shift 2
       ;;
+    --dry-run)
+      export MEOW_DRY_RUN="true"
+      subcommand="${2:-}"
+      shift 2
+      ;;
     --help | -h)
       show_backup_help
       exit 0
@@ -643,6 +712,10 @@ cmd_backup() {
             export MEOW_VERBOSE="true"
             shift
             ;;
+          --dry-run)
+            export MEOW_DRY_RUN="true"
+            shift
+            ;;
           *)
             list_args+=("$1")
             shift
@@ -665,6 +738,10 @@ cmd_backup() {
         case "$1" in
           --verbose | -v)
             export MEOW_VERBOSE="true"
+            shift
+            ;;
+          --dry-run)
+            export MEOW_DRY_RUN="true"
             shift
             ;;
           *)
@@ -748,6 +825,13 @@ main() {
   if [[ -z "$command" ]]; then
     show_main_help
     exit 0
+  fi
+
+  # Show dry-run notice if enabled
+  if [[ "${MEOW_DRY_RUN:-}" == "true" ]]; then
+    echo ""
+    warning "DRY-RUN MODE: No actual changes will be made"
+    echo ""
   fi
 
   shift

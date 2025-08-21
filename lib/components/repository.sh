@@ -8,13 +8,7 @@ _LIB_COMPONENTS_REPOSITORY_SOURCED=1
 source "${MEOW}/lib/core/defs.sh"
 source "${MEOW}/lib/core/ui.sh"
 source "${MEOW}/lib/core/yaml.sh"
-
-# Helper function to read YAML values
-read_yaml_value() {
-  local file="$1"
-  local path="$2"
-  yaml_read "$file" "$path" 2>/dev/null | tr -d '"'
-}
+source "${MEOW}/lib/core/dry_run.sh"
 
 # Check if component has repository configuration
 # Args: $1 - component name
@@ -64,16 +58,20 @@ clone_component_repository() {
   local component="$1"
   local installed_dir="${MEOW_DOWNLOADS_DIR}/${component}"
 
+  # Handle dry-run mode
+  local repo_url branch_or_tag
+  repo_url=$(get_component_repository_url "$component")
+  branch_or_tag=$(get_component_repository_branch "$component")
+
+  if dry_run_git_operation "clone" "$installed_dir" "$repo_url (branch: $branch_or_tag)"; then
+    return 0
+  fi
+
   # Remove existing repository if present
   if [[ -d "$installed_dir" ]]; then
     step_header "Removing existing repository for component: $component"
     rm -rf "$installed_dir"
   fi
-
-  # Get repository configuration
-  local repo_url branch_or_tag
-  repo_url=$(get_component_repository_url "$component")
-  branch_or_tag=$(get_component_repository_branch "$component")
 
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
     step_header "Cloning repository to .downloads/$component"
@@ -96,6 +94,11 @@ clone_component_repository() {
 update_component_repository() {
   local component="$1"
   local installed_dir="${MEOW_DOWNLOADS_DIR}/${component}"
+
+  # Handle dry-run mode
+  if dry_run_git_operation "pull" "$installed_dir"; then
+    return 0
+  fi
 
   # Clone if repository doesn't exist
   if [[ ! -d "$installed_dir" ]]; then

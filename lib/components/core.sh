@@ -7,6 +7,10 @@ _LIB_COMPONENTS_CORE_SOURCED=1
 
 source "${MEOW}/lib/core/defs.sh"
 source "${MEOW}/lib/core/ui.sh"
+source "${MEOW}/lib/core/yaml.sh"
+source "${MEOW}/lib/core/dry_run.sh"
+source "${MEOW}/lib/core/colors.sh"
+source "${MEOW}/lib/core/platform.sh"
 source "${MEOW}/lib/core/platform.sh"
 source "${MEOW}/lib/core/session.sh"
 source "${MEOW}/lib/core/tools.sh"
@@ -40,6 +44,15 @@ install_component_symlink() {
     return 1
   fi
 
+  # Handle dry-run mode
+  if is_dry_run; then
+    dry_run_info "Would create component installation symlink: ${MEOW_INSTALLED_COMPONENTS_DIR}/${component} -> ${MEOW_COMPONENTS_DIR}/${component}"
+    if [[ "${MEOW_COMPONENT_MANUAL_INSTALL:-}" == "true" ]]; then
+      dry_run_info "Would mark as manually installed: ${MEOW_MANUALLY_INSTALLED_COMPONENTS_DIR}/${component} -> ${MEOW_COMPONENTS_DIR}/${component}"
+    fi
+    return 0
+  fi
+
   # Create main installation tracking symlink
   mkdir -p "$MEOW_INSTALLED_COMPONENTS_DIR"
   ln -s "${MEOW_COMPONENTS_DIR}/${component}" "${MEOW_INSTALLED_COMPONENTS_DIR}/${component}"
@@ -56,6 +69,13 @@ install_component_symlink() {
 # Side effects: Removes symlinks from installation tracking directories
 remove_component_symlink() {
   local component="$1"
+
+  # Handle dry-run mode
+  if is_dry_run; then
+    dry_run_info "Would remove component installation symlink: ${MEOW_INSTALLED_COMPONENTS_DIR}/${component}"
+    dry_run_info "Would remove manual installation symlink: ${MEOW_MANUALLY_INSTALLED_COMPONENTS_DIR}/${component}"
+    return 0
+  fi
 
   # Remove from installed components
   rm -rf "${MEOW_INSTALLED_COMPONENTS_DIR:?}/${component}"
@@ -76,7 +96,7 @@ is_component_available() {
     local current_platform
     current_platform=$(get_platform)
     local platforms=""
-    platforms=$(yaml_read "$component_file" ".platforms[]" 2>/dev/null | tr '\n' ' ')
+    platforms=$(read_yaml_array "$component_file" ".platforms[]" 2>/dev/null | tr '\n' ' ')
 
     if [[ -n "$platforms" ]]; then
       local platform_supported=false
@@ -96,8 +116,8 @@ is_component_available() {
 
   # Check dependencies are available
   local dependencies=""
-  if yaml_path_exists "$component_file" ".dependencies"; then
-    dependencies=$(yaml_read "$component_file" ".dependencies[]" 2>/dev/null | tr '\n' ' ')
+  if yaml_path_exists "$component_file" ".depends_on"; then
+    dependencies=$(read_yaml_array "$component_file" ".depends_on[]" 2>/dev/null | tr '\n' ' ')
     for dep in $dependencies; do
       dep=$(echo "$dep" | tr -d '"')
       if [[ -n "$dep" ]] && ! is_component_available "$dep"; then
@@ -112,7 +132,7 @@ is_component_available() {
 # List all available components with their installation status
 list_components() {
   local show_installed_only="${1:-false}"
-  local show_verbose="${2:-false}"
+  local show_verbose="${2:-true}"  # Default to showing statuses
 
   # Check if component directory exists
   if [[ ! -d "$MEOW_COMPONENTS_DIR" ]]; then
@@ -129,10 +149,14 @@ list_components() {
 
     local installed="false"
     local status="available"
+    local status_color="${BLUE}"
+    local status_symbol="○"
 
     if is_component_installed "$component"; then
       installed="true"
       status="installed"
+      status_color="${GREEN}"
+      status_symbol="✓"
     fi
 
     # Skip non-installed components if showing installed only
@@ -142,15 +166,19 @@ list_components() {
 
     # Check if component is available on current platform
     if ! is_component_available "$component"; then
-      status="unavailable"
+      status="incompatible"
+      status_color="${RED}"
+      status_symbol="✗"
     fi
 
     if [[ "$show_verbose" == "true" ]]; then
       local manually_installed=""
       if [[ "$installed" == "true" ]] && is_component_manually_installed "$component"; then
-        manually_installed=" (manual)"
+        status="installed (manual)"
       fi
-      echo "$component - $status$manually_installed"
+
+      # Format as table with colored status
+      printf "${status_color}%-2s${RESET} %-30s ${status_color}%s${RESET}\n" "$status_symbol" "$component" "$status"
     else
       echo "$component"
     fi
@@ -164,12 +192,18 @@ setup_component() {
   local init_script="${component_dir}/scripts/setup.sh"
 
   if [[ -f "$init_script" ]]; then
-    step_header "Running component setup: $component"
+    component_setup_msg "$component"
+
+    # Handle dry-run mode
+    if dry_run_script_execution "$init_script" "setup script for $component"; then
+      return 0
+    fi
+
     [[ ! -x "$init_script" ]] && chmod +x "$init_script"
     if "$init_script" "$component" "$MEOW"; then
       success_tick_msg "Component setup completed successfully"
     else
-      error "Component setup failed"
+      error_msg "Component setup failed"
       return 1
     fi
   fi
@@ -183,13 +217,19 @@ cleanup_component() {
 
   if [[ -f "$cleanup_script" ]]; then
     if [[ "$MEOW_VERBOSE" == "true" ]]; then
-      step_header "Running component cleanup: $component"
+      component_cleanup_msg "$component"
     fi
+
+    # Handle dry-run mode
+    if dry_run_script_execution "$cleanup_script" "cleanup script for $component"; then
+      return 0
+    fi
+
     [[ ! -x "$cleanup_script" ]] && chmod +x "$cleanup_script"
     if "$cleanup_script" "$component" "$MEOW"; then
       verbose_success_tick_msg "Component cleanup completed successfully"
     else
-      warning "Component cleanup failed"
+      warning_msg "Component cleanup failed"
       return 1
     fi
   fi

@@ -6,6 +6,7 @@ fi
 _LIB_PACKAGE_MAS_SOURCED=1
 
 source "${MEOW}/lib/package/common.sh"
+source "${MEOW}/lib/core/dry_run.sh"
 
 _cache_installed_mas_packages() {
   cache_package_list "mas" "mas list | awk -F'[()]' '{print \$2}'"
@@ -18,6 +19,17 @@ is_mas_package_installed() {
 
 setup_mas() {
   step_header "Setting up mas CLI"
+
+  # Handle dry-run mode
+  if is_dry_run; then
+    if ! command -v mas >/dev/null 2>&1; then
+      dry_run_info "mas CLI not found - would warn and fail setup"
+    else
+      dry_run_info "mas CLI already available, no setup needed"
+    fi
+    return 0
+  fi
+
   command -v mas >/dev/null 2>&1 || {
     warning "mas CLI not found"
     return 1
@@ -57,6 +69,13 @@ uninstall_mas_packages() {
 cleanup_mas() {
   # Add empty line before cleanup for better grouping
   echo ""
+
+  # Handle dry-run mode
+  if is_dry_run; then
+    dry_run_info "Mac App Store cleanup would be skipped (no cleanup needed)"
+    dry_run_info "  App Store manages downloads automatically"
+    return 0
+  fi
 
   # Mac App Store doesn't have a built-in cleanup command
   if [[ "$MEOW_VERBOSE" == "true" ]]; then

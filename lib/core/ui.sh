@@ -108,6 +108,64 @@ indent_msg() { _icon_msg_core "${NORMAL}  ↳ " "$@"; }
 verbose_action_msg() { [[ "$MEOW_VERBOSE" == "true" ]] && action_msg "$@"; }
 verbose_success_tick_msg() { [[ "$MEOW_VERBOSE" == "true" ]] && success_tick_msg "$@"; }
 
+# Component operation messages
+component_setup_msg() { _icon_msg_core "${BLUE}➤ Setting up component: ${BOLD}" "$@"; }
+component_cleanup_msg() { _icon_msg_core "${YELLOW}➤ Cleaning up component: ${BOLD}" "$@"; }
+component_install_msg() { _icon_msg_core "${GREEN}➤ Installing component: ${BOLD}" "$@"; }
+component_update_msg() { _icon_msg_core "${CYAN}➤ Updating component: ${BOLD}" "$@"; }
+component_uninstall_msg() { _icon_msg_core "${RED}➤ Uninstalling component: ${BOLD}" "$@"; }
+
+# Component success messages  
+component_installed_msg() { _icon_msg_core "${GREEN}✓ Component installed successfully: ${BOLD}" "$@"; }
+component_updated_msg() { _icon_msg_core "${CYAN}✓ Component updated successfully: ${BOLD}" "$@"; }
+component_uninstalled_msg() { _icon_msg_core "${RED}✓ Component uninstalled successfully: ${BOLD}" "$@"; }
+
+# Package manager messages
+package_manager_setup_msg() { _base_msg "${BLUE}Setting up $1..." "$@"; }
+package_manager_ready_msg() { _icon_msg_core "${GREEN}✓ $1 ready" "$@"; }
+package_manager_cleaning_msg() { _base_msg "${YELLOW}Cleaning $1..." "$@"; }
+package_manager_cleanup_msg() { _icon_msg_core "${YELLOW}✓ $1 cleanup completed" "$@"; }
+
+# Package operation messages
+packages_install_header_msg() { step_header "Installing packages for $1"; }
+packages_update_header_msg() { step_header "Updating packages for $1"; }
+packages_remove_header_msg() { step_header "$1 Package Removal ($2)"; }
+package_already_installed_msg() { verbose_success_tick_msg "$1 (already installed)"; }
+package_up_to_date_msg() { verbose_success_tick_msg "$1 (up-to-date)"; }
+package_created_msg() { verbose_success_tick_msg "$(basename "$1") (created)"; }
+package_already_correct_msg() { verbose_success_tick_msg "$(basename "$1") (already correct)"; }
+
+# Repository operation messages
+repo_removing_msg() { step_header "Removing existing repository for component: $1"; }
+repo_cloning_msg() { step_header "Cloning repository to .downloads/$1"; }
+repo_updating_msg() { step_header "Updating repository for component: $1"; }
+repo_updated_msg() { verbose_success_tick_msg "Repository updated successfully"; }
+repo_cleanup_msg() { step_header "Cleaning up repository for $1"; }
+repo_cleaned_msg() { _icon_msg_core "${GREEN}✓ Repository cleaned up for ${BOLD}" "$@"; }
+
+# Symlink operation messages  
+symlinks_setup_msg() { step_header "Setting up symlinks for component: $1"; }
+symlinks_remove_msg() { step_header "Removing symlinks for component: $1"; }
+symlinks_configured_msg() { verbose_success_tick_msg "Symlinks for '$1' configured successfully"; }
+symlinks_removed_msg() { verbose_success_tick_msg "Symlinks for '$1' removed successfully"; }
+symlinks_completed_msg() { verbose_success_tick_msg "Symlinks for '$1' completed (${2}s)"; }
+
+# Installation process messages
+install_order_msg() { step_header "Installation order:"; }
+update_order_msg() { step_header "Update order:"; }
+uninstall_order_msg() { step_header "Uninstall order:"; }
+repo_component_install_msg() { step_header "Installing repository-based component: $1"; }
+repo_update_msg() { step_header "Updating repository for $1"; }
+packages_update_msg() { step_header "Updating packages for $1"; }
+packages_updated_msg() { verbose_success_tick_msg "Packages updated successfully"; }
+symlinks_restore_msg() { step_header "Removing symlinks and restoring backups"; }
+symlinks_restored_msg() { verbose_success_tick_msg "Symlinks removed and backups restored successfully"; }
+packages_uninstall_msg() { step_header "Uninstalling packages"; }
+packages_uninstalled_msg() { verbose_success_tick_msg "Packages uninstalled successfully"; }
+component_tracking_remove_msg() { step_header "Removing component tracking"; }
+component_tracking_removed_msg() { verbose_success_tick_msg "Component tracking removed"; }
+preset_components_update_msg() { step_header "Updating required components"; }
+
 # Interactive confirmation prompt
 ui_confirm() {
   local message="${1:-Confirm}"

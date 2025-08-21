@@ -6,6 +6,7 @@ fi
 _LIB_PACKAGE_HOMEBREW_SOURCED=1
 
 source "${MEOW}/lib/package/common.sh"
+source "${MEOW}/lib/core/dry_run.sh"
 
 _cache_installed_brew_packages() {
   cache_package_list "brew" "brew list --formula -1 2>/dev/null; brew list --cask -1 2>/dev/null"
@@ -18,7 +19,19 @@ is_homebrew_package_installed() {
 
 setup_homebrew() {
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    step_header "Setting up Homebrew"
+    package_manager_setup_msg "Homebrew"
+  fi
+
+  # Handle dry-run mode
+  if is_dry_run; then
+    if ! command -v brew >/dev/null 2>&1; then
+      dry_run_info "Would install Homebrew using official installation script"
+      dry_run_info "  Script URL: https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh"
+      dry_run_info "  Would configure shell environment after installation"
+    else
+      dry_run_info "Homebrew already available, no setup needed"
+    fi
+    return 0
   fi
 
   command -v brew >/dev/null 2>&1 || {
@@ -39,7 +52,7 @@ setup_homebrew() {
   }
 
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    success_tick_msg "Homebrew available"
+    package_manager_ready_msg "Homebrew"
   fi
 }
 
@@ -57,8 +70,16 @@ uninstall_homebrew_packages() {
 }
 
 cleanup_homebrew() {
+  # Handle dry-run mode
+  if is_dry_run; then
+    dry_run_info "Would clean Homebrew cache and unused packages"
+    dry_run_info "  Command: brew cleanup --prune=all"
+    dry_run_info "  Would remove outdated downloads and old package versions"
+    return 0
+  fi
+
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    step_header "Cleaning Homebrew"
+    package_manager_cleaning_msg "Homebrew"
     ui_spinner "Pruning cache and unused packages" \
       --success "Homebrew cleanup completed" \
       --fail "Homebrew cleanup failed" \

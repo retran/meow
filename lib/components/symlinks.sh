@@ -129,6 +129,35 @@ remove_component_symlinks_from_file() {
   local component="$1"
   local symlink_name="$2"
   local symlinks_file="${MEOW_COMPONENTS_DIR}/${component}/symlinks/${symlink_name}.yaml"
+  
+  # Handle dry-run mode
+  if is_dry_run; then
+    if [[ -f "$symlinks_file" ]]; then
+      local num_symlinks
+      num_symlinks=$(yq 'length' "$symlinks_file" 2>/dev/null || echo "0")
+      if [[ "$num_symlinks" =~ ^[0-9]+$ ]] && [[ "$num_symlinks" -gt 0 ]]; then
+        local i=0
+        while [[ $i -lt $num_symlinks ]]; do
+          local target_path
+          target_path=$(yq ".[$i].target" "$symlinks_file" 2>/dev/null)
+          if [[ "$target_path" != "null" && -n "$target_path" ]]; then
+            local expanded_target
+            expanded_target=$(expand_path "$target_path")
+            if [[ -L "$expanded_target" ]]; then
+              dry_run_info "Would remove symlink: $expanded_target"
+            elif [[ -e "$expanded_target" ]]; then
+              dry_run_info "Would skip non-symlink: $expanded_target"
+            else
+              dry_run_info "Would skip non-existent: $expanded_target"
+            fi
+          fi
+          ((i++))
+        done
+      fi
+    fi
+    return 0
+  fi
+  
   local failed_count=0
   local processed_count=0
   local restored_count=0

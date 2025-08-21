@@ -6,6 +6,7 @@ fi
 _LIB_PACKAGE_APK_SOURCED=1
 
 source "${MEOW}/lib/package/common.sh"
+source "${MEOW}/lib/core/dry_run.sh"
 
 _cache_installed_apk_packages() {
   cache_package_list "apk" "apk info"
@@ -19,6 +20,18 @@ is_apk_package_installed() {
 setup_apk() {
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
     step_header "Setting up apk"
+  fi
+
+  # Handle dry-run mode
+  if is_dry_run; then
+    if ! command -v apk >/dev/null 2>&1; then
+      dry_run_info "apk not found - would fail setup"
+    else
+      dry_run_info "Would update apk package index"
+      dry_run_info "  Command: sudo apk update"
+      dry_run_info "  Would refresh available package information"
+    fi
+    return 0
   fi
 
   command -v apk >/dev/null 2>&1 || {
@@ -52,6 +65,13 @@ uninstall_apk_packages() {
 }
 
 cleanup_apk() {
+  # Handle dry-run mode
+  if is_dry_run; then
+    dry_run_info "apk cleanup would be skipped (no cache to clean)"
+    dry_run_info "  apk uses --no-cache flag so no cleanup needed"
+    return 0
+  fi
+
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
     step_header "Cleaning apk"
     success_tick_msg "apk cleanup completed (no cache to clean)"

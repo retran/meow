@@ -9,6 +9,7 @@ source "${MEOW}/lib/core/defs.sh"
 source "${MEOW}/lib/core/platform.sh"
 source "${MEOW}/lib/core/colors.sh"
 source "${MEOW}/lib/core/ui.sh"
+source "${MEOW}/lib/core/dry_run.sh"
 source "${MEOW}/lib/components/components.sh"
 
 # Check if preset is installed
@@ -273,8 +274,12 @@ install_preset() {
   fi
 
   # Mark preset as installed
-  mkdir -p "$MEOW_INSTALLED_PRESETS_DIR"
-  ln -s "${MEOW_PRESETS_DIR}/${preset}" "${MEOW_INSTALLED_PRESETS_DIR}/${preset}"
+  if is_dry_run; then
+    dry_run_file_operation "create_symlink" "${MEOW_INSTALLED_PRESETS_DIR}/${preset}" "${MEOW_PRESETS_DIR}/${preset}"
+  else
+    mkdir -p "$MEOW_INSTALLED_PRESETS_DIR"
+    ln -s "${MEOW_PRESETS_DIR}/${preset}" "${MEOW_INSTALLED_PRESETS_DIR}/${preset}"
+  fi
 
   return 0
 }

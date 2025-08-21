@@ -6,6 +6,7 @@ fi
 _LIB_PACKAGE_PIPX_SOURCED=1
 
 source "${MEOW}/lib/package/common.sh"
+source "${MEOW}/lib/core/dry_run.sh"
 
 _cache_installed_pipx_packages() {
   cache_package_list "pipx" "pipx list --short 2>/dev/null | awk '{print \$1}'"
@@ -18,6 +19,17 @@ is_pipx_package_installed() {
 
 setup_pipx() {
   step_header "Setting up pipx"
+
+  # Handle dry-run mode
+  if is_dry_run; then
+    if ! command -v pipx >/dev/null 2>&1; then
+      dry_run_info "pipx not found - would fail setup"
+    else
+      dry_run_info "pipx already available, no setup needed"
+    fi
+    return 0
+  fi
+
   if ! command -v pipx >/dev/null 2>&1; then
     error_msg "pipx not found"
     return 1
@@ -40,6 +52,12 @@ uninstall_pipx_packages() {
 cleanup_pipx() {
   # Add empty line before cleanup for better grouping
   echo ""
+
+  # Handle dry-run mode
+  if is_dry_run; then
+    dry_run_info "pipx cleanup would be skipped (no cleanup needed)"
+    return 0
+  fi
 
   # pipx doesn't have a built-in cleanup command, so we'll skip
   if [[ "$MEOW_VERBOSE" == "true" ]]; then

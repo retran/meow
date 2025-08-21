@@ -41,3 +41,18 @@ if [[ -f "/etc/os-release" ]]; then
     IS_DEBIAN_BASED=true
   fi
 fi
+
+# Get normalized platform name for component compatibility
+get_platform() {
+  case "$(uname -s)" in
+    Darwin)
+      echo "macos"
+      ;;
+    Linux)
+      echo "linux"
+      ;;
+    *)
+      echo "unknown"
+      ;;
+  esac
+}
