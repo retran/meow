@@ -1,0 +1,196 @@
+#!/usr/bin/env bash
+
+if [[ -n "${_LIB_COMPONENTS_CORE_SOURCED:-}" ]]; then
+  return 0
+fi
+_LIB_COMPONENTS_CORE_SOURCED=1
+
+source "${MEOW}/lib/core/defs.sh"
+source "${MEOW}/lib/core/ui.sh"
+source "${MEOW}/lib/core/platform.sh"
+source "${MEOW}/lib/core/session.sh"
+source "${MEOW}/lib/core/tools.sh"
+source "${MEOW}/lib/core/yaml.sh"
+
+# Check if a component is currently installed
+# Args: $1 - component name
+# Returns: 0 if installed, 1 if not installed
+is_component_installed() {
+  local component="$1"
+  [[ -L "${MEOW_INSTALLED_COMPONENTS_DIR}/${component}" ]]
+}
+
+# Check if a component was manually installed (vs. auto-installed as dependency)
+# Args: $1 - component name
+# Returns: 0 if manually installed, 1 if not manually installed
+is_component_manually_installed() {
+  local component="$1"
+  [[ -L "${MEOW_MANUALLY_INSTALLED_COMPONENTS_DIR}/${component}" ]]
+}
+
+# Create symlink to mark component as installed
+# Args: $1 - component name
+# Side effects: Creates symlinks in installation tracking directories
+install_component_symlink() {
+  local component="$1"
+  local component_path="${MEOW_COMPONENTS_DIR}/${component}/component.yaml"
+
+  if [[ ! -f "$component_path" ]]; then
+    echo "Component file not found: $component_path" >&2
+    return 1
+  fi
+
+  # Create main installation tracking symlink
+  mkdir -p "$MEOW_INSTALLED_COMPONENTS_DIR"
+  ln -s "${MEOW_COMPONENTS_DIR}/${component}" "${MEOW_INSTALLED_COMPONENTS_DIR}/${component}"
+
+  # Mark as manually installed if flag is set
+  if [[ "${MEOW_COMPONENT_MANUAL_INSTALL:-}" == "true" ]]; then
+    mkdir -p "$MEOW_MANUALLY_INSTALLED_COMPONENTS_DIR"
+    ln -s "${MEOW_COMPONENTS_DIR}/${component}" "${MEOW_MANUALLY_INSTALLED_COMPONENTS_DIR}/${component}"
+  fi
+}
+
+# Remove symlinks to mark component as uninstalled
+# Args: $1 - component name
+# Side effects: Removes symlinks from installation tracking directories
+remove_component_symlink() {
+  local component="$1"
+
+  # Remove from installed components
+  rm -rf "${MEOW_INSTALLED_COMPONENTS_DIR:?}/${component}"
+
+  # Remove from manually installed components
+  rm -rf "${MEOW_MANUALLY_INSTALLED_COMPONENTS_DIR:?}/${component}"
+}
+
+# Check if a component is available on the current platform and has satisfied dependencies
+is_component_available() {
+  local component="$1"
+  local component_file="${MEOW_COMPONENTS_DIR}/${component}/component.yaml"
+
+  [[ -f "$component_file" ]] || return 1
+
+  # Check platform compatibility
+  if yaml_path_exists "$component_file" ".platforms"; then
+    local current_platform
+    current_platform=$(get_platform)
+    local platforms=""
+    platforms=$(yaml_read "$component_file" ".platforms[]" 2>/dev/null | tr '\n' ' ')
+
+    if [[ -n "$platforms" ]]; then
+      local platform_supported=false
+      for platform in $platforms; do
+        platform=$(echo "$platform" | tr -d '"')
+        if [[ "$platform" == "$current_platform" ]]; then
+          platform_supported=true
+          break
+        fi
+      done
+
+      if [[ "$platform_supported" == "false" ]]; then
+        return 1
+      fi
+    fi
+  fi
+
+  # Check dependencies are available
+  local dependencies=""
+  if yaml_path_exists "$component_file" ".dependencies"; then
+    dependencies=$(yaml_read "$component_file" ".dependencies[]" 2>/dev/null | tr '\n' ' ')
+    for dep in $dependencies; do
+      dep=$(echo "$dep" | tr -d '"')
+      if [[ -n "$dep" ]] && ! is_component_available "$dep"; then
+        return 1
+      fi
+    done
+  fi
+
+  return 0
+}
+
+# List all available components with their installation status
+list_components() {
+  local show_installed_only="${1:-false}"
+  local show_verbose="${2:-false}"
+
+  # Check if component directory exists
+  if [[ ! -d "$MEOW_COMPONENTS_DIR" ]]; then
+    error "Components directory not found: $MEOW_COMPONENTS_DIR"
+    return 1
+  fi
+
+  local components=()
+  mapfile -t components < <(find "$MEOW_COMPONENTS_DIR" -maxdepth 1 -type d -exec basename {} \; | sort)
+
+  for component in "${components[@]}"; do
+    # Skip the base components directory itself
+    [[ "$component" == "components" ]] && continue
+
+    local installed="false"
+    local status="available"
+
+    if is_component_installed "$component"; then
+      installed="true"
+      status="installed"
+    fi
+
+    # Skip non-installed components if showing installed only
+    if [[ "$show_installed_only" == "true" && "$installed" == "false" ]]; then
+      continue
+    fi
+
+    # Check if component is available on current platform
+    if ! is_component_available "$component"; then
+      status="unavailable"
+    fi
+
+    if [[ "$show_verbose" == "true" ]]; then
+      local manually_installed=""
+      if [[ "$installed" == "true" ]] && is_component_manually_installed "$component"; then
+        manually_installed=" (manual)"
+      fi
+      echo "$component - $status$manually_installed"
+    else
+      echo "$component"
+    fi
+  done
+}
+
+# Execute component setup script
+setup_component() {
+  local component="$1"
+  local component_dir="${MEOW_INSTALLED_COMPONENTS_DIR}/${component}"
+  local init_script="${component_dir}/scripts/setup.sh"
+
+  if [[ -f "$init_script" ]]; then
+    step_header "Running component setup: $component"
+    [[ ! -x "$init_script" ]] && chmod +x "$init_script"
+    if "$init_script" "$component" "$MEOW"; then
+      success_tick_msg "Component setup completed successfully"
+    else
+      error "Component setup failed"
+      return 1
+    fi
+  fi
+}
+
+# Execute component cleanup script
+cleanup_component() {
+  local component="$1"
+  local component_dir="${MEOW_INSTALLED_COMPONENTS_DIR}/${component}"
+  local cleanup_script="${component_dir}/scripts/cleanup.sh"
+
+  if [[ -f "$cleanup_script" ]]; then
+    if [[ "$MEOW_VERBOSE" == "true" ]]; then
+      step_header "Running component cleanup: $component"
+    fi
+    [[ ! -x "$cleanup_script" ]] && chmod +x "$cleanup_script"
+    if "$cleanup_script" "$component" "$MEOW"; then
+      verbose_success_tick_msg "Component cleanup completed successfully"
+    else
+      warning "Component cleanup failed"
+      return 1
+    fi
+  fi
+}
