@@ -4,11 +4,3 @@ description: >-
 
 depends_on:
   - react-development
-
-npm:
-  packages:
-    - web-development
-
-vscode:
-  packages:
-    - web-development

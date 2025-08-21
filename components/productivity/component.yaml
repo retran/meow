@@ -6,11 +6,3 @@ platforms:
 depends_on:
   - desktop-essential
   - toggl
-
-homebrew:
-  packages:
-    - productivity
-
-mas:
-  packages:
-    - productivity

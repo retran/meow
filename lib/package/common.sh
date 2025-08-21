@@ -42,21 +42,17 @@ parse_package_line() {
 }
 
 install_packages_generic() {
-  local category="$1"
+  local component="$1"
   local manager_name="$2"
   local install_cmd="$3"
   local check_cmd="$4"
 
-  local package_dir_var package_dir
-  package_dir_var="$(echo "$manager_name" | tr '[:lower:]' '[:upper:]')_PACKAGES_DIR"
-  package_dir="${!package_dir_var}"
+  step_header "$(capitalize "$manager_name") Packages ($component)"
 
-  step_header "$(capitalize "$manager_name") Packages ($category)"
-
-  local package_file="${package_dir}/${category}.list"
+  local package_file="${MEOW_COMPONENTS_DIR}/${component}/packages/${manager_name}.list"
   [[ ! -f "$package_file" ]] && {
-    error_msg "Package list not found: $package_file"
-    return 1
+    # Тихо возвращаемся, если файла пакетов нет (это нормально)
+    return 0
   }
 
   local installed_count=0 already_installed_count=0 failed_count=0
@@ -110,22 +106,18 @@ capitalize() {
 }
 
 update_packages_generic() {
-  local category="$1"
+  local component="$1"
   local manager_name="$2"
   local update_cmd="$3"
   local check_cmd="$4"
   local skip_pattern="${5:-}"
 
-  local package_dir_var package_dir
-  package_dir_var="$(echo "$manager_name" | tr '[:lower:]' '[:upper:]')_PACKAGES_DIR"
-  package_dir="${!package_dir_var}"
+  step_header "$(capitalize "$manager_name") Updates ($component)"
 
-  step_header "$(capitalize "$manager_name") Updates ($category)"
-
-  local package_file="${package_dir}/${category}.list"
+  local package_file="${MEOW_COMPONENTS_DIR}/${component}/packages/${manager_name}.list"
   [[ ! -f "$package_file" ]] && {
-    error_msg "Package list not found: $package_file"
-    return 1
+    # Тихо возвращаемся, если файла пакетов нет (это нормально)
+    return 0
   }
 
   local updated_count=0 up_to_date_count=0 failed_count=0

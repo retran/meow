@@ -5,7 +5,3 @@ platforms:
 
 depends_on:
   - desktop-essential
-
-homebrew:
-  packages:
-    - gaming

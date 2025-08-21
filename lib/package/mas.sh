@@ -26,11 +26,9 @@ setup_mas() {
 }
 
 install_mas_packages() {
-  MAS_PACKAGES_DIR="${MEOW}/packages/mas"
   install_packages_generic "$1" "mas" "mas install" "is_mas_package_installed"
 }
 
 update_mas_packages() {
-  MAS_PACKAGES_DIR="${MEOW}/packages/mas"
   update_packages_generic "$1" "mas" "mas upgrade" "is_mas_package_installed"
 }

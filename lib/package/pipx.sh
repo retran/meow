@@ -7,8 +7,6 @@ _LIB_PACKAGE_PIPX_SOURCED=1
 
 source "${MEOW}/lib/package/common.sh"
 
-PIPX_PACKAGES_DIR="${MEOW}/packages/pipx"
-
 _cache_installed_pipx_packages() {
   cache_package_list "pipx" "pipx list --short 2>/dev/null | awk '{print \$1}'"
 }

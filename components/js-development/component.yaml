@@ -5,11 +5,3 @@ description: >-
 depends_on:
   - core-development
   - node
-
-npm:
-  packages:
-    - js-development
-
-vscode:
-  packages:
-    - js-development

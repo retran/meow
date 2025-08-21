@@ -2,27 +2,3 @@ description: "Go development tools and environment"
 
 depends_on:
   - core-development
-
-homebrew:
-  packages:
-    - go-development
-
-apk:
-  packages:
-    - go-development
-
-apt:
-  packages:
-    - go-development
-
-pacman:
-  packages:
-    - go-development
-
-go:
-  packages:
-    - go-development
-
-vscode:
-  packages:
-    - go-development

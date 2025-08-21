@@ -31,12 +31,10 @@ setup_homebrew() {
 }
 
 install_homebrew_packages() {
-  HOMEBREW_PACKAGES_DIR="${MEOW}/packages/homebrew"
   install_packages_generic "$1" "homebrew" "brew install" "is_homebrew_package_installed"
 }
 
 update_homebrew_packages() {
-  HOMEBREW_PACKAGES_DIR="${MEOW}/packages/homebrew"
   update_packages_generic "$1" "homebrew" "brew upgrade" "is_homebrew_package_installed" \
     "(already installed|latest version is already installed)"
 }

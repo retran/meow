@@ -5,15 +5,3 @@ platforms:
 
 depends_on:
   - shell-essential
-
-apk:
-  packages:
-    - docker-cli
-
-apt:
-  packages:
-    - docker-cli
-
-pacman:
-  packages:
-    - docker-cli

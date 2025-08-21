@@ -24,12 +24,10 @@ setup_go() {
 }
 
 install_go_packages() {
-  GO_PACKAGES_DIR="${MEOW}/packages/go"
   install_packages_generic "$1" "go" "go install" "is_go_package_installed"
 }
 
 update_go_packages() {
-  GO_PACKAGES_DIR="${MEOW}/packages/go"
   update_packages_generic "$1" "go" "go install" "is_go_package_installed" \
     "(go: installing executables|go: no module dependencies)"
 }

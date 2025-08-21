@@ -1,17 +1,1 @@
 description: "Node.js and npm environment"
-
-homebrew:
-  packages:
-    - node
-
-apt:
-  packages:
-    - node
-
-apk:
-  packages:
-    - node
-
-pacman:
-  packages:
-    - node

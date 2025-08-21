@@ -5,11 +5,3 @@ platforms:
 
 depends_on:
   - desktop-essential
-
-homebrew:
-  packages:
-    - media
-
-mas:
-  packages:
-    - media

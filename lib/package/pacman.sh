@@ -30,12 +30,10 @@ setup_pacman() {
 }
 
 install_pacman_packages() {
-  PACMAN_PACKAGES_DIR="${MEOW}/packages/pacman"
   install_packages_generic "$1" "pacman" "sudo pacman -S --noconfirm" "is_pacman_package_installed"
 }
 
 update_pacman_packages() {
-  PACMAN_PACKAGES_DIR="${MEOW}/packages/pacman"
   update_packages_generic "$1" "pacman" "sudo pacman -Syu --noconfirm" "is_pacman_package_installed"
 }
 

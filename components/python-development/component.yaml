@@ -4,22 +4,3 @@ description: >-
 depends_on:
   - core-development
 
-homebrew:
-  packages:
-    - python-development
-
-apk:
-  packages:
-    - python-development
-
-apt:
-  packages:
-    - python-development
-
-pacman:
-  packages:
-    - python-development
-
-vscode:
-  packages:
-    - python-development

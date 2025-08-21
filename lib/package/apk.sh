@@ -30,12 +30,10 @@ setup_apk() {
 }
 
 install_apk_packages() {
-  APK_PACKAGES_DIR="${MEOW}/packages/apk"
   install_packages_generic "$1" "apk" "sudo apk add --no-cache" "is_apk_package_installed"
 }
 
 update_apk_packages() {
-  APK_PACKAGES_DIR="${MEOW}/packages/apk"
   update_packages_generic "$1" "apk" "sudo apk add --no-cache --upgrade" "is_apk_package_installed"
 }
 

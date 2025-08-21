@@ -3,9 +3,5 @@ description: "Hammerspoon automation framework for plugins"
 platforms:
   - macos
 
-homebrew:
-  packages:
-    - hammerspoon
-
 symlinks:
   - hammerspoon

@@ -1,17 +1,1 @@
 description: "Python package installer"
-
-homebrew:
-  packages:
-    - pipx
-
-apt:
-  packages:
-    - pipx
-
-apk:
-  packages:
-    - pipx
-
-pacman:
-  packages:
-    - pipx

@@ -83,28 +83,35 @@ remove_component_symlink() {
 #   $1 - component name
 install_component_packages() {
   local component="$1"
-  local component_file="${MEOW_COMPONENTS_DIR}/${component}/component.yaml"
+  local component_dir="${MEOW_COMPONENTS_DIR}/${component}"
+  local packages_dir="${component_dir}/packages"
 
-  if [[ ! -f "$component_file" ]]; then
-    error "Component file not found: $component_file"
+  if [[ ! -d "$component_dir" ]]; then
+    error "Component directory not found: $component_dir"
     return 1
+  fi
+
+  # Проверяем, есть ли папка packages
+  if [[ ! -d "$packages_dir" ]]; then
+    # Если нет папки packages, значит компонент не требует установки пакетов
+    return 0
   fi
 
   # Install packages for platform-specific package managers
   if [[ "$IS_MACOS" == "true" ]]; then
-    _install_packages_for_manager homebrew "$component_file"
-    _install_packages_for_manager mas "$component_file"
+    _install_packages_for_component_manager "$component" "homebrew"
+    _install_packages_for_component_manager "$component" "mas"
   elif [[ "$IS_DEBIAN_BASED" == "true" ]]; then
-    _install_packages_for_manager apt "$component_file"
+    _install_packages_for_component_manager "$component" "apt"
   elif [[ "$IS_ALPINE" == "true" ]]; then
-    _install_packages_for_manager apk "$component_file"
+    _install_packages_for_component_manager "$component" "apk"
   elif [[ "$IS_ARCH" == "true" ]]; then
-    _install_packages_for_manager pacman "$component_file"
+    _install_packages_for_component_manager "$component" "pacman"
   fi
 
   # Install packages for cross-platform managers
   for mgr in pipx npm go cargo vscode; do
-    _install_packages_for_manager "$mgr" "$component_file"
+    _install_packages_for_component_manager "$component" "$mgr"
   done
 
   return 0
@@ -112,18 +119,22 @@ install_component_packages() {
 
 # Helper: install packages for a specific package manager
 # Args:
-#   $1 - package manager name
-#   $2 - component file path
-_install_packages_for_manager() {
-  local mgr="$1"
-  local component_file="$2"
+#   $1 - component name
+#   $2 - package manager name
+_install_packages_for_component_manager() {
+  local component="$1"
+  local mgr="$2"
   local fn="install_${mgr}_packages"
+  local packages_file="${MEOW_COMPONENTS_DIR}/${component}/packages/${mgr}.list"
 
   # Skip if package manager install function doesn't exist
   declare -F "$fn" >/dev/null || return
 
-  # Process package categories using YAML helper
-  process_yaml_array "$component_file" ".${mgr}.packages[]?" "$fn"
+  # Skip if package file doesn't exist
+  [[ -f "$packages_file" ]] || return
+
+  # Call the install function with component name
+  "$fn" "$component"
 }
 
 # Helper: Get normalized path to component file
@@ -148,12 +159,15 @@ _update_package_manager() {
   local manager_name="$1"
   local cli_command="$2"
   local component="$3"
-
-  local component_file
-  component_file=$(_get_component_file_path "$component")
+  local packages_file="${MEOW_COMPONENTS_DIR}/${component}/packages/${manager_name}.list"
 
   # Skip if package manager CLI is not available
   if ! command -v "$cli_command" >/dev/null 2>&1; then
+    return 0
+  fi
+
+  # Skip if package file doesn't exist
+  if [[ ! -f "$packages_file" ]]; then
     return 0
   fi
 
@@ -164,30 +178,8 @@ _update_package_manager() {
     return 1
   fi
 
-  # Track update status
-  local had_updates=false
-  local had_errors=false
-
-  # Process each package category with the update function
-  local array_content
-  array_content=$(read_yaml_array "$component_file" ".${manager_name}.packages[]?") || return 0
-
-  while IFS= read -r category; do
-    [[ -n "$category" && "$category" != "null" ]] || continue
-    "$update_function_name" "$category"
-    local status=$?
-    [[ $status -eq 1 ]] && had_errors=true
-    [[ $status -eq 0 ]] && had_updates=true
-  done < <(printf '%s\n' "$array_content")
-
-  # Return appropriate status code
-  if $had_errors; then
-    return 1
-  elif $had_updates; then
-    return 0
-  else
-    return 0
-  fi
+  # Call the update function with component name
+  "$update_function_name" "$component"
 }
 
 # Update all packages for a component across all applicable package managers

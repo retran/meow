@@ -1,8 +1,0 @@
-description: "Docker for macOS desktop environment"
-
-depends_on:
-  - components/desktop-essential
-
-homebrew:
-  packages:
-    - docker-desktop

@@ -5,26 +5,6 @@ depends_on:
   - pipx
   - node
 
-homebrew:
-  packages:
-    - shell-essential
-
-apt:
-  packages:
-    - shell-essential
-
-apk:
-  packages:
-    - shell-essential
-
-pacman:
-  packages:
-    - shell-essential
-
-npm:
-  packages:
-    - shell-essential
-
 symlinks:
   - git
   - tmux

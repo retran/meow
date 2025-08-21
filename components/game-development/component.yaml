@@ -6,11 +6,3 @@ platforms:
 depends_on:
   - core-development
   - lua-development
-
-homebrew:
-  packages:
-    - game-development
-
-vscode:
-  packages:
-    - game-development

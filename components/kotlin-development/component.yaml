@@ -2,23 +2,3 @@ description: "Kotlin/Java development tools and environment"
 
 depends_on:
   - core-development
-
-homebrew:
-  packages:
-    - kotlin-development
-
-apk:
-  packages:
-    - kotlin-development
-
-apt:
-  packages:
-    - kotlin-development
-
-pacman:
-  packages:
-    - kotlin-development
-
-vscode:
-  packages:
-    - kotlin-development

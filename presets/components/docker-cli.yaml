@@ -1,9 +1,0 @@
-description: "Docker CLI tools"
-
-depends_on:
-  - components/shell-essential
-
-apk:
-  packages:
-    - docker-cli
-

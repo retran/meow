@@ -26,12 +26,10 @@ setup_npm() {
 }
 
 install_npm_packages() {
-  NPM_PACKAGES_DIR="${MEOW}/packages/npm"
   install_packages_generic "$1" "npm" "npm install -g" "is_npm_package_installed"
 }
 
 update_npm_packages() {
-  NPM_PACKAGES_DIR="${MEOW}/packages/npm"
   update_packages_generic "$1" "npm" "npm update -g" "is_npm_package_installed" \
     "(up to date|already at the latest version)"
 }

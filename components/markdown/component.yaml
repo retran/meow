@@ -4,7 +4,3 @@ description: >-
 
 depends_on:
   - core-development
-
-npm:
-  packages:
-    - markdown

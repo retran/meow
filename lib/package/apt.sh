@@ -7,8 +7,6 @@ _LIB_PACKAGE_APT_SOURCED=1
 
 source "${MEOW}/lib/package/common.sh"
 
-APT_PACKAGES_DIR="${MEOW}/packages/apt"
-
 _cache_installed_apt_packages() {
   cache_package_list "apt" "dpkg-query -f='\${binary:Package}\\n' -W 2>/dev/null"
 }
