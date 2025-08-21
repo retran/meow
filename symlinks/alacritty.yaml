@@ -1,2 +1,0 @@
-- source: "$MEOW/config/alacritty/alacritty.toml"
-  target: "$HOME/.config/alacritty/alacritty.toml"

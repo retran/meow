@@ -722,11 +722,11 @@ _install_component_internal() {
   # Run component initialization if available
   setup_component "$component"
 
-  # Setup symlinks
-  setup_component_symlinks "$component"
-
-  # Mark component as installed
+  # Mark component as installed (create symlink in .installed/components/)
   install_component_symlink "$component"
+
+  # Setup symlinks (after component is available in .installed)
+  setup_component_symlinks "$component"
 
   success_tick_msg "Component '$component' installed successfully"
   unset MEOW_COMPONENT_MANUAL_INSTALL

@@ -1,4 +1,0 @@
-- source: "$MEOW/config/shells/bash/.bashrc"
-  target: "$HOME/.bashrc"
-- source: "$MEOW/config/shells/bash/.fzf.bash"
-  target: "$HOME/.fzf.bash"

@@ -1,2 +1,2 @@
-- source: "$MEOW/config/tmux/.tmux.conf"
+- source: "$MEOW/.installed/components/shell-essential/config/tmux/.tmux.conf"
   target: "$HOME/.tmux.conf"

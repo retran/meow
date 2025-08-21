@@ -2,12 +2,10 @@
 
 [ ] reimplement uninstallation
 
+[ ] taps
+
 [ ] test in container
 [ ] reduce duplication and redundant code after refactoring
-
-[ ] move configs to components folders
-
-[ ] taps
 
 [ ] fix shellcheck issues
 [ ] fix compatibility

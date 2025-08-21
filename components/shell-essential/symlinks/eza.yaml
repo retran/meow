@@ -1,2 +1,2 @@
-- source: "$MEOW/config/eza/config"
+- source: "$MEOW/.installed/components/shell-essential/config/eza/config"
   target: "$HOME/.config/eza/config"
