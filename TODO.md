@@ -1,6 +1,15 @@
 # To Do
 
-[ ] messaging
+[ ] uninstall preset
+
+[ ] logs
+    [ ] verbose
+    [ ] preset operations
+    [ ] backup operations
+    [ ] errors
+    [ ] git operations
+
+[ ] checking mermaidjs
 
 [ ] test in container
 [ ] reduce duplication and redundant code after refactoring

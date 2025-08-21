@@ -51,7 +51,7 @@ _print_temp_output_if_exists() {
         content "$line"
       done
       local line_count
-      line_count=$(wc -l < "$temp_file")
+      line_count=$(wc -l <"$temp_file")
       if [[ $line_count -gt 3 ]]; then
         info "... ($((line_count - 3)) more lines hidden. Run with --verbose for full output)"
       fi
@@ -374,7 +374,10 @@ show_final_summary() {
 
   if [[ ${#summary_parts[@]} -gt 0 ]]; then
     local summary_text
-    summary_text=$(IFS=", "; echo "${summary_parts[*]}")
+    summary_text=$(
+      IFS=", "
+      echo "${summary_parts[*]}"
+    )
     if [[ $MEOW_ERROR_COUNT -gt 0 ]]; then
       error "Summary: $summary_text"
     else

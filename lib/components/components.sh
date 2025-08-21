@@ -886,7 +886,7 @@ install_component() {
 
     if [[ "$is_requested_component" == "false" ]]; then
       comp_is_dependency=true
-      comp_is_manual="false"  # Dependencies are always automatic
+      comp_is_manual="false" # Dependencies are always automatic
     fi
 
     if ! _install_single_component "$component" "$comp_is_manual" "$comp_is_dependency"; then
@@ -1098,7 +1098,7 @@ _install_component_internal() {
 
     if [[ "$comp" != "$component" ]]; then
       comp_is_dependency=true
-      comp_is_manual="false"  # Dependencies are always automatic
+      comp_is_manual="false" # Dependencies are always automatic
     fi
 
     if ! _install_single_component "$comp" "$comp_is_manual" "$comp_is_dependency"; then
@@ -1648,11 +1648,11 @@ collect_multiple_components_for_uninstall() {
   # Iteratively collect removable dependencies
   local previous_count=0
   local current_count=${#collected_components[@]}
-  
+
   while [[ $current_count -gt $previous_count ]]; do
     previous_count=$current_count
     dependencies_to_check=()
-    
+
     # Collect dependencies of all currently collected components
     for component in "${collected_components[@]}"; do
       local dependencies=()
@@ -1704,7 +1704,7 @@ collect_multiple_components_for_uninstall() {
         fi
       done
     fi
-    
+
     current_count=${#collected_components[@]}
   done
 
@@ -2092,7 +2092,6 @@ filter_removable_dependencies() {
       local dep_copy="$dep"
       local should_keep=true
 
-
       if [[ -n "$dep_copy" ]]; then
         # Don't remove if manually installed
         if is_component_manually_installed "$dep_copy"; then
@@ -2171,7 +2170,6 @@ filter_removable_dependencies_with_context() {
     for dep in "${candidates[@]}"; do
       local dep_copy="$dep"
       local should_keep=true
-
 
       if [[ -n "$dep_copy" ]]; then
         # Don't remove if manually installed
