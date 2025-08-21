@@ -39,6 +39,10 @@ update_apt_packages() {
     "is_apt_package_installed" "(is already the newest version|not upgraded)"
 }
 
+uninstall_apt_packages() {
+  uninstall_packages_generic "$1" "apt" "sudo apt-get remove -y" "is_apt_package_installed"
+}
+
 cleanup_apt() {
   step_header "Cleaning APT"
   ui_spinner "Autoremove unused packages" \

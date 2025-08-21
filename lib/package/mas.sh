@@ -32,3 +32,20 @@ install_mas_packages() {
 update_mas_packages() {
   update_packages_generic "$1" "mas" "mas upgrade" "is_mas_package_installed"
 }
+
+uninstall_mas_packages() {
+  # mas CLI не поддерживает удаление приложений, поэтому просто информируем об этом
+  step_header "Mac App Store Package Removal ($1)"
+  local package_file="${MEOW_COMPONENTS_DIR}/$1/packages/mas.list"
+  if [[ -f "$package_file" ]]; then
+    warning "Mac App Store apps cannot be automatically uninstalled via mas CLI"
+    info "Please manually uninstall the following apps through Launchpad or Applications folder:"
+    while IFS= read -r line; do
+      local package_name
+      package_name=$(parse_package_line "$line")
+      [[ -z "$package_name" ]] && continue
+      info "  - $package_name"
+    done <"$package_file"
+  fi
+  return 0
+}

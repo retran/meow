@@ -37,6 +37,10 @@ update_apk_packages() {
   update_packages_generic "$1" "apk" "sudo apk add --no-cache --upgrade" "is_apk_package_installed"
 }
 
+uninstall_apk_packages() {
+  uninstall_packages_generic "$1" "apk" "sudo apk del" "is_apk_package_installed"
+}
+
 cleanup_apk() {
   step_header "Cleaning apk (no-op)"
   success_tick_msg "apk cleanup skipped"

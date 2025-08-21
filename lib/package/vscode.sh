@@ -49,3 +49,14 @@ update_vscode_packages() {
 
   update_packages_generic "$component" "vscode" "code --install-extension" "is_vscode_package_installed"
 }
+
+uninstall_vscode_packages() {
+  local component="$1"
+
+  if ! command -v code >/dev/null 2>&1; then
+    info "VS Code CLI not found, skipping VS Code extension uninstall"
+    return 0
+  fi
+
+  uninstall_packages_generic "$component" "vscode" "code --uninstall-extension" "is_vscode_package_installed"
+}

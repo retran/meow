@@ -106,13 +106,14 @@ show_component_help() {
   msg "  list                           List all available components"
   msg "  install <component> [...]      Install one or more components"
   msg "  update <component> [...]       Update one or more components and their dependencies"
-  msg "  uninstall <component>          Uninstall a component"
+  msg "  uninstall [--force] <component> Uninstall a component (--force skips dependency checks)"
   msg ""
   msg "Examples:"
   msg "  $0 component list"
   msg "  $0 component install shell-essential"
   msg "  $0 component install shell-essential go-development docker-cli"
   msg "  $0 component uninstall docker-cli"
+  msg "  $0 component uninstall --force docker-cli"
   msg "  $0 component update go-development"
   msg "  $0 component update shell-essential go-development"
   msg ""
@@ -242,19 +243,38 @@ cmd_component() {
       install_component --manual "$@"
       ;;
     uninstall)
-      local component="${1:-}"
+      local force_flag=""
+      local component=""
+
+      # Parse arguments
+      while [[ $# -gt 0 ]]; do
+        case "$1" in
+          --force)
+            force_flag="--force"
+            shift
+            ;;
+          *)
+            if [[ -z "$component" ]]; then
+              component="$1"
+            else
+              error "Too many arguments for component uninstall command"
+              exit 1
+            fi
+            shift
+            ;;
+        esac
+      done
+
       if [[ -z "$component" ]]; then
         error "No component specified for uninstall command"
         exit 1
       fi
-      if [[ $# -gt 1 ]]; then
-        error "Too many arguments for component uninstall command"
-        exit 1
-      fi
+
       if ! validate_component_name "$component"; then
         exit 1
       fi
-      uninstall_component "$component"
+
+      uninstall_component "$component" $force_flag
       ;;
     update)
       if [[ $# -eq 0 ]]; then

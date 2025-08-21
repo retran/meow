@@ -74,7 +74,7 @@ install_packages_generic() {
         "Successfully installed $package_name" \
         "Failed to install $package_name" \
         "" \
-        "$install_cmd" "$package_name"
+        $install_cmd "$package_name"
       if [[ $? -eq 0 ]]; then
         ((installed_count++)) || true
       else
@@ -140,7 +140,7 @@ update_packages_generic() {
           "Successfully updated $package_name" \
           "Failed to update $package_name" \
           "" \
-          "$update_cmd" "$package_name"
+          $update_cmd "$package_name"
         if [[ $? -eq 0 ]]; then
           ((updated_count++)) || true
         else
@@ -163,6 +163,62 @@ update_packages_generic() {
     fi
   else
     error_msg "Failed to update $failed_count packages (${duration}s)"
+    return 1
+  fi
+}
+
+uninstall_packages_generic() {
+  local component="$1"
+  local manager_name="$2"
+  local uninstall_cmd="$3"
+  local check_cmd="$4"
+
+  step_header "$(capitalize "$manager_name") Package Removal ($component)"
+
+  local package_file="${MEOW_COMPONENTS_DIR}/${component}/packages/${manager_name}.list"
+  [[ ! -f "$package_file" ]] && {
+    # Тихо возвращаемся, если файла пакетов нет (это нормально)
+    return 0
+  }
+
+  local uninstalled_count=0 not_installed_count=0 failed_count=0
+  local start_time
+  start_time=$(date +%s)
+
+  while IFS= read -r line; do
+    local package_name
+    package_name=$(parse_package_line "$line")
+    [[ -z "$package_name" ]] && continue
+
+    if eval "$check_cmd \"$package_name\""; then
+      run_package_operation "$package_name" \
+        "uninstall" \
+        "Uninstalling $package_name" \
+        "Successfully uninstalled $package_name" \
+        "Failed to uninstall $package_name" \
+        "" \
+        $uninstall_cmd "$package_name"
+      if [[ $? -eq 0 ]]; then
+        ((uninstalled_count++)) || true
+      else
+        ((failed_count++)) || true
+      fi
+    else
+      info "$package_name (not installed, skipping)"
+      ((not_installed_count++)) || true
+    fi
+  done <"$package_file"
+
+  local duration=$(($(date +%s) - start_time))
+  if ((failed_count == 0)); then
+    if ((uninstalled_count > 0)); then
+      success_tick_msg "Uninstalled $uninstalled_count packages ($not_installed_count not installed) (${duration}s)"
+    else
+      success_tick_msg "No packages to uninstall ($not_installed_count not installed) (${duration}s)"
+    fi
+    return 0
+  else
+    warning "Completed with $failed_count error(s) (${duration}s)"
     return 1
   fi
 }

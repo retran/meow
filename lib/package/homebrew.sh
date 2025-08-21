@@ -39,6 +39,10 @@ update_homebrew_packages() {
     "(already installed|latest version is already installed)"
 }
 
+uninstall_homebrew_packages() {
+  uninstall_packages_generic "$1" "homebrew" "brew uninstall" "is_homebrew_package_installed"
+}
+
 cleanup_homebrew() {
   step_header "Cleaning Homebrew"
   ui_spinner "Pruning Homebrew" \

@@ -72,10 +72,10 @@ remove_component_symlink() {
   local component="$1"
 
   # Remove from installed components
-  rm -rf "${MEOW_INSTALLED_COMPONENTS_DIR}/${component}"
+  rm -rf "${MEOW_INSTALLED_COMPONENTS_DIR:?}/${component}"
 
   # Remove from manually installed components
-  rm -rf "${MEOW_MANUALLY_INSTALLED_COMPONENTS_DIR}/${component}"
+  rm -rf "${MEOW_MANUALLY_INSTALLED_COMPONENTS_DIR:?}/${component}"
 }
 
 # Install all packages defined for a component across applicable package managers
@@ -115,6 +115,65 @@ install_component_packages() {
   done
 
   return 0
+}
+
+# Uninstall all packages defined for a component across applicable package managers
+# Args:
+#   $1 - component name
+uninstall_component_packages() {
+  local component="$1"
+  local component_dir="${MEOW_COMPONENTS_DIR}/${component}"
+  local packages_dir="${component_dir}/packages"
+
+  if [[ ! -d "$component_dir" ]]; then
+    error "Component directory not found: $component_dir"
+    return 1
+  fi
+
+  # Проверяем, есть ли папка packages
+  if [[ ! -d "$packages_dir" ]]; then
+    # Если нет папки packages, значит компонент не требует удаления пакетов
+    return 0
+  fi
+
+  # Uninstall packages for platform-specific package managers
+  if [[ "$IS_MACOS" == "true" ]]; then
+    _uninstall_packages_for_component_manager "$component" "homebrew"
+    _uninstall_packages_for_component_manager "$component" "mas"
+  elif [[ "$IS_DEBIAN_BASED" == "true" ]]; then
+    _uninstall_packages_for_component_manager "$component" "apt"
+  elif [[ "$IS_ALPINE" == "true" ]]; then
+    _uninstall_packages_for_component_manager "$component" "apk"
+  elif [[ "$IS_ARCH" == "true" ]]; then
+    _uninstall_packages_for_component_manager "$component" "pacman"
+  fi
+
+  # Uninstall packages for cross-platform managers
+  for mgr in pipx npm go cargo vscode; do
+    _uninstall_packages_for_component_manager "$component" "$mgr"
+  done
+
+  return 0
+}
+
+# Helper: uninstall packages for a specific package manager
+# Args:
+#   $1 - component name
+#   $2 - package manager name
+_uninstall_packages_for_component_manager() {
+  local component="$1"
+  local mgr="$2"
+  local fn="uninstall_${mgr}_packages"
+  local packages_file="${MEOW_COMPONENTS_DIR}/${component}/packages/${mgr}.list"
+
+  # Skip if package manager uninstall function doesn't exist
+  declare -F "$fn" >/dev/null || return
+
+  # Skip if package file doesn't exist
+  [[ -f "$packages_file" ]] || return
+
+  # Call the uninstall function with component name
+  "$fn" "$component"
 }
 
 # Helper: install packages for a specific package manager
@@ -466,6 +525,24 @@ setup_component() {
   fi
 }
 
+# Execute component cleanup script
+cleanup_component() {
+  local component="$1"
+  local component_dir="${MEOW_INSTALLED_COMPONENTS_DIR}/${component}"
+  local cleanup_script="${component_dir}/scripts/cleanup.sh"
+
+  if [[ -f "$cleanup_script" ]]; then
+    step_header "Running component cleanup: $component"
+    [[ ! -x "$cleanup_script" ]] && chmod +x "$cleanup_script"
+    if "$cleanup_script" "$component" "$MEOW"; then
+      success_tick_msg "Component cleanup completed successfully"
+    else
+      warning "Component cleanup failed"
+      # Don't return error - cleanup failure shouldn't stop uninstallation
+    fi
+  fi
+}
+
 # Get all components that depend on a given component
 get_components_depending_on() {
   local target_component="$1"
@@ -476,6 +553,7 @@ get_components_depending_on() {
     [[ -L "$component_symlink" ]] || continue
 
     local component_name
+    component_name=$(basename "$component_symlink")
 
     local component_file="${component_symlink}/component.yaml"
     [[ -f "$component_file" ]] || continue
@@ -491,7 +569,6 @@ get_components_depending_on() {
       dep="${dep#components/}"
 
       if [[ "$dep" == "$target_component" ]]; then
-        component_name=$(basename "$component_symlink")
         components+=("$component_name")
         break
       fi
@@ -530,7 +607,7 @@ get_presets_depending_on_excluding() {
     [[ -f "$preset_file" ]] || continue
 
     # Check if this preset depends on the target component
-    local required_deps optional_deps
+    local required_deps
     required_deps=$(read_yaml_array "$preset_file" ".required[]?")
 
     # Check required dependencies
@@ -869,8 +946,8 @@ setup_component_symlinks() {
   fi
 
   # Check if there are any .yaml files in the symlinks directory
-  local yaml_files
-  yaml_files=($(find "$symlinks_dir" -name "*.yaml" 2>/dev/null))
+  local yaml_files=()
+  mapfile -t yaml_files < <(find "$symlinks_dir" -name "*.yaml" 2>/dev/null)
 
   if [[ ${#yaml_files[@]} -eq 0 ]]; then
     return 0
@@ -903,4 +980,607 @@ setup_component_symlinks() {
       warning "Component symlinks configured with $error_count errors ($success_count/$((success_count + error_count)) symlink files)"
     fi
   fi
+}
+
+# Remove symlinks created by a component and restore their backups
+# Args: $1 - component name
+remove_component_symlinks() {
+  local component="$1"
+  local symlinks_dir="${MEOW_COMPONENTS_DIR}/${component}/symlinks"
+
+  # Check if symlinks directory exists
+  if [[ ! -d "$symlinks_dir" ]]; then
+    return 0
+  fi
+
+  # Check if there are any .yaml files in the symlinks directory
+  local yaml_files=()
+  mapfile -t yaml_files < <(find "$symlinks_dir" -name "*.yaml" 2>/dev/null)
+
+  if [[ ${#yaml_files[@]} -eq 0 ]]; then
+    return 0
+  fi
+
+  step_header "Removing symlinks for component: $component"
+
+  local had_symlinks=false
+  local success_count=0
+  local error_count=0
+
+  for yaml_file in "${yaml_files[@]}"; do
+    local symlink_name
+    symlink_name=$(basename "$yaml_file" .yaml)
+    had_symlinks=true
+
+    if remove_component_symlinks_from_file "$component" "$symlink_name"; then
+      success_tick_msg "Symlinks for '$symlink_name' removed successfully"
+      ((success_count++))
+    else
+      warning "Failed to remove symlinks for '$symlink_name'"
+      ((error_count++))
+    fi
+  done
+
+  if [[ "$had_symlinks" == "true" ]]; then
+    if [[ $error_count -eq 0 ]]; then
+      success_tick_msg "Component symlinks removed successfully ($success_count symlink files)"
+    else
+      warning "Component symlinks removed with $error_count errors ($success_count/$((success_count + error_count)) symlink files)"
+    fi
+  fi
+}
+
+# Remove symlinks from a specific symlink file and restore backups
+# Args:
+#   $1 - component name
+#   $2 - symlink file name (without .yaml extension)
+remove_component_symlinks_from_file() {
+  local component="$1"
+  local symlink_name="$2"
+  local symlinks_file="${MEOW_COMPONENTS_DIR}/${component}/symlinks/${symlink_name}.yaml"
+  local failed_count=0
+  local processed_count=0
+  local restored_count=0
+
+  if ! command -v yq >/dev/null 2>&1; then
+    error_msg "yq is required to parse symlink configuration. Please install yq."
+    return 1
+  fi
+
+  if [[ ! -f "$symlinks_file" ]]; then
+    warning "No symlinks file found for '$symlink_name' at $symlinks_file"
+    return 0
+  fi
+
+  local num_symlinks
+  num_symlinks=$(yq 'length' "$symlinks_file")
+
+  if ! [[ "$num_symlinks" =~ ^[0-9]+$ ]] || [[ "$num_symlinks" -eq 0 ]]; then
+    warning "No symlinks defined in $symlinks_file"
+    return 0
+  fi
+
+  local i=0
+  while [[ $i -lt $num_symlinks ]]; do
+    local target_path
+    target_path=$(yq ".[$i].target" "$symlinks_file")
+
+    if [[ "$target_path" == "null" ]]; then
+      warning "Missing 'target' key in symlink entry $i of $symlinks_file"
+      ((failed_count++))
+      ((i++))
+      continue
+    fi
+
+    local expanded_target
+    expanded_target=$(expand_path "$target_path")
+
+    debug "Processing symlink removal: $expanded_target"
+    ((processed_count++))
+
+    # Check if the target is a symlink (our symlink)
+    if [[ -L "$expanded_target" ]]; then
+      # Remove the symlink
+      if rm "$expanded_target"; then
+        debug "Removed symlink: $expanded_target"
+
+        # Look for and restore backup
+        local backup_pattern="${expanded_target}.backup.*"
+        local backup_files=()
+        mapfile -t backup_files < <(ls -t $backup_pattern 2>/dev/null)
+
+        if [[ ${#backup_files[@]} -gt 0 ]]; then
+          local latest_backup="${backup_files[0]}"
+          if mv "$latest_backup" "$expanded_target"; then
+            info "$(basename "$expanded_target") (restored from backup)"
+            ((restored_count++))
+          else
+            warning "Failed to restore backup for $(basename "$expanded_target")"
+            ((failed_count++))
+          fi
+        else
+          info "$(basename "$expanded_target") (removed, no backup found)"
+        fi
+      else
+        error_msg "Failed to remove symlink: $expanded_target"
+        ((failed_count++))
+      fi
+    elif [[ -e "$expanded_target" ]]; then
+      # File exists but is not a symlink - probably already restored or modified manually
+      info "$(basename "$expanded_target") (not a symlink, skipping)"
+    else
+      # File doesn't exist - already removed or never existed
+      info "$(basename "$expanded_target") (does not exist, skipping)"
+    fi
+
+    ((i++))
+  done
+
+  if [[ $failed_count -eq 0 ]]; then
+    if [[ $restored_count -gt 0 ]]; then
+      success_tick_msg "Processed $processed_count symlinks ($restored_count restored from backup)"
+    else
+      success_tick_msg "Processed $processed_count symlinks (no backups to restore)"
+    fi
+    return 0
+  else
+    error_msg "Failed to process $failed_count of $processed_count symlinks"
+    return 1
+  fi
+}
+
+# Uninstall a component
+# Args: $1 - component name, $2 - optional --force flag
+# Side effects: Removes packages, removes symlinks, restores backups, removes component tracking
+uninstall_component() {
+  local component="$1"
+  local force_flag="${2:-}"
+
+  # Check if component is installed
+  if ! is_component_installed "$component"; then
+    warning "Component '$component' is not installed"
+    return 1
+  fi
+
+  # Check if component exists
+  local component_file="${MEOW_COMPONENTS_DIR}/${component}/component.yaml"
+  if [[ ! -f "$component_file" ]]; then
+    error "Component file not found: $component_file"
+    return 1
+  fi
+
+  # Check dependencies unless --force is used
+  if [[ "$force_flag" != "--force" ]]; then
+    # Check if component is used by other components
+    local dependent_components
+    mapfile -t dependent_components < <(get_components_depending_on "$component")
+
+    # Filter out empty elements
+    local filtered_dependents=()
+    for dep in "${dependent_components[@]}"; do
+      if [[ -n "$dep" ]]; then
+        filtered_dependents+=("$dep")
+      fi
+    done
+
+    if [[ ${#filtered_dependents[@]} -gt 0 ]]; then
+      error "Cannot uninstall component '$component' because it is required by the following components:"
+      for dep_comp in "${filtered_dependents[@]}"; do
+        error_msg "  - $dep_comp"
+      done
+      error "Please uninstall the dependent components first, or use --force to override."
+      return 1
+    fi
+
+    # Check if component is used by installed presets
+    local dependent_presets
+    mapfile -t dependent_presets < <(get_presets_depending_on "$component")
+
+    # Filter out empty elements
+    local filtered_presets=()
+    for preset in "${dependent_presets[@]}"; do
+      if [[ -n "$preset" ]]; then
+        filtered_presets+=("$preset")
+      fi
+    done
+
+    if [[ ${#filtered_presets[@]} -gt 0 ]]; then
+      error "Cannot uninstall component '$component' because it is required by the following installed presets:"
+      for preset in "${filtered_presets[@]}"; do
+        error_msg "  - $preset"
+      done
+      error "Please uninstall the presets first, use a different preset configuration, or use --force to override."
+      return 1
+    fi
+  else
+    info "Force flag detected - skipping dependency checks"
+  fi
+
+  title "Uninstalling component: $component"
+
+  # Initialize session
+  if ! _initialize_session; then
+    error "Session initialization failed"
+    return 1
+  fi
+
+  local overall_success=true
+
+  # Step 1: Remove symlinks and restore backups
+  step_header "Removing symlinks and restoring backups"
+  if remove_component_symlinks "$component"; then
+    success_tick_msg "Symlinks removed and backups restored successfully"
+  else
+    warning "Some symlink removal/backup restoration may have failed"
+    overall_success=false
+  fi
+
+  # Step 1.5: Run cleanup script
+  cleanup_component "$component"
+
+  # Step 2: Uninstall packages
+  step_header "Uninstalling packages"
+  if uninstall_component_packages "$component"; then
+    success_tick_msg "Packages uninstalled successfully"
+  else
+    warning "Some package uninstallation may have failed"
+    overall_success=false
+  fi
+
+  # Step 3: Remove component tracking symlinks
+  step_header "Removing component tracking"
+  remove_component_symlink "$component"
+  success_tick_msg "Component tracking removed"
+
+  # Step 4: Check and remove dependencies if they are no longer needed
+  step_header "Checking component dependencies"
+
+  # Step 1: Collect all dependencies starting from current component in topological order
+  local all_deps=()
+  collect_all_dependencies_topologically "$component" all_deps
+
+  if [[ ${#all_deps[@]} -gt 0 ]]; then
+    info "Found the following dependencies in topological order:"
+    for dep in "${all_deps[@]}"; do
+      info "  - $dep"
+    done
+
+    # Step 2: Filter out components that are needed by other components or presets not in current list
+    local removable_deps=()
+    filter_removable_dependencies all_deps removable_deps
+
+    if [[ ${#removable_deps[@]} -gt 0 ]]; then
+      info "Will remove the following unused dependencies:"
+      for dep in "${removable_deps[@]}"; do
+        info "  - $dep"
+      done
+
+      # Step 3: Remove components in order
+      for dep in "${removable_deps[@]}"; do
+        info "Removing unused dependency: $dep"
+        if uninstall_component_internal "$dep"; then
+          success_tick_msg "Dependency '$dep' removed successfully"
+        else
+          warning "Failed to remove dependency '$dep'"
+          overall_success=false
+        fi
+      done
+    else
+      info "No unused dependencies to remove"
+    fi
+  else
+    info "No dependencies to check"
+  fi
+
+  # Finalize session
+  _finalize_session
+
+  if [[ "$overall_success" == "true" ]]; then
+    success "Component '$component' uninstalled successfully"
+    return 0
+  else
+    warning "Component '$component' uninstalled with some warnings/errors"
+    return 1
+  fi
+}
+
+# Collect all dependencies starting from component in topological order
+# Args: $1 - component name, $2 - array name to store dependencies
+collect_all_dependencies_topologically() {
+  local component="$1"
+  local -n result_ref="$2"
+  local all_components=()
+
+  # First, collect all dependencies recursively
+  collect_dependencies_recursively "$component" all_components
+
+  # Then sort them topologically (dependencies first, then dependents)
+  local sorted_deps=()
+  topological_sort_for_removal all_components sorted_deps
+  result_ref=("${sorted_deps[@]}")
+}
+
+# Recursively collect all dependencies of a component
+# Args: $1 - component name, $2 - array name to store all dependencies
+collect_dependencies_recursively() {
+  local component="$1"
+  local -n all_deps_ref="$2"
+
+  _collect_deps_rec() {
+    local comp="$1"
+    local dependencies=()
+
+    get_component_dependencies "$comp" dependencies
+
+    for dep in "${dependencies[@]}"; do
+      if [[ -n "$dep" ]] && is_component_installed "$dep"; then
+        # Check if already collected
+        local already_added=false
+        for existing in "${all_deps_ref[@]}"; do
+          if [[ "$existing" == "$dep" ]]; then
+            already_added=true
+            break
+          fi
+        done
+
+        if [[ "$already_added" == "false" ]]; then
+          all_deps_ref+=("$dep")
+          # Recursively collect dependencies of this dependency
+          _collect_deps_rec "$dep"
+        fi
+      fi
+    done
+  }
+
+  _collect_deps_rec "$component"
+}
+
+# Filter dependencies to keep only those that can be safely removed
+# Args: $1 - array name with all dependencies, $2 - array name for removable dependencies
+filter_removable_dependencies() {
+  local -n all_deps_ref="$1"
+  local -n removable_ref="$2"
+  local candidates=("${all_deps_ref[@]}")
+  local changed=true
+
+  # Iterate until no more components are removed from candidates
+  while [[ "$changed" == "true" ]]; do
+    changed=false
+    local new_candidates=()
+
+    for dep in "${candidates[@]}"; do
+      local dep_copy="$dep"
+      local should_keep=true
+
+      if [[ -n "$dep_copy" ]]; then
+        # Remove if manually installed
+        if is_component_manually_installed "$dep_copy"; then
+          should_keep=false
+        fi
+
+        # Remove if used by other installed components not in our current candidates list
+        if [[ "$should_keep" == "true" ]]; then
+          local other_dependents
+          mapfile -t other_dependents < <(get_components_depending_on "$dep_copy")
+
+          for dependent in "${other_dependents[@]}"; do
+            if [[ -n "$dependent" ]]; then
+              # Check if this dependent is in our current candidates list
+              local in_candidates_list=false
+              for candidate in "${candidates[@]}"; do
+                if [[ "$dependent" == "$candidate" ]]; then
+                  in_candidates_list=true
+                  break
+                fi
+              done
+
+              # If dependent is not in candidates list, we can't remove this dependency
+              if [[ "$in_candidates_list" == "false" ]]; then
+                should_keep=false
+                break
+              fi
+            fi
+          done
+        fi
+
+        # Remove if used by installed presets
+        if [[ "$should_keep" == "true" ]]; then
+          local preset_dependents
+          mapfile -t preset_dependents < <(get_presets_depending_on "$dep_copy")
+
+          for preset in "${preset_dependents[@]}"; do
+            if [[ -n "$preset" ]]; then
+              should_keep=false
+              break
+            fi
+          done
+        fi
+
+        # If we should keep this component, add it to new candidates
+        if [[ "$should_keep" == "true" ]]; then
+          new_candidates+=("$dep_copy")
+        else
+          # Component was removed from candidates - need another iteration
+          changed=true
+        fi
+      fi
+    done
+
+    candidates=("${new_candidates[@]}")
+  done
+
+  # Final candidates are the ones we can safely remove
+  removable_ref=("${candidates[@]}")
+}
+
+# Check if a dependency component should be removed
+# Args: $1 - dependency component name
+# Returns: 0 if should be removed, 1 if should be kept
+should_remove_dependency() {
+  local dep_component="$1"
+
+  # Don't remove if not installed
+  if ! is_component_installed "$dep_component"; then
+    return 1
+  fi
+
+  # Don't remove if manually installed
+  if is_component_manually_installed "$dep_component"; then
+    return 1
+  fi
+
+  # Don't remove if used by other installed components
+  local other_dependents
+  mapfile -t other_dependents < <(get_components_depending_on "$dep_component")
+  # Filter out empty elements
+  local filtered_dependents=()
+  for dep in "${other_dependents[@]}"; do
+    if [[ -n "$dep" ]]; then
+      filtered_dependents+=("$dep")
+    fi
+  done
+  if [[ ${#filtered_dependents[@]} -gt 0 ]]; then
+    return 1
+  fi
+
+  # Don't remove if used by installed presets
+  local preset_dependents
+  mapfile -t preset_dependents < <(get_presets_depending_on "$dep_component")
+  # Filter out empty elements
+  local filtered_presets=()
+  for preset in "${preset_dependents[@]}"; do
+    if [[ -n "$preset" ]]; then
+      filtered_presets+=("$preset")
+    fi
+  done
+  if [[ ${#filtered_presets[@]} -gt 0 ]]; then
+    return 1
+  fi
+
+  # Can be safely removed
+  return 0
+}
+
+# Collect all dependencies that can be safely removed recursively (fixed version)
+# Args: $1 - component name, $2 - array name to store removable dependencies
+collect_removable_dependencies_recursively_fixed() {
+  local component="$1"
+  local -n result_ref="$2"
+  local dependencies=()
+
+  get_component_dependencies "$component" dependencies
+
+  for dep in "${dependencies[@]}"; do
+    local dep_copy="$dep"
+    if [[ -n "$dep_copy" ]] && should_remove_dependency "$dep_copy"; then
+      # Check if already in the result array
+      local already_added=false
+      for existing in "${result_ref[@]}"; do
+        if [[ "$existing" == "$dep_copy" ]]; then
+          already_added=true
+          break
+        fi
+      done
+
+      if [[ "$already_added" == "false" ]]; then
+        result_ref+=("$dep_copy")
+        # Recursively collect dependencies of this dependency
+        collect_removable_dependencies_recursively_fixed "$dep_copy" result_ref
+      fi
+    fi
+  done
+}
+
+# Collect all dependencies that can be safely removed recursively
+# Args: $1 - component name, outputs to stdout
+collect_removable_dependencies_recursively() {
+  local component="$1"
+  local dependencies=()
+
+  get_component_dependencies "$component" dependencies
+
+  for dep in "${dependencies[@]}"; do
+    if [[ -n "$dep" ]] && should_remove_dependency "$dep"; then
+      echo "$dep"
+      # Recursively collect dependencies of this dependency
+      collect_removable_dependencies_recursively "$dep"
+    fi
+  done
+}
+
+# Sort components in topological order for removal (leaves first)
+# Args: $1 - array name with components to sort, $2 - array name for sorted result
+topological_sort_for_removal() {
+  local -n input_array_ref="$1"
+  local -n sorted_array_ref="$2"
+  local remaining=("${input_array_ref[@]}")
+
+  # Keep sorting until all components are processed
+  while [[ ${#remaining[@]} -gt 0 ]]; do
+    local found_leaf=false
+    local new_remaining=()
+
+    # Find components that are NOT dependencies of any other remaining component
+    for component in "${remaining[@]}"; do
+      local is_dependency_of_others=false
+
+      # Check if this component is a dependency of any other remaining component
+      for other_component in "${remaining[@]}"; do
+        if [[ "$component" != "$other_component" ]]; then
+          local other_deps=()
+          get_component_dependencies "$other_component" other_deps
+
+          for dep in "${other_deps[@]}"; do
+            if [[ "$dep" == "$component" ]]; then
+              is_dependency_of_others=true
+              break 2
+            fi
+          done
+        fi
+      done
+
+      if [[ "$is_dependency_of_others" == "false" ]]; then
+        # This component is not a dependency of others, can be removed first
+        sorted_array_ref+=("$component")
+        found_leaf=true
+      else
+        # This component is still needed by others, keep it for next iteration
+        new_remaining+=("$component")
+      fi
+    done
+
+    remaining=("${new_remaining[@]}")
+
+    # Prevent infinite loop if we have circular dependencies
+    if [[ "$found_leaf" == "false" && ${#remaining[@]} -gt 0 ]]; then
+      warning "Circular dependencies detected among: ${remaining[*]}"
+      # Add remaining components anyway to avoid infinite loop
+      sorted_array_ref+=("${remaining[@]}")
+      break
+    fi
+  done
+}
+
+# Internal function to uninstall a component without dependency checks and cleanup
+# Args: $1 - component name
+uninstall_component_internal() {
+  local component="$1"
+
+  # Remove symlinks and restore backups
+  if ! remove_component_symlinks "$component"; then
+    return 1
+  fi
+
+  # Run cleanup script
+  cleanup_component "$component"
+
+  # Uninstall packages
+  if ! uninstall_component_packages "$component"; then
+    return 1
+  fi
+
+  # Remove component tracking symlinks
+  remove_component_symlink "$component"
+
+  return 0
 }

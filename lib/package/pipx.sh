@@ -32,3 +32,7 @@ install_pipx_packages() {
 update_pipx_packages() {
   update_packages_generic "$1" "pipx" "pipx upgrade" "is_pipx_package_installed"
 }
+
+uninstall_pipx_packages() {
+  uninstall_packages_generic "$1" "pipx" "pipx uninstall" "is_pipx_package_installed"
+}

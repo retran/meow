@@ -33,3 +33,7 @@ update_cargo_packages() {
   update_packages_generic "$1" "cargo" "cargo install --force" "is_cargo_package_installed" \
     "(already installed|Installing)"
 }
+
+uninstall_cargo_packages() {
+  uninstall_packages_generic "$1" "cargo" "cargo uninstall" "is_cargo_package_installed"
+}

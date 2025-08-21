@@ -33,3 +33,11 @@ update_npm_packages() {
   update_packages_generic "$1" "npm" "npm update -g" "is_npm_package_installed" \
     "(up to date|already at the latest version)"
 }
+
+uninstall_npm_packages() {
+  uninstall_packages_generic "$1" "npm" "npm uninstall -g" "is_npm_package_installed"
+}
+
+uninstall_npm_packages() {
+  uninstall_packages_generic "$1" "npm" "npm uninstall -g" "is_npm_package_installed"
+}

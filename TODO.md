@@ -1,14 +1,14 @@
 # To Do
 
-[ ] reimplement uninstallation
-
-[ ] taps
+[ ] messaging
 
 [ ] test in container
 [ ] reduce duplication and redundant code after refactoring
 
 [ ] fix shellcheck issues
 [ ] fix compatibility
+
+[ ] taps
 
 [ ] review
 

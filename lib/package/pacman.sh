@@ -37,6 +37,10 @@ update_pacman_packages() {
   update_packages_generic "$1" "pacman" "sudo pacman -Syu --noconfirm" "is_pacman_package_installed"
 }
 
+uninstall_pacman_packages() {
+  uninstall_packages_generic "$1" "pacman" "sudo pacman -R --noconfirm" "is_pacman_package_installed"
+}
+
 cleanup_pacman() {
   step_header "Cleaning pacman cache"
   ui_spinner "Cleaning pacman cache" \
