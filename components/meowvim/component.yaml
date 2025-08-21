@@ -6,6 +6,3 @@ repository:
 
 depends_on:
   - shell-essential
-
-symlinks:
-  - meowvim

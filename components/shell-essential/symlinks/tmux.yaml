@@ -1,0 +1,2 @@
+- source: "$MEOW/config/tmux/.tmux.conf"
+  target: "$HOME/.tmux.conf"

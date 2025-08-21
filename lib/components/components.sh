@@ -861,36 +861,46 @@ _update_component_internal() {
 #   $1 - component name
 setup_component_symlinks() {
   local component="$1"
-  local component_file="${MEOW_COMPONENTS_DIR}/${component}/component.yaml"
+  local symlinks_dir="${MEOW_COMPONENTS_DIR}/${component}/symlinks"
 
-  [[ -f "$component_file" ]] || return 0
+  # Check if symlinks directory exists
+  if [[ ! -d "$symlinks_dir" ]]; then
+    return 0
+  fi
 
-  # Check if component has symlinks configuration
-  if ! yaml_path_exists "$component_file" ".symlinks"; then
+  # Check if there are any .yaml files in the symlinks directory
+  local yaml_files
+  yaml_files=($(find "$symlinks_dir" -name "*.yaml" 2>/dev/null))
+
+  if [[ ${#yaml_files[@]} -eq 0 ]]; then
     return 0
   fi
 
   step_header "Setting up symlinks for component: $component"
 
-  # Read symlinks array and process each category
-  local symlinks
-  symlinks=$(read_yaml_array "$component_file" ".symlinks[]?") || return 0
-
   local had_symlinks=false
-  while IFS= read -r symlink_category; do
-    [[ -n "$symlink_category" && "$symlink_category" != "null" ]] || continue
+  local success_count=0
+  local error_count=0
+
+  for yaml_file in "${yaml_files[@]}"; do
+    local symlink_name
+    symlink_name=$(basename "$yaml_file" .yaml)
     had_symlinks=true
 
-    if setup_symlinks "$symlink_category"; then
-      success_tick_msg "Symlinks for '$symlink_category' configured successfully"
+    if setup_component_symlinks_from_file "$component" "$symlink_name"; then
+      success_tick_msg "Symlinks for '$symlink_name' configured successfully"
+      ((success_count++))
     else
-      warning "Failed to setup symlinks for category '$symlink_category'"
+      warning "Failed to setup symlinks for '$symlink_name'"
+      ((error_count++))
     fi
-  done < <(printf '%s\n' "$symlinks")
+  done
 
   if [[ "$had_symlinks" == "true" ]]; then
-    success_tick_msg "Component symlinks configured successfully"
-  else
-    info "No symlinks to configure for component: $component"
+    if [[ $error_count -eq 0 ]]; then
+      success_tick_msg "Component symlinks configured successfully ($success_count symlink files)"
+    else
+      warning "Component symlinks configured with $error_count errors ($success_count/$((success_count + error_count)) symlink files)"
+    fi
   fi
 }

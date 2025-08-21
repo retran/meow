@@ -7,6 +7,8 @@
 
 [ ] move configs to components folders
 
+[ ] taps
+
 [ ] fix shellcheck issues
 [ ] fix compatibility
 

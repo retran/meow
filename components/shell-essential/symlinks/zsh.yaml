@@ -1,0 +1,6 @@
+- source: "$MEOW/config/shells/zsh/.zshrc"
+  target: "$HOME/.zshrc"
+- source: "$MEOW/config/shells/zsh/.zprofile"
+  target: "$HOME/.zprofile"
+- source: "$MEOW/config/shells/zsh/.zlogin"
+  target: "$HOME/.zlogin"

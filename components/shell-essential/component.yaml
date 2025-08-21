@@ -4,12 +4,3 @@ description: >-
 depends_on:
   - pipx
   - node
-
-symlinks:
-  - git
-  - tmux
-  - starship
-  - zsh
-  - secrets
-  - eza
-  - fd

@@ -6,7 +6,3 @@ platforms:
 depends_on:
   - shell-essential
   - fonts
-
-symlinks:
-  - alacritty
-  - vscode

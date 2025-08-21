@@ -1,0 +1,3 @@
+- source: "/usr/bin/fdfind"
+  target: "$HOME/.local/bin/fd"
+  os: linux

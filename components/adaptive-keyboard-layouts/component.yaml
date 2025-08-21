@@ -7,6 +7,3 @@ platforms:
 
 depends_on:
   - hammerspoon
-
-symlinks:
-  - adaptive-keyboard-layouts

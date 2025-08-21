@@ -53,22 +53,6 @@ command -v nvim >/dev/null 2>&1 && {
 
 command -v bat >/dev/null 2>&1 && alias cat='bat -p'
 command -v fd &>/dev/null && alias find='fd'
-
-if command -v rg &>/dev/null; then
-  alias rg='rg --color=auto'
-  function grep_with_rg() {
-    if [ -t 1 ]; then
-      command rg --color=auto "$@"
-    else
-      command grep "$@"
-    fi
-  }
-  if ! type grep | grep -q 'function'; then
-    unalias grep 2>/dev/null || true
-    alias grep='grep_with_rg'
-  fi
-fi
-
 command -v fzf &>/dev/null && source <(fzf --zsh)
 command -v zoxide &>/dev/null && eval "$(zoxide init zsh --cmd cd)"
 command -v starship &>/dev/null && eval "$(starship init zsh)"

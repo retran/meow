@@ -2,6 +2,3 @@ description: "Time tracking with Toggl CLI and desktop app"
 
 platforms:
   - macos
-
-symlinks:
-  - toggl

@@ -6,6 +6,7 @@ fi
 _LIB_PACKAGE_SYMLINKS_SOURCED=1
 
 source "${MEOW}/lib/core/ui.sh"
+source "${MEOW}/lib/core/defs.sh"
 source "${MEOW}/lib/package/homebrew.sh"
 source "${MEOW}/lib/package/apt.sh"
 
@@ -141,6 +142,75 @@ setup_symlinks() {
     return 0
   else
     error_msg "Symlink setup for '$category' failed with $failed_count failure(s) (${duration}s)"
+    return 1
+  fi
+}
+
+setup_component_symlinks_from_file() {
+  local component="$1"
+  local symlink_name="$2"
+  local symlinks_file="${MEOW_COMPONENTS_DIR}/${component}/symlinks/${symlink_name}.yaml"
+  local failed_count=0
+  local processed_count=0
+  local start_time end_time duration
+
+  start_time=$(date +%s)
+
+  if ! command -v yq >/dev/null 2>&1; then
+    error_msg "yq is required to parse symlink configuration. Please install yq."
+    return 1
+  fi
+
+  if [[ ! -f "$symlinks_file" ]]; then
+    warning "No symlinks file found for '$symlink_name' at $symlinks_file"
+    return 0
+  fi
+
+  local num_symlinks
+  num_symlinks=$(yq 'length' "$symlinks_file")
+
+  if ! [[ "$num_symlinks" =~ ^[0-9]+$ ]] || [[ "$num_symlinks" -eq 0 ]]; then
+    info "No symlinks defined in $symlinks_file."
+    return 0
+  fi
+
+  for ((i = 0; i < num_symlinks; i++)); do
+    local source target os
+    source=$(yq -r ".[$i].source" "$symlinks_file")
+    target=$(yq -r ".[$i].target" "$symlinks_file")
+    os=$(yq -r ".[$i].os // \"any\"" "$symlinks_file")
+
+    local should_create=false
+    if [[ "$os" == "any" ]]; then
+      should_create=true
+    elif [[ "$os" == "macos" && "$IS_MACOS" == "true" ]]; then
+      should_create=true
+    elif [[ "$os" == "linux" && "$IS_DEBIAN_BASED" == "true" ]]; then
+      should_create=true
+    fi
+
+    if [[ "$should_create" == "true" ]]; then
+      processed_count=$((processed_count + 1))
+      if ! create_symlink "$source" "$target"; then
+        failed_count=$((failed_count + 1))
+      fi
+    else
+      debug "Skipping symlink for $(basename "$target") due to OS mismatch (required: '${os}')"
+    fi
+  done
+
+  if [[ $processed_count -gt 0 ]]; then
+    info "($processed_count symlinks processed for this OS)"
+  fi
+
+  end_time=$(date +%s)
+  duration=$((end_time - start_time))
+
+  if [[ $failed_count -eq 0 ]]; then
+    success_tick_msg "Symlinks for '$symlink_name' completed (${duration}s)"
+    return 0
+  else
+    error_msg "Symlinks for '$symlink_name' failed with $failed_count failure(s) (${duration}s)"
     return 1
   fi
 }
