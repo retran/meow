@@ -131,29 +131,29 @@ install_preset() {
   preset_file=$(get_preset_file "$preset")
 
   if [[ ! -f "$preset_file" ]]; then
-    ui_error "Preset '$preset' not found"
+    ui_error "$(format_template_message "preset_not_found" "$preset")"
     return 1
   fi
 
   if ! is_preset_available "$preset"; then
-    ui_error "Preset '$preset' is not available on this platform"
+    ui_error "$(format_template_message "preset_not_available_platform" "$preset")"
     return 1
   fi
 
   if is_preset_installed "$preset"; then
-    ui_warning "Preset '$preset' is already installed"
+    ui_warning "$(format_template_message "preset_already_installed" "$preset")"
     return 0
   fi
 
   # Show beautiful header
-  ui_title "==> Installing Preset: $preset"
+  ui_title "$(format_template_message "installing_preset" "$preset")"
 
   # Get all components in topological order
   local installation_order=()
   collect_preset_components_for_installation "$preset" installation_order
 
   if [[ ${#installation_order[@]} -eq 0 ]]; then
-    ui_info "No components to install for this preset"
+    ui_info "$(get_static_message "no_components_to_install_preset")"
   else
     # Show summary of what will be installed
     local preset_components
@@ -176,12 +176,12 @@ install_preset() {
     done
 
     # Show what will be installed
-    ui_action_start "Will install ${#preset_components_array[@]} preset components with dependencies"
+    ui_action_start "$(format_template_message "will_install_preset_components" "${#preset_components_array[@]}")"
     if [[ ${#components_to_install[@]} -gt 0 ]]; then
-      ui_indent "Total components to install: ${#components_to_install[@]}"
+      ui_indent "$(format_template_message "total_components_to_install" "${#components_to_install[@]}")"
 
       if [[ "$MEOW_VERBOSE" == "true" ]]; then
-        ui_step_header "Installation order:"
+        ui_step_header "$(get_static_message "installation_order")"
         for comp in "${installation_order[@]}"; do
           local status=""
           if is_component_installed "$comp"; then
@@ -231,10 +231,10 @@ install_preset() {
         done
 
         if [[ -n "$preset_comp_list" ]]; then
-          ui_indent "Preset components: $preset_comp_list"
+          ui_indent "$(format_template_message "preset_components_list" "$preset_comp_list")"
         fi
         if [[ -n "$deps_list" ]]; then
-          ui_indent "Dependencies: $deps_list"
+          ui_indent "$(format_template_message "dependencies_list" "$deps_list")"
         fi
       fi
     else
@@ -268,7 +268,7 @@ install_preset() {
     unset MEOW_INSTALLING_COMPONENTS
 
     if [[ "$install_success" != "true" ]]; then
-      ui_error "Failed to install required components"
+      ui_error "$(get_static_message "failed_install_required_components")"
       return 1
     fi
   fi
@@ -289,11 +289,11 @@ update_preset() {
   local preset="$1"
 
   if ! is_preset_installed "$preset"; then
-    ui_warning "Preset '$preset' is not installed"
+    ui_warning "$(format_template_message "preset_not_installed" "$preset")"
     return 1
   fi
 
-  ui_header "Updating preset: $preset"
+  ui_header "$(format_template_message "updating_preset" "$preset")"
 
   # Update all required components that are installed
   ui_step_header "Updating required components"

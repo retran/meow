@@ -69,20 +69,18 @@ clone_component_repository() {
 
   # Remove existing repository if present
   if [[ -d "$installed_dir" ]]; then
-    ui_step_header "Removing existing repository for component: $component"
+    ui_step_header "$(format_template_message "removing_existing_repo" "$component")"
     rm -rf "$installed_dir"
   fi
 
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    ui_step_header "Cloning repository to .downloads/$component"
+    ui_step_header "$(format_template_message "cloning_repo_to_downloads" "$component")"
   fi
 
   # Clone repository with spinner
   mkdir -p "$(dirname "$installed_dir")"
 
-  ui_spinner "Cloning $component repository" \
-    --success "Repository cloned successfully" \
-    --fail "Failed to clone repository" \
+  ui_spinner "$(parse_spinner_messages "clone_repository" "$component")" \
     git clone --depth 1 -b "$branch_or_tag" "$repo_url" "$installed_dir"
 
   return $?
@@ -102,23 +100,21 @@ update_component_repository() {
 
   # Clone if repository doesn't exist
   if [[ ! -d "$installed_dir" ]]; then
-    ui_warning "Repository not found, cloning to .downloads/$component instead"
+    ui_warning "$(format_template_message "repository_not_found_cloning" "$component")"
     clone_component_repository "$component"
     return $?
   fi
 
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    ui_step_header "Updating repository for component: $component"
+    ui_step_header "$(format_template_message "updating_repo_for_component" "$component")"
   fi
 
   # Update repository using git with spinner
-  ui_spinner "Updating $component repository" \
-    --success "$(get_static_message 'repo_updated')" \
-    --fail "Failed to update repository" \
+  ui_spinner "$(parse_spinner_messages "update_repository" "$component")" \
     sh -c "cd '$installed_dir' && git fetch && git reset --hard \"origin/\$(git rev-parse --abbrev-ref HEAD)\""
 
   if [[ $? -ne 0 ]]; then
-    ui_warning "Failed to update repository, trying to re-clone"
+    ui_warning "$(get_static_message "failed_update_trying_reclone")"
     clone_component_repository "$component"
     return $?
   fi
@@ -144,13 +140,13 @@ cleanup_component_repository() {
 
   # Remove repository directory if it exists
   if [[ -d "${repo_dir}/.git" ]]; then
-    ui_step_header "Cleaning up repository for $component"
+    ui_step_header "$(format_template_message "cleaning_up_repo" "$component")"
 
     rm -rf "$repo_dir" || {
-      ui_error "Failed to remove repository directory: $repo_dir"
+      ui_error "$(format_template_message "failed_remove_repo_dir" "$repo_dir")"
       return 1
     }
 
-    ui_action_success "Repository cleaned up for $component"
+    ui_action_success "$(format_template_message "repo_cleaned_up" "$component")"
   fi
 }

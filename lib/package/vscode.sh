@@ -20,23 +20,23 @@ is_vscode_package_installed() {
 }
 
 setup_vscode() {
-  ui_step_header "Setting up VS Code CLI"
+  ui_step_header "$(get_static_message "vscode_setting_up")"
 
   # Handle dry-run mode
   if is_dry_run; then
     if ! command -v code >/dev/null 2>&1; then
-      dry_run_ui_info "VS Code CLI not found - would warn and skip extensions"
+      dry_run_ui_info "$(get_static_message "vscode_cli_not_found_would_warn")"
     else
-      dry_run_ui_info "VS Code CLI already available, ready for extension installation"
+      dry_run_ui_info "$(get_static_message "vscode_cli_already_available")"
     fi
     return 0
   fi
 
   if ! command -v code >/dev/null 2>&1; then
-    ui_warning "VS Code CLI not found, skipping extensions"
+    ui_warning "$(get_static_message "vscode_cli_not_found_skip")"
     return 1
   fi
-  ui_action_success "VS Code CLI available"
+  ui_action_success "$(get_static_message "vscode_cli_available")"
   return 0
 }
 
@@ -44,7 +44,7 @@ install_vscode_packages() {
   local component="$1"
 
   if ! command -v code >/dev/null 2>&1; then
-    ui_info "VS Code CLI not found, skipping VS Code extension installation"
+    ui_info "$(get_static_message "vscode_cli_not_found_extension_skip")"
     return 0
   fi
 

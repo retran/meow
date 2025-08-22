@@ -19,7 +19,7 @@ dry_run_command() {
   shift
 
   if is_dry_run; then
-    dry_run_ui_info "Would execute: $description"
+    dry_run_ui_info "$(format_template_message "dry_run_would_execute" "$description")"
     return 0
   else
     "$@"
@@ -29,13 +29,13 @@ dry_run_command() {
 # Show dry-run message with special formatting
 dry_run_info() {
   local message="$1"
-  echo -e "  ${CYAN}[DRY-RUN]${RESET} $message"
+  echo -e "  ${CYAN}$(get_static_message "dry_run_prefix")${RESET} $message"
 }
 
 # Show dry-run command details with special formatting
 dry_run_command_info() {
   local command="$1"
-  echo -e "  ${CYAN}[DRY-RUN]${RESET}   Command: ${NORMAL}$command${RESET}"
+  echo -e "  ${CYAN}$(get_static_message "dry_run_prefix")${RESET}   $(format_template_message "dry_run_command" "${NORMAL}$command${RESET}")"
 }
 
 # Wrapper for file operations in dry-run mode
@@ -47,25 +47,25 @@ dry_run_file_operation() {
   if is_dry_run; then
     case "$operation" in
       "create_symlink")
-        dry_run_ui_info "Would create symlink: $target -> $source"
+        dry_run_ui_info "$(format_template_message "dry_run_create_symlink" "$target" "$source")"
         ;;
       "create_dir")
-        dry_run_ui_info "Would create directory: $target"
+        dry_run_ui_info "$(format_template_message "dry_run_create_directory" "$target")"
         ;;
       "remove_file")
-        dry_run_ui_info "Would remove file: $target"
+        dry_run_ui_info "$(format_template_message "dry_run_remove_file" "$target")"
         ;;
       "remove_dir")
-        dry_run_ui_info "Would remove directory: $target"
+        dry_run_ui_info "$(format_template_message "dry_run_remove_directory" "$target")"
         ;;
       "backup_file")
-        dry_run_ui_info "Would backup file: $target"
+        dry_run_ui_info "$(format_template_message "dry_run_backup_file" "$target")"
         ;;
       "restore_file")
-        dry_run_ui_info "Would restore file: $target from $source"
+        dry_run_ui_info "$(format_template_message "dry_run_restore_file" "$target" "$source")"
         ;;
       *)
-        dry_run_ui_info "Would perform file operation '$operation' on: $target"
+        dry_run_ui_info "$(format_template_message "dry_run_file_operation" "$operation" "$target")"
         ;;
     esac
     return 0
@@ -83,16 +83,16 @@ dry_run_package_operation() {
   if is_dry_run; then
     case "$operation" in
       "install")
-        dry_run_ui_info "Would install $manager packages: $packages"
+        dry_run_ui_info "$(format_template_message "dry_run_install_packages" "$manager" "$packages")"
         ;;
       "update")
-        dry_run_ui_info "Would update $manager packages: $packages"
+        dry_run_ui_info "$(format_template_message "dry_run_update_packages" "$manager" "$packages")"
         ;;
       "remove")
-        dry_run_ui_info "Would remove $manager packages: $packages"
+        dry_run_ui_info "$(format_template_message "dry_run_remove_packages" "$manager" "$packages")"
         ;;
       *)
-        dry_run_ui_info "Would perform $manager operation '$operation' on packages: $packages"
+        dry_run_ui_info "$(format_template_message "dry_run_perform_operation" "$manager" "$operation" "$packages")"
         ;;
     esac
     return 0
@@ -110,19 +110,19 @@ dry_run_git_operation() {
   if is_dry_run; then
     case "$operation" in
       "clone")
-        dry_run_ui_info "Would clone repository to: $repo_path"
+        dry_run_ui_info "$(format_template_message "dry_run_clone_repository" "$repo_path")"
         if [[ -n "$details" ]]; then
-          dry_run_ui_info "  Repository URL: $details"
+          dry_run_ui_info "  $(format_template_message "dry_run_repository_url" "$details")"
         fi
         ;;
       "pull")
-        dry_run_ui_info "Would pull updates in repository: $repo_path"
+        dry_run_ui_info "$(format_template_message "dry_run_pull_updates" "$repo_path")"
         ;;
       "checkout")
-        dry_run_ui_info "Would checkout '$details' in repository: $repo_path"
+        dry_run_ui_info "$(format_template_message "dry_run_checkout" "$details" "$repo_path")"
         ;;
       *)
-        dry_run_ui_info "Would perform git operation '$operation' in: $repo_path"
+        dry_run_ui_info "$(format_template_message "dry_run_git_operation" "$operation" "$repo_path")"
         ;;
     esac
     return 0

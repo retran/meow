@@ -12,34 +12,34 @@ is_macos() {
 }
 
 configure_macos_defaults() {
-  ui_step_header "System Defaults"
+  ui_step_header "$(get_static_message "system_defaults_header")"
 
   if ! is_macos; then
-    ui_warning "Not running on macOS. Skipping macOS configuration."
+    ui_warning "$(get_static_message "macos_not_running_skip")"
     return 0
   fi
 
-  ui_action_start "Configuring macOS preferences"
+  ui_action_start "$(get_static_message "macos_configuring_preferences")"
 
   osascript -e 'tell application "System Preferences" to quit'
 
-  if ui_confirm "Do you want to set a new computer name?"; then
-    ui_action_start "Enter your desired computer name: "
+  if ui_confirm "$(get_static_message "computer_name_prompt")"; then
+    ui_action_start "$(get_static_message "enter_computer_name")"
     read -r computer_name
     if [[ -n "$computer_name" ]]; then
       sudo scutil --set ComputerName "$computer_name"
       sudo scutil --set HostName "$computer_name"
       sudo scutil --set LocalHostName "$computer_name"
       sudo defaults write /Library/Preferences/SystemConfiguration/com.apple.smb.server NetBIOSName -string "$computer_name"
-      ui_action_success "Computer name set to $computer_name"
+      ui_action_success "$(format_template_message "computer_name_set_to" "$computer_name")"
     fi
   fi
 
-  ui_info "Configuring brew PATH..."
+  ui_info "$(get_static_message "macos_configuring_brew_path")"
   sudo launchctl config user path "$(brew --prefix)/bin:${PATH}"
-  ui_action_success "brew PATH configured"
+  ui_action_success "$(get_static_message "macos_brew_path_configured")"
 
-  ui_info "Configuring general UI/UX settings..."
+  ui_info "$(get_static_message "macos_configuring_ui_ux")"
   sudo nvram SystemAudioVolume=" "
   defaults write com.apple.finder AppleShowAllFiles -boolean true
   defaults write NSGlobalDomain NSNavPanelExpandedStateForSaveMode -bool true
@@ -54,9 +54,9 @@ configure_macos_defaults() {
   defaults write NSGlobalDomain NSAutomaticQuoteSubstitutionEnabled -bool false
   defaults write NSGlobalDomain NSAutomaticSpellingCorrectionEnabled -bool false
   defaults write NSGlobalDomain NSWindowResizeTime -float 0.001
-  ui_action_success "General UI/UX settings configured"
+  ui_action_success "$(get_static_message "macos_ui_ux_configured")"
 
-  ui_info "Configuring keyboard settings..."
+  ui_info "$(get_static_message "macos_configuring_keyboard")"
   defaults write NSGlobalDomain ApplePressAndHoldEnabled -bool false
   defaults write NSGlobalDomain KeyRepeat -int 1
   defaults write NSGlobalDomain InitialKeyRepeat -int 15

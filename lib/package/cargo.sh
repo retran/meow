@@ -18,23 +18,23 @@ is_cargo_package_installed() {
 }
 
 setup_cargo() {
-  ui_step_header "Setting up Cargo"
+  ui_step_header "$(get_static_message "cargo_setting_up")"
 
   # Handle dry-run mode
   if is_dry_run; then
     if ! command -v cargo >/dev/null 2>&1; then
-      dry_run_ui_info "cargo not found - would fail setup"
+      dry_run_ui_info "$(get_static_message "cargo_not_found_would_fail")"
     else
-      dry_run_ui_info "Cargo already available, ready for package installation"
+      dry_run_ui_info "$(get_static_message "cargo_already_available")"
     fi
     return 0
   fi
 
   command -v cargo >/dev/null 2>&1 || {
-    ui_action_error "cargo not found"
+    ui_action_error "$(get_static_message "cargo_not_found")"
     return 1
   }
-  ui_action_success "Cargo available"
+  ui_action_success "$(get_static_message "cargo_available")"
 }
 
 install_cargo_packages() {

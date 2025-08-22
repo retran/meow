@@ -31,7 +31,7 @@ setup_component_symlinks() {
 
   # Show symlinks section header only in verbose mode
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    ui_step_header "Setting up symlinks for component: $component"
+    ui_step_header "$(format_template_message "setting_up_symlinks_for" "$component")"
   fi
 
   local had_symlinks=false
@@ -44,10 +44,10 @@ setup_component_symlinks() {
     had_symlinks=true
 
     if setup_component_symlinks_from_file "$component" "$symlink_name"; then
-      ui_verbose_action_success "Symlinks for '$symlink_name' configured successfully"
+      ui_verbose_action_success "$(format_template_message "symlinks_for_configured" "$symlink_name")"
       ((success_count++))
     else
-      ui_action_warning "Failed to setup symlinks for '$symlink_name'"
+      ui_action_warning "$(format_template_message "symlinks_setup_failed" "$symlink_name")"
       ((error_count++))
     fi
   done
@@ -56,16 +56,18 @@ setup_component_symlinks() {
     if [[ "$MEOW_VERBOSE" != "true" ]]; then
       # Show compact summary in non-verbose mode
       if [[ $error_count -eq 0 ]]; then
-        ui_indent "Symlinks: ✓ $success_count configuration$([ $success_count -gt 1 ] && echo "s") checked, no changes needed"
+        local config_plural=$([ $success_count -gt 1 ] && echo "s" || echo "")
+        ui_indent "$(format_template_message "symlinks_configuration_checked" "$success_count" "$config_plural")"
       else
-        ui_indent "Symlinks: ✗ $error_count error$([ $error_count -gt 1 ] && echo "s"), $success_count successful"
+        local error_plural=$([ $error_count -gt 1 ] && echo "s" || echo "")
+        ui_indent "$(format_template_message "symlinks_errors_successful" "$error_count" "$error_plural" "$success_count")"
       fi
     else
       # Show detailed summary in verbose mode
       if [[ $error_count -eq 0 ]]; then
-        ui_action_success "Component symlinks configured successfully ($success_count symlink files)"
+        ui_action_success "$(format_template_message "symlinks_configured_successfully" "$success_count")"
       else
-        ui_warning "Component symlinks configured with $error_count errors ($success_count/$((success_count + error_count)) symlink files)"
+        ui_warning "$(format_template_message "symlinks_configured_with_errors" "$error_count" "$success_count" "$((success_count + error_count))")"
       fi
     fi
   fi
@@ -129,7 +131,7 @@ remove_component_symlinks_from_file() {
   local component="$1"
   local symlink_name="$2"
   local symlinks_file="${MEOW_COMPONENTS_DIR}/${component}/symlinks/${symlink_name}.yaml"
-  
+
   # Handle dry-run mode
   if is_dry_run; then
     if [[ -f "$symlinks_file" ]]; then
@@ -157,7 +159,7 @@ remove_component_symlinks_from_file() {
     fi
     return 0
   fi
-  
+
   local failed_count=0
   local processed_count=0
   local restored_count=0

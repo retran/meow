@@ -6,7 +6,7 @@ fi
 _LIB_MOTD_SOURCED=1
 
 if [[ -z "$MEOW" ]]; then
-  echo "Error: MEOW environment variable is not set." >&2
+  echo "$(get_static_message "motd_meow_not_set")" >&2
   return 1
 fi
 
@@ -17,6 +17,7 @@ readonly MEOW_MOTD_ASCII_ART_FILE="${MEOW_MOTD_ASSETS_DIR}/ascii/motd.ascii"
 mkdir -p "${MEOW_MOTD_CACHE_DIR}"
 
 source "${MEOW}/lib/core/colors.sh"
+source "${MEOW}/lib/core/strings.sh"
 
 load_yaml_comments() {
   local category="$1"
@@ -59,7 +60,7 @@ get_comment_collection() {
 
   local count=${#result[@]}
   if [[ $count -eq 0 ]]; then
-    echo "A fancy digital cat comment should be here"
+    echo "$(get_static_message "motd_fallback")"
     return 0
   fi
 
@@ -112,7 +113,7 @@ load_art() {
   local art_file="$1"
 
   if [[ ! -f "$art_file" ]]; then
-    echo "ASCII art file not found: $art_file"
+    echo "$(format_template_message "motd_ascii_art_not_found" "$art_file")"
     return
   fi
 
@@ -143,11 +144,11 @@ build_greeting() {
     time_comment="Hope you have a purr-ductive time!"
   fi
 
-  echo -e "${SECONDARY}${greeting}, сomrade ${DATA}$(whoami)${SECONDARY}!${RESET}"
+  echo -e "$(format_template_message "motd_greeting_comrade" "$greeting" "$(whoami)")"
   echo -e "${SECONDARY}${time_comment}${RESET}"
   echo ""
-  echo -e "${INFO}Calendar shows ${DATA}${date_full}${NORMAL}.${RESET}"
-  echo -e "${INFO}Clock purrs at ${DATA}${time_current}${NORMAL}.${RESET}"
+  echo -e "$(format_template_message "motd_calendar_shows" "$date_full")"
+  echo -e "$(format_template_message "motd_clock_purrs" "$time_current")"
   echo ""
 }
 
@@ -265,7 +266,7 @@ display_art_and_stats() {
 
 show_motd() {
   if ! command -v yq >/dev/null 2>&1; then
-    echo "Warning: 'yq' is not installed. Cannot display random comments." >&2
+    echo "$(get_static_message "motd_yq_not_installed")" >&2
   fi
 
   local system_info art_content stats_content

@@ -18,23 +18,23 @@ is_pipx_package_installed() {
 }
 
 setup_pipx() {
-  ui_step_header "Setting up pipx"
+  ui_step_header "$(get_static_message "pipx_setting_up")"
 
   # Handle dry-run mode
   if is_dry_run; then
     if ! command -v pipx >/dev/null 2>&1; then
-      dry_run_ui_info "pipx not found - would fail setup"
+      dry_run_ui_info "$(get_static_message "pipx_not_found_would_fail")"
     else
-      dry_run_ui_info "pipx already available, no setup needed"
+      dry_run_ui_info "$(get_static_message "pipx_already_available")"
     fi
     return 0
   fi
 
   if ! command -v pipx >/dev/null 2>&1; then
-    ui_action_error "pipx not found"
+    ui_action_error "$(get_static_message "pipx_not_found")"
     return 1
   fi
-  ui_action_success "pipx available"
+  ui_action_success "$(get_static_message "pipx_available")"
 }
 
 install_pipx_packages() {

@@ -98,9 +98,10 @@ install_component() {
   done
 
   # Show what will be installed
-  ui_action_start "Will install ${#components[@]} component$([ ${#components[@]} -gt 1 ] && echo "s") with dependencies"
+  local plural_suffix=$([ ${#components[@]} -gt 1 ] && echo "s" || echo "")
+  ui_action_start "$(format_template_message "components_install_count" "${#components[@]}" "$plural_suffix")"
   if [[ ${#components_to_install[@]} -gt 0 ]]; then
-    ui_indent "Total components to install: ${#components_to_install[@]}"
+    ui_indent "$(format_template_message "total_components_install" "${#components_to_install[@]}")"
 
     if [[ "$MEOW_VERBOSE" == "true" ]]; then
       ui_installation_order
@@ -153,10 +154,10 @@ install_component() {
       done
 
       if [[ -n "$requested_comp_list" ]]; then
-        ui_indent "Requested components: $requested_comp_list"
+        ui_indent "$(format_template_message "requested_components" "$requested_comp_list")"
       fi
       if [[ -n "$deps_list" ]]; then
-        ui_indent "New dependencies: $deps_list"
+        ui_indent "$(format_template_message "new_dependencies" "$deps_list")"
       fi
     fi
   else

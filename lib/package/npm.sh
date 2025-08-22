@@ -23,9 +23,9 @@ setup_npm() {
   # Handle dry-run mode
   if is_dry_run; then
     if ! command -v npm >/dev/null 2>&1; then
-      dry_run_ui_info "npm not found - would fail setup"
+      dry_run_ui_info "$(get_static_message "npm_not_found_would_fail")"
     else
-      dry_run_ui_info "npm already available, no setup needed"
+      dry_run_ui_info "$(get_static_message "npm_already_available")"
     fi
     return 0
   fi

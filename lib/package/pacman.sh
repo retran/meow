@@ -19,36 +19,38 @@ is_pacman_package_installed() {
 
 setup_pacman() {
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    ui_step_header "Setting up pacman"
+    ui_step_header "$(get_static_message "pacman_setting_up")"
   fi
 
   # Handle dry-run mode
   if is_dry_run; then
     if ! command -v pacman >/dev/null 2>&1; then
-      dry_run_ui_info "pacman not found - would fail setup"
+      dry_run_ui_info "$(get_static_message "pacman_not_found_would_fail")"
     else
-      dry_run_ui_info "Would sync pacman package database"
-      dry_run_ui_info "  Command: sudo pacman -Sy"
-      dry_run_ui_info "  Would refresh available package information"
+      dry_run_ui_info "$(get_static_message "pacman_would_sync_db")"
+      dry_run_ui_info "  $(get_static_message "pacman_sync_command")"
+      dry_run_ui_info "  $(get_static_message "pacman_would_refresh_info")"
     fi
     return 0
   fi
 
   command -v pacman >/dev/null 2>&1 || {
+    ui_error "$(get_static_message "pacman_not_found")"
     return 1
   }
 
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    ui_spinner "Syncing package database" \
-      --success "pacman database synced" \
-      --fail "Failed to sync pacman database" \
+    ui_spinner "$(parse_spinner_messages "pacman_sync")" \
       sudo pacman -Sy
   else
-    sudo pacman -Sy >/dev/null 2>&1
+    sudo pacman -Sy >/dev/null 2>&1 || {
+      ui_error "$(get_static_message "pacman_failed_sync")"
+      return 1
+    }
   fi
 
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    ui_action_success "pacman ready"
+    ui_action_success "$(get_static_message "pacman_setup_complete")"
   fi
 }
 
@@ -67,22 +69,18 @@ uninstall_pacman_packages() {
 cleanup_pacman() {
   # Handle dry-run mode
   if is_dry_run; then
-    dry_run_ui_info "Would clean pacman package cache"
-    dry_run_ui_info "  Command: sudo pacman -Sc --noconfirm"
-    dry_run_ui_info "  Would remove cached packages not currently installed"
+    dry_run_ui_info "$(get_static_message "pacman_would_clean_cache")"
+    dry_run_ui_info "  $(get_static_message "pacman_clean_command")"
+    dry_run_ui_info "  $(get_static_message "pacman_would_remove_cached")"
     return 0
   fi
 
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    ui_step_header "Cleaning pacman"
-    ui_spinner "Pruning cache" \
-      --success "pacman cleanup completed" \
-      --fail "pacman cleanup failed" \
+    ui_step_header "$(get_static_message "pacman_cleaning")"
+    ui_spinner "$(parse_spinner_messages "pacman_prune")" \
       sudo pacman -Sc --noconfirm
   else
-    ui_spinner "Cleaning pacman" \
-      --success "pacman cleanup completed" \
-      --fail "pacman cleanup failed" \
+    ui_spinner "$(parse_spinner_messages "pacman_cleanup")" \
       sudo pacman -Sc --noconfirm
   fi
 }

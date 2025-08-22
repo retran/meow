@@ -21,7 +21,7 @@ set_macos_keyboard_layouts() {
 
   # Ensure the script is running on macOS.
   if [[ "$OSTYPE" != "darwin"* ]]; then
-    ui_warning "macOS keyboard layout configuration only works on macOS"
+    ui_warning "$(get_static_message "macos_keyboard_only_works_macos")"
     return 1
   fi
 
@@ -76,7 +76,7 @@ set_macos_keyboard_layouts() {
 
   # If the Russian layout was active before, restore it as the selected source.
   if [[ "$is_russian_selected" -eq 1 ]]; then
-    ui_action_start "Restoring active Russian layout..."
+    ui_action_start "$(get_static_message "restoring_active_russian_layout")"
     defaults write com.apple.HIToolbox AppleSelectedInputSources -array \
       "<dict>
           <key>InputSourceKind</key>

@@ -40,15 +40,15 @@ install_component_symlink() {
   local component_path="${MEOW_COMPONENTS_DIR}/${component}/component.yaml"
 
   if [[ ! -f "$component_path" ]]; then
-    echo "Component file not found: $component_path" >&2
+    echo "$(format_template_message "component_file_not_found" "$component_path")" >&2
     return 1
   fi
 
   # Handle dry-run mode
   if is_dry_run; then
-    dry_run_ui_info "Would create component installation symlink: ${MEOW_INSTALLED_COMPONENTS_DIR}/${component} -> ${MEOW_COMPONENTS_DIR}/${component}"
+    dry_run_ui_info "$(format_template_message "dry_run_create_component_symlink" "${MEOW_INSTALLED_COMPONENTS_DIR}/${component}" "${MEOW_COMPONENTS_DIR}/${component}")"
     if [[ "${MEOW_COMPONENT_MANUAL_INSTALL:-}" == "true" ]]; then
-      dry_run_ui_info "Would mark as manually installed: ${MEOW_MANUALLY_INSTALLED_COMPONENTS_DIR}/${component} -> ${MEOW_COMPONENTS_DIR}/${component}"
+      dry_run_ui_info "$(format_template_message "dry_run_mark_manual_install" "${MEOW_MANUALLY_INSTALLED_COMPONENTS_DIR}/${component}" "${MEOW_COMPONENTS_DIR}/${component}")"
     fi
     return 0
   fi
@@ -72,8 +72,8 @@ remove_component_symlink() {
 
   # Handle dry-run mode
   if is_dry_run; then
-    dry_run_ui_info "Would remove component installation symlink: ${MEOW_INSTALLED_COMPONENTS_DIR}/${component}"
-    dry_run_ui_info "Would remove manual installation symlink: ${MEOW_MANUALLY_INSTALLED_COMPONENTS_DIR}/${component}"
+    dry_run_ui_info "$(format_template_message "dry_run_remove_component_symlink" "${MEOW_INSTALLED_COMPONENTS_DIR}/${component}")"
+    dry_run_ui_info "$(format_template_message "dry_run_remove_manual_symlink" "${MEOW_MANUALLY_INSTALLED_COMPONENTS_DIR}/${component}")"
     return 0
   fi
 
@@ -136,7 +136,7 @@ list_components() {
 
   # Check if component directory exists
   if [[ ! -d "$MEOW_COMPONENTS_DIR" ]]; then
-    ui_error "Components directory not found: $MEOW_COMPONENTS_DIR"
+    ui_error "$(format_template_message "components_directory_not_found" "$MEOW_COMPONENTS_DIR")"
     return 1
   fi
 

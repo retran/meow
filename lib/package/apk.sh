@@ -19,36 +19,38 @@ is_apk_package_installed() {
 
 setup_apk() {
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    ui_step_header "Setting up apk"
+    ui_step_header "$(get_static_message "apk_setting_up")"
   fi
 
   # Handle dry-run mode
   if is_dry_run; then
     if ! command -v apk >/dev/null 2>&1; then
-      dry_run_ui_info "apk not found - would fail setup"
+      dry_run_ui_info "$(get_static_message "apk_not_found_would_fail")"
     else
-      dry_run_ui_info "Would update apk package index"
-      dry_run_ui_info "  Command: sudo apk update"
-      dry_run_ui_info "  Would refresh available package information"
+      dry_run_ui_info "$(get_static_message "apk_would_update_index")"
+      dry_run_ui_info "  $(get_static_message "apk_update_command")"
+      dry_run_ui_info "  $(get_static_message "apk_would_refresh_info")"
     fi
     return 0
   fi
 
   command -v apk >/dev/null 2>&1 || {
+    ui_error "$(get_static_message "apk_not_found")"
     return 1
   }
 
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    ui_spinner "Updating apk index" \
-      --success "apk index updated" \
-      --fail "Failed to update apk index" \
+    ui_spinner "$(parse_spinner_messages "apk_update")" \
       sudo apk update
   else
-    sudo apk update >/dev/null 2>&1
+    sudo apk update >/dev/null 2>&1 || {
+      ui_error "$(get_static_message "apk_failed_update")"
+      return 1
+    }
   fi
 
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    ui_action_success "apk ready"
+    ui_action_success "$(get_static_message "apk_setup_complete")"
   fi
 }
 
@@ -67,16 +69,16 @@ uninstall_apk_packages() {
 cleanup_apk() {
   # Handle dry-run mode
   if is_dry_run; then
-    dry_run_ui_info "apk cleanup would be skipped (no cache to clean)"
-    dry_run_ui_info "  apk uses --no-cache flag so no cleanup needed"
+    dry_run_ui_info "$(get_static_message "apk_cleanup_would_skip")"
+    dry_run_ui_info "  $(get_static_message "apk_no_cache_info")"
     return 0
   fi
 
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    ui_step_header "Cleaning apk"
-    ui_action_success "apk cleanup completed (no cache to clean)"
+    ui_step_header "$(get_static_message "apk_cleaning")"
+    ui_action_success "$(get_static_message "apk_cleanup_completed")"
   else
     # In non-verbose mode, just skip silently since apk doesn't need cleanup
-    ui_action_success "apk cleanup completed"
+    ui_action_success "$(get_static_message "apk_cleanup_completed_short")"
   fi
 }

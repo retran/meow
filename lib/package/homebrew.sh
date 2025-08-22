@@ -25,11 +25,11 @@ setup_homebrew() {
   # Handle dry-run mode
   if is_dry_run; then
     if ! command -v brew >/dev/null 2>&1; then
-      dry_run_ui_info "Would install Homebrew using official installation script"
-      dry_run_ui_info "  Script URL: https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh"
-      dry_run_ui_info "  Would configure shell environment after installation"
+      dry_run_ui_info "$(get_static_message "homebrew_would_install")"
+      dry_run_ui_info "  $(get_static_message "homebrew_install_script_url")"
+      dry_run_ui_info "  $(get_static_message "homebrew_would_configure")"
     else
-      dry_run_ui_info "Homebrew already available, no setup needed"
+      dry_run_ui_info "$(get_static_message "homebrew_already_available")"
     fi
     return 0
   fi

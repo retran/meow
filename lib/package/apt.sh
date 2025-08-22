@@ -25,11 +25,11 @@ setup_apt() {
   # Handle dry-run mode
   if is_dry_run; then
     if ! command -v apt-get >/dev/null 2>&1; then
-      dry_run_ui_info "apt-get not found - would fail setup"
+      dry_run_ui_info "$(get_static_message "apt_get_not_found")"
     else
-      dry_run_ui_info "Would update APT package index"
-      dry_run_ui_info "  Command: sudo apt-get update"
-      dry_run_ui_info "  Would refresh available package information"
+      dry_run_ui_info "$(get_static_message "apt_would_update_index")"
+      dry_run_ui_info "  $(get_static_message "apt_update_command")"
+      dry_run_ui_info "  $(get_static_message "apt_would_refresh_info")"
     fi
     return 0
   fi
@@ -39,9 +39,9 @@ setup_apt() {
   }
 
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    ui_spinner "Updating APT index" \
-      --success "APT index updated" \
-      --fail "Failed to update APT index" \
+    ui_spinner "$(get_static_message "apt_updating_index")" \
+      --success "$(get_static_message "apt_index_updated")" \
+      --fail "$(get_static_message "apt_index_update_failed")" \
       sudo apt-get update
   else
     sudo apt-get update >/dev/null 2>&1

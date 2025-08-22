@@ -18,14 +18,14 @@ is_mas_package_installed() {
 }
 
 setup_mas() {
-  ui_step_header "Setting up mas CLI"
+  ui_step_header "$(get_static_message "mas_setting_up")"
 
   # Handle dry-run mode
   if is_dry_run; then
     if ! command -v mas >/dev/null 2>&1; then
-      dry_run_ui_info "mas CLI not found - would warn and fail setup"
+      dry_run_ui_info "$(get_static_message "mas_not_found_would_fail")"
     else
-      dry_run_ui_info "mas CLI already available, no setup needed"
+      dry_run_ui_info "$(get_static_message "mas_already_available")"
     fi
     return 0
   fi
@@ -34,7 +34,7 @@ setup_mas() {
     ui_warning "$(get_static_message 'mas_not_found')"
     return 1
   }
-  ui_action_success "mas CLI available"
+  ui_action_success "$(get_static_message "mas_cli_available")"
 }
 
 install_mas_packages() {

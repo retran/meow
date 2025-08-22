@@ -13,7 +13,7 @@ source "${MEOW}/lib/core/platform.sh"
 install_zsh_plugins() {
   # Install Zsh plugins on Debian-based and Alpine Linux
   if [[ "$IS_DEBIAN_BASED" == "true" || "$IS_ALPINE" == "true" ]]; then
-    ui_action_start "Checking Zsh plugins..."
+    ui_action_start "$(get_static_message "checking_zsh_plugins")"
 
     local zsh_custom_dir="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
     if [[ -d "$zsh_custom_dir" ]]; then
@@ -25,9 +25,9 @@ install_zsh_plugins() {
         git clone --depth 1 https://github.com/zsh-users/zsh-syntax-highlighting.git \
           "${zsh_custom_dir}/plugins/zsh-syntax-highlighting" >/dev/null 2>&1
       fi
-      ui_action_success "Zsh plugins checked/installed"
+      ui_action_success "$(get_static_message "zsh_plugins_checked_installed")"
     else
-      ui_warning "Oh My Zsh dir not found at '$zsh_custom_dir'. Skipping plugins"
+      ui_warning "$(format_template_message "oh_my_zsh_dir_not_found" "$zsh_custom_dir")"
     fi
   fi
 }

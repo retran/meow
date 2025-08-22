@@ -16,14 +16,14 @@ is_go_package_installed() {
 }
 
 setup_go() {
-  ui_step_header "Setting up Go"
+  ui_step_header "$(get_static_message "go_setting_up")"
 
   # Handle dry-run mode
   if is_dry_run; then
     if ! command -v go >/dev/null 2>&1; then
-      dry_run_ui_info "Go not found - would fail setup"
+      dry_run_ui_info "$(get_static_message "go_not_found_would_fail")"
     else
-      dry_run_ui_info "Go already available, ready for package installation"
+      dry_run_ui_info "$(get_static_message "go_already_available")"
     fi
     return 0
   fi
@@ -32,7 +32,7 @@ setup_go() {
     ui_action_error "$(get_static_message 'go_not_found')"
     return 1
   }
-  ui_action_success "Go available"
+  ui_action_success "$(get_static_message "go_available")"
 }
 
 install_go_packages() {
@@ -51,8 +51,8 @@ uninstall_go_packages() {
   fi
   local package_file="${MEOW_COMPONENTS_DIR}/$1/packages/go.list"
   if [[ -f "$package_file" ]]; then
-    ui_warning "Go packages cannot be automatically uninstalled via go command"
-    ui_info "Go packages are installed to GOPATH/bin. Please manually remove binaries if needed:"
+    ui_warning "$(get_static_message "go_packages_cannot_uninstall")"
+    ui_info "$(get_static_message "go_packages_manual_removal")"
 
     # Try to get GOPATH, but handle the case where go is not available
     local go_bin_path=""
@@ -84,16 +84,16 @@ cleanup_go() {
 
   # Handle dry-run mode
   if is_dry_run; then
-    dry_run_ui_info "Go cleanup would be skipped (no cleanup needed)"
+    dry_run_ui_info "$(get_static_message "go_cleanup_would_skip")"
     dry_run_ui_info "  Go modules are cached in GOMODCACHE, managed by Go itself"
     return 0
   fi
 
   # Go doesn't have a built-in cleanup command
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    ui_step_header "Cleaning Go (no-op)"
-    ui_action_success "Go cleanup skipped"
+    ui_step_header "$(get_static_message "go_cleaning_noop")"
+    ui_action_success "$(get_static_message "go_cleanup_skipped")"
   else
-    ui_action_success "Go cleanup skipped"
+    ui_action_success "$(get_static_message "go_cleanup_skipped")"
   fi
 }
