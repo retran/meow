@@ -9,6 +9,7 @@ MEOW="${MEOW:-$HOME/.meow}"
 
 source "${MEOW}/lib/core/defs.sh"
 source "${MEOW}/lib/core/ui.sh"
+source "${MEOW}/lib/strings/strings.sh"
 
 # Set keyboard layouts for macOS.
 # This function configures the enabled input sources (keyboard layouts)
@@ -39,7 +40,7 @@ set_macos_keyboard_layouts() {
       russian_layout_name="Russian"
       ;;
     *)
-      ui_error "Unknown layout type: $layout_type. Use 'das' or 'mbp'"
+      ui_error "$(format_template_message "macos_keyboard_unknown_layout_type" "$layout_type")"
       return 1
       ;;
   esac
@@ -52,7 +53,7 @@ set_macos_keyboard_layouts() {
     is_russian_selected=1
   fi
 
-  ui_action_start "Configuring keyboard layouts for $layout_type..."
+  ui_action_start "$(format_template_message "macos_keyboard_configuring_layouts" "$layout_type")"
 
   # Set the enabled input sources to "ABC" (U.S.) and the chosen Russian layout.
   # This overwrites the existing list of enabled layouts.
@@ -76,7 +77,7 @@ set_macos_keyboard_layouts() {
 
   # If the Russian layout was active before, restore it as the selected source.
   if [[ "$is_russian_selected" -eq 1 ]]; then
-    ui_action_start "$(get_static_message "restoring_active_russian_layout")"
+    ui_action_start "$(get_static_message "macos_keyboard_restoring_russian")"
     defaults write com.apple.HIToolbox AppleSelectedInputSources -array \
       "<dict>
           <key>InputSourceKind</key>
@@ -92,5 +93,5 @@ set_macos_keyboard_layouts() {
   # Errors are suppressed in case the process isn't running.
   pkill TextInputMenuAgent 2>/dev/null || true
 
-  ui_action_success "Keyboard layouts configured for $layout_type"
+  ui_action_success "$(format_template_message "macos_keyboard_layouts_configured" "$layout_type")"
 }

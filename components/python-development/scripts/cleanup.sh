@@ -5,42 +5,45 @@
 
 set -euo pipefail
 
-echo "🧹 Running Python Development cleanup..."
+# Source the strings for localized messages
+source "${MEOW}/lib/strings/strings.sh"
+
+echo "$(get_static_message "python_dev_cleanup_running")"
 
 # Clear pip cache
 if command -v pip >/dev/null 2>&1; then
-  echo "  📦 Cleaning pip cache..."
+  echo "$(get_static_message "python_dev_cleaning_pip_cache")"
   pip cache purge 2>/dev/null || true
 fi
 
 # Clear pip3 cache if available
 if command -v pip3 >/dev/null 2>&1; then
-  echo "  📦 Cleaning pip3 cache..."
+  echo "$(get_static_message "python_dev_cleaning_pip3_cache")"
   pip3 cache purge 2>/dev/null || true
 fi
 
 # Clean up Python bytecode files in common locations
-echo "  🗑️  Cleaning Python bytecode files..."
+echo "$(get_static_message "python_dev_cleaning_bytecode")"
 find "$HOME" -name "*.pyc" -delete 2>/dev/null || true
 find "$HOME" -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true
 
 # Clean up pytest cache
 if [[ -d "$HOME/.pytest_cache" ]]; then
-  echo "  🗑️  Removing pytest cache..."
+  echo "$(get_static_message "python_dev_removing_pytest_cache")"
   rm -rf "$HOME/.pytest_cache" || true
 fi
 
 # Clean up mypy cache
 if [[ -d "$HOME/.mypy_cache" ]]; then
-  echo "  🗑️  Removing mypy cache..."
+  echo "$(get_static_message "python_dev_removing_mypy_cache")"
   rm -rf "$HOME/.mypy_cache" || true
 fi
 
 # Clean up IPython/Jupyter cache
 if [[ -d "$HOME/.ipython" ]]; then
-  echo "  🗑️  Cleaning IPython cache..."
+  echo "$(get_static_message "python_dev_cleaning_ipython_cache")"
   find "$HOME/.ipython" -name "*.pyc" -delete 2>/dev/null || true
   find "$HOME/.ipython" -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true
 fi
 
-echo "✅ Python Development cleanup completed"
+echo "$(get_static_message "python_dev_cleanup_completed")"

@@ -384,6 +384,32 @@ declare -A UI_STATIC_MESSAGES=(
   ["pipx_cleaning_binaries"]="  🗑️  Cleaning pipx binaries..."
   ["pipx_cleanup_completed"]="✅ Pipx cleanup completed"
 
+  # Rust system setup
+  ["rust_setting_up_toolchain"]="Setting up Rust toolchain"
+  ["rust_toolchain_already_initialized"]="Rust toolchain already initialized"
+  ["rust_installing_toolchain"]="Installing Rust toolchain with rustup"
+  ["rust_toolchain_installed"]="Rust toolchain installed successfully"
+  ["rust_toolchain_install_failed"]="Failed to install Rust toolchain"
+  ["rust_toolchain_setup_complete"]="Rust toolchain setup complete"
+  ["rust_toolchain_not_available"]="Rust toolchain installed but commands not available in current session"
+  ["rust_restart_shell_notice"]="Please restart your shell or source ~/.cargo/env"
+  ["rust_installing_components"]="Installing Rust components"
+  ["rust_installing_clippy"]="Installing clippy component"
+  ["rust_clippy_installed"]="clippy installed"
+  ["rust_clippy_install_failed"]="Failed to install clippy component"
+  ["rust_installing_analyzer"]="Installing rust-analyzer component"
+  ["rust_analyzer_installed"]="rust-analyzer installed"
+  ["rust_analyzer_install_failed"]="Failed to install rust-analyzer component"
+  ["rust_rustfmt_available"]="rustfmt available"
+  ["rust_rustfmt_not_available"]="rustfmt not available"
+
+  # macOS keyboard configuration
+  ["macos_keyboard_only_works_macos"]="This function only works on macOS"
+  ["macos_keyboard_unknown_layout_type"]="Unknown layout type: %s. Use 'das' or 'mbp'"
+  ["macos_keyboard_configuring_layouts"]="Configuring keyboard layouts for %s..."
+  ["macos_keyboard_restoring_russian"]="Restoring active Russian layout"
+  ["macos_keyboard_layouts_configured"]="Keyboard layouts configured for %s"
+
   # Mac App Store package manager
   ["mas_manual_uninstall_warning"]="Mac App Store apps cannot be automatically uninstalled via mas CLI"
   ["mas_manual_uninstall_instruction"]="Please manually uninstall the following apps through Launchpad or Applications folder:"
@@ -565,6 +591,55 @@ declare -A UI_TEMPLATE_MESSAGES=(
   ["motd_system_territory"]="Let me tell you about your digital territory, comrade:"
   ["motd_system_info"]="System:     %s"
   ["motd_shell_info"]="Shell:      %s"
+
+  # Rust system setup
+  ["rust_version_info"]="Rust version: %s"
+
+  # macOS keyboard configuration
+  ["macos_keyboard_unknown_layout_type"]="Unknown layout type: %s. Use 'das' or 'mbp'"
+  ["macos_keyboard_configuring_layouts"]="Configuring keyboard layouts for %s..."
+  ["macos_keyboard_layouts_configured"]="Keyboard layouts configured for %s"
+
+  # Node.js component setup
+  ["node_npm_not_found_skip"]="npm command not found. Skipping Node.js configuration"
+  ["node_configuring_global_packages"]="Configuring npm for global packages without sudo"
+  ["node_npm_configured_successfully"]="NPM configured successfully"
+
+  # Component cleanup - Rust Development
+  ["rust_dev_cleanup_running"]="🧹 Running Rust Development cleanup..."
+  ["rust_dev_cleaning_cargo_cache"]="  📦 Cleaning cargo cache..."
+  ["rust_dev_cleaning_registry_cache"]="  🗑️  Cleaning cargo registry cache..."
+  ["rust_dev_cleaning_git_cache"]="  🗑️  Cleaning cargo git cache..."
+  ["rust_dev_cleaning_target_dirs"]="  🗑️  Cleaning Rust target directories..."
+  ["rust_dev_cleaning_rustup_temp"]="  🗑️  Cleaning rustup temporary files..."
+  ["rust_dev_cleanup_completed"]="✅ Rust Development cleanup completed"
+
+  # Component cleanup - Python Development
+  ["python_dev_cleanup_running"]="🧹 Running Python Development cleanup..."
+  ["python_dev_cleaning_pip_cache"]="  📦 Cleaning pip cache..."
+  ["python_dev_cleaning_pip3_cache"]="  📦 Cleaning pip3 cache..."
+  ["python_dev_cleaning_bytecode"]="  🗑️  Cleaning Python bytecode files..."
+  ["python_dev_removing_pytest_cache"]="  🗑️  Removing pytest cache..."
+  ["python_dev_removing_mypy_cache"]="  🗑️  Removing mypy cache..."
+  ["python_dev_cleaning_ipython_cache"]="  🗑️  Cleaning IPython cache..."
+  ["python_dev_cleanup_completed"]="✅ Python Development cleanup completed"
+
+  # Component cleanup - Gaming
+  ["gaming_cleanup_running"]="🧹 Running Gaming cleanup..."
+  ["gaming_stopping_steam"]="  ⏹️  Stopping Steam..."
+  ["gaming_stopping_geforce_now"]="  ⏹️  Stopping NVIDIA GeForce NOW..."
+  ["gaming_removing_login_items"]="  🗑️  Removing gaming apps from login items..."
+  ["gaming_cleaning_cache"]="  🗑️  Cleaning gaming cache and logs..."
+  ["gaming_cleanup_completed"]="✅ Gaming cleanup completed"
+  ["gaming_saves_preserved"]="ℹ️  Note: Game saves and user data were preserved"
+
+  # Desktop Essential component setup
+  ["desktop_essential_macos_config_complete"]="macOS configuration complete (may require logout/restart)"
+  ["desktop_essential_macos_config_issues"]="macOS configuration encountered issues or was skipped"
+
+  # Shell Essential component setup
+  ["shell_essential_configuring_tmux"]="Configuring tmux"
+  ["shell_essential_configuring_zsh"]="Configuring zsh"
   ["motd_uptime_info"]="Uptime:     %s"
   ["motd_disk_info"]="Disk:       %s"
   ["motd_ram_info"]="RAM:        %s"

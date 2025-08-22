@@ -8,9 +8,11 @@ COMPONENT_NAME="$1"
 MEOW="$2"
 
 source "${MEOW}/lib/system/macos.sh"
+source "${MEOW}/lib/core/ui.sh"
+source "${MEOW}/lib/strings/strings.sh"
 
 if configure_macos; then
-  success_tick_msg "macOS configuration complete (may require logout/restart)"
+  ui_action_success "$(get_static_message "desktop_essential_macos_config_complete")"
 else
-  warning "macOS configuration encountered issues or was skipped"
+  ui_warning "$(get_static_message "desktop_essential_macos_config_issues")"
 fi
