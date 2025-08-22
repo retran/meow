@@ -542,16 +542,16 @@ collect_multiple_components_for_uninstall() {
     case "${@: -1}" in
       "--filter-source")
         filter_source_components="true"
-        set -- "${@:1:$(($#-1))}" # Remove last argument
+        set -- "${@:1:$(($# - 1))}" # Remove last argument
         ;;
       "--skip-preset-checks")
         skip_preset_checks="true"
-        set -- "${@:1:$(($#-1))}" # Remove last argument
+        set -- "${@:1:$(($# - 1))}" # Remove last argument
         ;;
       --exclude-preset=*)
         exclude_preset="${@: -1}"
         exclude_preset="${exclude_preset#--exclude-preset=}"
-        set -- "${@:1:$(($#-1))}" # Remove last argument
+        set -- "${@:1:$(($# - 1))}" # Remove last argument
         ;;
       *)
         break

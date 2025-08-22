@@ -413,19 +413,19 @@ uninstall_preset() {
     collect_multiple_components_for_uninstall "${preset_components_array[@]}" --filter-source --exclude-preset="$preset_name"
 
     if [[ ${#multiple_uninstall_order[@]} -gt 0 ]]; then
-        local args=("${multiple_uninstall_order[@]}")
-        if [[ "$force_flag" == "--force" ]]; then
-          args+=("--force")
-        fi
-        args+=("--exclude-preset=$preset_name")
-
-        if ! uninstall_component "${args[@]}"; then
-          ui_error "$(format_template_message "preset_uninstall_failed" "$preset_name")"
-          return 1
-        fi
-      else
-        ui_info "$(format_template_message "preset_no_safe_components_to_uninstall" "$preset_name")"
+      local args=("${multiple_uninstall_order[@]}")
+      if [[ "$force_flag" == "--force" ]]; then
+        args+=("--force")
       fi
+      args+=("--exclude-preset=$preset_name")
+
+      if ! uninstall_component "${args[@]}"; then
+        ui_error "$(format_template_message "preset_uninstall_failed" "$preset_name")"
+        return 1
+      fi
+    else
+      ui_info "$(format_template_message "preset_no_safe_components_to_uninstall" "$preset_name")"
+    fi
   fi
 
   remove_preset_tracking "$preset"
