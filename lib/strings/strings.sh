@@ -7,11 +7,7 @@ if [[ -n "${_LIB_STRINGS_SOURCED:-}" ]]; then
 fi
 _LIB_STRINGS_SOURCED=1
 
-# ============================================================================
-# CORE STATIC MESSAGES
-# ============================================================================
-
-declare -A UI_STATIC_MESSAGES=(
+declare -A UI_MESSAGES=(
   # General operations
   ["session_init_failed"]="Session initialization failed"
   ["installation_order"]="Installation order:"
@@ -77,30 +73,12 @@ declare -A UI_STATIC_MESSAGES=(
   ["zsh_environment_setup_complete"]="Zsh environment setup complete."
 
   # System setup
-  ["motd_greeting"]="%s, сomrade %s!"
-  ["motd_greeting_comrade"]="%s, сomrade %s!"
-  ["motd_calendar"]="Calendar shows %s."
-  ["motd_calendar_shows"]="Calendar shows %s"
-  ["motd_clock"]="Clock purrs at %s."
-  ["motd_clock_purrs"]="Clock purrs at %s"
-  ["motd_ascii_art_not_found"]="ASCII art file not found: %s"
   ["motd_system_territory"]="Let me tell you about your digital territory, comrade:"
-  ["motd_system_info"]="System:     %s"
-  ["motd_shell_info"]="Shell:      %s"
-  ["motd_uptime_info"]="Uptime:     %s"
-  ["motd_disk_info"]="Disk:       %s"
-  ["motd_ram_info"]="RAM:        %s"
-  ["motd_updates_info"]="Updates:    %s packages need updating"
-  ["motd_computer_name_set"]="Computer name set to %s"
 
   # Rust system setup
   ["rust_version_info"]="Rust version: %s"
 
   # macOS keyboard configuration
-  ["macos_keyboard_unknown_layout_type"]="Unknown layout type: %s. Use 'das' or 'mbp'"
-  ["macos_keyboard_configuring_layouts"]="Configuring keyboard layouts for %s..."
-  ["macos_keyboard_layouts_configured"]="Keyboard layouts configured for %s"
-  ["macos_setting_computer_name"]="Computer name set to %s"
   ["macos_system_defaults"]="System Defaults"
   ["macos_finder_config"]="Finder Configuration"
   ["macos_dock_config"]="Dock Configuration"
@@ -148,21 +126,6 @@ declare -A UI_STATIC_MESSAGES=(
   ["shell_essential_configuring_tmux"]="Configuring tmux"
   ["shell_essential_configuring_zsh"]="Configuring zsh"
 
-  # Package manager summaries
-  ["package_summary_installed"]="%s: ✓ %d installed, %d already present"
-  ["package_summary_present"]="%s: ✓ %d/%d already present"
-  ["package_summary_failed"]="%s: ✗ %d failed, %d installed, %d already present"
-  ["package_summary_updated"]="%s: ✓ %d updated, %d up-to-date"
-  ["package_summary_update_failed"]="%s: ✗ %d failed, %d updated, %d up-to-date"
-  ["package_summary_uninstalled"]="%s: ✓ %d uninstalled, %d not installed"
-  ["package_summary_uninstall_failed"]="%s: ✗ %d failed, %d uninstalled, %d not installed"
-)
-
-# ============================================================================
-# TEMPLATE MESSAGES - Strings with parameters using printf format
-# ============================================================================
-
-declare -A UI_TEMPLATE_MESSAGES=(
   ["tmux_setup_issues"]="tmux environment setup encountered issues"
 
   # Status messages
@@ -191,6 +154,67 @@ declare -A UI_TEMPLATE_MESSAGES=(
   ["requested_components"]="Requested components: %s"
   ["new_dependencies"]="New dependencies: %s"
 
+  # Component operation messages
+  ["installing_component"]="Installing component: %s"
+  ["component_installed"]="Component installed: %s"
+  ["updating_component"]="Updating component: %s"
+  ["component_updated"]="Component updated: %s"
+  ["uninstalling_component"]="Uninstalling component: %s"
+  ["component_uninstalled"]="Component uninstalled: %s"
+  ["setting_up_component"]="Setting up component: %s"
+  ["cleaning_component"]="Cleaning component: %s"
+
+  # Component count messages
+  ["components_install_count"]="Will install %d component%s with dependencies"
+  ["total_components_install"]="Total components to install: %d"
+
+  # Symlinks operations
+  ["symlinks_configuration_checked"]="Symlinks: ✓ %d configuration%s checked"
+
+  # Package installation messages
+  ["package_not_installed_skipping"]="Package not installed, skipping: %s"
+
+  # Additional UI template messages
+  ["command_more_lines_hidden"]="%d more lines hidden..."
+  ["setting_up_package_manager"]="Setting up %s package manager"
+  ["manager_ready"]="%s package manager ready"
+  ["cleaning_package_manager"]="Cleaning %s package manager"
+  ["manager_cleanup_completed"]="%s package manager cleanup completed"
+  ["installing_packages"]="Installing packages for %s"
+  ["updating_packages"]="Updating packages for %s"
+  ["package_manager_removal"]="Removing %s packages for %s"
+  ["removing_repo"]="Removing repository for %s"
+  ["cloning_repo"]="Cloning repository for %s"
+  ["updating_repo"]="Updating repository for %s"
+  ["cleaning_repo"]="Cleaning repository for %s"
+  ["repo_cleaned_for"]="Repository cleaned for %s"
+  ["setting_up_symlinks"]="Setting up symlinks for %s"
+  ["removing_symlinks"]="Removing symlinks for %s"
+  ["symlinks_configured"]="Symlinks configured for %s"
+  ["symlinks_removed"]="Symlinks removed for %s"
+
+  # MOTD template messages
+  ["motd_greeting"]="%s, сomrade %s!"
+  ["motd_greeting_comrade"]="%s, сomrade %s!"
+  ["motd_calendar"]="Calendar shows %s."
+  ["motd_calendar_shows"]="Calendar shows %s"
+  ["motd_clock"]="Clock purrs at %s."
+  ["motd_clock_purrs"]="Clock purrs at %s"
+  ["motd_ascii_art_not_found"]="ASCII art file not found: %s"
+  ["motd_system_info"]="System:     %s"
+  ["motd_shell_info"]="Shell:      %s"
+  ["motd_uptime_info"]="Uptime:     %s"
+  ["motd_disk_info"]="Disk:       %s"
+  ["motd_ram_info"]="RAM:        %s"
+  ["motd_updates_info"]="Updates:    %s packages need updating"
+  ["motd_computer_name_set"]="Computer name set to %s"
+
+  # macOS template messages
+  ["macos_keyboard_unknown_layout_type"]="Unknown layout type: %s. Use 'das' or 'mbp'"
+  ["macos_keyboard_configuring_layouts"]="Configuring keyboard layouts for %s..."
+  ["macos_keyboard_layouts_configured"]="Keyboard layouts configured for %s"
+  ["macos_setting_computer_name"]="Computer name set to %s"
+
   # Repository operations
   ["repo_updated"]="Repository updated successfully"
   ["repo_cleaned"]="Repository cleaned up"
@@ -200,6 +224,17 @@ declare -A UI_TEMPLATE_MESSAGES=(
   ["packages_uninstalled"]="Packages uninstalled successfully"
   ["package_updates_failed"]="Some package updates may have failed"
   ["package_uninstall_failed"]="Some package uninstallation may have failed"
+
+  # Package manager summary messages
+  ["package_summary_success_installed"]="%s: ✓ %d installed, %d already present"
+  ["package_summary_success_present"]="%s: ✓ %d/%d already present"
+  ["package_summary_success_updated"]="%s: ✓ %d updated, %d up-to-date"
+  ["package_summary_success_up_to_date"]="%s: ✓ %d/%d up-to-date"
+  ["package_summary_success_uninstalled"]="%s: ✓ %d uninstalled, %d not installed"
+  ["package_summary_success_not_installed"]="%s: ✓ %d/%d not installed"
+  ["package_summary_failed_install"]="%s: ✗ %d failed, %d installed, %d already present"
+  ["package_summary_failed_update"]="%s: ✗ %d failed, %d updated, %d up-to-date"
+  ["package_summary_failed_uninstall"]="%s: ✗ %d failed, %d uninstalled, %d not installed"
 
   # Symlinks operations
   ["symlinks_restored"]="Symlinks removed and backups restored successfully"
@@ -731,13 +766,7 @@ declare -A UI_TEMPLATE_MESSAGES=(
 
   # Component dependency warnings
   ["circular_dependencies_detected"]="Circular dependencies detected among: %s"
-)
 
-# ============================================================================
-# SPINNER MESSAGES - Progress|Success|Fail triplets for ui_spinner
-# ============================================================================
-
-declare -A UI_SPINNER_MESSAGES=(
   # Package managers
   ["homebrew_install"]="Installing Homebrew|Homebrew installed successfully|Homebrew installation failed"
   ["homebrew_cleanup"]="Cleaning Homebrew|Homebrew cleanup completed|Homebrew cleanup failed"
@@ -790,21 +819,21 @@ declare -A UI_SPINNER_MESSAGES=(
 # Get a static message by key
 get_static_message() {
   local key="$1"
-  echo "${UI_STATIC_MESSAGES[$key]:-$key}"
+  echo "${UI_MESSAGES[$key]:-$key}"
 }
 
 # Format a template message with parameters
 format_template_message() {
   local template_key="$1"
   shift
-  local template="${UI_TEMPLATE_MESSAGES[$template_key]:-$template_key}"
+  local template="${UI_MESSAGES[$template_key]:-$template_key}"
   printf "$template" "$@"
 }
 
 # Get spinner message parts (returns: progress|success|fail)
 get_spinner_messages() {
   local key="$1"
-  echo "${UI_SPINNER_MESSAGES[$key]:-$key||}"
+  echo "${UI_MESSAGES[$key]:-$key||}"
 }
 
 # Parse spinner messages into individual parts

@@ -32,6 +32,11 @@ dry_run_info() {
   echo -e "  ${CYAN}$(get_static_message "dry_run_prefix")${RESET} $message"
 }
 
+# Alias for dry_run_info for consistency with UI functions
+dry_run_ui_info() {
+  dry_run_info "$@"
+}
+
 # Show dry-run command details with special formatting
 dry_run_command_info() {
   local command="$1"
