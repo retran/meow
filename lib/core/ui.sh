@@ -209,24 +209,6 @@ ui_package_manager_cleaned() {
 }
 
 # Package manager initialization with spinner
-ui_package_manager_initializing() {
-  local manager="$1"
-  shift
-  local spinner_key
-  case "$manager" in
-    "apk") spinner_key="init_apk" ;;
-    "apt") spinner_key="init_apt" ;;
-    "pacman") spinner_key="init_pacman" ;;
-    "homebrew") spinner_key="init_homebrew" ;;
-    *) spinner_key="init_${manager}" ;;
-  esac
-
-  parse_spinner_messages "$spinner_key"
-  ui_spinner "$SPINNER_PROGRESS" \
-    --success "$SPINNER_SUCCESS" \
-    --fail "$SPINNER_FAIL" \
-    "$@"
-}
 
 # ============================================================================
 # SEMANTIC UI FUNCTIONS - PACKAGE OPERATIONS
@@ -302,23 +284,7 @@ ui_repo_cleaned() {
 }
 
 # Repository operations with spinner
-ui_repo_cloning_with_spinner() {
-  local component="$1"
-  shift
-  ui_spinner "$(format_template_message 'cloning_component_repo' "$component")" \
-    --success "$(format_template_message 'repo_cloned_success' "$component")" \
-    --fail "$(format_template_message 'repo_clone_failed' "$component")" \
-    "$@"
-}
 
-ui_repo_updating_with_spinner() {
-  local component="$1"
-  shift
-  ui_spinner "$(format_template_message 'updating_component_repo' "$component")" \
-    --success "$(format_template_message 'repo_updated_success' "$component")" \
-    --fail "$(format_template_message 'repo_update_failed' "$component")" \
-    "$@"
-}
 
 # ============================================================================
 # SEMANTIC UI FUNCTIONS - SYMLINK OPERATIONS
@@ -618,28 +584,6 @@ run_package_operation() {
 # ============================================================================
 
 # Operation wrapper with timing
-run_operation() {
-  local operation_name="$1"
-  shift
-
-  ui_action_start "Starting $operation_name..."
-  local start_time
-  start_time=$(date +%s)
-
-  if "$@"; then
-    local end_time
-    end_time=$(date +%s)
-    local duration=$((end_time - start_time))
-    ui_action_success "$operation_name completed (${duration}s)"
-    return 0
-  else
-    local end_time
-    end_time=$(date +%s)
-    local duration=$((end_time - start_time))
-    ui_action_error "$operation_name failed (${duration}s)"
-    return 1
-  fi
-}
 
 # ============================================================================
 # FINAL SUMMARY FUNCTIONS
@@ -736,82 +680,3 @@ success() { ui_success "$@"; }
 error() { ui_error "$@"; }
 warning() { ui_warning "$@"; }
 info() { ui_info "$@"; }
-content() { ui_content "$@"; }
-
-verbose_msg() { ui_verbose_message "$@"; }
-verbose_info() { ui_verbose_info "$@"; }
-
-title() { ui_title "$@"; }
-header() { ui_header "$@"; }
-subheader() { ui_subheader "$@"; }
-
-action_msg() { ui_action_start "$@"; }
-success_tick_msg() { ui_action_success "$@"; }
-error_msg() { ui_action_error "$@"; }
-warning_msg() { ui_action_warning "$@"; }
-info_italic_msg() { ui_info_detail "$@"; }
-dependency_msg() { ui_dependency "$@"; }
-list_item_msg() { ui_list_item "$@"; }
-emphasized_msg() { ui_emphasis "$@"; }
-indent_msg() { ui_indent "$@"; }
-
-verbose_action_msg() { ui_verbose_action_start "$@"; }
-verbose_success_tick_msg() { ui_verbose_action_success "$@"; }
-
-step_header() { ui_step_header "$@"; }
-
-# Component operations
-component_setup_msg() { ui_component_setup "$@"; }
-component_cleanup_msg() { ui_component_cleanup "$@"; }
-component_install_msg() { ui_component_installing "$@"; }
-component_update_msg() { ui_component_updating "$@"; }
-component_uninstall_msg() { ui_component_uninstalling "$@"; }
-component_installed_msg() { ui_component_installed "$@"; }
-component_updated_msg() { ui_component_updated "$@"; }
-component_uninstalled_msg() { ui_component_uninstalled "$@"; }
-
-# Package manager operations
-package_manager_setup_msg() { ui_package_manager_setup "$@"; }
-package_manager_ready_msg() { ui_package_manager_ready "$@"; }
-package_manager_cleaning_msg() { ui_package_manager_cleaning "$@"; }
-package_manager_cleanup_msg() { ui_package_manager_cleaned "$@"; }
-
-# Package operations
-packages_install_header_msg() { ui_packages_installing_header "$@"; }
-packages_update_header_msg() { ui_packages_updating_header "$@"; }
-packages_remove_header_msg() { ui_packages_removing_header "$@"; }
-package_already_installed_msg() { ui_package_already_installed "$@"; }
-package_up_to_date_msg() { ui_package_up_to_date "$@"; }
-package_created_msg() { ui_package_created "$@"; }
-package_already_correct_msg() { ui_package_already_correct "$@"; }
-
-# Repository operations
-repo_removing_msg() { ui_repo_removing "$@"; }
-repo_cloning_msg() { ui_repo_cloning "$@"; }
-repo_updating_msg() { ui_repo_updating "$@"; }
-repo_updated_msg() { ui_repo_updated "$@"; }
-repo_cleanup_msg() { ui_repo_cleaning "$@"; }
-repo_cleaned_msg() { ui_repo_cleaned "$@"; }
-
-# Symlink operations
-symlinks_setup_msg() { ui_symlinks_setting_up "$@"; }
-symlinks_remove_msg() { ui_symlinks_removing "$@"; }
-symlinks_configured_msg() { ui_symlinks_configured "$@"; }
-symlinks_removed_msg() { ui_symlinks_removed "$@"; }
-symlinks_completed_msg() { ui_symlinks_completed "$@"; }
-
-# Installation operations
-install_order_msg() { ui_installation_order "$@"; }
-update_order_msg() { ui_update_order "$@"; }
-uninstall_order_msg() { ui_uninstall_order "$@"; }
-repo_component_install_msg() { ui_repo_component_install "$@"; }
-repo_update_msg() { ui_repo_update "$@"; }
-packages_update_msg() { ui_packages_update "$@"; }
-packages_updated_msg() { ui_packages_updated "$@"; }
-symlinks_restore_msg() { ui_symlinks_restore "$@"; }
-symlinks_restored_msg() { ui_symlinks_restored "$@"; }
-packages_uninstall_msg() { ui_packages_uninstall "$@"; }
-packages_uninstalled_msg() { ui_packages_uninstalled "$@"; }
-component_tracking_remove_msg() { ui_component_tracking_remove "$@"; }
-component_tracking_removed_msg() { ui_component_tracking_removed "$@"; }
-preset_components_update_msg() { ui_preset_components_update "$@"; }
