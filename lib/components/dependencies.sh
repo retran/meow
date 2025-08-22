@@ -8,6 +8,7 @@ _LIB_COMPONENTS_DEPENDENCIES_SOURCED=1
 source "${MEOW}/lib/core/defs.sh"
 source "${MEOW}/lib/core/ui.sh"
 source "${MEOW}/lib/core/yaml.sh"
+source "${MEOW}/lib/strings/strings.sh"
 
 # Import core component functions we depend on
 source "${MEOW}/lib/components/core.sh"
@@ -228,7 +229,7 @@ topological_sort_for_installation() {
 
     # Prevent infinite loop if we have circular dependencies
     if [[ "$found_installable" == "false" && ${#remaining[@]} -gt 0 ]]; then
-      ui_warning "Circular dependencies detected among: ${remaining[*]}"
+      ui_warning "$(format_template_message "circular_dependencies_detected" "${remaining[*]}")"
       # Add remaining components anyway to avoid infinite loop
       sorted_array_ref+=("${remaining[@]}")
       break
@@ -584,7 +585,7 @@ topological_sort_for_removal() {
 
     # Prevent infinite loop if we have circular dependencies
     if [[ "$found_leaf" == "false" && ${#remaining[@]} -gt 0 ]]; then
-      ui_warning "Circular dependencies detected among: ${remaining[*]}"
+      ui_warning "$(format_template_message "circular_dependencies_detected" "${remaining[*]}")"
       # Add remaining components anyway to avoid infinite loop
       sorted_array_ref+=("${remaining[@]}")
       break

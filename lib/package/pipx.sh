@@ -61,7 +61,7 @@ cleanup_pipx() {
 
   # pipx doesn't have a built-in cleanup command, so we'll skip
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    ui_step_header "Cleaning pipx (no-op)"
+    ui_step_header "$(get_static_message "pipx_cleaning") (no-op)"
     ui_action_success "pipx cleanup skipped"
   else
     ui_action_success "pipx cleanup skipped"

@@ -184,7 +184,7 @@ list_backups() {
       if [[ -f "$backup_file" ]]; then
         local original_file="${backup_file%.backup.*}"
         local backup_timestamp="${backup_file##*.backup.}"
-        echo "  $(basename "$original_file") -> $(basename "$backup_file") (created: $backup_timestamp)"
+        echo "$(format_template_message "symlinks_backup_entry_simple" "$(basename "$original_file")" "$(basename "$backup_file")" "$backup_timestamp")"
         found=true
       fi
     done

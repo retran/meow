@@ -9,6 +9,7 @@ source "${MEOW}/lib/core/defs.sh"
 source "${MEOW}/lib/core/ui.sh"
 source "${MEOW}/lib/core/session.sh"
 source "${MEOW}/lib/core/dry_run.sh"
+source "${MEOW}/lib/strings/strings.sh"
 
 source "${MEOW}/lib/components/core.sh"
 source "${MEOW}/lib/components/packages.sh"
@@ -227,7 +228,7 @@ _install_single_component() {
   done
 
   if [[ "$already_installing" == "true" ]]; then
-    ui_verbose_info "Component '$component' already being installed in this session, skipping"
+    ui_verbose_info "$(format_template_message "component_already_installing" "$component")"
     return 0
   fi
 
@@ -262,13 +263,11 @@ _install_single_component() {
     ui_component_installing "$component"
   else
     if [[ "$is_dependency" == "true" ]]; then
-      ui_dependency "Installing component: $component"
+      ui_dependency "$(format_template_message "component_installing_prefix" "$component")"
     else
       ui_component_installing "$component"
     fi
-  fi
-
-  # Mark this component as being installed
+  fi  # Mark this component as being installed
   MEOW_INSTALLING_COMPONENTS+=("$component")
 
   # Install packages for this component
@@ -360,8 +359,8 @@ update_component() {
   fi
 
   # Show summary of what will be updated
-  ui_action_start "Will update ${#components[@]} component$([ ${#components[@]} -gt 1 ] && echo "s") with dependencies"
-  ui_indent "Total components to update: ${#multiple_update_order[@]}"
+  ui_action_start "$(format_template_message "components_update_summary" "${#components[@]}" "$([ ${#components[@]} -gt 1 ] && echo "s" || echo "")")"
+  ui_indent "$(format_template_message "components_update_total" "${#multiple_update_order[@]}")"
 
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
     ui_update_order
@@ -409,10 +408,10 @@ update_component() {
     done
 
     if [[ -n "$requested_comp_list" ]]; then
-      ui_indent "Requested components: $requested_comp_list"
+      ui_indent "$(format_template_message "components_update_requested" "$requested_comp_list")"
     fi
     if [[ -n "$deps_list" ]]; then
-      ui_indent "Dependencies: $deps_list"
+      ui_indent "$(format_template_message "components_update_dependencies" "$deps_list")"
     fi
   fi
 
@@ -443,7 +442,7 @@ update_component() {
     fi
 
     if ! _update_single_component "$component" "$comp_is_dependency"; then
-      ui_warning "Failed to update component: $component, continuing with other components"
+      ui_warning "$(format_template_message "component_update_failed_continue" "$component")"
       # Continue with other components rather than failing completely
     fi
   done
@@ -526,7 +525,7 @@ _update_single_component() {
   done
 
   if [[ "$already_updated" == "true" ]]; then
-    ui_verbose_info "Component '$component' already updated in this session, skipping"
+    ui_verbose_info "$(format_template_message "component_already_updated" "$component")"
     return 0
   fi
 
@@ -539,7 +538,7 @@ _update_single_component() {
 
   # Check if component is installed
   if ! is_component_installed "$component"; then
-    ui_verbose_info "Component '$component' is not installed, skipping update"
+    ui_verbose_info "$(format_template_message "component_not_installed_skip_update" "$component")"
     return 0
   fi
 
@@ -548,7 +547,7 @@ _update_single_component() {
     ui_component_updating "$component"
   else
     if [[ "$is_dependency" == "true" ]]; then
-      ui_dependency "Updating component: $component"
+      ui_dependency "$(format_template_message "component_updating_prefix" "$component")"
     else
       ui_component_updating "$component"
     fi
@@ -560,23 +559,23 @@ _update_single_component() {
   # Update repository if it's a repository-based component
   if has_component_repository_config "$component"; then
     if [[ "$MEOW_VERBOSE" == "true" ]]; then
-      ui_step_header "Updating repository for $component"
+      ui_step_header "$(format_template_message "component_updating_repository" "$component")"
     fi
     if update_component_repository "$component"; then
       ui_verbose_action_success "$(get_static_message 'repo_updated')"
     else
-      ui_warning "Repository update failed, continuing with package updates"
+      ui_warning "$(get_static_message "component_repo_update_failed")"
     fi
   fi
 
   # Update packages for the component
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    ui_step_header "Updating packages for $component"
+    ui_step_header "$(format_template_message "component_updating_packages" "$component")"
   fi
   if update_component_packages "$component"; then
     ui_verbose_action_success "$(get_static_message 'packages_updated')"
   else
-    ui_warning "Some package updates may have failed"
+    ui_warning "$(get_static_message "component_packages_update_failed")"
   fi
 
   # Re-run initialization
@@ -715,14 +714,14 @@ uninstall_component() {
   # Validate all components are installed
   for component in "${components[@]}"; do
     if ! is_component_installed "$component"; then
-      ui_warning "Component '$component' is not installed"
+      ui_warning "$(format_template_message "component_not_installed_warning" "$component")"
       return 1
     fi
 
     # Check if component exists
     local component_file="${MEOW_COMPONENTS_DIR}/${component}/component.yaml"
     if [[ ! -f "$component_file" ]]; then
-      ui_error "Component file not found: $component_file"
+      ui_error "$(format_template_message "component_file_not_found_error" "$component_file")"
       return 1
     fi
   done
@@ -752,11 +751,11 @@ uninstall_component() {
       done
 
       if [[ ${#filtered_dependents[@]} -gt 0 ]]; then
-        ui_error "Cannot uninstall component '$component' because it is required by the following components:"
+        ui_error "$(format_template_message "component_uninstall_blocked_components" "$component")"
         for dep_comp in "${filtered_dependents[@]}"; do
-          ui_action_error "  - $dep_comp"
+          ui_action_error "$(format_template_message "component_uninstall_dependent_item" "$dep_comp")"
         done
-        ui_error "Please uninstall the dependent components first, or use --force to override."
+        ui_error "$(get_static_message "component_uninstall_use_force")"
         return 1
       fi
 
@@ -773,16 +772,16 @@ uninstall_component() {
       done
 
       if [[ ${#filtered_presets[@]} -gt 0 ]]; then
-        ui_error "Cannot uninstall component '$component' because it is required by the following installed presets:"
+        ui_error "$(format_template_message "component_uninstall_blocked_presets" "$component")"
         for preset in "${filtered_presets[@]}"; do
-          ui_action_error "  - $preset"
+          ui_action_error "$(format_template_message "component_uninstall_dependent_item" "$preset")"
         done
-        ui_error "Please uninstall the presets first, use a different preset configuration, or use --force to override."
+        ui_error "$(get_static_message "component_uninstall_presets_use_force")"
         return 1
       fi
     done
   else
-    ui_info "Force flag detected - skipping dependency checks"
+    ui_info "$(get_static_message "component_force_flag_detected")"
   fi
 
   # Get all components in uninstall order
@@ -795,11 +794,16 @@ uninstall_component() {
   fi
 
   # Show summary of what will be uninstalled
-  ui_action_start "Will uninstall ${#components[@]} component$([ ${#components[@]} -gt 1 ] && echo "s") with dependencies"
-  ui_indent "Total components to uninstall: ${#multiple_uninstall_order[@]}"
+  local component_count=${#components[@]}
+  local plural_suffix=""
+  if [[ $component_count -gt 1 ]]; then
+    plural_suffix="s"
+  fi
+  ui_action_start "$(format_template_message "components_uninstall_summary" "$component_count" "$plural_suffix")"
+  ui_indent "$(format_template_message "components_uninstall_total" "${#multiple_uninstall_order[@]}")"
 
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    ui_step_header "Uninstall order:"
+    ui_step_header "$(get_static_message "component_uninstall_order")"
     for comp in "${multiple_uninstall_order[@]}"; do
       local is_requested_component=false
       for requested_comp in "${components[@]}"; do
@@ -810,9 +814,9 @@ uninstall_component() {
       done
 
       if [[ "$is_requested_component" == "true" ]]; then
-        ui_verbose_info "  ➤ $comp (requested component)"
+        ui_verbose_info "$(format_template_message "component_requested_uninstall_indicator" "$comp")"
       else
-        ui_verbose_info "  ↪ $comp (unused dependency)"
+        ui_verbose_info "$(format_template_message "component_unused_dependency_indicator" "$comp")"
       fi
     done
   else
@@ -844,10 +848,10 @@ uninstall_component() {
     done
 
     if [[ -n "$requested_comp_list" ]]; then
-      ui_indent "Requested components: $requested_comp_list"
+      ui_indent "$(format_template_message "components_uninstall_requested" "$requested_comp_list")"
     fi
     if [[ -n "$deps_list" ]]; then
-      ui_indent "Unused dependencies: $deps_list"
+      ui_indent "$(format_template_message "components_uninstall_unused" "$deps_list")"
     fi
   fi
 
@@ -871,7 +875,7 @@ uninstall_component() {
     done
 
     if ! _uninstall_single_component "$component" "$is_requested_component"; then
-      ui_warning "Failed to uninstall component: $component"
+      ui_warning "$(format_template_message "component_uninstall_failed" "$component")"
       overall_success=false
       # Continue with other components rather than failing completely
     fi
@@ -883,7 +887,7 @@ uninstall_component() {
   if [[ "$overall_success" == "true" ]]; then
     return 0
   else
-    ui_warning "Component$([ ${#components[@]} -gt 1 ] && echo "s") uninstalled with some warnings/errors"
+    ui_warning "$(format_template_message "components_uninstalled_with_errors" "$([ ${#components[@]} -gt 1 ] && echo "s" || echo "")")"
     return 1
   fi
 }
@@ -900,7 +904,7 @@ _uninstall_single_component() {
     if [[ "$is_requested_component" == "true" ]]; then
       ui_component_uninstalling "$component"
     else
-      ui_dependency "Removing unused dependency: $component"
+      ui_dependency "$(format_template_message "component_removing_unused" "$component")"
     fi
   fi
 
@@ -908,12 +912,12 @@ _uninstall_single_component() {
 
   # Step 1: Remove symlinks and restore backups
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    ui_step_header "Removing symlinks and restoring backups"
+    ui_step_header "$(get_static_message "component_removing_symlinks")"
   fi
   if remove_component_symlinks "$component"; then
-    ui_verbose_action_success "Symlinks removed and backups restored successfully"
+    ui_verbose_action_success "$(get_static_message "component_symlinks_removed_successfully")"
   else
-    ui_warning "Some symlink removal/backup restoration may have failed"
+    ui_warning "$(get_static_message "component_symlinks_removal_failed")"
     success=false
   fi
 
@@ -922,21 +926,21 @@ _uninstall_single_component() {
 
   # Step 2: Uninstall packages
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    ui_step_header "Uninstalling packages"
+    ui_step_header "$(get_static_message "component_uninstalling_packages")"
   fi
   if uninstall_component_packages "$component"; then
     ui_verbose_action_success "$(get_static_message 'packages_uninstalled')"
   else
-    ui_warning "Some package uninstallation may have failed"
+    ui_warning "$(get_static_message "component_packages_uninstall_failed")"
     success=false
   fi
 
   # Step 3: Remove component tracking symlinks
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    ui_step_header "Removing component tracking"
+    ui_step_header "$(get_static_message "component_removing_tracking")"
   fi
   remove_component_symlink "$component"
-  ui_verbose_action_success "Component tracking removed"
+  ui_verbose_action_success "$(get_static_message "component_tracking_removed")"
 
   if [[ "$success" == "true" ]]; then
     ui_component_uninstalled "$component"

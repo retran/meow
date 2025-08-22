@@ -47,7 +47,7 @@ update_go_packages() {
 uninstall_go_packages() {
   # Show header only in verbose mode
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    ui_step_header "Go Package Removal ($1)"
+    ui_step_header "$(format_template_message "go_package_removal_header" "$1")"
   fi
   local package_file="${MEOW_COMPONENTS_DIR}/$1/packages/go.list"
   if [[ -f "$package_file" ]]; then
@@ -85,7 +85,7 @@ cleanup_go() {
   # Handle dry-run mode
   if is_dry_run; then
     dry_run_ui_info "$(get_static_message "go_cleanup_would_skip")"
-    dry_run_ui_info "  Go modules are cached in GOMODCACHE, managed by Go itself"
+    dry_run_ui_info "  $(get_static_message "go_modules_managed_by_go")"
     return 0
   fi
 

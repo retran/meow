@@ -8,35 +8,28 @@ _LIB_CORE_SESSION_SOURCED=1
 source "${MEOW}/lib/core/ui.sh"
 source "${MEOW}/lib/core/platform.sh"
 source "${MEOW}/lib/core/tools.sh"
+source "${MEOW}/lib/strings/strings.sh"
 
 _initialize_session() {
   if [[ "$IS_ALPINE" == "true" ]]; then
-    ui_spinner "Initializing apk package manager" \
-      --success "apk package manager ready" \
-      --fail "apk initialization failed" \
+    ui_spinner "$(parse_spinner_messages "init_apk")" \
       setup_apk ""
   elif [[ "$IS_DEBIAN_BASED" == "true" ]]; then
-    ui_spinner "Initializing APT package manager" \
-      --success "APT package manager ready" \
-      --fail "APT initialization failed" \
+    ui_spinner "$(parse_spinner_messages "init_apt")" \
       setup_apt ""
   elif [[ "$IS_ARCH" == "true" ]]; then
-    ui_spinner "Initializing pacman package manager" \
-      --success "pacman package manager ready" \
-      --fail "pacman initialization failed" \
+    ui_spinner "$(parse_spinner_messages "init_pacman")" \
       setup_pacman ""
   elif [[ "$IS_MACOS" == "true" ]]; then
-    ui_spinner "Initializing Homebrew package manager" \
-      --success "Homebrew package manager ready" \
-      --fail "Homebrew initialization failed" \
+    ui_spinner "$(parse_spinner_messages "init_homebrew")" \
       setup_homebrew ""
   else
-    ui_action_warning "No supported package manager found for this OS. Skipping system setup."
+    ui_action_warning "$(get_static_message "session_unsupported_package_manager")"
     return 1
   fi
 
   if ! ensure_yq; then
-    ui_action_error "Failed to ensure yq installation"
+    ui_action_error "$(get_static_message "session_yq_install_failed")"
     return 1
   fi
 }

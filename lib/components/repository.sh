@@ -9,6 +9,7 @@ source "${MEOW}/lib/core/defs.sh"
 source "${MEOW}/lib/core/ui.sh"
 source "${MEOW}/lib/core/yaml.sh"
 source "${MEOW}/lib/core/dry_run.sh"
+source "${MEOW}/lib/strings/strings.sh"
 
 # Check if component has repository configuration
 # Args: $1 - component name

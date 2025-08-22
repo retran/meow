@@ -86,7 +86,7 @@ cleanup_vscode() {
 
   # VS Code doesn't have a built-in cleanup command for extensions
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    ui_step_header "Cleaning VS Code (no-op)"
+    ui_step_header "$(get_static_message "vscode_cleaning") (no-op)"
     ui_action_success "VS Code cleanup skipped"
   else
     ui_action_success "VS Code cleanup skipped"

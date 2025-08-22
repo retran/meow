@@ -39,12 +39,12 @@ show_bash_version_info() {
   current_version=$(get_bash_version_number)
 
   if [[ -n "${_LIB_CORE_UI_SOURCED:-}" ]]; then
-    ui_info "Bash version: ${BASH_VERSION} (${current_version})"
+    ui_info "$(format_template_message "bash_version_info" "${BASH_VERSION}" "$current_version")"
 
     if check_bash_version 4 0; then
-      ui_success "Modern bash features available"
+      ui_success "$(get_static_message "bash_modern_features_available")"
     else
-      ui_warning "Using compatibility mode for bash 3.2"
+      ui_warning "$(get_static_message "bash_using_compatibility_mode")"
     fi
   else
     echo "$(format_template_message "bash_version_info" "${BASH_VERSION}" "$current_version")"
@@ -54,8 +54,8 @@ show_bash_version_info() {
 warn_bash_compatibility() {
   if ! check_bash_version 4 0; then
     if [[ -n "${_LIB_CORE_UI_SOURCED:-}" ]]; then
-      ui_info_detail "Running in bash 3.2 compatibility mode"
-      ui_info "Consider upgrading to bash 4.0+ for optimal performance"
+      ui_info_detail "$(get_static_message "bash_3_2_compatibility_mode")"
+      ui_info "$(get_static_message "bash_upgrade_recommendation")"
     else
       echo "$(get_static_message "bash_3_2_compatibility_mode")"
       echo "$(get_static_message "bash_upgrade_recommendation")"

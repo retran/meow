@@ -56,16 +56,16 @@ cleanup_cargo() {
 
   # Handle dry-run mode
   if is_dry_run; then
-    dry_run_ui_info "Cargo cleanup would be skipped (no cleanup needed)"
-    dry_run_ui_info "  Cargo packages are installed per-user, managed by Rust toolchain"
+    dry_run_ui_info "$(get_static_message "cargo_cleanup_would_skip")"
+    dry_run_ui_info "  $(get_static_message "cargo_packages_managed_by_toolchain")"
     return 0
   fi
 
   # Cargo doesn't have a built-in cleanup command like npm cache clean
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    ui_step_header "Cleaning Cargo (no-op)"
-    ui_action_success "Cargo cleanup skipped"
+    ui_step_header "$(get_static_message "cargo_cleaning_noop")"
+    ui_action_success "$(get_static_message "cargo_cleanup_skipped")"
   else
-    ui_action_success "Cargo cleanup skipped"
+    ui_action_success "$(get_static_message "cargo_cleanup_skipped")"
   fi
 }

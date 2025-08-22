@@ -15,7 +15,7 @@ cache_package_list() {
   local list_command="$2"
 
   if [[ -z "${!cache_var:-}" ]]; then
-    ui_verbose_action_start "Caching $manager package list..."
+    ui_verbose_action_start "$(format_template_message "caching_package_list" "$manager")"
     eval "$cache_var=\"$(eval "$list_command")\""
   fi
 }
@@ -91,7 +91,7 @@ install_packages_generic() {
     [[ -z "$package_name" ]] && continue
 
     if eval "$check_cmd \"$package_name\""; then
-      ui_verbose_action_success "$package_name (already installed)"
+      ui_verbose_action_success "$(format_template_message "package_already_installed" "$package_name")"
       ((already_installed_count++)) || true
     else
       # Handle dry-run mode
@@ -104,9 +104,9 @@ install_packages_generic() {
       if [[ "$MEOW_VERBOSE" == "true" ]]; then
         run_package_operation "$package_name" \
           "install" \
-          "Installing $package_name" \
-          "Successfully installed $package_name" \
-          "Failed to install $package_name" \
+          "$(format_template_message "installing_package" "$package_name")" \
+          "$(format_template_message "successfully_installed_package" "$package_name")" \
+          "$(format_template_message "failed_to_install_package" "$package_name")" \
           "" \
           $install_cmd "$package_name"
         if [[ $? -eq 0 ]]; then
@@ -116,12 +116,12 @@ install_packages_generic() {
         fi
       else
         # In non-verbose mode, show silent spinner that disappears after completion
-        if ui_silent_spinner "[$manager_display_name] Installing $package_name..." $install_cmd "$package_name"; then
+        if ui_silent_spinner "$(format_template_message "silent_spinner_installing" "$manager_display_name" "$package_name")" $install_cmd "$package_name"; then
           ((installed_count++)) || true
         else
           ((failed_count++)) || true
           # Only show errors in non-verbose mode
-          ui_action_error "Failed to install $package_name"
+          ui_action_error "$(format_template_message "failed_to_install_package" "$package_name")"
         fi
       fi
     fi
@@ -132,13 +132,13 @@ install_packages_generic() {
   # Compact summary
   if ((failed_count == 0)); then
     if ((installed_count > 0)); then
-      ui_indent "$(capitalize "$manager_name"): ✓ $installed_count installed, $already_installed_count already present"
+      ui_indent "$(format_template_message "package_summary_success_installed" "$(capitalize "$manager_name")" "$installed_count" "$already_installed_count")"
     else
-      ui_indent "$(capitalize "$manager_name"): ✓ $already_installed_count/$total_packages already present"
+      ui_indent "$(format_template_message "package_summary_success_present" "$(capitalize "$manager_name")" "$already_installed_count" "$total_packages")"
     fi
     return 0
   else
-    ui_indent "$(capitalize "$manager_name"): ✗ $failed_count failed, $installed_count installed, $already_installed_count already present"
+    ui_indent "$(format_template_message "package_summary_failed_install" "$(capitalize "$manager_name")" "$failed_count" "$installed_count" "$already_installed_count")"
     return 1
   fi
 }
@@ -210,13 +210,13 @@ update_packages_generic() {
         local test_output
         if [[ "$MEOW_VERBOSE" == "true" ]]; then
           # In verbose mode, show what we're checking
-          ui_verbose_info "Checking if $package_name is up-to-date..."
+          ui_verbose_info "$(format_template_message "checking_package_up_to_date" "$package_name")"
           test_output=$(eval "$update_cmd $package_name" 2>&1) || true
         else
           # In non-verbose mode, show silent spinner for the check
           local temp_file
           temp_file=$(mktemp)
-          if ui_silent_spinner "[$manager_display_name] Checking $package_name..." bash -c "$update_cmd $package_name >$temp_file 2>&1"; then
+          if ui_silent_spinner "$(format_template_message "silent_spinner_checking" "$manager_display_name" "$package_name")" bash -c "$update_cmd $package_name >$temp_file 2>&1"; then
             test_output=$(cat "$temp_file")
           else
             test_output=$(cat "$temp_file")
@@ -229,7 +229,7 @@ update_packages_generic() {
       fi
 
       if [[ "$is_up_to_date" == "true" ]]; then
-        ui_verbose_action_success "$package_name (up-to-date)"
+        ui_verbose_action_success "$(format_template_message "package_up_to_date" "$package_name")"
         ((up_to_date_count++)) || true
       else
         # Handle dry-run mode
@@ -242,9 +242,9 @@ update_packages_generic() {
         if [[ "$MEOW_VERBOSE" == "true" ]]; then
           run_package_operation "$package_name" \
             "update" \
-            "Updating $package_name" \
-            "Successfully updated $package_name" \
-            "Failed to update $package_name" \
+            "$(format_template_message "updating_package" "$package_name")" \
+            "$(format_template_message "successfully_updated_package" "$package_name")" \
+            "$(format_template_message "failed_to_update_package" "$package_name")" \
             "" \
             $update_cmd "$package_name"
           if [[ $? -eq 0 ]]; then
@@ -254,31 +254,31 @@ update_packages_generic() {
           fi
         else
           # In non-verbose mode, show silent spinner that disappears after completion
-          if ui_silent_spinner "[$manager_display_name] Updating $package_name..." $update_cmd "$package_name"; then
+          if ui_silent_spinner "$(format_template_message "silent_spinner_updating" "$manager_display_name" "$package_name")" $update_cmd "$package_name"; then
             ((updated_count++)) || true
           else
             ((failed_count++)) || true
             # Only show errors in non-verbose mode
-            ui_action_error "Failed to update $package_name"
+            ui_action_error "$(format_template_message "failed_to_update_package" "$package_name")"
           fi
         fi
       fi
     else
-      ui_action_warning "$package_name (not installed, skipping)"
+      ui_action_warning "$(format_template_message "package_not_installed_skipping" "$package_name")"
     fi
   done <"$package_file"
 
   local duration=$(($(date +%s) - start_time))
   if ((failed_count == 0)); then
     if ((updated_count > 0)); then
-      ui_indent "$(capitalize "$manager_name"): ✓ $updated_count updated, $up_to_date_count up-to-date"
+      ui_indent "$(format_template_message "package_summary_success_updated" "$(capitalize "$manager_name")" "$updated_count" "$up_to_date_count")"
       return 0
     else
-      ui_indent "$(capitalize "$manager_name"): ✓ $up_to_date_count/$total_packages up-to-date"
+      ui_indent "$(format_template_message "package_summary_success_up_to_date" "$(capitalize "$manager_name")" "$up_to_date_count" "$total_packages")"
       return 0
     fi
   else
-    ui_indent "$(capitalize "$manager_name"): ✗ $failed_count failed, $updated_count updated, $up_to_date_count up-to-date"
+    ui_indent "$(format_template_message "package_summary_failed_update" "$(capitalize "$manager_name")" "$failed_count" "$updated_count" "$up_to_date_count")"
     return 1
   fi
 }
@@ -335,9 +335,9 @@ uninstall_packages_generic() {
       if [[ "$MEOW_VERBOSE" == "true" ]]; then
         run_package_operation "$package_name" \
           "uninstall" \
-          "Uninstalling $package_name" \
-          "Successfully uninstalled $package_name" \
-          "Failed to uninstall $package_name" \
+          "$(format_template_message "uninstalling_package" "$package_name")" \
+          "$(format_template_message "successfully_uninstalled_package" "$package_name")" \
+          "$(format_template_message "failed_to_uninstall_package" "$package_name")" \
           "" \
           $uninstall_cmd "$package_name"
         if [[ $? -eq 0 ]]; then
@@ -347,16 +347,16 @@ uninstall_packages_generic() {
         fi
       else
         # In non-verbose mode, show silent spinner that disappears after completion
-        if ui_silent_spinner "[$manager_display_name] Uninstalling $package_name..." $uninstall_cmd "$package_name"; then
+        if ui_silent_spinner "$(format_template_message "silent_spinner_uninstalling" "$manager_display_name" "$package_name")" $uninstall_cmd "$package_name"; then
           ((uninstalled_count++)) || true
         else
           ((failed_count++)) || true
           # Only show errors in non-verbose mode
-          ui_action_error "Failed to uninstall $package_name"
+          ui_action_error "$(format_template_message "failed_to_uninstall_package" "$package_name")"
         fi
       fi
     else
-      ui_verbose_info "$package_name (not installed, skipping)"
+      ui_verbose_info "$(format_template_message "package_not_installed_skipping" "$package_name")"
       ((not_installed_count++)) || true
     fi
   done <"$package_file"
@@ -366,13 +366,13 @@ uninstall_packages_generic() {
   # Compact summary
   if ((failed_count == 0)); then
     if ((uninstalled_count > 0)); then
-      ui_indent "$(capitalize "$manager_name"): ✓ $uninstalled_count uninstalled, $not_installed_count not installed"
+      ui_indent "$(format_template_message "package_summary_success_uninstalled" "$(capitalize "$manager_name")" "$uninstalled_count" "$not_installed_count")"
     else
-      ui_indent "$(capitalize "$manager_name"): ✓ $not_installed_count/$((uninstalled_count + not_installed_count)) not installed"
+      ui_indent "$(format_template_message "package_summary_success_not_installed" "$(capitalize "$manager_name")" "$not_installed_count" "$((uninstalled_count + not_installed_count))")"
     fi
     return 0
   else
-    ui_indent "$(capitalize "$manager_name"): ✗ $failed_count failed, $uninstalled_count uninstalled, $not_installed_count not installed"
+    ui_indent "$(format_template_message "package_summary_failed_uninstall" "$(capitalize "$manager_name")" "$failed_count" "$uninstalled_count" "$not_installed_count")"
     return 1
   fi
 }

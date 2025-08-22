@@ -37,9 +37,10 @@ setup_homebrew() {
   command -v brew >/dev/null 2>&1 || {
     if [[ "$MEOW_VERBOSE" == "true" ]]; then
       ui_warning "$(get_static_message 'homebrew_not_found')"
-      ui_spinner "Installing Homebrew" \
-        --success "Homebrew installed successfully" \
-        --fail "Homebrew installation failed" \
+      parse_spinner_messages "homebrew_install"
+      ui_spinner "$SPINNER_PROGRESS" \
+        --success "$SPINNER_SUCCESS" \
+        --fail "$SPINNER_FAIL" \
         /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     else
       /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" >/dev/null 2>&1
@@ -72,22 +73,24 @@ uninstall_homebrew_packages() {
 cleanup_homebrew() {
   # Handle dry-run mode
   if is_dry_run; then
-    dry_run_ui_info "Would clean Homebrew cache and unused packages"
-    dry_run_ui_info "  Command: brew cleanup --prune=all"
-    dry_run_ui_info "  Would remove outdated downloads and old package versions"
+    dry_run_ui_info "$(get_static_message "homebrew_would_clean_cache")"
+    dry_run_ui_info "  $(get_static_message "homebrew_cleanup_command")"
+    dry_run_ui_info "  $(get_static_message "homebrew_would_remove_outdated")"
     return 0
   fi
 
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
     ui_package_manager_cleaning "Homebrew"
-    ui_spinner "Pruning cache and unused packages" \
-      --success "Homebrew cleanup completed" \
-      --fail "Homebrew cleanup failed" \
+    parse_spinner_messages "homebrew_prune"
+    ui_spinner "$SPINNER_PROGRESS" \
+      --success "$SPINNER_SUCCESS" \
+      --fail "$SPINNER_FAIL" \
       brew cleanup --prune=all
   else
-    ui_spinner "Cleaning Homebrew" \
-      --success "Homebrew cleanup completed" \
-      --fail "Homebrew cleanup failed" \
+    parse_spinner_messages "homebrew_cleanup"
+    ui_spinner "$SPINNER_PROGRESS" \
+      --success "$SPINNER_SUCCESS" \
+      --fail "$SPINNER_FAIL" \
       brew cleanup --prune=all
   fi
 }

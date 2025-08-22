@@ -54,16 +54,12 @@ cleanup_npm() {
   # Add empty line before cleanup for better grouping
   echo ""
 
-  if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    ui_step_header "Cleaning npm cache"
-    ui_spinner "Cleaning npm cache" \
-      --success "npm cache cleaned" \
-      --fail "npm cache cleanup failed" \
-      npm cache clean --force
-  else
-    ui_spinner "Cleaning npm" \
-      --success "npm cache cleaned" \
-      --fail "npm cleanup failed" \
-      npm cache clean --force
-  fi
+  local message_key="npm_cleaning_cache"
+  local spinner_messages=(
+    "$(get_static_message "$message_key")"
+    "npm cache cleaned"
+    "npm cache cleanup failed"
+  )
+
+  parse_spinner_messages "${spinner_messages[@]}" npm cache clean --force
 }

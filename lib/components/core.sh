@@ -203,7 +203,7 @@ setup_component() {
     if "$init_script" "$component" "$MEOW"; then
       ui_action_success "$(get_static_message 'component_setup_completed')"
     else
-      ui_action_ui_error "$(get_static_message 'component_setup_failed')"
+      ui_error "$(get_static_message 'component_setup_failed')"
       return 1
     fi
   fi
@@ -229,7 +229,7 @@ cleanup_component() {
     if "$cleanup_script" "$component" "$MEOW"; then
       ui_verbose_action_success "$(get_static_message 'component_cleanup_completed')"
     else
-      ui_action_ui_warning "$(get_static_message 'component_cleanup_failed')"
+      ui_warning "$(get_static_message 'component_cleanup_failed')"
       return 1
     fi
   fi

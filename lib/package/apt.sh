@@ -68,26 +68,29 @@ uninstall_apt_packages() {
 cleanup_apt() {
   # Handle dry-run mode
   if is_dry_run; then
-    dry_run_ui_info "Would clean APT package cache and remove unused packages"
-    dry_run_ui_info "  Commands: sudo apt-get autoremove -y && sudo apt-get clean"
-    dry_run_ui_info "  Would remove orphaned packages and clear download cache"
+    dry_run_ui_info "$(get_static_message "apt_would_clean_cache")"
+    dry_run_ui_info "  $(get_static_message "apt_cleanup_commands")"
+    dry_run_ui_info "  $(get_static_message "apt_would_remove_orphaned")"
     return 0
   fi
 
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
     ui_package_manager_cleaning "APT"
-    ui_spinner "Removing unused packages" \
-      --success "APT autoremove completed" \
-      --fail "APT autoremove failed" \
+    parse_spinner_messages "apt_remove_unused"
+    ui_spinner "$SPINNER_PROGRESS" \
+      --success "$SPINNER_SUCCESS" \
+      --fail "$SPINNER_FAIL" \
       sudo apt-get autoremove -y
-    ui_spinner "Cleaning cache" \
-      --success "APT cleanup completed" \
-      --fail "APT cleanup failed" \
+    parse_spinner_messages "apt_clean_cache"
+    ui_spinner "$SPINNER_PROGRESS" \
+      --success "$SPINNER_SUCCESS" \
+      --fail "$SPINNER_FAIL" \
       sudo apt-get clean
   else
-    ui_spinner "Cleaning APT" \
-      --success "APT cleanup completed" \
-      --fail "APT cleanup failed" \
+    parse_spinner_messages "apt_cleanup"
+    ui_spinner "$SPINNER_PROGRESS" \
+      --success "$SPINNER_SUCCESS" \
+      --fail "$SPINNER_FAIL" \
       bash -c "sudo apt-get autoremove -y && sudo apt-get clean"
   fi
 }

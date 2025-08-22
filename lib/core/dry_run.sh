@@ -137,8 +137,8 @@ dry_run_script_execution() {
   local description="${2:-$(basename "$script_path")}"
 
   if is_dry_run; then
-    dry_run_ui_info "Would execute script: $description"
-    dry_run_ui_info "  Script path: $script_path"
+    dry_run_ui_info "$(format_template_message "dry_run_execute_script" "$description")"
+    dry_run_ui_info "$(format_template_message "dry_run_script_path" "$script_path")"
     return 0
   else
     return 1  # Indicates that actual execution should proceed

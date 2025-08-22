@@ -8,6 +8,7 @@ _LIB_COMPONENTS_PACKAGES_SOURCED=1
 source "${MEOW}/lib/core/defs.sh"
 source "${MEOW}/lib/core/ui.sh"
 source "${MEOW}/lib/core/platform.sh"
+source "${MEOW}/lib/strings/strings.sh"
 
 source "${MEOW}/lib/package/common.sh"
 source "${MEOW}/lib/package/homebrew.sh"
@@ -300,7 +301,7 @@ update_component_packages() {
   # Show compact summary if we had packages and we're not in verbose mode
   if [[ "$has_packages" == "true" && "$MEOW_VERBOSE" != "true" ]]; then
     if [[ $package_errors -gt 0 ]]; then
-      ui_indent "Package updates: ✗ $package_errors errors occurred"
+      ui_indent "$(format_template_message "package_updates_errors_occurred" "$package_errors")"
     fi
   fi
 

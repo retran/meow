@@ -296,7 +296,7 @@ update_preset() {
   ui_header "$(format_template_message "updating_preset" "$preset")"
 
   # Update all required components that are installed
-  ui_step_header "Updating required components"
+  ui_step_header "$(get_static_message "updating_required_components")"
   local required_components
   required_components=$(get_preset_required_components "$preset")
 
@@ -308,7 +308,7 @@ update_preset() {
       if is_component_installed "$component"; then
         components_to_update+=("$component")
       else
-        ui_info "Required component '$component' not installed, skipping"
+        ui_info "$(format_template_message "required_component_not_installed" "$component")"
       fi
     done <<<"$required_components"
 
@@ -357,7 +357,7 @@ update_all_installed_components() {
   fi
 
   ui_header "Updating all installed components"
-  ui_info "Found ${#components[@]} installed components: ${components[*]}"
+  ui_info "$(format_template_message "found_installed_components" "${#components[@]}" "${components[*]}")"
 
   # Source components library and update all components
   source "${MEOW}/lib/components/components.sh"
@@ -366,7 +366,7 @@ update_all_installed_components() {
 
 # List all available presets
 list_presets() {
-  ui_header "Available Presets"
+  ui_header "$(get_static_message "available_presets")"
 
   for preset_dir in "${MEOW_PRESETS_DIR}"/*; do
     [[ ! -d "$preset_dir" ]] && continue

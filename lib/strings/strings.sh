@@ -50,6 +50,143 @@ declare -A UI_STATIC_MESSAGES=(
   ["component_setup_failed"]="Component setup failed"
   ["component_cleanup_completed"]="Component cleanup completed successfully"
   ["component_cleanup_failed"]="Component cleanup failed"
+
+  # tmux system setup
+  ["tmux_not_installed_skip_plugin"]="tmux is not installed, skipping Plugin Manager setup"
+  ["tmux_setting_up_plugin_manager"]="Setting up tmux Plugin Manager"
+  ["tmux_plugin_manager_already_installed"]="tmux Plugin Manager is already installed."
+  ["tmux_updating_plugin_manager"]="Updating tmux Plugin Manager"
+  ["tmux_plugin_manager_update_completed"]="tmux Plugin Manager update completed"
+  ["tmux_plugin_manager_update_failed"]="Failed to update tmux Plugin Manager"
+  ["tmux_installing_plugin_manager"]="Installing tmux Plugin Manager"
+  ["tmux_plugin_manager_install_completed"]="tmux Plugin Manager installation completed"
+  ["tmux_plugin_manager_install_failed"]="Failed to install tmux Plugin Manager"
+  ["tmux_setting_up_environment"]="Setting up tmux environment"
+  ["tmux_environment_setup_complete"]="tmux environment setup complete."
+
+  # zsh system setup
+  ["zsh_checking_ohmyzsh"]="Checking for Oh My Zsh installation..."
+  ["zsh_ohmyzsh_already_installed"]="Oh My Zsh is already installed."
+  ["zsh_updating_ohmyzsh"]="Updating Oh My Zsh"
+  ["zsh_ohmyzsh_update_completed"]="Oh My Zsh update completed"
+  ["zsh_ohmyzsh_update_failed"]="Failed to update Oh My Zsh"
+  ["zsh_installing_ohmyzsh"]="Installing Oh My Zsh"
+  ["zsh_ohmyzsh_install_completed"]="Oh My Zsh installation completed"
+  ["zsh_ohmyzsh_install_failed"]="Failed to install Oh My Zsh"
+  ["zsh_setting_up_environment"]="Setting up Zsh environment"
+  ["zsh_environment_setup_complete"]="Zsh environment setup complete."
+
+  # System setup
+  ["motd_greeting"]="%s, сomrade %s!"
+  ["motd_greeting_comrade"]="%s, сomrade %s!"
+  ["motd_calendar"]="Calendar shows %s."
+  ["motd_calendar_shows"]="Calendar shows %s"
+  ["motd_clock"]="Clock purrs at %s."
+  ["motd_clock_purrs"]="Clock purrs at %s"
+  ["motd_ascii_art_not_found"]="ASCII art file not found: %s"
+  ["motd_system_territory"]="Let me tell you about your digital territory, comrade:"
+  ["motd_system_info"]="System:     %s"
+  ["motd_shell_info"]="Shell:      %s"
+  ["motd_uptime_info"]="Uptime:     %s"
+  ["motd_disk_info"]="Disk:       %s"
+  ["motd_ram_info"]="RAM:        %s"
+  ["motd_updates_info"]="Updates:    %s packages need updating"
+  ["motd_computer_name_set"]="Computer name set to %s"
+
+  # Rust system setup
+  ["rust_version_info"]="Rust version: %s"
+
+  # macOS keyboard configuration
+  ["macos_keyboard_unknown_layout_type"]="Unknown layout type: %s. Use 'das' or 'mbp'"
+  ["macos_keyboard_configuring_layouts"]="Configuring keyboard layouts for %s..."
+  ["macos_keyboard_layouts_configured"]="Keyboard layouts configured for %s"
+  ["macos_setting_computer_name"]="Computer name set to %s"
+  ["macos_system_defaults"]="System Defaults"
+  ["macos_finder_config"]="Finder Configuration"
+  ["macos_dock_config"]="Dock Configuration"
+  ["macos_app_config"]="App Configuration"
+  ["macos_configuration"]="macOS Configuration"
+
+  # Node.js component setup
+  ["node_npm_not_found_skip"]="npm command not found. Skipping Node.js configuration"
+  ["node_configuring_global_packages"]="Configuring npm for global packages without sudo"
+  ["node_npm_configured_successfully"]="NPM configured successfully"
+
+  # Component cleanup - Rust Development
+  ["rust_dev_cleanup_running"]="🧹 Running Rust Development cleanup..."
+  ["rust_dev_cleaning_cargo_cache"]="  📦 Cleaning cargo cache..."
+  ["rust_dev_cleaning_registry_cache"]="  🗑️  Cleaning cargo registry cache..."
+  ["rust_dev_cleaning_git_cache"]="  🗑️  Cleaning cargo git cache..."
+  ["rust_dev_cleaning_target_dirs"]="  🗑️  Cleaning Rust target directories..."
+  ["rust_dev_cleaning_rustup_temp"]="  🗑️  Cleaning rustup temporary files..."
+  ["rust_dev_cleanup_completed"]="✅ Rust Development cleanup completed"
+
+  # Component cleanup - Python Development
+  ["python_dev_cleanup_running"]="🧹 Running Python Development cleanup..."
+  ["python_dev_cleaning_pip_cache"]="  📦 Cleaning pip cache..."
+  ["python_dev_cleaning_pip3_cache"]="  📦 Cleaning pip3 cache..."
+  ["python_dev_cleaning_bytecode"]="  🗑️  Cleaning Python bytecode files..."
+  ["python_dev_removing_pytest_cache"]="  🗑️  Removing pytest cache..."
+  ["python_dev_removing_mypy_cache"]="  🗑️  Removing mypy cache..."
+  ["python_dev_cleaning_ipython_cache"]="  🗑️  Cleaning IPython cache..."
+  ["python_dev_cleanup_completed"]="✅ Python Development cleanup completed"
+
+  # Component cleanup - Gaming
+  ["gaming_cleanup_running"]="🧹 Running Gaming cleanup..."
+  ["gaming_stopping_steam"]="  ⏹️  Stopping Steam..."
+  ["gaming_stopping_geforce_now"]="  ⏹️  Stopping NVIDIA GeForce NOW..."
+  ["gaming_removing_login_items"]="  🗑️  Removing gaming apps from login items..."
+  ["gaming_cleaning_cache"]="  🗑️  Cleaning gaming cache and logs..."
+  ["gaming_cleanup_completed"]="✅ Gaming cleanup completed"
+  ["gaming_saves_preserved"]="ℹ️  Note: Game saves and user data were preserved"
+
+  # Desktop Essential component setup
+  ["desktop_essential_macos_config_complete"]="macOS configuration complete (may require logout/restart)"
+  ["desktop_essential_macos_config_issues"]="macOS configuration encountered issues or was skipped"
+
+  # Shell Essential component setup
+  ["shell_essential_configuring_tmux"]="Configuring tmux"
+  ["shell_essential_configuring_zsh"]="Configuring zsh"
+
+  # Package manager summaries
+  ["package_summary_installed"]="%s: ✓ %d installed, %d already present"
+  ["package_summary_present"]="%s: ✓ %d/%d already present"
+  ["package_summary_failed"]="%s: ✗ %d failed, %d installed, %d already present"
+  ["package_summary_updated"]="%s: ✓ %d updated, %d up-to-date"
+  ["package_summary_update_failed"]="%s: ✗ %d failed, %d updated, %d up-to-date"
+  ["package_summary_uninstalled"]="%s: ✓ %d uninstalled, %d not installed"
+  ["package_summary_uninstall_failed"]="%s: ✗ %d failed, %d uninstalled, %d not installed"
+)
+
+# ============================================================================
+# TEMPLATE MESSAGES - Strings with parameters using printf format
+# ============================================================================
+
+declare -A UI_TEMPLATE_MESSAGES=(
+  ["tmux_setup_issues"]="tmux environment setup encountered issues"
+
+  # Status messages
+  ["already_installed"]="already installed"
+  ["up_to_date"]="up-to-date"
+  ["already_correct"]="already correct"
+  ["not_installed"]="not installed"
+  ["incompatible"]="incompatible"
+  ["available"]="available"
+  ["installed"]="installed"
+  ["installed_manual"]="installed (manual)"
+
+  # Confirmation
+  ["confirm_default"]="Confirm"
+
+  # Commands and errors
+  ["command_output"]="Command output:"
+  ["command_failed_first_lines"]="Command failed. First few lines of output:"
+
+  # Component operations
+  ["component_setup_completed"]="Component setup completed successfully"
+  ["component_setup_failed"]="Component setup failed"
+  ["component_cleanup_completed"]="Component cleanup completed successfully"
+  ["component_cleanup_failed"]="Component cleanup failed"
   ["component_tracking_removed"]="Component tracking removed"
   ["requested_components"]="Requested components: %s"
   ["new_dependencies"]="New dependencies: %s"
@@ -71,14 +208,17 @@ declare -A UI_STATIC_MESSAGES=(
   ["npm_not_found"]="npm not found"
   ["npm_not_found_would_fail"]="npm not found - would fail setup"
   ["npm_already_available"]="npm already available, no setup needed"
+  ["npm_cleaning_cache"]="Cleaning npm cache"
   ["go_not_found"]="Go not found"
   ["go_not_found_would_fail"]="Go not found - would fail setup"
   ["go_already_available"]="Go already available, ready for package installation"
   ["go_available"]="Go available"
   ["go_setting_up"]="Setting up Go"
+  ["go_package_removal_header"]="Go Package Removal (%s)"
   ["go_packages_cannot_uninstall"]="Go packages cannot be automatically uninstalled via go command"
   ["go_packages_manual_removal"]="Go packages are installed to GOPATH/bin. Please manually remove binaries if needed:"
   ["go_cleanup_would_skip"]="Go cleanup would be skipped (no cleanup needed)"
+  ["go_modules_managed_by_go"]="Go modules are cached in GOMODCACHE, managed by Go itself"
   ["go_cleaning_noop"]="Cleaning Go (no-op)"
   ["go_cleanup_skipped"]="Go cleanup skipped"
   ["cargo_not_found"]="cargo not found"
@@ -86,6 +226,10 @@ declare -A UI_STATIC_MESSAGES=(
   ["cargo_already_available"]="Cargo already available, ready for package installation"
   ["cargo_available"]="Cargo available"
   ["cargo_setting_up"]="Setting up Cargo"
+  ["cargo_cleanup_would_skip"]="Cargo cleanup would be skipped (no cleanup needed)"
+  ["cargo_packages_managed_by_toolchain"]="Cargo packages are installed per-user, managed by Rust toolchain"
+  ["cargo_cleaning_noop"]="Cleaning Cargo (no-op)"
+  ["cargo_cleanup_skipped"]="Cargo cleanup skipped"
   ["apt_get_not_found"]="apt-get not found - would fail setup"
   ["apt_would_update_index"]="Would update APT package index"
   ["apt_update_command"]="Command: sudo apt-get update"
@@ -93,12 +237,16 @@ declare -A UI_STATIC_MESSAGES=(
   ["apt_updating_index"]="Updating APT index"
   ["apt_index_updated"]="APT index updated"
   ["apt_index_update_failed"]="Failed to update APT index"
+  ["apt_would_clean_cache"]="Would clean APT package cache and remove unused packages"
+  ["apt_cleanup_commands"]="Commands: sudo apt-get autoremove -y && sudo apt-get clean"
+  ["apt_would_remove_orphaned"]="Would remove orphaned packages and clear download cache"
   ["vscode_setting_up"]="Setting up VS Code CLI"
   ["vscode_cli_not_found_would_warn"]="VS Code CLI not found - would warn and skip extensions"
   ["vscode_cli_already_available"]="VS Code CLI already available, ready for extension installation"
   ["vscode_cli_not_found_skip"]="VS Code CLI not found, skipping extensions"
   ["vscode_cli_available"]="VS Code CLI available"
   ["vscode_cli_not_found_extension_skip"]="VS Code CLI not found, skipping VS Code extension installation"
+  ["vscode_cleaning"]="Cleaning VS Code"
   ["tmux_not_installed_skip_plugin"]="tmux is not installed, skipping Plugin Manager setup"
   ["tmux_setting_up_plugin_manager"]="Setting up tmux Plugin Manager"
   ["tmux_plugin_manager_already_installed"]="tmux Plugin Manager is already installed."
@@ -125,6 +273,7 @@ declare -A UI_STATIC_MESSAGES=(
   ["pipx_already_available"]="pipx already available, no setup needed"
   ["pipx_not_found"]="pipx not found"
   ["pipx_available"]="pipx available"
+  ["pipx_cleaning"]="Cleaning pipx"
   ["apk_setting_up"]="Setting up apk"
   ["apk_not_found_would_fail"]="apk not found - would fail setup"
   ["apk_would_update_index"]="Would update apk package index"
@@ -212,6 +361,10 @@ declare -A UI_STATIC_MESSAGES=(
   ["failed_install_required_components"]="Failed to install required components"
   ["preset_not_installed"]="Preset '%s' is not installed"
   ["updating_preset"]="Updating preset: %s"
+  ["updating_required_components"]="Updating required components"
+  ["required_component_not_installed"]="Required component '%s' not installed, skipping"
+  ["found_installed_components"]="Found %d installed components: %s"
+  ["available_presets"]="Available Presets"
 
   # Symlinks
   ["symlink_skip_source_missing"]="Would skip symlink (source does not exist): %s -> %s"
@@ -228,6 +381,13 @@ declare -A UI_STATIC_MESSAGES=(
   ["symlink_created"]="%s (created)"
   ["symlink_create_failed"]="Failed to create symlink: %s -> %s"
   ["yq_required"]="yq is required to parse symlink configuration. Please install yq."
+  ["yq_already_installed"]="⇒ yq %s is already installed."
+  ["yq_version_mismatch"]="Found yq, but version mismatch. Expected: '%s', Found: '%s'"
+  ["yq_installing"]="Installing yq v%s..."
+  ["yq_unsupported_os"]="Unsupported OS: %s"
+  ["yq_unsupported_arch"]="Unsupported architecture: %s"
+  ["yq_installed_successfully"]="yq v%s installed to %s"
+  ["yq_download_failed"]="Failed to download yq from %s"
   ["no_symlinks_file"]="No symlinks file found for '%s' at %s"
   ["no_symlinks_defined"]="No symlinks defined in %s."
   ["symlinks_processed_count"]="(%d symlinks processed for this OS)"
@@ -246,6 +406,9 @@ declare -A UI_STATIC_MESSAGES=(
   ["homebrew_install_script_url"]="Script URL: https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh"
   ["homebrew_would_install"]="Would install Homebrew using official installation script"
   ["homebrew_would_configure"]="Would configure shell environment after installation"
+  ["homebrew_would_clean_cache"]="Would clean Homebrew cache and unused packages"
+  ["homebrew_cleanup_command"]="Command: brew cleanup --prune=all"
+  ["homebrew_would_remove_outdated"]="Would remove outdated downloads and old package versions"
 
   # Dry-run mode
   ["dry_run_prefix"]="[DRY-RUN]"
@@ -272,6 +435,27 @@ declare -A UI_STATIC_MESSAGES=(
   ["macos_finder_configured"]="Finder configured"
   ["macos_configuring_dock"]="Configuring Dock preferences"
   ["macos_dock_configured"]="Dock configured"
+  ["macos_finder_configuration"]="Finder Configuration"
+  ["macos_dock_configuration"]="Dock Configuration"
+  ["macos_app_configuration"]="App Configuration"
+  ["macos_configuring_apps"]="Configuring macOS application preferences"
+  ["macos_configuring_photos"]="Configuring Photos preferences..."
+  ["macos_photos_configured"]="Photos preferences configured"
+  ["macos_configuring_textedit"]="Configuring TextEdit preferences..."
+  ["macos_textedit_configured"]="TextEdit preferences configured"
+  ["macos_configuring_disk_utility"]="Configuring Disk Utility preferences..."
+  ["macos_disk_utility_configured"]="Disk Utility preferences configured"
+  ["macos_configuring_time_machine"]="Configuring Time Machine preferences..."
+  ["macos_time_machine_configured"]="Time Machine preferences configured"
+  ["macos_configuring_spotlight"]="Configuring Spotlight..."
+  ["macos_spotlight_configured"]="Spotlight settings configured"
+  ["macos_configuring_console"]="Configuring Console..."
+  ["macos_console_configured"]="Console settings configured"
+  ["macos_configuring_screen_capture"]="Configuring screen capture..."
+  ["macos_screen_capture_configured"]="Screen capture settings configured"
+  ["macos_configuring_mail"]="Configuring Mail..."
+  ["macos_mail_configured"]="Mail application settings configured"
+  ["macos_app_configuration_completed"]="App configuration completed"
 
   # MOTD fallbacks
   ["motd_fallback"]="A fancy digital cat comment should be here"
@@ -415,6 +599,8 @@ declare -A UI_STATIC_MESSAGES=(
   ["mas_manual_uninstall_instruction"]="Please manually uninstall the following apps through Launchpad or Applications folder:"
   ["mas_cleanup_would_skip"]="Mac App Store cleanup would be skipped (no cleanup needed)"
   ["mas_app_store_manages_downloads"]="App Store manages downloads automatically"
+  ["mas_cleaning_noop"]="Cleaning Mac App Store (no-op)"
+  ["mas_cleanup_skipped"]="Mac App Store cleanup skipped"
 
   # VS Code package manager
   ["vscode_cli_not_found_update_skip"]="VS Code CLI not found, skipping VS Code extension update"
@@ -428,6 +614,7 @@ declare -A UI_STATIC_MESSAGES=(
   ["macos_not_running_app"]="Not running on macOS. Skipping app configuration."
   ["macos_not_running_all"]="Not running on macOS. Skipping all macOS configuration."
   ["macos_config_intro"]="This script will configure various macOS settings to enhance your experience."
+  ["macos_config_confirmation"]="Do you want to apply these macOS configurations?"
   ["macos_config_cancelled"]="macOS configuration cancelled."
   ["macos_config_summary"]="Summary:"
   ["macos_config_restart_notice"]="Some changes may require a logout or restart to take effect."
@@ -458,210 +645,92 @@ declare -A UI_STATIC_MESSAGES=(
   ["symlinks_backup_current_failed"]="  Failed to backup current state"
   ["symlinks_restore_success"]="  Successfully restored %s"
   ["symlinks_restore_failed"]="  Failed to restore backup"
-)
+  ["symlinks_backup_entry_simple"]="  %s -> %s (created: %s)"
 
-# ============================================================================
-# TEMPLATE MESSAGES - Strings with parameters using printf format
-# ============================================================================
+  # Session and initialization
+  ["session_unsupported_package_manager"]="No supported package manager found for this OS. Skipping system setup."
+  ["session_yq_install_failed"]="Failed to ensure yq installation"
 
-declare -A UI_TEMPLATE_MESSAGES=(
-  # General operations with counts
-  ["components_install_count"]="Will install %d component%s with dependencies"
-  ["components_update_count"]="Will update %d component%s with dependencies"
-  ["total_components_install"]="Total components to install: %d"
-  ["total_components_update"]="Total components to update: %d"
-  ["found_components"]="Found %d installed components: %s"
-  ["command_more_lines_hidden"]="... and %d more lines. Use MEOW_VERBOSE=true for full output"
+  # Bash version and compatibility
+  ["bash_modern_features_available"]="Modern bash features available"
+  ["bash_using_compatibility_mode"]="Using compatibility mode for bash 3.2"
+  ["bash_3_2_compatibility_mode"]="Running in bash 3.2 compatibility mode"
+  ["bash_upgrade_recommendation"]="Consider upgrading to bash 4.0+ for optimal performance"
+
+  # Component package management
+  ["package_updates_errors_occurred"]="Package updates: ✗ %d errors occurred"
+
+  # Component symlinks management
+  ["symlinks_removing_for_component"]="Removing symlinks for component: %s"
+  ["symlinks_remove_failed_for"]="Failed to remove symlinks for '%s'"
+  ["symlinks_removed_successfully"]="Component symlinks removed successfully (%d symlink files)"
+  ["symlinks_removed_with_errors"]="Component symlinks removed with %d errors (%d/%d symlink files)"
+  ["symlinks_for_removed_successfully"]="Symlinks for '%s' removed successfully"
+  ["dry_run_would_remove_symlink"]="Would remove symlink: %s"
+  ["dry_run_would_skip_non_symlink"]="Would skip non-symlink: %s"
+  ["dry_run_would_skip_non_existent"]="Would skip non-existent: %s"
+  ["symlinks_yq_required"]="yq is required to parse symlink configuration. Please install yq."
+  ["symlinks_file_not_found"]="No symlinks file found for '%s' at %s"
+  ["symlinks_none_defined"]="No symlinks defined in %s"
+  ["symlinks_missing_target_key"]="Missing 'target' key in symlink entry %d of %s"
+  ["symlinks_failed_restore_backup"]="Failed to restore backup for %s"
+  ["symlinks_failed_remove"]="Failed to remove symlink: %s"
+  ["symlinks_processed_with_backup"]="Processed %d symlinks (%d restored from backup)"
+  ["symlinks_processed_no_backup"]="Processed %d symlinks (no backups to restore)"
+  ["symlinks_failed_to_process"]="Failed to process %d of %d symlinks"
 
   # Component operations
-  ["setting_up_component"]="Setting up component: %s"
-  ["cleaning_component"]="Cleaning up component: %s"
-  ["installing_component"]="Installing component: %s"
-  ["updating_component"]="Updating component: %s"
-  ["uninstalling_component"]="Uninstalling component: %s"
-  ["component_installed"]="Component installed successfully: %s"
-  ["component_updated"]="Component updated successfully: %s"
-  ["component_uninstalled"]="Component uninstalled successfully: %s"
-  ["component_not_found"]="Component '%s' not found"
-  ["component_not_available"]="Component '%s' is not available on this platform or dependencies are missing"
-  ["component_already_installed"]="Component '%s' is already installed"
-  ["component_marked_manual"]="Component '%s' marked as manually installed"
-  ["component_install_failed"]="Failed to install component: %s"
-  ["component_packages_failed"]="Failed to install packages for component '%s'"
-  ["component_repo_failed"]="Failed to clone repository for component '%s'"
+  ["component_already_installing"]="Component '%s' already being installed in this session, skipping"
+  ["component_already_updated"]="Component '%s' already updated in this session, skipping"
+  ["component_not_installed_skip_update"]="Component '%s' is not installed, skipping update"
+  ["components_update_summary"]="Will update %d component%s with dependencies"
+  ["components_update_total"]="Total components to update: %d"
+  ["components_update_requested"]="Requested components: %s"
+  ["components_update_dependencies"]="Dependencies: %s"
+  ["component_update_failed_continue"]="Failed to update component: %s, continuing with other components"
+  ["component_repo_update_failed"]="Repository update failed, continuing with package updates"
+  ["component_packages_update_failed"]="Some package updates may have failed"
+  ["component_installing_prefix"]="Installing component: %s"
+  ["component_updating_prefix"]="Updating component: %s"
+  ["component_removing_unused"]="Removing unused dependency: %s"
+  ["component_not_installed_warning"]="Component '%s' is not installed"
+  ["component_file_not_found_error"]="Component file not found: %s"
+  ["component_uninstall_blocked_components"]="Cannot uninstall component '%s' because it is required by the following components:"
+  ["component_uninstall_blocked_presets"]="Cannot uninstall component '%s' because it is required by the following installed presets:"
+  ["component_uninstall_dependent_item"]="  - %s"
+  ["component_uninstall_use_force"]="Please uninstall the dependent components first, or use --force to override."
+  ["component_uninstall_presets_use_force"]="Please uninstall the presets first, use a different preset configuration, or use --force to override."
+  ["component_force_flag_detected"]="Force flag detected - skipping dependency checks"
+  ["component_uninstall_failed"]="Failed to uninstall component: %s"
+  ["components_uninstalled_with_errors"]="Component%s uninstalled with some warnings/errors"
+  ["component_symlinks_removed_successfully"]="Symlinks removed and backups restored successfully"
+  ["component_symlinks_removal_failed"]="Some symlink removal/backup restoration may have failed"
+  ["component_packages_uninstall_failed"]="Some package uninstallation may have failed"
+  ["component_tracking_removed"]="Component tracking removed"
 
-  # Repository operations
-  ["removing_repo"]="Removing existing repository for component: %s"
-  ["cloning_repo"]="Cloning repository to .downloads/%s"
-  ["updating_repo"]="Updating repository for component: %s"
-  ["cleaning_repo"]="Cleaning up repository for %s"
-  ["cloning_component_repo"]="Cloning %s repository"
-  ["updating_component_repo"]="Updating %s repository"
-  ["repo_component_install"]="Installing repository-based component: %s"
-  ["repo_cleaned_for"]="Repository cleaned up for %s"
-  ["repo_update_msg"]="Updating repository for component: %s"
-  ["repo_cloned_success"]="Repository cloned successfully for %s"
-  ["repo_clone_failed"]="Failed to clone repository for %s"
-  ["repo_updated_success"]="Repository updated successfully for %s"
-  ["repo_update_failed"]="Failed to update repository for %s"
+  # Component operation step headers
+  ["component_uninstall_order"]="Uninstall order:"
+  ["component_removing_symlinks"]="Removing symlinks and restoring backups"
+  ["component_uninstalling_packages"]="Uninstalling packages"
+  ["component_removing_tracking"]="Removing component tracking"
+  ["component_updating_repository"]="Updating repository for %s"
+  ["component_updating_packages"]="Updating packages for %s"
 
-  # Package operations
-  ["installing_packages"]="Installing packages for %s"
-  ["updating_packages"]="Updating packages for %s"
-  ["removing_packages"]="Uninstalling packages"
-  ["packages_manager_display"]="(%s) %s"
-  ["package_manager_removal"]="%s Package Removal (%s)"
+  # Component uninstall operations
+  ["components_uninstall_summary"]="Will uninstall %d component%s with dependencies"
+  ["components_uninstall_total"]="Total components to uninstall: %d"
+  ["components_uninstall_requested"]="Requested components: %s"
+  ["components_uninstall_unused"]="Unused dependencies: %s"
 
-  # Symlinks operations
-  ["setting_up_symlinks"]="Setting up symlinks for component: %s"
-  ["removing_symlinks"]="Removing symlinks for component: %s"
-  ["symlinks_configured"]="Symlinks for '%s' configured successfully"
-  ["symlinks_removed"]="Symlinks for '%s' removed successfully"
-  ["symlinks_completed"]="Symlinks for '%s' completed (%ss)"
-  ["symlinks_configuration_checked"]="Symlinks: ✓ %d configuration%s checked, no changes needed"
-  ["symlinks_errors_successful"]="Symlinks: ✗ %d error%s, %d successful"
-  ["symlinks_configured_successfully"]="Component symlinks configured successfully (%d symlink files)"
-  ["symlinks_configured_with_errors"]="Component symlinks configured with %d errors (%d/%d symlink files)"
-  ["symlinks_for_configured"]="Symlinks for '%s' configured successfully"
-  ["symlinks_setup_failed"]="Failed to setup symlinks for '%s'"
-  ["symlinks_listing_backups_pattern"]="Listing backups for pattern: %s"
-  ["symlinks_backup_not_found"]="Backup file not found: %s"
-  ["symlinks_restoring_backup"]="Restoring backup: %s -> %s"
-  ["symlinks_backup_entry"]="  %s -> %s (created: %s)"
-  ["symlinks_no_backups_for_pattern"]="  No backups found for pattern: %s"
-  ["symlinks_current_backed_up"]="  Current state backed up to %s"
-  ["symlinks_restore_success"]="  Successfully restored %s"
+  # Component status indicators
+  ["component_already_installed_status"]=" (already installed)"
+  ["component_requested_indicator"]="  ➤ %s (requested component)%s"
+  ["component_dependency_indicator"]="  ↪ %s (dependency)%s"
+  ["component_requested_uninstall_indicator"]="  ➤ %s (requested component)"
+  ["component_unused_dependency_indicator"]="  ↪ %s (unused dependency)"
 
-  # Package managers
-  ["setting_up_manager"]="Setting up %s"
-  ["manager_ready"]="%s ready"
-  ["cleaning_manager"]="Cleaning %s"
-  ["manager_cleanup_completed"]="%s cleanup completed"
-  ["setting_up_package_manager"]="Setting up %s..."
-  ["cleaning_package_manager"]="Cleaning %s..."
-
-  # Lists and items
-  ["requested_components"]="Requested components: %s"
-  ["new_dependencies"]="New dependencies: %s"
-  ["preset_components"]="Preset components: %s"
-  ["dependencies_list"]="Dependencies: %s"
-
-  # Presets
-  ["installing_preset"]="==> Installing Preset: %s"
-  ["preset_not_found"]="Preset '%s' not found"
-  ["preset_not_available"]="Preset '%s' is not available on this platform"
-  ["preset_already_installed"]="Preset '%s' is already installed"
-  ["preset_not_installed"]="Preset '%s' is not installed"
-  ["preset_updated"]="Preset '%s' updated successfully"
-  ["preset_failed_components"]="Failed to install required components"
-  ["preset_no_components"]="No components to install for this preset"
-  ["preset_components_count"]="Will install %d preset components with dependencies"
-  ["preset_components_update_msg"]="Updating preset components"
-
-  # Errors
-  ["no_components_specified_install"]="No components specified for installation"
-  ["no_components_specified_update"]="No components specified for update"
-  ["no_components_specified_uninstall"]="No components specified for uninstall"
-
-  # Dry-run operations
-  ["dry_run_would_execute"]="Would execute: %s"
-  ["dry_run_command"]="Command: %s"
-  ["dry_run_create_symlink"]="Would create symlink: %s -> %s"
-  ["dry_run_create_directory"]="Would create directory: %s"
-  ["dry_run_remove_file"]="Would remove file: %s"
-  ["dry_run_remove_directory"]="Would remove directory: %s"
-  ["dry_run_backup_file"]="Would backup file: %s"
-  ["dry_run_restore_file"]="Would restore file: %s from %s"
-  ["dry_run_file_operation"]="Would perform file operation '%s' on: %s"
-
-  # Component dry-run operations
-  ["dry_run_create_component_symlink"]="Would create component installation symlink: %s -> %s"
-  ["dry_run_mark_manual_install"]="Would mark as manually installed: %s -> %s"
-  ["dry_run_remove_component_symlink"]="Would remove component installation symlink: %s"
-  ["dry_run_remove_manual_symlink"]="Would remove manual installation symlink: %s"
-
-  # MOTD templates
-  ["motd_greeting"]="%s, сomrade %s!"
-  ["motd_greeting_comrade"]="%s, сomrade %s!"
-  ["motd_calendar"]="Calendar shows %s."
-  ["motd_calendar_shows"]="Calendar shows %s"
-  ["motd_clock"]="Clock purrs at %s."
-  ["motd_clock_purrs"]="Clock purrs at %s"
-  ["motd_ascii_art_not_found"]="ASCII art file not found: %s"
-  ["motd_system_territory"]="Let me tell you about your digital territory, comrade:"
-  ["motd_system_info"]="System:     %s"
-  ["motd_shell_info"]="Shell:      %s"
-
-  # Rust system setup
-  ["rust_version_info"]="Rust version: %s"
-
-  # macOS keyboard configuration
-  ["macos_keyboard_unknown_layout_type"]="Unknown layout type: %s. Use 'das' or 'mbp'"
-  ["macos_keyboard_configuring_layouts"]="Configuring keyboard layouts for %s..."
-  ["macos_keyboard_layouts_configured"]="Keyboard layouts configured for %s"
-
-  # Node.js component setup
-  ["node_npm_not_found_skip"]="npm command not found. Skipping Node.js configuration"
-  ["node_configuring_global_packages"]="Configuring npm for global packages without sudo"
-  ["node_npm_configured_successfully"]="NPM configured successfully"
-
-  # Component cleanup - Rust Development
-  ["rust_dev_cleanup_running"]="🧹 Running Rust Development cleanup..."
-  ["rust_dev_cleaning_cargo_cache"]="  📦 Cleaning cargo cache..."
-  ["rust_dev_cleaning_registry_cache"]="  🗑️  Cleaning cargo registry cache..."
-  ["rust_dev_cleaning_git_cache"]="  🗑️  Cleaning cargo git cache..."
-  ["rust_dev_cleaning_target_dirs"]="  🗑️  Cleaning Rust target directories..."
-  ["rust_dev_cleaning_rustup_temp"]="  🗑️  Cleaning rustup temporary files..."
-  ["rust_dev_cleanup_completed"]="✅ Rust Development cleanup completed"
-
-  # Component cleanup - Python Development
-  ["python_dev_cleanup_running"]="🧹 Running Python Development cleanup..."
-  ["python_dev_cleaning_pip_cache"]="  📦 Cleaning pip cache..."
-  ["python_dev_cleaning_pip3_cache"]="  📦 Cleaning pip3 cache..."
-  ["python_dev_cleaning_bytecode"]="  🗑️  Cleaning Python bytecode files..."
-  ["python_dev_removing_pytest_cache"]="  🗑️  Removing pytest cache..."
-  ["python_dev_removing_mypy_cache"]="  🗑️  Removing mypy cache..."
-  ["python_dev_cleaning_ipython_cache"]="  🗑️  Cleaning IPython cache..."
-  ["python_dev_cleanup_completed"]="✅ Python Development cleanup completed"
-
-  # Component cleanup - Gaming
-  ["gaming_cleanup_running"]="🧹 Running Gaming cleanup..."
-  ["gaming_stopping_steam"]="  ⏹️  Stopping Steam..."
-  ["gaming_stopping_geforce_now"]="  ⏹️  Stopping NVIDIA GeForce NOW..."
-  ["gaming_removing_login_items"]="  🗑️  Removing gaming apps from login items..."
-  ["gaming_cleaning_cache"]="  🗑️  Cleaning gaming cache and logs..."
-  ["gaming_cleanup_completed"]="✅ Gaming cleanup completed"
-  ["gaming_saves_preserved"]="ℹ️  Note: Game saves and user data were preserved"
-
-  # Desktop Essential component setup
-  ["desktop_essential_macos_config_complete"]="macOS configuration complete (may require logout/restart)"
-  ["desktop_essential_macos_config_issues"]="macOS configuration encountered issues or was skipped"
-
-  # Shell Essential component setup
-  ["shell_essential_configuring_tmux"]="Configuring tmux"
-  ["shell_essential_configuring_zsh"]="Configuring zsh"
-  ["motd_uptime_info"]="Uptime:     %s"
-  ["motd_disk_info"]="Disk:       %s"
-  ["motd_ram_info"]="RAM:        %s"
-  ["motd_updates_info"]="Updates:    %s packages need updating"
-  ["motd_computer_name_set"]="Computer name set to %s"
-
-  # macOS configuration
-  ["macos_setting_computer_name"]="Computer name set to %s"
-  ["macos_system_defaults"]="System Defaults"
-  ["macos_finder_config"]="Finder Configuration"
-  ["macos_dock_config"]="Dock Configuration"
-  ["macos_app_config"]="App Configuration"
-  ["macos_configuration"]="macOS Configuration"
-
-  # Package manager summaries
-  ["package_summary_installed"]="%s: ✓ %d installed, %d already present"
-  ["package_summary_present"]="%s: ✓ %d/%d already present"
-  ["package_summary_failed"]="%s: ✗ %d failed, %d installed, %d already present"
-  ["package_summary_updated"]="%s: ✓ %d updated, %d up-to-date"
-  ["package_summary_update_failed"]="%s: ✗ %d failed, %d updated, %d up-to-date"
-  ["package_summary_uninstalled"]="%s: ✓ %d uninstalled, %d not installed"
-  ["package_summary_uninstall_failed"]="%s: ✗ %d failed, %d uninstalled, %d not installed"
+  # Component dependency warnings
+  ["circular_dependencies_detected"]="Circular dependencies detected among: %s"
 )
 
 # ============================================================================

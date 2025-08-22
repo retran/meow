@@ -129,7 +129,8 @@ build_greeting() {
   local date_full="$2"
   local time_current="$3"
 
-  local greeting="Meowvelous day"
+  local greeting
+  greeting="$(get_static_message "motd_greeting_default")"
   local time_collection_key="night" # Default
 
   if ((hour_num >= 5 && hour_num < 12)); then
@@ -142,8 +143,8 @@ build_greeting() {
 
   local time_comment
   time_comment=$(get_comment_collection "motd" "$time_collection_key")
-  if [[ -z "$time_comment" || "$time_comment" == "A fancy digital cat comment should be here" ]]; then
-    time_comment="Hope you have a purr-ductive time!"
+  if [[ -z "$time_comment" || "$time_comment" == "$(get_static_message "motd_fallback")" ]]; then
+    time_comment="$(get_static_message "motd_time_fallback")"
   fi
 
   echo -e "${SECONDARY}$(format_template_message "motd_greeting_comrade" "$greeting" "$(whoami)")${RESET}"
