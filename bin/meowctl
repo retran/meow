@@ -15,144 +15,144 @@ source "${MEOW}/lib/core/dry_run.sh"
 
 show_main_help() {
   title "meowctl - Unified meow control"
-  msg "Manage your meow dotfiles and development environment."
-  msg ""
+  ui_message "Manage your meow dotfiles and development environment."
+  ui_message ""
   show_bash_version_info
-  msg ""
-  msg "Usage: $0 <command> [options] [arguments]"
-  msg ""
-  msg "Commands:"
-  msg "  install <preset>         Install a preset"
-  msg "  update [preset]          Update preset or all installed components"
-  msg "  uninstall <preset>       Uninstall a preset (or 'all' for all presets)"
-  msg "  list                     List available presets"
-  msg "  component <subcommand>   Manage components"
-  msg "  backup <subcommand>      Manage symlink backups"
-  msg "  help [command]           Show help for command"
-  msg ""
-  msg "Global Options:"
-  msg "  --verbose, -v            Show detailed output"
-  msg "  --dry-run                Show what would be done without making changes"
-  msg "  --help, -h               Show help"
-  msg ""
-  msg "Examples:"
-  msg "  $0 install personal"
-  msg "  $0 install personal --verbose"
-  msg "  $0 install personal --dry-run"
-  msg "  $0 update --pull"
-  msg "  $0 list"
-  msg "  $0 component list"
-  msg "  $0 backup list"
-  msg ""
+  ui_message ""
+  ui_message "Usage: $0 <command> [options] [arguments]"
+  ui_message ""
+  ui_message "Commands:"
+  ui_message "  install <preset>         Install a preset"
+  ui_message "  update [preset]          Update preset or all installed components"
+  ui_message "  uninstall <preset>       Uninstall a preset (or 'all' for all presets)"
+  ui_message "  list                     List available presets"
+  ui_message "  component <subcommand>   Manage components"
+  ui_message "  backup <subcommand>      Manage symlink backups"
+  ui_message "  help [command]           Show help for command"
+  ui_message ""
+  ui_message "Global Options:"
+  ui_message "  --verbose, -v            Show detailed output"
+  ui_message "  --dry-run                Show what would be done without making changes"
+  ui_message "  --help, -h               Show help"
+  ui_message ""
+  ui_message "Examples:"
+  ui_message "  $0 install personal"
+  ui_message "  $0 install personal --verbose"
+  ui_message "  $0 install personal --dry-run"
+  ui_message "  $0 update --pull"
+  ui_message "  $0 list"
+  ui_message "  $0 component list"
+  ui_message "  $0 backup list"
+  ui_message ""
 }
 
 show_install_help() {
   title "meowctl install"
-  msg "Install a meow preset."
-  msg ""
-  msg "Usage: $0 install <preset>"
-  msg ""
-  msg "Available presets:"
-  msg "  personal                 Complete development setup with all packages"
-  msg "  corporate                Work-focused development environment"
-  msg "  litterbox-*              Container-optimized environments"
-  msg ""
-  msg "Examples:"
-  msg "  $0 install personal"
-  msg "  $0 install corporate"
-  msg ""
+  ui_message "Install a meow preset."
+  ui_message ""
+  ui_message "Usage: $0 install <preset>"
+  ui_message ""
+  ui_message "Available presets:"
+  ui_message "  personal                 Complete development setup with all packages"
+  ui_message "  corporate                Work-focused development environment"
+  ui_message "  litterbox-*              Container-optimized environments"
+  ui_message ""
+  ui_message "Examples:"
+  ui_message "  $0 install personal"
+  ui_message "  $0 install corporate"
+  ui_message ""
 }
 
 show_uninstall_help() {
   title "meowctl uninstall"
-  msg "Uninstall a meow preset."
-  msg ""
-  msg "Usage: $0 uninstall <preset|all>"
-  msg ""
-  msg "Arguments:"
-  msg "  <preset>                 Name of the preset to uninstall"
-  msg "  all                      Uninstall all installed presets"
-  msg ""
-  msg "Examples:"
-  msg "  $0 uninstall personal"
-  msg "  $0 uninstall all"
-  msg ""
+  ui_message "Uninstall a meow preset."
+  ui_message ""
+  ui_message "Usage: $0 uninstall <preset|all>"
+  ui_message ""
+  ui_message "Arguments:"
+  ui_message "  <preset>                 Name of the preset to uninstall"
+  ui_message "  all                      Uninstall all installed presets"
+  ui_message ""
+  ui_message "Examples:"
+  ui_message "  $0 uninstall personal"
+  ui_message "  $0 uninstall all"
+  ui_message ""
 }
 
 show_update_help() {
   title "meowctl update"
-  msg "Update installed presets or components."
-  msg ""
-  msg "Usage: $0 update [preset|all] [options]"
-  msg ""
-  msg "Arguments:"
-  msg "  <preset>                 Name of the preset to update"
-  msg "  all                      Update all installed presets"
-  msg "  (no argument)            Update all installed components (default)"
-  msg ""
-  msg "Options:"
-  msg "  --pull                   Git pull before update"
-  msg ""
-  msg "Examples:"
-  msg "  $0 update                Update all installed components"
-  msg "  $0 update all            Update all installed presets"
-  msg "  $0 update personal       Update specific preset"
-  msg "  $0 update --pull         Git pull then update all components"
-  msg ""
+  ui_message "Update installed presets or components."
+  ui_message ""
+  ui_message "Usage: $0 update [preset|all] [options]"
+  ui_message ""
+  ui_message "Arguments:"
+  ui_message "  <preset>                 Name of the preset to update"
+  ui_message "  all                      Update all installed presets"
+  ui_message "  (no argument)            Update all installed components (default)"
+  ui_message ""
+  ui_message "Options:"
+  ui_message "  --pull                   Git pull before update"
+  ui_message ""
+  ui_message "Examples:"
+  ui_message "  $0 update                Update all installed components"
+  ui_message "  $0 update all            Update all installed presets"
+  ui_message "  $0 update personal       Update specific preset"
+  ui_message "  $0 update --pull         Git pull then update all components"
+  ui_message ""
 }
 
 show_component_help() {
   title "meowctl component"
-  msg "Manage meow components."
-  msg ""
-  msg "Usage: $0 component <subcommand> [arguments]"
-  msg ""
-  msg "Subcommands:"
-  msg "  list [--names-only]            List all available components with status"
-  msg "  install <component> [...]      Install one or more components"
-  msg "  update <component> [...]       Update one or more components and their dependencies"
-  msg "  uninstall [--force] <component> Uninstall a component (--force skips dependency checks)"
-  msg ""
-  msg "Options for list:"
-  msg "  --names-only                   Show only component names without status"
-  msg ""
-  msg "Examples:"
-  msg "  $0 component list"
-  msg "  $0 component list --names-only"
-  msg "  $0 component install shell-essential"
-  msg "  $0 component install shell-essential go-development docker-cli"
-  msg "  $0 component uninstall docker-cli"
-  msg "  $0 component uninstall --force docker-cli"
-  msg "  $0 component update go-development"
-  msg "  $0 component update shell-essential go-development"
-  msg ""
+  ui_message "Manage meow components."
+  ui_message ""
+  ui_message "Usage: $0 component <subcommand> [arguments]"
+  ui_message ""
+  ui_message "Subcommands:"
+  ui_message "  list [--names-only]            List all available components with status"
+  ui_message "  install <component> [...]      Install one or more components"
+  ui_message "  update <component> [...]       Update one or more components and their dependencies"
+  ui_message "  uninstall [--force] <component> Uninstall a component (--force skips dependency checks)"
+  ui_message ""
+  ui_message "Options for list:"
+  ui_message "  --names-only                   Show only component names without status"
+  ui_message ""
+  ui_message "Examples:"
+  ui_message "  $0 component list"
+  ui_message "  $0 component list --names-only"
+  ui_message "  $0 component install shell-essential"
+  ui_message "  $0 component install shell-essential go-development docker-cli"
+  ui_message "  $0 component uninstall docker-cli"
+  ui_message "  $0 component uninstall --force docker-cli"
+  ui_message "  $0 component update go-development"
+  ui_message "  $0 component update shell-essential go-development"
+  ui_message ""
 }
 
 show_list_help() {
   title "meowctl list"
-  msg "List available presets."
-  msg ""
-  msg "Usage: $0 list"
-  msg ""
-  msg "Examples:"
-  msg "  $0 list"
-  msg ""
+  ui_message "List available presets."
+  ui_message ""
+  ui_message "Usage: $0 list"
+  ui_message ""
+  ui_message "Examples:"
+  ui_message "  $0 list"
+  ui_message ""
 }
 
 show_backup_help() {
   title "meowctl backup"
-  msg "Manage symlink backups."
-  msg ""
-  msg "Usage: $0 backup <subcommand> [arguments]"
-  msg ""
-  msg "Subcommands:"
-  msg "  list [pattern]           List all backups or by pattern"
-  msg "  restore <file>           Restore from backup"
-  msg ""
-  msg "Examples:"
-  msg "  $0 backup list"
-  msg "  $0 backup restore .vimrc.backup.20231201_120000"
-  msg ""
+  ui_message "Manage symlink backups."
+  ui_message ""
+  ui_message "Usage: $0 backup <subcommand> [arguments]"
+  ui_message ""
+  ui_message "Subcommands:"
+  ui_message "  list [pattern]           List all backups or by pattern"
+  ui_message "  restore <file>           Restore from backup"
+  ui_message ""
+  ui_message "Examples:"
+  ui_message "  $0 backup list"
+  ui_message "  $0 backup restore .vimrc.backup.20231201_120000"
+  ui_message ""
 }
 
 parse_global_options() {
@@ -171,7 +171,7 @@ parse_global_options() {
         return
         ;;
       --*)
-        error "Unknown global option: $1"
+        ui_error "Unknown global option: $1"
         exit 1
         ;;
       *)
@@ -186,18 +186,18 @@ validate_preset_name() {
   local preset="$1"
 
   if [[ -z "$preset" ]]; then
-    error "Preset name cannot be empty"
+    ui_error "Preset name cannot be empty"
     return 1
   fi
 
   if [[ ! "$preset" =~ ^[a-zA-Z0-9_-]+$ ]]; then
-    error "Invalid preset name '$preset'. Use only alphanumeric characters, underscores, and dashes."
+    ui_error "Invalid preset name '$preset'. Use only alphanumeric characters, underscores, and dashes."
     return 1
   fi
 
   local preset_file="${MEOW}/presets/${preset}/preset.yaml"
   if [[ ! -f "$preset_file" ]]; then
-    error "Preset '$preset' not found"
+    ui_error "Preset '$preset' not found"
     return 1
   fi
 
@@ -208,12 +208,12 @@ validate_component_name() {
   local component="$1"
 
   if [[ -z "$component" ]]; then
-    error "Component name cannot be empty"
+    ui_error "Component name cannot be empty"
     return 1
   fi
 
   if [[ ! "$component" =~ ^[a-zA-Z0-9_-]+$ ]]; then
-    error "Invalid component name '$component'. Use only alphanumeric characters, underscores, and dashes."
+    ui_error "Invalid component name '$component'. Use only alphanumeric characters, underscores, and dashes."
     return 1
   fi
 
@@ -239,7 +239,7 @@ cmd_component() {
       exit 0
       ;;
     "")
-      error "No component subcommand specified"
+      ui_error "No component subcommand specified"
       show_component_help
       exit 1
       ;;
@@ -264,7 +264,7 @@ cmd_component() {
             exit 0
             ;;
           *)
-            error "Unknown option for component list: $1"
+            ui_error "Unknown option for component list: $1"
             exit 1
             ;;
         esac
@@ -297,7 +297,7 @@ cmd_component() {
       done
 
       if [[ ${#install_args[@]} -eq 0 ]]; then
-        error "No components specified for install command"
+        ui_error "No components specified for install command"
         exit 1
       fi
 
@@ -347,7 +347,7 @@ cmd_component() {
             if [[ -z "$component" ]]; then
               component="$1"
             else
-              error "Too many arguments for component uninstall command"
+              ui_error "Too many arguments for component uninstall command"
               exit 1
             fi
             shift
@@ -356,7 +356,7 @@ cmd_component() {
       done
 
       if [[ -z "$component" ]]; then
-        error "No component specified for uninstall command"
+        ui_error "No component specified for uninstall command"
         exit 1
       fi
 
@@ -398,7 +398,7 @@ cmd_component() {
       done
 
       if [[ ${#update_args[@]} -eq 0 ]]; then
-        error "No components specified for update command"
+        ui_error "No components specified for update command"
         exit 1
       fi
 
@@ -423,7 +423,7 @@ cmd_component() {
       fi
       ;;
     *)
-      error "Unknown component subcommand: $subcommand"
+      ui_error "Unknown component subcommand: $subcommand"
       show_component_help
       exit 1
       ;;
@@ -448,14 +448,14 @@ cmd_install() {
         exit 0
         ;;
       --*)
-        error "Unknown install option: $1"
+        ui_error "Unknown install option: $1"
         exit 1
         ;;
       *)
         if [[ -z "$preset" ]]; then
           preset="$1"
         else
-          error "Too many arguments for install command"
+          ui_error "Too many arguments for install command"
           exit 1
         fi
         shift
@@ -464,7 +464,7 @@ cmd_install() {
   done
 
   if [[ -z "$preset" ]]; then
-    error "No preset specified"
+    ui_error "No preset specified"
     show_install_help
     exit 1
   fi
@@ -502,14 +502,14 @@ cmd_uninstall() {
         exit 0
         ;;
       --*)
-        error "Unknown uninstall option: $1"
+        ui_error "Unknown uninstall option: $1"
         exit 1
         ;;
       *)
         if [[ -z "$preset" ]]; then
           preset="$1"
         else
-          error "Too many arguments for uninstall command"
+          ui_error "Too many arguments for uninstall command"
           exit 1
         fi
         shift
@@ -518,7 +518,7 @@ cmd_uninstall() {
   done
 
   if [[ -z "$preset" ]]; then
-    error "No preset specified"
+    ui_error "No preset specified"
     show_uninstall_help
     exit 1
   fi
@@ -551,14 +551,14 @@ cmd_list() {
       exit 0
       ;;
     --*)
-      error "Unknown list option: $1"
+      ui_error "Unknown list option: $1"
       exit 1
       ;;
     "")
       # No arguments, list presets
       ;;
     *)
-      error "Too many arguments for list command"
+      ui_error "Too many arguments for list command"
       exit 1
       ;;
   esac
@@ -588,13 +588,13 @@ cmd_update() {
         ;;
       --pull)
         if [[ "$pull" == true ]]; then
-          warning "Multiple --pull flags specified, ignoring duplicates"
+          ui_warning "Multiple --pull flags specified, ignoring duplicates"
         fi
         pull=true
         shift
         ;;
       --*)
-        error "Unknown update option: $1"
+        ui_error "Unknown update option: $1"
         exit 1
         ;;
       *)
@@ -609,7 +609,7 @@ cmd_update() {
   done
 
   if [[ ${#extra_args[@]} -gt 0 ]]; then
-    error "Too many arguments for update command: ${extra_args[*]}"
+    ui_error "Too many arguments for update command: ${extra_args[*]}"
     exit 1
   fi
 
@@ -623,14 +623,14 @@ cmd_update() {
     step_header "Updating meow repository"
 
     if ! git -C "$MEOW" rev-parse --git-dir >/dev/null 2>&1; then
-      error "Not a git repository: $MEOW"
+      ui_error "Not a git repository: $MEOW"
       show_final_summary "Update" "$preset" "false"
       exit 1
     fi
 
     if ! git -C "$MEOW" diff-index --quiet HEAD -- 2>/dev/null; then
-      warning "You have uncommitted changes in $MEOW"
-      warning "Consider committing or stashing them before updating"
+      ui_warning "You have uncommitted changes in $MEOW"
+      ui_warning "Consider committing or stashing them before updating"
     fi
 
     # Handle dry-run mode for git pull
@@ -639,12 +639,12 @@ cmd_update() {
       :
     else
       ui_spinner "Updating meow repository" \
-        --success "Repository updated successfully" \
+        --ui_success "Repository updated successfully" \
         --fail "Failed to update repository" \
         git -C "$MEOW" pull
 
       if [[ $? -ne 0 ]]; then
-        error "You may need to resolve merge conflicts manually"
+        ui_error "You may need to resolve merge conflicts manually"
         show_final_summary "Update" "$preset" "false"
         exit 1
       fi
@@ -691,7 +691,7 @@ cmd_backup() {
       exit 0
       ;;
     "")
-      error "No backup subcommand specified"
+      ui_error "No backup subcommand specified"
       show_backup_help
       exit 1
       ;;
@@ -724,7 +724,7 @@ cmd_backup() {
       done
 
       if [[ ${#list_args[@]} -gt 1 ]]; then
-        error "Too many arguments for backup list command"
+        ui_error "Too many arguments for backup list command"
         exit 1
       fi
 
@@ -752,11 +752,11 @@ cmd_backup() {
       done
 
       if [[ ${#restore_args[@]} -eq 0 ]]; then
-        error "No backup file specified for restore command"
+        ui_error "No backup file specified for restore command"
         exit 1
       fi
       if [[ ${#restore_args[@]} -gt 1 ]]; then
-        error "Too many arguments for backup restore command"
+        ui_error "Too many arguments for backup restore command"
         exit 1
       fi
 
@@ -764,7 +764,7 @@ cmd_backup() {
       restore_backup "$backup_file"
       ;;
     *)
-      error "Unknown backup subcommand: $subcommand"
+      ui_error "Unknown backup subcommand: $subcommand"
       show_backup_help
       exit 1
       ;;
@@ -800,7 +800,7 @@ cmd_help() {
       show_main_help
       ;;
     *)
-      error "Unknown command: $command"
+      ui_error "Unknown command: $command"
       show_main_help
       exit 1
       ;;
@@ -829,7 +829,7 @@ main() {
 
   # Show dry-run notice if enabled
   if [[ "${MEOW_DRY_RUN:-}" == "true" ]]; then
-    warning "DRY-RUN MODE: No actual changes will be made"
+    ui_warning "DRY-RUN MODE: No actual changes will be made"
   fi
 
   shift
@@ -857,7 +857,7 @@ main() {
       cmd_help "$@"
       ;;
     *)
-      error "Unknown command: $command"
+      ui_error "Unknown command: $command"
       show_main_help
       exit 1
       ;;

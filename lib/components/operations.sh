@@ -105,7 +105,7 @@ install_component() {
     ui_indent "$(format_template_message "total_components_install" "${#components_to_install[@]}")"
 
     if [[ "$MEOW_VERBOSE" == "true" ]]; then
-      ui_installation_order
+      ui_step_header "$(get_static_message 'installation_order')"
       for comp in "${multiple_installation_order[@]}"; do
         local status=""
         if is_component_installed "$comp"; then
@@ -267,7 +267,7 @@ _install_single_component() {
     else
       ui_component_installing "$component"
     fi
-  fi  # Mark this component as being installed
+  fi # Mark this component as being installed
   MEOW_INSTALLING_COMPONENTS+=("$component")
 
   # Install packages for this component
@@ -300,7 +300,7 @@ _install_single_component() {
   # Run component initialization if available (after component is marked as installed)
   setup_component "$component"
 
-  ui_component_installed "$component"
+  _icon_msg_core "${GREEN}✓ " "$(format_template_message 'component_installed' "$component")"
   unset MEOW_COMPONENT_MANUAL_INSTALL
   return 0
 }
@@ -363,7 +363,7 @@ update_component() {
   ui_indent "$(format_template_message "components_update_total" "${#multiple_update_order[@]}")"
 
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    ui_update_order
+    ui_step_header "$(get_static_message 'update_order')"
     for comp in "${multiple_update_order[@]}"; do
       local is_requested_component=false
       for requested_comp in "${components[@]}"; do
@@ -584,7 +584,8 @@ _update_single_component() {
   # Update symlinks
   setup_component_symlinks "$component"
 
-  ui_component_updated "$component"
+  _icon_msg_core "${CYAN}✓ " "$(format_template_message 'component_updated' "$component")"
+
   return 0
 }
 
@@ -943,7 +944,7 @@ _uninstall_single_component() {
   ui_verbose_action_success "$(get_static_message "component_tracking_removed")"
 
   if [[ "$success" == "true" ]]; then
-    ui_component_uninstalled "$component"
+    _icon_msg_core "${RED}✓ " "$(format_template_message 'component_uninstalled' "$component")"
     return 0
   else
     return 1

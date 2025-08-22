@@ -10,63 +10,25 @@ _LIB_CORE_UI_SOURCED=1
 source "${MEOW}/lib/core/colors.sh"
 source "${MEOW}/lib/core/strings.sh"
 
-# Global verbosity control
 MEOW_VERBOSE="${MEOW_VERBOSE:-false}"
 
-# Error/warning tracking for final summary
 declare -g MEOW_ERROR_COUNT=0
 declare -g MEOW_WARNING_COUNT=0
 declare -ga MEOW_ERRORS=()
 declare -ga MEOW_WARNINGS=()
 
-# ============================================================================
-# INTERNAL HELPER FUNCTIONS (keep these for backward compatibility)
-# ============================================================================
-
-# Internal helper for colored messages
 _base_msg() {
   local color_prefix="$1"
   shift
   echo -e "${color_prefix}${*}${RESET}"
 }
 
-# Internal helper for icon messages
 _icon_msg_core() {
   local icon_and_color="$1"
   shift
   echo -e "${icon_and_color}${RESET}${NORMAL}${*}${RESET}"
 }
 
-# Show command output on error
-_print_temp_output_if_exists() {
-  local temp_file="$1"
-
-  if [[ -s "$temp_file" ]]; then
-    if [[ "$MEOW_VERBOSE" == "true" ]]; then
-      ui_error "$(get_static_message 'command_output')"
-      while IFS= read -r line; do
-        ui_content "$line"
-      done <"$temp_file"
-    else
-      # In non-verbose mode, show only the first few lines and suggest verbose mode
-      ui_error "$(get_static_message 'command_failed_first_lines')"
-      head -n 3 "$temp_file" | while IFS= read -r line; do
-        ui_content "$line"
-      done
-      local line_count
-      line_count=$(wc -l <"$temp_file")
-      if [[ $line_count -gt 3 ]]; then
-        ui_info "$(format_template_message 'command_more_lines_hidden' $((line_count - 3)))"
-      fi
-    fi
-  fi
-}
-
-# ============================================================================
-# SEMANTIC UI FUNCTIONS - BASIC MESSAGES
-# ============================================================================
-
-# Basic message functions
 ui_message() { _base_msg "${NORMAL}" "$@"; }
 ui_success() { _base_msg "${SUCCESS}" "$@"; }
 ui_info() { _base_msg "${INFO}" "$@"; }
@@ -84,19 +46,13 @@ ui_warning() {
   MEOW_WARNINGS+=("$*")
 }
 
-# Verbose-only messages
 ui_verbose_message() { [[ "$MEOW_VERBOSE" == "true" ]] && ui_message "$@"; }
 ui_verbose_info() { [[ "$MEOW_VERBOSE" == "true" ]] && ui_info "$@"; }
-
-# ============================================================================
-# SEMANTIC UI FUNCTIONS - HEADERS AND STRUCTURE
-# ============================================================================
 
 ui_title() { _base_msg "${HEADER}${BOLD}" "$@"; }
 ui_header() { _base_msg "${HEADER}" "$@"; }
 ui_subheader() { _base_msg "${SUBHEADER}" "$@"; }
 
-# Step header with optional numbering
 ui_step_header() {
   local step_name="$1"
   local step_count="${2:-}"
@@ -109,47 +65,33 @@ ui_step_header() {
   fi
 }
 
-# ============================================================================
-# SEMANTIC UI FUNCTIONS - ACTIONS AND STATUS
-# ============================================================================
-
-# Action indicators
 ui_action_start() { _icon_msg_core "${INFO}➤ " "$@"; }
 ui_action_success() { _icon_msg_core "${SUCCESS}✓ " "$@"; }
+
 ui_action_error() {
   _icon_msg_core "${ERROR}✗ " "$@" >&2
   ((MEOW_ERROR_COUNT++)) || true
   MEOW_ERRORS+=("$*")
 }
+
 ui_action_warning() {
   _icon_msg_core "${WARNING}⚠️ " "$@"
   ((MEOW_WARNING_COUNT++)) || true
   MEOW_WARNINGS+=("$*")
 }
 
-# Info and details
 ui_info_detail() { _icon_msg_core "${INFO}ℹ︎ " "$@"; }
 ui_dependency() { _icon_msg_core "${NORMAL}↪ " "$@"; }
 ui_list_item() { _icon_msg_core "${NORMAL}    " "$@"; }
 ui_emphasis() { _icon_msg_core "${BOLD}" "$@"; }
 ui_indent() { _icon_msg_core "${NORMAL}  ↳ " "$@"; }
 
-# Verbose-only action messages
 ui_verbose_action_start() { [[ "$MEOW_VERBOSE" == "true" ]] && ui_action_start "$@"; }
 ui_verbose_action_success() { [[ "$MEOW_VERBOSE" == "true" ]] && ui_action_success "$@"; }
-
-# ============================================================================
-# SEMANTIC UI FUNCTIONS - COMPONENT OPERATIONS
-# ============================================================================
 
 ui_component_installing() {
   local component="$1"
   _icon_msg_core "${GREEN}➤ " "$(format_template_message 'installing_component' "$component")"
-}
-
-ui_component_installed() {
-  local component="$1"
-  _icon_msg_core "${GREEN}✓ " "$(format_template_message 'component_installed' "$component")"
 }
 
 ui_component_updating() {
@@ -157,34 +99,10 @@ ui_component_updating() {
   _icon_msg_core "${CYAN}➤ " "$(format_template_message 'updating_component' "$component")"
 }
 
-ui_component_updated() {
-  local component="$1"
-  _icon_msg_core "${CYAN}✓ " "$(format_template_message 'component_updated' "$component")"
-}
-
 ui_component_uninstalling() {
   local component="$1"
   _icon_msg_core "${RED}➤ " "$(format_template_message 'uninstalling_component' "$component")"
 }
-
-ui_component_uninstalled() {
-  local component="$1"
-  _icon_msg_core "${RED}✓ " "$(format_template_message 'component_uninstalled' "$component")"
-}
-
-ui_component_setup() {
-  local component="$1"
-  _icon_msg_core "${BLUE}➤ " "$(format_template_message 'setting_up_component' "$component")"
-}
-
-ui_component_cleanup() {
-  local component="$1"
-  _icon_msg_core "${YELLOW}➤ " "$(format_template_message 'cleaning_component' "$component")"
-}
-
-# ============================================================================
-# SEMANTIC UI FUNCTIONS - PACKAGE MANAGER OPERATIONS
-# ============================================================================
 
 ui_package_manager_setup() {
   local manager="$1"
@@ -200,186 +118,6 @@ ui_package_manager_cleaning() {
   local manager="$1"
   _base_msg "${YELLOW}" "$(format_template_message 'cleaning_package_manager' "$manager")"
 }
-
-ui_package_manager_cleaned() {
-  local manager="$1"
-  _icon_msg_core "${YELLOW}✓ " "$(format_template_message 'manager_cleanup_completed' "$manager")"
-}
-
-# Package manager initialization with spinner
-
-# ============================================================================
-# SEMANTIC UI FUNCTIONS - PACKAGE OPERATIONS
-# ============================================================================
-
-ui_packages_installing_header() {
-  local component="$1"
-  ui_step_header "$(format_template_message 'installing_packages' "$component")"
-}
-
-ui_packages_updating_header() {
-  local component="$1"
-  ui_step_header "$(format_template_message 'updating_packages' "$component")"
-}
-
-ui_packages_removing_header() {
-  local manager="$1"
-  local component="$2"
-  ui_step_header "$(format_template_message 'package_manager_removal' "$manager" "$component")"
-}
-
-ui_package_already_installed() {
-  local package="$1"
-  ui_verbose_action_success "$package ($(get_static_message 'already_installed'))"
-}
-
-ui_package_up_to_date() {
-  local package="$1"
-  ui_verbose_action_success "$package ($(get_static_message 'up_to_date'))"
-}
-
-ui_package_created() {
-  local package="$1"
-  ui_verbose_action_success "$(basename "$package") (created)"
-}
-
-ui_package_already_correct() {
-  local package="$1"
-  ui_verbose_action_success "$(basename "$package") ($(get_static_message 'already_correct'))"
-}
-
-# ============================================================================
-# SEMANTIC UI FUNCTIONS - REPOSITORY OPERATIONS
-# ============================================================================
-
-ui_repo_removing() {
-  local component="$1"
-  ui_step_header "$(format_template_message 'removing_repo' "$component")"
-}
-
-ui_repo_cloning() {
-  local component="$1"
-  ui_step_header "$(format_template_message 'cloning_repo' "$component")"
-}
-
-ui_repo_updating() {
-  local component="$1"
-  ui_step_header "$(format_template_message 'updating_repo' "$component")"
-}
-
-ui_repo_updated() {
-  ui_verbose_action_success "$(get_static_message 'repo_updated')"
-}
-
-ui_repo_cleaning() {
-  local component="$1"
-  ui_step_header "$(format_template_message 'cleaning_repo' "$component")"
-}
-
-ui_repo_cleaned() {
-  local component="$1"
-  _icon_msg_core "${GREEN}✓ " "$(format_template_message 'repo_cleaned_for' "$component")"
-}
-
-# Repository operations with spinner
-
-
-# ============================================================================
-# SEMANTIC UI FUNCTIONS - SYMLINK OPERATIONS
-# ============================================================================
-
-ui_symlinks_setting_up() {
-  local component="$1"
-  ui_step_header "$(format_template_message 'setting_up_symlinks' "$component")"
-}
-
-ui_symlinks_removing() {
-  local component="$1"
-  ui_step_header "$(format_template_message 'removing_symlinks' "$component")"
-}
-
-ui_symlinks_configured() {
-  local component="$1"
-  ui_verbose_action_success "$(format_template_message 'symlinks_configured' "$component")"
-}
-
-ui_symlinks_removed() {
-  local component="$1"
-  ui_verbose_action_success "$(format_template_message 'symlinks_removed' "$component")"
-}
-
-ui_symlinks_completed() {
-  local component="$1"
-  local duration="$2"
-  ui_verbose_action_success "$(format_template_message 'symlinks_completed' "$component" "$duration")"
-}
-
-# ============================================================================
-# SEMANTIC UI FUNCTIONS - INSTALLATION OPERATIONS
-# ============================================================================
-
-ui_installation_order() {
-  ui_step_header "$(get_static_message 'installation_order')"
-}
-
-ui_update_order() {
-  ui_step_header "$(get_static_message 'update_order')"
-}
-
-ui_uninstall_order() {
-  ui_step_header "$(get_static_message 'uninstall_order')"
-}
-
-ui_repo_component_install() {
-  local component="$1"
-  ui_step_header "$(format_template_message 'repo_component_install' "$component")"
-}
-
-ui_repo_update() {
-  local component="$1"
-  ui_step_header "$(format_template_message 'repo_update_msg' "$component")"
-}
-
-ui_packages_update() {
-  local component="$1"
-  ui_step_header "$(format_template_message 'updating_packages' "$component")"
-}
-
-ui_packages_updated() {
-  ui_verbose_action_success "$(get_static_message 'packages_updated')"
-}
-
-ui_symlinks_restore() {
-  ui_step_header "$(get_static_message 'symlinks_restored')"
-}
-
-ui_symlinks_restored() {
-  ui_verbose_action_success "$(get_static_message 'symlinks_restored')"
-}
-
-ui_packages_uninstall() {
-  ui_step_header "$(get_static_message 'removing_packages')"
-}
-
-ui_packages_uninstalled() {
-  ui_verbose_action_success "$(get_static_message 'packages_uninstalled')"
-}
-
-ui_component_tracking_remove() {
-  ui_step_header "$(get_static_message 'component_tracking_removed')"
-}
-
-ui_component_tracking_removed() {
-  ui_verbose_action_success "$(get_static_message 'component_tracking_removed')"
-}
-
-ui_preset_components_update() {
-  ui_step_header "$(get_static_message 'preset_components_update_msg')"
-}
-
-# ============================================================================
-# INTERACTIVE FUNCTIONS
-# ============================================================================
 
 # Interactive confirmation prompt
 ui_confirm() {
@@ -537,17 +275,33 @@ ui_spinner() {
     fi
   else
     ui_action_error "$final_fail_msg"
-    _print_temp_output_if_exists "$temp_output_file"
+
+    local temp_file="$temp_output_file"
+    if [[ -s "$temp_output_file" ]]; then
+      if [[ "$MEOW_VERBOSE" == "true" ]]; then
+        ui_error "$(get_static_message 'command_output')"
+        while IFS= read -r line; do
+          ui_content "$line"
+        done <"$temp_output_file"
+      else
+        # In non-verbose mode, show only the first few lines and suggest verbose mode
+        ui_error "$(get_static_message 'command_failed_first_lines')"
+        head -n 3 "$temp_output_file" | while IFS= read -r line; do
+          ui_content "$line"
+        done
+        local line_count
+        line_count=$(wc -l <"$temp_output_file")
+        if [[ $line_count -gt 3 ]]; then
+          ui_info "$(format_template_message 'command_more_lines_hidden' $((line_count - 3)))"
+        fi
+      fi
+    fi
   fi
 
   rm -f "$temp_output_file"
 
   return "$return_status"
 }
-
-# ============================================================================
-# PACKAGE OPERATION WRAPPER
-# ============================================================================
 
 # Package operation wrapper
 run_package_operation() {
@@ -576,16 +330,6 @@ run_package_operation() {
       "$@"
   fi
 }
-
-# ============================================================================
-# OPERATION TIMING WRAPPER
-# ============================================================================
-
-# Operation wrapper with timing
-
-# ============================================================================
-# FINAL SUMMARY FUNCTIONS
-# ============================================================================
 
 # Show final summary with errors and warnings
 show_final_summary() {
@@ -665,14 +409,3 @@ reset_summary_counters() {
   MEOW_ERRORS=()
   MEOW_WARNINGS=()
 }
-
-# ============================================================================
-# BACKWARD COMPATIBILITY ALIASES (to be removed after migration)
-# ============================================================================
-
-# Keep old function names for now to avoid breaking existing code
-msg() { ui_message "$@"; }
-success() { ui_success "$@"; }
-error() { ui_error "$@"; }
-warning() { ui_warning "$@"; }
-info() { ui_info "$@"; }

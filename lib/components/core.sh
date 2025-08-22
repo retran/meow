@@ -132,7 +132,7 @@ is_component_available() {
 # List all available components with their installation status
 list_components() {
   local show_installed_only="${1:-false}"
-  local show_verbose="${2:-true}"  # Default to showing statuses
+  local show_verbose="${2:-true}" # Default to showing statuses
 
   # Check if component directory exists
   if [[ ! -d "$MEOW_COMPONENTS_DIR" ]]; then
@@ -192,7 +192,7 @@ setup_component() {
   local init_script="${component_dir}/scripts/setup.sh"
 
   if [[ -f "$init_script" ]]; then
-    ui_component_setup "$component"
+    _icon_msg_core "${BLUE}➤ " "$(format_template_message 'setting_up_component' "$component")"
 
     # Handle dry-run mode
     if dry_run_script_execution "$init_script" "setup script for $component"; then
@@ -217,7 +217,7 @@ cleanup_component() {
 
   if [[ -f "$cleanup_script" ]]; then
     if [[ "$MEOW_VERBOSE" == "true" ]]; then
-      ui_component_cleanup "$component"
+      _icon_msg_core "${YELLOW}➤ " "$(format_template_message 'cleaning_component' "$component")"
     fi
 
     # Handle dry-run mode

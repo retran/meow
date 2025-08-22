@@ -165,7 +165,7 @@ update_packages_generic() {
     "npm") manager_display_name="NPM" ;;
     "pipx") manager_display_name="Pipx" ;;
     "vscode") manager_display_name="VS Code" ;;
-    "mas") manager_display_name="Mac App Store" ;;
+    "mas") manager_display_name="App Store" ;;
     "go") manager_display_name="Go" ;;
     "apt") manager_display_name="APT" ;;
     "pacman") manager_display_name="Pacman" ;;
@@ -292,16 +292,16 @@ uninstall_packages_generic() {
   # Create display name for the package manager
   local manager_display_name
   case "$manager_name" in
-    "homebrew") manager_display_name="Homebrew" ;;
-    "npm") manager_display_name="NPM" ;;
-    "pipx") manager_display_name="Pipx" ;;
+    "homebrew") manager_display_name="homebrew" ;;
+    "npm") manager_display_name="npm" ;;
+    "pipx") manager_display_name="pipx" ;;
     "vscode") manager_display_name="VS Code" ;;
-    "mas") manager_display_name="Mac App Store" ;;
-    "go") manager_display_name="Go" ;;
-    "apt") manager_display_name="APT" ;;
-    "pacman") manager_display_name="Pacman" ;;
-    "apk") manager_display_name="APK" ;;
-    *) manager_display_name="$(capitalize "$manager_name")" ;;
+    "mas") manager_display_name="App Store" ;;
+    "go") manager_display_name="go" ;;
+    "apt") manager_display_name="apt" ;;
+    "pacman") manager_display_name="pacman" ;;
+    "apk") manager_display_name="apk" ;;
+    *) manager_display_name="$manager_name" ;;
   esac
 
   # Show header only in verbose mode

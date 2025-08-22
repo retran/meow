@@ -74,7 +74,6 @@ cleanup_mas() {
     return 0
   fi
 
-  # Mac App Store doesn't have a built-in cleanup command
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
     ui_step_header "$(get_static_message "mas_cleaning_noop")"
     ui_action_success "$(get_static_message "mas_cleanup_skipped")"

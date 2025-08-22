@@ -643,13 +643,13 @@ declare -A UI_MESSAGES=(
   ["macos_keyboard_restoring_russian"]="Restoring active Russian layout"
   ["macos_keyboard_layouts_configured"]="Keyboard layouts configured for %s"
 
-  # Mac App Store package manager
-  ["mas_manual_uninstall_warning"]="Mac App Store apps cannot be automatically uninstalled via mas CLI"
+  # App Store package manager
+  ["mas_manual_uninstall_warning"]="App Store apps cannot be automatically uninstalled via mas CLI"
   ["mas_manual_uninstall_instruction"]="Please manually uninstall the following apps through Launchpad or Applications folder:"
-  ["mas_cleanup_would_skip"]="Mac App Store cleanup would be skipped (no cleanup needed)"
+  ["mas_cleanup_would_skip"]="App Store cleanup would be skipped (no cleanup needed)"
   ["mas_app_store_manages_downloads"]="App Store manages downloads automatically"
-  ["mas_cleaning_noop"]="Cleaning Mac App Store (no-op)"
-  ["mas_cleanup_skipped"]="Mac App Store cleanup skipped"
+  ["mas_cleaning_noop"]="Cleaning App Store (no-op)"
+  ["mas_cleanup_skipped"]="App Store cleanup skipped"
 
   # VS Code package manager
   ["vscode_cli_not_found_update_skip"]="VS Code CLI not found, skipping VS Code extension update"
