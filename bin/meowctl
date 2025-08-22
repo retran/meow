@@ -65,14 +65,21 @@ show_uninstall_help() {
   ui_title "meowctl uninstall"
   ui_message "Uninstall a meow preset."
   ui_message ""
-  ui_message "Usage: $0 uninstall <preset|all>"
+  ui_message "Usage: $0 uninstall <preset|all> [options]"
   ui_message ""
   ui_message "Arguments:"
   ui_message "  <preset>                 Name of the preset to uninstall"
   ui_message "  all                      Uninstall all installed presets"
   ui_message ""
+  ui_message "Options:"
+  ui_message "  --force                  Force uninstall even if components are used by other presets or manually installed"
+  ui_message "  --verbose, -v            Show detailed output"
+  ui_message "  --dry-run                Show what would be done without making changes"
+  ui_message "  --help, -h               Show help"
+  ui_message ""
   ui_message "Examples:"
   ui_message "  $0 uninstall personal"
+  ui_message "  $0 uninstall personal --force"
   ui_message "  $0 uninstall all"
   ui_message ""
 }
@@ -484,6 +491,7 @@ cmd_install() {
 
 cmd_uninstall() {
   local preset=""
+  local force_flag=""
 
   while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -493,6 +501,10 @@ cmd_uninstall() {
         ;;
       --dry-run)
         export MEOW_DRY_RUN="true"
+        shift
+        ;;
+      --force)
+        force_flag="--force"
         shift
         ;;
       --help | -h)
@@ -529,11 +541,11 @@ cmd_uninstall() {
 
   local uninstall_success=true
   if [[ "$preset" == "all" ]]; then
-    if ! uninstall_all_presets; then
+    if ! uninstall_all_presets "$force_flag"; then
       uninstall_success=false
     fi
   else
-    if ! uninstall_preset "$preset"; then
+    if ! uninstall_preset "$preset" "$force_flag"; then
       uninstall_success=false
     fi
   fi

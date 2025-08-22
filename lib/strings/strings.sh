@@ -415,6 +415,23 @@ declare -A UI_MESSAGES=(
   ["found_installed_components"]="Found %d installed components: %s"
   ["available_presets"]="Available Presets"
 
+  # Preset uninstall
+  ["uninstalling_preset"]="==> Uninstalling Preset: %s"
+  ["preset_components_to_uninstall"]="Components to uninstall: %d"
+  ["no_components_to_uninstall_preset"]="No components to uninstall for preset '%s'"
+  ["preset_no_safe_components_to_uninstall"]="No safe components to uninstall for preset '%s' (all components are used by other presets or manually installed)"
+  ["preset_uninstall_failed"]="Failed to uninstall preset '%s'"
+  ["preset_uninstalled_successfully"]="Preset '%s' uninstalled successfully"
+  ["uninstalling_all_presets"]="Uninstalling %d installed presets"
+  ["no_presets_installed"]="No presets are currently installed"
+  ["all_presets_uninstalled_successfully"]="All presets uninstalled successfully"
+  ["some_presets_uninstall_failed"]="Some presets failed to uninstall"
+  ["all_presets_uninstall_failed"]="Failed to uninstall all presets"
+  ["no_components_to_uninstall_all_presets"]="No components to uninstall for all presets"
+  ["no_safe_components_to_uninstall_all_presets"]="No safe components to uninstall for all presets (all components are manually installed)"
+  ["component_preset_uninstall_indicator"]="  ➤ %s (preset component)"
+  ["component_unused_dependency_indicator"]="  ↪ %s (unused dependency)"
+
   # Symlinks
   ["symlink_skip_source_missing"]="Would skip symlink (source does not exist): %s -> %s"
   ["symlink_source_missing"]="Source %s does not exist. Skipping symlink for %s"

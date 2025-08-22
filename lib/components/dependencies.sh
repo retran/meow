@@ -51,7 +51,7 @@ get_components_depending_on() {
 # Get all presets that depend on a given component
 get_presets_depending_on() {
   local target_component="$1"
-  local exclude_preset=""
+  local exclude_preset="${2:-}"
   local presets=()
 
   for preset_symlink in "${MEOW_INSTALLED_PRESETS_DIR}"/*; do
@@ -68,13 +68,34 @@ get_presets_depending_on() {
     local required_deps
     required_deps=$(read_yaml_array "$preset_file" ".required[]?")
 
+    local found_direct=false
     while IFS= read -r dep; do
       [[ -n "$dep" && "$dep" != "null" ]] || continue
       if [[ "$dep" == "$target_component" ]]; then
         presets+=("$preset_name")
-        break 2 # Break out of both loops
+        found_direct=true
+        break
       fi
     done < <(printf '%s\n' "$required_deps")
+
+    if [[ "$found_direct" == "false" ]]; then
+      while IFS= read -r dep; do
+        [[ -n "$dep" && "$dep" != "null" ]] || continue
+
+        local component_deps=()
+        get_component_dependencies "$dep" component_deps
+
+        for comp_dep in "${component_deps[@]}"; do
+          if [[ "$comp_dep" == "$target_component" ]]; then
+            presets+=("$preset_name")
+            found_direct=true
+            break 2
+          fi
+        done
+      done < <(printf '%s\n' "$required_deps")
+    fi
+
+    [[ "$found_direct" == "true" ]] && break
   done
 
   printf '%s\n' "${presets[@]}"
@@ -245,9 +266,9 @@ filter_removable_dependencies_with_context() {
           done
         fi
 
-        if [[ "$should_keep" == "true" ]]; then
+        if [[ "$should_keep" == "true" && -z "${MEOW_UNINSTALLING_ALL_PRESETS:-}" ]]; then
           local preset_dependents
-          mapfile -t preset_dependents < <(get_presets_depending_on "$dep_copy")
+          mapfile -t preset_dependents < <(get_presets_depending_on "$dep_copy" "${MEOW_UNINSTALLING_PRESET:-}")
 
           for preset in "${preset_dependents[@]}"; do
             if [[ -n "$preset" ]]; then
@@ -297,7 +318,7 @@ should_remove_dependency() {
   fi
 
   local preset_dependents
-  mapfile -t preset_dependents < <(get_presets_depending_on "$dep_component")
+  mapfile -t preset_dependents < <(get_presets_depending_on "$dep_component" "${MEOW_UNINSTALLING_PRESET:-}")
 
   local filtered_presets=()
   for preset in "${preset_dependents[@]}"; do
