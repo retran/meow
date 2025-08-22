@@ -37,7 +37,7 @@ setup_homebrew() {
   command -v brew >/dev/null 2>&1 || {
     if [[ "$MEOW_VERBOSE" == "true" ]]; then
       ui_warning "$(get_static_message 'homebrew_not_found')"
-      parse_spinner_messages "homebrew_install"
+      parse_spinner_messages "homebrew_install" >/dev/null
       ui_spinner "$SPINNER_PROGRESS" \
         --success "$SPINNER_SUCCESS" \
         --fail "$SPINNER_FAIL" \
@@ -81,13 +81,13 @@ cleanup_homebrew() {
 
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
     ui_package_manager_cleaning "Homebrew"
-    parse_spinner_messages "homebrew_prune"
+    parse_spinner_messages "homebrew_prune" >/dev/null
     ui_spinner "$SPINNER_PROGRESS" \
       --success "$SPINNER_SUCCESS" \
       --fail "$SPINNER_FAIL" \
       brew cleanup --prune=all
   else
-    parse_spinner_messages "homebrew_cleanup"
+    parse_spinner_messages "homebrew_cleanup" >/dev/null
     ui_spinner "$SPINNER_PROGRESS" \
       --success "$SPINNER_SUCCESS" \
       --fail "$SPINNER_FAIL" \

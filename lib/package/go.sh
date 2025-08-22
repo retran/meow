@@ -79,9 +79,6 @@ uninstall_go_packages() {
 }
 
 cleanup_go() {
-  # Add empty line before cleanup for better grouping
-  echo ""
-
   # Handle dry-run mode
   if is_dry_run; then
     dry_run_ui_info "$(get_static_message "go_cleanup_would_skip")"

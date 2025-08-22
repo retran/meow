@@ -829,9 +829,7 @@ main() {
 
   # Show dry-run notice if enabled
   if [[ "${MEOW_DRY_RUN:-}" == "true" ]]; then
-    echo ""
     warning "DRY-RUN MODE: No actual changes will be made"
-    echo ""
   fi
 
   shift

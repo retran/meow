@@ -74,9 +74,6 @@ uninstall_vscode_packages() {
 }
 
 cleanup_vscode() {
-  # Add empty line before cleanup for better grouping
-  echo ""
-
   # Handle dry-run mode
   if is_dry_run; then
     dry_run_ui_info "$(get_static_message "vscode_cleanup_would_skip")"

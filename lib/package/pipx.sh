@@ -50,9 +50,6 @@ uninstall_pipx_packages() {
 }
 
 cleanup_pipx() {
-  # Add empty line before cleanup for better grouping
-  echo ""
-
   # Handle dry-run mode
   if is_dry_run; then
     dry_run_ui_info "pipx cleanup would be skipped (no cleanup needed)"

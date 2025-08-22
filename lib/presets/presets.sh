@@ -241,8 +241,6 @@ install_preset() {
       ui_indent "$(get_static_message 'all_components_installed')"
     fi
 
-    echo ""
-
     # Initialize session and tracking array
     _initialize_session || {
       ui_error "$(get_static_message 'session_init_failed')"

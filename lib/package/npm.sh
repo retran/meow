@@ -51,15 +51,9 @@ uninstall_npm_packages() {
 }
 
 cleanup_npm() {
-  # Add empty line before cleanup for better grouping
-  echo ""
-
-  local message_key="npm_cleaning_cache"
-  local spinner_messages=(
-    "$(get_static_message "$message_key")"
-    "npm cache cleaned"
-    "npm cache cleanup failed"
-  )
-
-  parse_spinner_messages "${spinner_messages[@]}" npm cache clean --force
+  parse_spinner_messages "npm_cache_clean" >/dev/null
+  ui_spinner "$SPINNER_PROGRESS" \
+    --success "$SPINNER_SUCCESS" \
+    --fail "$SPINNER_FAIL" \
+    npm cache clean --force
 }

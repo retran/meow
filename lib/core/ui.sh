@@ -43,14 +43,12 @@ _print_temp_output_if_exists() {
 
   if [[ -s "$temp_file" ]]; then
     if [[ "$MEOW_VERBOSE" == "true" ]]; then
-      echo ""
       ui_error "$(get_static_message 'command_output')"
       while IFS= read -r line; do
         ui_content "$line"
       done <"$temp_file"
     else
       # In non-verbose mode, show only the first few lines and suggest verbose mode
-      echo ""
       ui_error "$(get_static_message 'command_failed_first_lines')"
       head -n 3 "$temp_file" | while IFS= read -r line; do
         ui_content "$line"
@@ -643,7 +641,6 @@ show_final_summary() {
     # Show detailed errors and warnings in verbose mode or if there are errors
     if [[ "$MEOW_VERBOSE" == "true" || $MEOW_ERROR_COUNT -gt 0 ]]; then
       if [[ ${#MEOW_ERRORS[@]} -gt 0 ]]; then
-        echo ""
         ui_error "Errors encountered:"
         for err in "${MEOW_ERRORS[@]}"; do
           ui_list_item "$err"
@@ -651,7 +648,6 @@ show_final_summary() {
       fi
 
       if [[ "$MEOW_VERBOSE" == "true" && ${#MEOW_WARNINGS[@]} -gt 0 ]]; then
-        echo ""
         ui_warning "Warnings encountered:"
         for warn in "${MEOW_WARNINGS[@]}"; do
           ui_list_item "$warn"

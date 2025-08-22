@@ -76,18 +76,18 @@ cleanup_apt() {
 
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
     ui_package_manager_cleaning "APT"
-    parse_spinner_messages "apt_remove_unused"
+    parse_spinner_messages "apt_remove_unused" >/dev/null
     ui_spinner "$SPINNER_PROGRESS" \
       --success "$SPINNER_SUCCESS" \
       --fail "$SPINNER_FAIL" \
       sudo apt-get autoremove -y
-    parse_spinner_messages "apt_clean_cache"
+    parse_spinner_messages "apt_clean_cache" >/dev/null
     ui_spinner "$SPINNER_PROGRESS" \
       --success "$SPINNER_SUCCESS" \
       --fail "$SPINNER_FAIL" \
       sudo apt-get clean
   else
-    parse_spinner_messages "apt_cleanup"
+    parse_spinner_messages "apt_cleanup" >/dev/null
     ui_spinner "$SPINNER_PROGRESS" \
       --success "$SPINNER_SUCCESS" \
       --fail "$SPINNER_FAIL" \

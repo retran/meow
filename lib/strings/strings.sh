@@ -173,6 +173,20 @@ declare -A UI_MESSAGES=(
 
   # Package installation messages
   ["package_not_installed_skipping"]="Package not installed, skipping: %s"
+  ["package_already_installed"]="Package already installed: %s"
+  ["installing_package"]="Installing %s"
+  ["successfully_installed_package"]="Successfully installed %s"
+  ["failed_to_install_package"]="Failed to install %s"
+  ["updating_package"]="Updating %s"
+  ["successfully_updated_package"]="Successfully updated %s"
+  ["failed_to_update_package"]="Failed to update %s"
+  ["uninstalling_package"]="Uninstalling %s"
+  ["successfully_uninstalled_package"]="Successfully uninstalled %s"
+  ["failed_to_uninstall_package"]="Failed to uninstall %s"
+  ["silent_spinner_installing"]="Installing %s %s"
+  ["silent_spinner_updating"]="Updating %s %s"
+  ["silent_spinner_checking"]="Checking %s %s"
+  ["silent_spinner_uninstalling"]="Uninstalling %s %s"
 
   # Additional UI template messages
   ["command_more_lines_hidden"]="%d more lines hidden..."
@@ -842,6 +856,9 @@ parse_spinner_messages() {
   local messages
   messages=$(get_spinner_messages "$key")
   IFS='|' read -r progress_msg success_msg fail_msg <<<"$messages"
+
+  # Always output the progress message for command substitution
+  echo "$progress_msg"
 
   # Export for caller to use
   export SPINNER_PROGRESS="$progress_msg"
