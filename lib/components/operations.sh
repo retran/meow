@@ -533,6 +533,32 @@ _update_single_component() {
 
 # Collect all components for multiple component uninstall in topological order
 collect_multiple_components_for_uninstall() {
+  local filter_source_components="false"
+  local skip_preset_checks="false"
+  local exclude_preset=""
+
+  # Process optional flags
+  while [[ ${#@} -gt 0 ]]; do
+    case "${@: -1}" in
+      "--filter-source")
+        filter_source_components="true"
+        set -- "${@:1:$(($#-1))}" # Remove last argument
+        ;;
+      "--skip-preset-checks")
+        skip_preset_checks="true"
+        set -- "${@:1:$(($#-1))}" # Remove last argument
+        ;;
+      --exclude-preset=*)
+        exclude_preset="${@: -1}"
+        exclude_preset="${exclude_preset#--exclude-preset=}"
+        set -- "${@:1:$(($#-1))}" # Remove last argument
+        ;;
+      *)
+        break
+        ;;
+    esac
+  done
+
   local components_array=("$@")
   local -n result_ref="multiple_uninstall_order"
   local all_components=()
@@ -541,11 +567,11 @@ collect_multiple_components_for_uninstall() {
   local dependencies_to_check=()
 
   # Add initial components, with optional filtering
-  if [[ -n "${MEOW_FILTER_SOURCE_COMPONENTS:-}" ]]; then
+  if [[ "$filter_source_components" == "true" ]]; then
     # Filter source components using the same logic as dependencies
     local source_components_to_filter=("${components_array[@]}")
     local filtered_source_components=()
-    filter_removable_dependencies_with_context source_components_to_filter components_array filtered_source_components
+    filter_removable_dependencies_with_context source_components_to_filter components_array filtered_source_components "$skip_preset_checks" "$exclude_preset"
     collected_components=("${filtered_source_components[@]}")
   else
     # Add source components without filtering (original behavior)
@@ -610,7 +636,7 @@ collect_multiple_components_for_uninstall() {
     if [[ ${#dependencies_to_check[@]} -gt 0 ]]; then
       local all_components_to_remove=("${collected_components[@]}" "${dependencies_to_check[@]}")
       local removable_dependencies=()
-      filter_removable_dependencies_with_context dependencies_to_check all_components_to_remove removable_dependencies
+      filter_removable_dependencies_with_context dependencies_to_check all_components_to_remove removable_dependencies "$skip_preset_checks" "$exclude_preset"
 
       for dep in "${removable_dependencies[@]}"; do
         local already_added=false
@@ -636,11 +662,30 @@ collect_multiple_components_for_uninstall() {
 uninstall_component() {
   local components=("$@")
   local force_flag=""
+  local skip_preset_checks="false"
+  local exclude_preset=""
 
-  if [[ ${#components[@]} -gt 0 && "${components[-1]}" == "--force" ]]; then
-    force_flag="--force"
-    unset 'components[-1]'
-  fi
+  # Process flags
+  while [[ ${#components[@]} -gt 0 ]]; do
+    case "${components[-1]}" in
+      "--force")
+        force_flag="--force"
+        unset 'components[-1]'
+        ;;
+      "--skip-preset-checks")
+        skip_preset_checks="true"
+        unset 'components[-1]'
+        ;;
+      --exclude-preset=*)
+        exclude_preset="${components[-1]}"
+        exclude_preset="${exclude_preset#--exclude-preset=}"
+        unset 'components[-1]'
+        ;;
+      *)
+        break
+        ;;
+    esac
+  done
 
   if [[ ${#components[@]} -eq 0 ]]; then
     ui_error "$(get_static_message 'no_components_specified_uninstall')"
@@ -691,20 +736,20 @@ uninstall_component() {
       fi
 
       local dependent_presets
-      mapfile -t dependent_presets < <(get_presets_depending_on "$component" "${MEOW_UNINSTALLING_PRESET:-}")
+      mapfile -t dependent_presets < <(get_presets_depending_on "$component" "$exclude_preset")
 
       local filtered_presets=()
-      for preset in "${dependent_presets[@]}"; do
-        if [[ -n "$preset" ]]; then
-          filtered_presets+=("$preset")
+      for current_preset in "${dependent_presets[@]}"; do
+        if [[ -n "$current_preset" ]]; then
+          filtered_presets+=("$current_preset")
         fi
       done
 
-      # Skip preset dependency check if uninstalling all presets
-      if [[ ${#filtered_presets[@]} -gt 0 && -z "${MEOW_UNINSTALLING_ALL_PRESETS:-}" ]]; then
+      # Skip preset dependency check if flag is set
+      if [[ ${#filtered_presets[@]} -gt 0 && "$skip_preset_checks" == "false" ]]; then
         ui_error "$(format_template_message "component_uninstall_blocked_presets" "$component")"
-        for preset in "${filtered_presets[@]}"; do
-          ui_action_error "$(format_template_message "component_uninstall_dependent_item" "$preset")"
+        for current_preset in "${filtered_presets[@]}"; do
+          ui_action_error "$(format_template_message "component_uninstall_dependent_item" "$current_preset")"
         done
         ui_error "$(get_static_message "component_uninstall_presets_use_force")"
         return 1
@@ -715,7 +760,14 @@ uninstall_component() {
   fi
 
   local multiple_uninstall_order=()
-  collect_multiple_components_for_uninstall "${components[@]}"
+  local collect_args=("${components[@]}")
+  if [[ "$skip_preset_checks" == "true" ]]; then
+    collect_args+=("--skip-preset-checks")
+  fi
+  if [[ -n "$exclude_preset" ]]; then
+    collect_args+=("--exclude-preset=$exclude_preset")
+  fi
+  collect_multiple_components_for_uninstall "${collect_args[@]}"
 
   if [[ ${#multiple_uninstall_order[@]} -eq 0 ]]; then
     ui_info "$(get_static_message "no_components_to_uninstall")"

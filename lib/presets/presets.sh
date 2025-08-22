@@ -407,39 +407,28 @@ uninstall_preset() {
   if [[ ${#preset_components_array[@]} -eq 0 ]]; then
     ui_info "$(format_template_message "no_components_to_uninstall_preset" "$preset")"
   else
-    declare -g MEOW_UNINSTALLING_PRESET="$preset"
-    declare -g MEOW_FILTER_SOURCE_COMPONENTS="true"
+    local preset_name="$preset"
 
-    # Collect and filter components that can be safely uninstalled
     local multiple_uninstall_order=()
-    collect_multiple_components_for_uninstall "${preset_components_array[@]}"
+    collect_multiple_components_for_uninstall "${preset_components_array[@]}" --filter-source --exclude-preset="$preset_name"
 
     if [[ ${#multiple_uninstall_order[@]} -gt 0 ]]; then
         local args=("${multiple_uninstall_order[@]}")
         if [[ "$force_flag" == "--force" ]]; then
           args+=("--force")
         fi
+        args+=("--exclude-preset=$preset_name")
 
         if ! uninstall_component "${args[@]}"; then
-          ui_error "$(format_template_message "preset_uninstall_failed" "$preset")"
-          unset MEOW_UNINSTALLING_PRESET
-          unset MEOW_FILTER_SOURCE_COMPONENTS
+          ui_error "$(format_template_message "preset_uninstall_failed" "$preset_name")"
           return 1
         fi
       else
-        ui_info "$(format_template_message "preset_no_safe_components_to_uninstall" "$preset")"
+        ui_info "$(format_template_message "preset_no_safe_components_to_uninstall" "$preset_name")"
       fi
-
-      unset MEOW_UNINSTALLING_PRESET
-      unset MEOW_FILTER_SOURCE_COMPONENTS
   fi
 
-  # Remove preset symlink
-  if is_dry_run; then
-    dry_run_file_operation "remove_symlink" "${MEOW_INSTALLED_PRESETS_DIR}/${preset}"
-  else
-    rm -rf "${MEOW_INSTALLED_PRESETS_DIR:?}/${preset}"
-  fi
+  remove_preset_tracking "$preset"
 
   ui_success "$(format_template_message "preset_uninstalled_successfully" "$preset")"
   return 0
@@ -475,7 +464,6 @@ uninstall_all_presets() {
 
   ui_action_start "$(format_template_message "uninstalling_all_presets" "${#installed_presets[@]}")"
 
-  # Collect all components from all presets
   local all_preset_components=()
   for preset in "${installed_presets[@]}"; do
     local preset_components
@@ -484,7 +472,6 @@ uninstall_all_presets() {
     while IFS= read -r component; do
       [[ -n "$component" && "$component" != "null" ]] || continue
 
-      # Add component if not already in the list
       local already_added=false
       for existing in "${all_preset_components[@]}"; do
         if [[ "$existing" == "$component" ]]; then
@@ -500,7 +487,6 @@ uninstall_all_presets() {
 
   if [[ ${#all_preset_components[@]} -eq 0 ]]; then
     ui_info "$(format_template_message "no_components_to_uninstall_all_presets")"
-    # Still need to remove preset tracking
     for preset in "${installed_presets[@]}"; do
       remove_preset_tracking "$preset"
     done
@@ -508,23 +494,17 @@ uninstall_all_presets() {
     return 0
   fi
 
-  # Set global variable to indicate we're uninstalling all presets
-  # This will disable preset dependency filtering and enable source component filtering
-  declare -g MEOW_UNINSTALLING_ALL_PRESETS="true"
-  declare -g MEOW_FILTER_SOURCE_COMPONENTS="true"
-
-  # Collect and filter components (only filter by manual installation, not preset dependencies)
   local multiple_uninstall_order=()
-  collect_multiple_components_for_uninstall "${all_preset_components[@]}"
+  collect_multiple_components_for_uninstall "${all_preset_components[@]}" --filter-source --skip-preset-checks
 
   if [[ ${#multiple_uninstall_order[@]} -gt 0 ]]; then
     local args=("${multiple_uninstall_order[@]}")
     if [[ "$force_flag" == "--force" ]]; then
       args+=("--force")
     fi
+    args+=("--skip-preset-checks")
 
     if ! uninstall_component "${args[@]}"; then
-      unset MEOW_UNINSTALLING_ALL_PRESETS
       ui_error "$(get_static_message "all_presets_uninstall_failed")"
       return 1
     fi
@@ -532,13 +512,10 @@ uninstall_all_presets() {
     ui_info "$(format_template_message "no_safe_components_to_uninstall_all_presets")"
   fi
 
-  # Remove preset tracking for all presets
   for preset in "${installed_presets[@]}"; do
     remove_preset_tracking "$preset"
   done
 
-  unset MEOW_UNINSTALLING_ALL_PRESETS
-  unset MEOW_FILTER_SOURCE_COMPONENTS
   ui_success "$(get_static_message "all_presets_uninstalled_successfully")"
   return 0
 }

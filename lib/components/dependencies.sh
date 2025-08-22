@@ -228,6 +228,8 @@ filter_removable_dependencies_with_context() {
   local -n deps_to_check_ref="$1"
   local -n all_removing_ref="$2"
   local -n removable_ref="$3"
+  local skip_preset_checks="${4:-false}"
+  local exclude_preset="${5:-}"
   local candidates=("${deps_to_check_ref[@]}")
   local changed=true
 
@@ -266,12 +268,12 @@ filter_removable_dependencies_with_context() {
           done
         fi
 
-        if [[ "$should_keep" == "true" && -z "${MEOW_UNINSTALLING_ALL_PRESETS:-}" ]]; then
+        if [[ "$should_keep" == "true" && "$skip_preset_checks" == "false" ]]; then
           local preset_dependents
-          mapfile -t preset_dependents < <(get_presets_depending_on "$dep_copy" "${MEOW_UNINSTALLING_PRESET:-}")
+          mapfile -t preset_dependents < <(get_presets_depending_on "$dep_copy" "$exclude_preset")
 
-          for preset in "${preset_dependents[@]}"; do
-            if [[ -n "$preset" ]]; then
+          for current_preset in "${preset_dependents[@]}"; do
+            if [[ -n "$current_preset" ]]; then
               should_keep=false
               break
             fi
@@ -295,6 +297,7 @@ filter_removable_dependencies_with_context() {
 # Check if a dependency component should be removed
 should_remove_dependency() {
   local dep_component="$1"
+  local exclude_preset="${2:-}"
 
   if ! is_component_installed "$dep_component"; then
     return 1
@@ -318,12 +321,12 @@ should_remove_dependency() {
   fi
 
   local preset_dependents
-  mapfile -t preset_dependents < <(get_presets_depending_on "$dep_component" "${MEOW_UNINSTALLING_PRESET:-}")
+  mapfile -t preset_dependents < <(get_presets_depending_on "$dep_component" "$exclude_preset")
 
   local filtered_presets=()
-  for preset in "${preset_dependents[@]}"; do
-    if [[ -n "$preset" ]]; then
-      filtered_presets+=("$preset")
+  for current_preset in "${preset_dependents[@]}"; do
+    if [[ -n "$current_preset" ]]; then
+      filtered_presets+=("$current_preset")
     fi
   done
   if [[ ${#filtered_presets[@]} -gt 0 ]]; then
