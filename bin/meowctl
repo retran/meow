@@ -14,10 +14,8 @@ source "${MEOW}/lib/core/ui.sh"
 source "${MEOW}/lib/core/dry_run.sh"
 
 show_main_help() {
-  title "meowctl - Unified meow control"
+  ui_title "meowctl - Unified meow control"
   ui_message "Manage your meow dotfiles and development environment."
-  ui_message ""
-  show_bash_version_info
   ui_message ""
   ui_message "Usage: $0 <command> [options] [arguments]"
   ui_message ""
@@ -47,7 +45,7 @@ show_main_help() {
 }
 
 show_install_help() {
-  title "meowctl install"
+  ui_title "meowctl install"
   ui_message "Install a meow preset."
   ui_message ""
   ui_message "Usage: $0 install <preset>"
@@ -64,7 +62,7 @@ show_install_help() {
 }
 
 show_uninstall_help() {
-  title "meowctl uninstall"
+  ui_title "meowctl uninstall"
   ui_message "Uninstall a meow preset."
   ui_message ""
   ui_message "Usage: $0 uninstall <preset|all>"
@@ -80,7 +78,7 @@ show_uninstall_help() {
 }
 
 show_update_help() {
-  title "meowctl update"
+  ui_title "meowctl update"
   ui_message "Update installed presets or components."
   ui_message ""
   ui_message "Usage: $0 update [preset|all] [options]"
@@ -102,7 +100,7 @@ show_update_help() {
 }
 
 show_component_help() {
-  title "meowctl component"
+  ui_title "meowctl component"
   ui_message "Manage meow components."
   ui_message ""
   ui_message "Usage: $0 component <subcommand> [arguments]"
@@ -129,7 +127,7 @@ show_component_help() {
 }
 
 show_list_help() {
-  title "meowctl list"
+  ui_title "meowctl list"
   ui_message "List available presets."
   ui_message ""
   ui_message "Usage: $0 list"
@@ -140,7 +138,7 @@ show_list_help() {
 }
 
 show_backup_help() {
-  title "meowctl backup"
+  ui_title "meowctl backup"
   ui_message "Manage symlink backups."
   ui_message ""
   ui_message "Usage: $0 backup <subcommand> [arguments]"
