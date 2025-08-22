@@ -75,7 +75,7 @@ dry_run_file_operation() {
     esac
     return 0
   else
-    return 1  # Indicates that actual operation should proceed
+    return 1 # Indicates that actual operation should proceed
   fi
 }
 
@@ -102,7 +102,7 @@ dry_run_package_operation() {
     esac
     return 0
   else
-    return 1  # Indicates that actual operation should proceed
+    return 1 # Indicates that actual operation should proceed
   fi
 }
 
@@ -132,7 +132,7 @@ dry_run_git_operation() {
     esac
     return 0
   else
-    return 1  # Indicates that actual operation should proceed
+    return 1 # Indicates that actual operation should proceed
   fi
 }
 
@@ -146,6 +146,6 @@ dry_run_script_execution() {
     dry_run_ui_info "$(format_template_message "dry_run_script_path" "$script_path")"
     return 0
   else
-    return 1  # Indicates that actual execution should proceed
+    return 1 # Indicates that actual execution should proceed
   fi
 }

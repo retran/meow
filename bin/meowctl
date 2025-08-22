@@ -271,9 +271,9 @@ cmd_component() {
       done
 
       if [[ "$show_simple" == "true" ]]; then
-        list_components false false  # show_installed_only=false, show_verbose=false
+        list_components false false # show_installed_only=false, show_verbose=false
       else
-        list_components false true   # show_installed_only=false, show_verbose=true
+        list_components false true # show_installed_only=false, show_verbose=true
       fi
       ;;
     install)

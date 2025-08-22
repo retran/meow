@@ -13,7 +13,6 @@ source "${MEOW}/lib/strings/strings.sh"
 # Import core component functions we depend on
 source "${MEOW}/lib/components/core.sh"
 
-
 # Get all components that depend on a given component
 get_components_depending_on() {
   local target_component="$1"
