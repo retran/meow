@@ -5,40 +5,37 @@
 
 set -euo pipefail
 
-echo "🧹 Running Docker Desktop cleanup..."
+# Source the strings for localized messages
+source "${MEOW}/lib/strings/strings.sh"
+
+echo "$(get_static_message "docker_cleanup_running")"
 
 # Stop Docker Desktop if it's running
 if pgrep -f "Docker Desktop" >/dev/null; then
-  echo "  ⏹️  Stopping Docker Desktop..."
+  echo "$(get_static_message "docker_stopping_desktop")"
   osascript -e 'tell application "Docker Desktop" to quit' 2>/dev/null || true
   sleep 3
 fi
 
-# Stop docker daemon if it's running
-if pgrep -x "dockerd" >/dev/null; then
-  echo "  🐳 Stopping Docker daemon..."
-  sudo pkill -x dockerd 2>/dev/null || true
+# Stop Docker daemon if it's running
+if pgrep -f "dockerd" >/dev/null; then
+  echo "$(get_static_message "docker_stopping_daemon")"
+  pkill -f "dockerd" 2>/dev/null || true
   sleep 2
 fi
 
-# Clean up Docker networks (optional)
+# Clean up Docker networks and volumes
 if command -v docker >/dev/null 2>&1; then
-  echo "  🗑️  Cleaning up Docker networks and volumes..."
+  echo "$(get_static_message "docker_cleaning_networks_volumes")"
   docker system prune -af --volumes 2>/dev/null || true
 fi
 
-# Remove Docker from login items (if present)
-if command -v osascript >/dev/null 2>&1; then
-  echo "  🗑️  Removing Docker Desktop from login items..."
-  osascript -e '
-    tell application "System Events"
-        try
-            delete login item "Docker Desktop"
-        end try
-    end tell
-    ' 2>/dev/null || true
+# Remove Docker Desktop from login items (macOS specific)
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  echo "$(get_static_message "docker_removing_login_items")"
+  osascript -e 'tell application "System Events" to delete login item "Docker Desktop"' 2>/dev/null || true
 fi
 
-echo "✅ Docker Desktop cleanup completed"
-echo "ℹ️  Note: Docker images and containers have been cleaned up"
-echo "ℹ️  Note: To fully remove Docker data, manually delete ~/Library/Containers/com.docker.docker"
+echo "$(get_static_message "docker_cleanup_completed")"
+echo "$(get_static_message "docker_images_containers_cleaned")"
+echo "$(get_static_message "docker_manual_removal_note")"

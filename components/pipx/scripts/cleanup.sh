@@ -5,30 +5,33 @@
 
 set -euo pipefail
 
-echo "🧹 Running Pipx cleanup..."
+# Source the strings for localized messages
+source "${MEOW}/lib/strings/strings.sh"
+
+echo "$(get_static_message "pipx_cleanup_running")"
 
 # Clean up pipx cache
 if command -v pipx >/dev/null 2>&1; then
-  echo "  📦 Cleaning pipx cache..."
+  echo "$(get_static_message "pipx_cleaning_cache")"
   pipx uninstall-all --force 2>/dev/null || true
 fi
 
 # Clean up pipx directories
 if [[ -d "$HOME/.local/share/pipx" ]]; then
-  echo "  🗑️  Cleaning pipx installation directory..."
+  echo "$(get_static_message "pipx_cleaning_installation_dir")"
   rm -rf "$HOME/.local/share/pipx" 2>/dev/null || true
 fi
 
 if [[ -d "$HOME/.cache/pipx" ]]; then
-  echo "  🗑️  Cleaning pipx cache directory..."
+  echo "$(get_static_message "pipx_cleaning_cache_dir")"
   rm -rf "$HOME/.cache/pipx" 2>/dev/null || true
 fi
 
 # Clean up pipx bin directory from PATH (if it exists)
 if [[ -d "$HOME/.local/bin" ]]; then
-  echo "  🗑️  Cleaning pipx binaries..."
+  echo "$(get_static_message "pipx_cleaning_binaries")"
   # Only remove pipx-installed binaries, keep other user binaries
   find "$HOME/.local/bin" -type l -exec sh -c 'readlink "$1" | grep -q "pipx" && rm "$1"' _ {} \; 2>/dev/null || true
 fi
 
-echo "✅ Pipx cleanup completed"
+echo "$(get_static_message "pipx_cleanup_completed")"

@@ -3,6 +3,7 @@
 [ ] uninstall preset
 
 [ ] component to control neovim keyboard layout
+[ ] check cleanup scripts
 [ ] what is homerow keys?
 [ ] logs
     [ ] extract all strings to separate module

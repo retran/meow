@@ -55,7 +55,7 @@ update_vscode_packages() {
   local component="$1"
 
   if ! command -v code >/dev/null 2>&1; then
-    ui_info "VS Code CLI not found, skipping VS Code extension update"
+    ui_info "$(get_static_message "vscode_cli_not_found_update_skip")"
     return 0
   fi
 
@@ -66,7 +66,7 @@ uninstall_vscode_packages() {
   local component="$1"
 
   if ! command -v code >/dev/null 2>&1; then
-    ui_info "VS Code CLI not found, skipping VS Code extension uninstall"
+    ui_info "$(get_static_message "vscode_cli_not_found_uninstall_skip")"
     return 0
   fi
 
@@ -79,8 +79,8 @@ cleanup_vscode() {
 
   # Handle dry-run mode
   if is_dry_run; then
-    dry_run_ui_info "VS Code cleanup would be skipped (no cleanup needed)"
-    dry_run_ui_info "  Extensions are managed by VS Code automatically"
+    dry_run_ui_info "$(get_static_message "vscode_cleanup_would_skip")"
+    dry_run_ui_info "  $(get_static_message "vscode_extensions_managed_automatically")"
     return 0
   fi
 

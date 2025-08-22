@@ -8,6 +8,7 @@ _LIB_PACKAGE_SYMLINKS_SOURCED=1
 source "${MEOW}/lib/core/ui.sh"
 source "${MEOW}/lib/core/defs.sh"
 source "${MEOW}/lib/core/dry_run.sh"
+source "${MEOW}/lib/strings/strings.sh"
 source "${MEOW}/lib/package/homebrew.sh"
 source "${MEOW}/lib/package/apt.sh"
 
@@ -177,7 +178,7 @@ list_backups() {
   local target_pattern="${1:-}"
 
   if [[ -z "$target_pattern" ]]; then
-    echo "Listing all symlink backups:"
+    echo "$(get_static_message "symlinks_listing_all_backups")"
     local found=false
     for backup_file in "$HOME"/.*.backup.*; do
       if [[ -f "$backup_file" ]]; then
@@ -188,21 +189,21 @@ list_backups() {
       fi
     done
     if [[ "$found" == false ]]; then
-      echo "  No symlink backups found"
+      echo "$(get_static_message "symlinks_no_backups_found")"
     fi
   else
-    echo "Listing backups for pattern: $target_pattern"
+    echo "$(format_template_message "symlinks_listing_backups_pattern" "$target_pattern")"
     local found=false
     for backup_file in "$HOME"/*"${target_pattern}"*.backup.*; do
       if [[ -f "$backup_file" ]]; then
         local original_file="${backup_file%.backup.*}"
         local backup_timestamp="${backup_file##*.backup.}"
-        echo "  $(basename "$original_file") -> $(basename "$backup_file") (created: $backup_timestamp)"
+        echo "$(format_template_message "symlinks_backup_entry" "$(basename "$original_file")" "$(basename "$backup_file")" "$backup_timestamp")"
         found=true
       fi
     done
     if [[ "$found" == false ]]; then
-      echo "  No backups found for pattern: $target_pattern"
+      echo "$(format_template_message "symlinks_no_backups_for_pattern" "$target_pattern")"
     fi
   fi
 }
@@ -215,13 +216,13 @@ restore_backup() {
   fi
 
   if [[ ! -f "$backup_file" ]]; then
-    echo "Backup file not found: $backup_file"
+    echo "$(format_template_message "symlinks_backup_not_found" "$backup_file")"
     return 1
   fi
 
   local original_file="${backup_file%.backup.*}"
 
-  echo "Restoring backup: $(basename "$backup_file") -> $(basename "$original_file")"
+  echo "$(format_template_message "symlinks_restoring_backup" "$(basename "$backup_file")" "$(basename "$original_file")")"
 
   # Handle dry-run mode
   if dry_run_file_operation "restore_file" "$original_file" "$backup_file"; then
@@ -229,22 +230,22 @@ restore_backup() {
   fi
 
   if [[ -e "$original_file" || -L "$original_file" ]]; then
-    echo "  Target location already exists, creating backup of current state"
+    echo "$(get_static_message "symlinks_target_exists_backup")"
     local current_backup
     current_backup="${original_file}.backup.$(date +%Y%m%d_%H%M%S).current"
     if mv "$original_file" "$current_backup"; then
-      echo "  Current state backed up to $(basename "$current_backup")"
+      echo "$(format_template_message "symlinks_current_backed_up" "$(basename "$current_backup")")"
     else
-      echo "  Failed to backup current state"
+      echo "$(get_static_message "symlinks_backup_current_failed")"
       return 1
     fi
   fi
 
   if mv "$backup_file" "$original_file"; then
-    echo "  Successfully restored $(basename "$original_file")"
+    echo "$(format_template_message "symlinks_restore_success" "$(basename "$original_file")")"
     return 0
   else
-    echo "  Failed to restore backup"
+    echo "$(get_static_message "symlinks_restore_failed")"
     return 1
   fi
 }

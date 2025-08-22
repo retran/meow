@@ -5,37 +5,39 @@
 
 set -euo pipefail
 
-echo "🧹 Running Node cleanup..."
+# Source the strings for localized messages
+source "${MEOW}/lib/strings/strings.sh"
 
-# Clear npm cache
+echo "$(get_static_message "node_cleanup_running")"
+
+# Clean npm cache
 if command -v npm >/dev/null 2>&1; then
-  echo "  📦 Cleaning npm cache..."
+  echo "$(get_static_message "node_cleaning_npm_cache")"
   npm cache clean --force 2>/dev/null || true
 fi
 
-# Clear yarn cache if available
+# Clean yarn cache if yarn is installed
 if command -v yarn >/dev/null 2>&1; then
-  echo "  📦 Cleaning yarn cache..."
+  echo "$(get_static_message "node_cleaning_yarn_cache")"
   yarn cache clean 2>/dev/null || true
 fi
 
-# Clear pnpm cache if available
+# Clean pnpm cache if pnpm is installed
 if command -v pnpm >/dev/null 2>&1; then
-  echo "  📦 Cleaning pnpm cache..."
+  echo "$(get_static_message "node_cleaning_pnpm_cache")"
   pnpm store prune 2>/dev/null || true
 fi
 
-# Remove global npm packages cache
+# Clean npm global cache
 if [[ -d "$HOME/.npm" ]]; then
-  echo "  🗑️  Cleaning npm global cache..."
+  echo "$(get_static_message "node_cleaning_global_npm_cache")"
   rm -rf "$HOME/.npm/_cacache" 2>/dev/null || true
-  rm -rf "$HOME/.npm/_logs" 2>/dev/null || true
 fi
 
-# Clean up node-gyp cache
+# Clean node-gyp cache
 if [[ -d "$HOME/.node-gyp" ]]; then
-  echo "  🗑️  Cleaning node-gyp cache..."
+  echo "$(get_static_message "node_cleaning_node_gyp_cache")"
   rm -rf "$HOME/.node-gyp" 2>/dev/null || true
 fi
 
-echo "✅ Node cleanup completed"
+echo "$(get_static_message "node_cleanup_completed")"

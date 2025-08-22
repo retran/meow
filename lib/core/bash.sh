@@ -5,6 +5,11 @@ if [[ "${BASH_SOURCE[0]}" != "${0}" ]] && [[ -n "${_LIB_CORE_BASH_COMPAT_SOURCED
 fi
 _LIB_CORE_BASH_COMPAT_SOURCED=1
 
+# Source strings library
+if [[ -n "${MEOW:-}" ]]; then
+  source "$MEOW/lib/strings/strings.sh"
+fi
+
 get_bash_version_number() {
   local version="${BASH_VERSION%%[^0-9.]*}"
   local major="${version%%.*}"
@@ -42,7 +47,7 @@ show_bash_version_info() {
       ui_warning "Using compatibility mode for bash 3.2"
     fi
   else
-    echo "Bash version: ${BASH_VERSION} (${current_version})"
+    echo "$(format_template_message "bash_version_info" "${BASH_VERSION}" "$current_version")"
   fi
 }
 
@@ -52,8 +57,8 @@ warn_bash_compatibility() {
       ui_info_detail "Running in bash 3.2 compatibility mode"
       ui_info "Consider upgrading to bash 4.0+ for optimal performance"
     else
-      echo "INFO: Running in bash 3.2 compatibility mode"
-      echo "      Consider upgrading to bash 4.0+ for optimal performance"
+      echo "$(get_static_message "bash_3_2_compatibility_mode")"
+      echo "$(get_static_message "bash_upgrade_recommendation")"
     fi
   fi
 }

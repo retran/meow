@@ -69,7 +69,7 @@ configure_macos_defaults() {
   defaults write com.apple.BluetoothAudioAgent "Apple Bitpool Min (editable)" -int 40
   ui_action_success "Input device settings configured"
 
-  ui_info "Configuring energy saving settings..."
+  ui_info "$(get_static_message "macos_configuring_energy")"
   sudo pmset -c displaysleep 15
   sudo pmset -b displaysleep 5
   sudo pmset -b sleep 15
@@ -86,7 +86,7 @@ configure_macos_finder() {
   ui_step_header "Finder Configuration"
 
   if ! is_macos; then
-    ui_warning "Not running on macOS. Skipping Finder configuration."
+    ui_warning "$(get_static_message "macos_not_running_finder")"
     return 0
   fi
 
@@ -125,7 +125,7 @@ configure_macos_dock() {
   ui_step_header "Dock Configuration"
 
   if ! is_macos; then
-    ui_warning "Not running on macOS. Skipping Dock configuration."
+    ui_warning "$(get_static_message "macos_not_running_dock")"
     return 0
   fi
 
@@ -151,7 +151,7 @@ configure_macos_apps() {
   ui_step_header "App Configuration"
 
   if ! is_macos; then
-    ui_warning "Not running on macOS. Skipping app configuration."
+    ui_warning "$(get_static_message "macos_not_running_app")"
     return 0
   fi
 
@@ -176,23 +176,23 @@ configure_macos_apps() {
   defaults write com.apple.TimeMachine DoNotOfferNewDisksForBackup -bool true
   ui_action_success "Time Machine preferences configured"
 
-  ui_info "Configuring Spotlight settings..."
+  ui_info "$(get_static_message "macos_configuring_spotlight")"
   touch ~/workspace/.metadata_never_index
   sudo mdutil -E /
   ui_action_success "Spotlight settings configured"
 
-  ui_info "Configuring Console settings..."
+  ui_info "$(get_static_message "macos_configuring_console")"
   defaults write com.apple.Console DebugMenu -bool true
   defaults write com.apple.Console ShowDeveloperLogs -bool true
   ui_action_success "Console settings configured"
 
-  ui_info "Configuring screen capture settings..."
+  ui_info "$(get_static_message "macos_configuring_screen_capture")"
   mkdir -p "${HOME}/Pictures/Screenshots"
   defaults write com.apple.screencapture location -string "${HOME}/Pictures/Screenshots"
   defaults write com.apple.screencapture type -string "png"
   ui_action_success "Screen capture settings configured"
 
-  ui_info "Configuring Mail application settings"
+  ui_info "$(get_static_message "macos_configuring_mail")"
   defaults write com.apple.mail AddressesIncludeNameOnPasteboard -bool false
   defaults write com.apple.mail DisableInlineAttachmentViewing -bool true
   ui_action_success "Mail application settings configured"
@@ -206,15 +206,15 @@ configure_macos() {
   local summary_msgs=()
 
   if ! is_macos; then
-    ui_info "Not running on macOS. Skipping all macOS configuration."
+    ui_info "$(get_static_message "macos_not_running_all")"
     return 0
   fi
 
   ui_step_header "macOS Configuration"
 
-  ui_info "This script will configure various macOS settings to enhance your experience."
+  ui_info "$(get_static_message "macos_config_intro")"
   if ! ui_confirm "Do you want to apply these macOS configurations?"; then
-    ui_warning "macOS configuration cancelled."
+    ui_warning "$(get_static_message "macos_config_cancelled")"
     return 0
   fi
 
@@ -243,13 +243,13 @@ configure_macos() {
   fi
 
   if [ ${#summary_msgs[@]} -gt 0 ]; then
-    ui_info "Summary:"
+    ui_info "$(get_static_message "macos_config_summary")"
     for msg in "${summary_msgs[@]}"; do
       ui_info "$msg"
     done
   fi
 
   ui_action_success "macOS configuration completed"
-  ui_info "Some changes may require a logout or restart to take effect."
+  ui_info "$(get_static_message "macos_config_restart_notice")"
   return 0
 }

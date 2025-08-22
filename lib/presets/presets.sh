@@ -352,7 +352,7 @@ update_all_installed_components() {
   components=($(get_all_installed_components))
 
   if [[ ${#components[@]} -eq 0 ]]; then
-    ui_info "No components are currently installed"
+    ui_info "$(get_static_message "no_components_currently_installed")"
     return 0
   fi
 

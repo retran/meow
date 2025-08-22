@@ -5,30 +5,33 @@
 
 set -euo pipefail
 
-echo "🧹 Running JavaScript Development cleanup..."
+# Source the strings for localized messages
+source "${MEOW}/lib/strings/strings.sh"
+
+echo "$(get_static_message "js_dev_cleanup_running")"
 
 # Clear npm cache
 if command -v npm >/dev/null 2>&1; then
-  echo "  📦 Cleaning npm cache..."
+  echo "$(get_static_message "js_dev_cleaning_npm_cache")"
   npm cache clean --force 2>/dev/null || true
 fi
 
 # Remove TypeScript compiler cache
 if [[ -d "$HOME/.tscache" ]]; then
-  echo "  🗑️  Removing TypeScript cache..."
+  echo "$(get_static_message "js_dev_removing_ts_cache")"
   rm -rf "$HOME/.tscache" || true
 fi
 
 # Clean up node_modules global symlinks (if any were created)
 if [[ -d "$HOME/.npm-global" ]]; then
-  echo "  🗑️  Cleaning up global npm packages cache..."
+  echo "$(get_static_message "js_dev_cleaning_global_npm")"
   rm -rf "$HOME/.npm-global/lib/node_modules/.cache" 2>/dev/null || true
 fi
 
 # Clear eslint cache
 if [[ -d "$HOME/.eslintcache" ]]; then
-  echo "  🗑️  Removing ESLint cache..."
+  echo "$(get_static_message "js_dev_removing_eslint_cache")"
   rm -rf "$HOME/.eslintcache" || true
 fi
 
-echo "✅ JavaScript Development cleanup completed"
+echo "$(get_static_message "js_dev_cleanup_completed")"

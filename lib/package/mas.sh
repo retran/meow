@@ -52,9 +52,9 @@ uninstall_mas_packages() {
   fi
   local package_file="${MEOW_COMPONENTS_DIR}/$1/packages/mas.list"
   if [[ -f "$package_file" ]]; then
-    ui_warning "Mac App Store apps cannot be automatically uninstalled via mas CLI"
+    ui_warning "$(get_static_message "mas_manual_uninstall_warning")"
     if [[ "$MEOW_VERBOSE" == "true" ]]; then
-      ui_info "Please manually uninstall the following apps through Launchpad or Applications folder:"
+      ui_info "$(get_static_message "mas_manual_uninstall_instruction")"
       while IFS= read -r line; do
         local package_name
         package_name=$(parse_package_line "$line")
@@ -72,8 +72,8 @@ cleanup_mas() {
 
   # Handle dry-run mode
   if is_dry_run; then
-    dry_run_ui_info "Mac App Store cleanup would be skipped (no cleanup needed)"
-    dry_run_ui_info "  App Store manages downloads automatically"
+    dry_run_ui_info "$(get_static_message "mas_cleanup_would_skip")"
+    dry_run_ui_info "  $(get_static_message "mas_app_store_manages_downloads")"
     return 0
   fi
 

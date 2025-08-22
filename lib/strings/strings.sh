@@ -176,10 +176,6 @@ declare -A UI_STATIC_MESSAGES=(
 
   # MOTD (Message of the Day)
   ["motd_meow_not_set"]="Error: MEOW environment variable is not set."
-  ["motd_ascii_art_not_found"]="ASCII art file not found: %s"
-  ["motd_greeting_comrade"]="${SECONDARY}%s, сomrade ${DATA}%s${SECONDARY}!${RESET}"
-  ["motd_calendar_shows"]="${INFO}Calendar shows ${DATA}%s${NORMAL}.${RESET}"
-  ["motd_clock_purrs"]="${INFO}Clock purrs at ${DATA}%s${NORMAL}.${RESET}"
   ["motd_yq_not_installed"]="Warning: 'yq' is not installed. Cannot display random comments."
 
   # System configuration
@@ -286,9 +282,156 @@ declare -A UI_STATIC_MESSAGES=(
   ["motd_ram_fallback"]="May your memory serve you well, comrade!"
   ["motd_update_comment"]="Time for some updates!"
 
+  # MOTD system territory
+  ["motd_system_territory"]="Let me tell you about your digital territory, comrade:"
+  ["motd_system_label"]="System:"
+  ["motd_shell_label"]="Shell:"
+  ["motd_uptime_label"]="Uptime:"
+  ["motd_disk_label"]="Disk:"
+  ["motd_ram_label"]="RAM:"
+  ["motd_updates_label"]="Updates:"
+  ["motd_unknown_value"]="Unknown"
+  ["motd_unable_to_determine"]="Unable to determine"
+  ["motd_packages_need_updating"]="packages need updating"
+
   # Component errors
   ["component_file_not_found"]="Component file not found: %s"
   ["components_directory_not_found"]="Components directory not found: %s"
+
+  # Component cleanup - .NET Development
+  ["dotnet_cleanup_running"]="🧹 Running .NET Development cleanup..."
+  ["dotnet_cleaning_nuget_cache"]="  📦 Cleaning NuGet cache..."
+  ["dotnet_cleaning_temp_files"]="  🗑️  Cleaning .NET temporary files..."
+  ["dotnet_cleaning_nuget_packages"]="  🗑️  Cleaning NuGet packages cache..."
+  ["dotnet_cleaning_omnisharp"]="  🗑️  Cleaning OmniSharp cache..."
+  ["dotnet_cleaning_dotnet_temp"]="  🗑️  Cleaning dotnet temp files..."
+  ["dotnet_cleanup_completed"]="✅ .NET Development cleanup completed"
+
+  # Component cleanup - Meowvim
+  ["meowvim_cleanup_running"]="🧹 Running Meowvim cleanup..."
+  ["meowvim_cleaning_neovim_cache"]="  🗑️  Cleaning Neovim cache..."
+  ["meowvim_cleaning_neovim_state"]="  🗑️  Cleaning Neovim state files..."
+  ["meowvim_cleaning_vim_temp"]="  🗑️  Cleaning Vim temporary files..."
+  ["meowvim_cleaning_swap_files"]="  🗑️  Cleaning Vim/Neovim swap files..."
+  ["meowvim_cleaning_lazy_cache"]="  🗑️  Cleaning Lazy.nvim cache..."
+  ["meowvim_cleaning_packer_cache"]="  🗑️  Cleaning Packer cache..."
+  ["meowvim_cleanup_completed"]="✅ Meowvim cleanup completed"
+
+  # Component cleanup - Media
+  ["media_cleanup_running"]="🧹 Running Media cleanup..."
+  ["media_stopping_obs"]="  ⏹️  Stopping OBS Studio..."
+  ["media_removing_login_items"]="  🗑️  Removing media apps from login items..."
+  ["media_cleaning_cache"]="  🗑️  Cleaning media app cache and logs..."
+  ["media_cleanup_completed"]="✅ Media cleanup completed"
+  ["media_user_recordings_preserved"]="ℹ️  Note: User recordings and scenes were preserved"
+
+  # Component cleanup - Hammerspoon
+  ["hammerspoon_cleanup_running"]="🧹 Running Hammerspoon cleanup..."
+  ["hammerspoon_stopping"]="  ⏹️  Stopping Hammerspoon..."
+  ["hammerspoon_removing_login_items"]="  🗑️  Removing Hammerspoon from login items..."
+  ["hammerspoon_cleaning_logs"]="  📝 Cleaning up Hammerspoon logs..."
+  ["hammerspoon_cleanup_completed"]="✅ Hammerspoon cleanup completed"
+
+  # Component cleanup - Go Development
+  ["go_dev_cleanup_running"]="🧹 Running Go Development cleanup..."
+  ["go_dev_cleaning_module_cache"]="  📦 Cleaning Go module cache..."
+  ["go_dev_cleaning_build_cache"]="  🗑️  Cleaning Go build cache..."
+  ["go_dev_cleaning_test_cache"]="  🗑️  Cleaning Go test cache..."
+  ["go_dev_removing_workspace"]="  🗑️  Removing Go workspace file..."
+  ["go_dev_cleaning_gopath_pkg"]="  🗑️  Cleaning GOPATH pkg directory..."
+  ["go_dev_cleanup_completed"]="✅ Go Development cleanup completed"
+
+  # Component cleanup - JavaScript Development
+  ["js_dev_cleanup_running"]="🧹 Running JavaScript Development cleanup..."
+  ["js_dev_cleaning_npm_cache"]="  📦 Cleaning npm cache..."
+  ["js_dev_removing_ts_cache"]="  🗑️  Removing TypeScript cache..."
+  ["js_dev_cleaning_global_npm"]="  🗑️  Cleaning up global npm packages cache..."
+  ["js_dev_removing_eslint_cache"]="  🗑️  Removing ESLint cache..."
+  ["js_dev_cleanup_completed"]="✅ JavaScript Development cleanup completed"
+
+  # Component cleanup - Docker Desktop
+  ["docker_cleanup_running"]="🧹 Running Docker Desktop cleanup..."
+  ["docker_stopping_desktop"]="  ⏹️  Stopping Docker Desktop..."
+  ["docker_stopping_daemon"]="  🐳 Stopping Docker daemon..."
+  ["docker_cleaning_networks_volumes"]="  🗑️  Cleaning up Docker networks and volumes..."
+  ["docker_removing_login_items"]="  🗑️  Removing Docker Desktop from login items..."
+  ["docker_cleanup_completed"]="✅ Docker Desktop cleanup completed"
+  ["docker_images_containers_cleaned"]="ℹ️  Note: Docker images and containers have been cleaned up"
+  ["docker_manual_removal_note"]="ℹ️  Note: To fully remove Docker data, manually delete ~/Library/Containers/com.docker.docker"
+
+  # Component cleanup - Node
+  ["node_cleanup_running"]="🧹 Running Node cleanup..."
+  ["node_cleaning_npm_cache"]="  📦 Cleaning npm cache..."
+  ["node_cleaning_yarn_cache"]="  📦 Cleaning yarn cache..."
+  ["node_cleaning_pnpm_cache"]="  📦 Cleaning pnpm cache..."
+  ["node_cleaning_global_npm_cache"]="  🗑️  Cleaning npm global cache..."
+  ["node_cleaning_node_gyp_cache"]="  🗑️  Cleaning node-gyp cache..."
+  ["node_cleanup_completed"]="✅ Node cleanup completed"
+
+  # Component cleanup - Corporate Communication
+  ["corporate_cleanup_running"]="🧹 Running Corporate Communication cleanup..."
+  ["corporate_stopping_slack"]="  ⏹️  Stopping Slack..."
+  ["corporate_stopping_zoom"]="  ⏹️  Stopping Zoom..."
+  ["corporate_removing_login_items"]="  🗑️  Removing corporate apps from login items..."
+  ["corporate_cleaning_cache"]="  🗑️  Cleaning corporate app cache and logs..."
+  ["corporate_cleanup_completed"]="✅ Corporate Communication cleanup completed"
+
+  # Component cleanup - Pipx
+  ["pipx_cleanup_running"]="🧹 Running Pipx cleanup..."
+  ["pipx_cleaning_cache"]="  📦 Cleaning pipx cache..."
+  ["pipx_cleaning_installation_dir"]="  🗑️  Cleaning pipx installation directory..."
+  ["pipx_cleaning_cache_dir"]="  🗑️  Cleaning pipx cache directory..."
+  ["pipx_cleaning_binaries"]="  🗑️  Cleaning pipx binaries..."
+  ["pipx_cleanup_completed"]="✅ Pipx cleanup completed"
+
+  # Mac App Store package manager
+  ["mas_manual_uninstall_warning"]="Mac App Store apps cannot be automatically uninstalled via mas CLI"
+  ["mas_manual_uninstall_instruction"]="Please manually uninstall the following apps through Launchpad or Applications folder:"
+  ["mas_cleanup_would_skip"]="Mac App Store cleanup would be skipped (no cleanup needed)"
+  ["mas_app_store_manages_downloads"]="App Store manages downloads automatically"
+
+  # VS Code package manager
+  ["vscode_cli_not_found_update_skip"]="VS Code CLI not found, skipping VS Code extension update"
+  ["vscode_cli_not_found_uninstall_skip"]="VS Code CLI not found, skipping VS Code extension uninstall"
+  ["vscode_cleanup_would_skip"]="VS Code cleanup would be skipped (no cleanup needed)"
+  ["vscode_extensions_managed_automatically"]="Extensions are managed by VS Code automatically"
+
+  # macOS system configuration
+  ["macos_not_running_finder"]="Not running on macOS. Skipping Finder configuration."
+  ["macos_not_running_dock"]="Not running on macOS. Skipping Dock configuration."
+  ["macos_not_running_app"]="Not running on macOS. Skipping app configuration."
+  ["macos_not_running_all"]="Not running on macOS. Skipping all macOS configuration."
+  ["macos_config_intro"]="This script will configure various macOS settings to enhance your experience."
+  ["macos_config_cancelled"]="macOS configuration cancelled."
+  ["macos_config_summary"]="Summary:"
+  ["macos_config_restart_notice"]="Some changes may require a logout or restart to take effect."
+  ["macos_configuring_energy"]="Configuring energy saving settings..."
+  ["macos_configuring_spotlight"]="Configuring Spotlight settings..."
+  ["macos_configuring_console"]="Configuring Console settings..."
+  ["macos_configuring_screen_capture"]="Configuring screen capture settings..."
+  ["macos_configuring_mail"]="Configuring Mail application settings"
+
+  # Component operations - additional
+  ["no_components_currently_installed"]="No components are currently installed"
+  ["no_components_to_uninstall"]="No components to uninstall"
+
+  # System messages
+  ["bash_3_2_compatibility_mode"]="INFO: Running in bash 3.2 compatibility mode"
+  ["bash_upgrade_recommendation"]="      Consider upgrading to bash 4.0+ for optimal performance"
+  ["bash_version_info"]="Bash version: %s (%s)"
+
+  # Symlinks operations
+  ["symlinks_listing_all_backups"]="Listing all symlink backups:"
+  ["symlinks_no_backups_found"]="  No symlink backups found"
+  ["symlinks_listing_backups_pattern"]="Listing backups for pattern: %s"
+  ["symlinks_backup_not_found"]="Backup file not found: %s"
+  ["symlinks_restoring_backup"]="Restoring backup: %s -> %s"
+  ["symlinks_no_backups_for_pattern"]="  No backups found for pattern: %s"
+  ["symlinks_target_exists_backup"]="  Target location already exists, creating backup of current state"
+  ["symlinks_current_backed_up"]="  Current state backed up to %s"
+  ["symlinks_backup_current_failed"]="  Failed to backup current state"
+  ["symlinks_restore_success"]="  Successfully restored %s"
+  ["symlinks_restore_failed"]="  Failed to restore backup"
 )
 
 # ============================================================================
@@ -355,6 +498,13 @@ declare -A UI_TEMPLATE_MESSAGES=(
   ["symlinks_configured_with_errors"]="Component symlinks configured with %d errors (%d/%d symlink files)"
   ["symlinks_for_configured"]="Symlinks for '%s' configured successfully"
   ["symlinks_setup_failed"]="Failed to setup symlinks for '%s'"
+  ["symlinks_listing_backups_pattern"]="Listing backups for pattern: %s"
+  ["symlinks_backup_not_found"]="Backup file not found: %s"
+  ["symlinks_restoring_backup"]="Restoring backup: %s -> %s"
+  ["symlinks_backup_entry"]="  %s -> %s (created: %s)"
+  ["symlinks_no_backups_for_pattern"]="  No backups found for pattern: %s"
+  ["symlinks_current_backed_up"]="  Current state backed up to %s"
+  ["symlinks_restore_success"]="  Successfully restored %s"
 
   # Package managers
   ["setting_up_manager"]="Setting up %s"
@@ -406,8 +556,12 @@ declare -A UI_TEMPLATE_MESSAGES=(
 
   # MOTD templates
   ["motd_greeting"]="%s, сomrade %s!"
+  ["motd_greeting_comrade"]="%s, сomrade %s!"
   ["motd_calendar"]="Calendar shows %s."
+  ["motd_calendar_shows"]="Calendar shows %s"
   ["motd_clock"]="Clock purrs at %s."
+  ["motd_clock_purrs"]="Clock purrs at %s"
+  ["motd_ascii_art_not_found"]="ASCII art file not found: %s"
   ["motd_system_territory"]="Let me tell you about your digital territory, comrade:"
   ["motd_system_info"]="System:     %s"
   ["motd_shell_info"]="Shell:      %s"

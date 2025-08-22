@@ -5,6 +5,9 @@ if [[ "${BASH_SOURCE[0]}" != "${0}" ]] && [[ -n "${_LIB_MOTD_SOURCED:-}" ]]; the
 fi
 _LIB_MOTD_SOURCED=1
 
+source "${MEOW}/lib/core/colors.sh"
+source "${MEOW}/lib/strings/strings.sh"
+
 if [[ -z "$MEOW" ]]; then
   echo "$(get_static_message "motd_meow_not_set")" >&2
   return 1
@@ -17,7 +20,6 @@ readonly MEOW_MOTD_ASCII_ART_FILE="${MEOW_MOTD_ASSETS_DIR}/ascii/motd.ascii"
 mkdir -p "${MEOW_MOTD_CACHE_DIR}"
 
 source "${MEOW}/lib/core/colors.sh"
-source "${MEOW}/lib/core/strings.sh"
 
 load_yaml_comments() {
   local category="$1"
@@ -144,11 +146,11 @@ build_greeting() {
     time_comment="Hope you have a purr-ductive time!"
   fi
 
-  echo -e "$(format_template_message "motd_greeting_comrade" "$greeting" "$(whoami)")"
+  echo -e "${SECONDARY}$(format_template_message "motd_greeting_comrade" "$greeting" "$(whoami)")${RESET}"
   echo -e "${SECONDARY}${time_comment}${RESET}"
   echo ""
-  echo -e "$(format_template_message "motd_calendar_shows" "$date_full")"
-  echo -e "$(format_template_message "motd_clock_purrs" "$time_current")"
+  echo -e "${INFO}$(format_template_message "motd_calendar_shows" "$date_full")${RESET}"
+  echo -e "${INFO}$(format_template_message "motd_clock_purrs" "$time_current")${RESET}"
   echo ""
 }
 
@@ -172,40 +174,41 @@ build_system_stats() {
 
   build_greeting "$hour_num" "$date_full" "$time_current"
 
-  echo -e "${HEADER}Let me tell you about your digital territory, comrade:${RESET}"
-  echo -e "  ${BULLET}❯${RESET} ${SECONDARY}System:${RESET}     ${DATA}${os_info}${RESET}"
-  echo -e "  ${BULLET}❯${RESET} ${SECONDARY}Shell:${RESET}      ${DATA}${SHELL}${RESET}"
+  echo -e "${HEADER}$(get_static_message "motd_system_territory")${RESET}"
+  echo -e "  ${BULLET}❯${RESET} ${SECONDARY}$(get_static_message "motd_system_label")${RESET}     ${DATA}${os_info}${RESET}"
+  echo -e "  ${BULLET}❯${RESET} ${SECONDARY}$(get_static_message "motd_shell_label")${RESET}      ${DATA}${SHELL}${RESET}"
 
   local uptime_collections=("uptime" "base")
   [[ -z "$uptime_info" ]] && uptime_collections+=("uptime" "fallback")
   local random_uptime_comment=$(get_comment_collection "${uptime_collections[@]}")
-  if [[ "$random_uptime_comment" == "A fancy digital cat comment should be here" ]]; then
-    random_uptime_comment="Your system is up and running!"
+  if [[ "$random_uptime_comment" == "$(get_static_message "motd_fallback")" ]]; then
+    random_uptime_comment="$(get_static_message "motd_uptime_fallback")"
   fi
-  echo -e "  ${BULLET}❯${RESET} ${SECONDARY}Uptime:${RESET}     ${DATA}${uptime_info:-"Unknown"}${RESET}"
+  echo -e "  ${BULLET}❯${RESET} ${SECONDARY}$(get_static_message "motd_uptime_label")${RESET}     ${DATA}${uptime_info:-"$(get_static_message "motd_unknown_value")"}${RESET}"
   echo -e "                ${SUCCESS}(${random_uptime_comment})${RESET}"
 
   local disk_collections=("disk" "base")
   [[ -z "$home_disk_space" ]] && disk_collections+=("disk" "fallback")
   local random_disk_comment=$(get_comment_collection "${disk_collections[@]}")
-  if [[ "$random_disk_comment" == "A fancy digital cat comment should be here" ]]; then
-    random_disk_comment="May your storage be plentiful!"
+  if [[ "$random_disk_comment" == "$(get_static_message "motd_fallback")" ]]; then
+    random_disk_comment="$(get_static_message "motd_disk_fallback")"
   fi
-  echo -e "  ${BULLET}❯${RESET} ${SECONDARY}Disk:${RESET}       ${DATA}${home_disk_space:-"Unable to determine"}${RESET}"
+  echo -e "  ${BULLET}❯${RESET} ${SECONDARY}$(get_static_message "motd_disk_label")${RESET}       ${DATA}${home_disk_space:-"$(get_static_message "motd_unable_to_determine")"}${RESET}"
   echo -e "                ${SUCCESS}(${random_disk_comment})${RESET}"
 
   local ram_collections=("ram" "base")
   [[ -z "$ram_stats" ]] && ram_collections+=("ram" "fallback")
   local random_ram_comment=$(get_comment_collection "${ram_collections[@]}")
-  if [[ "$random_ram_comment" == "A fancy digital cat comment should be here" ]]; then
-    random_ram_comment="May your memory serve you well, comrade!"
+  if [[ "$random_ram_comment" == "$(get_static_message "motd_fallback")" ]]; then
+    random_ram_comment="$(get_static_message "motd_ram_fallback")"
   fi
-  echo -e "  ${BULLET}❯${RESET} ${SECONDARY}RAM:${RESET}        ${DATA}${ram_stats:-"Unknown"}${RESET}"
+  echo -e "  ${BULLET}❯${RESET} ${SECONDARY}$(get_static_message "motd_ram_label")${RESET}        ${DATA}${ram_stats:-"$(get_static_message "motd_unknown_value")"}${RESET}"
   echo -e "                ${SUCCESS}(${random_ram_comment})${RESET}"
 
   if [[ "$outdated_packages" -gt 0 ]]; then
-    local random_package_comment="Time for some updates!"
-    echo -e "  ${BULLET}❯${RESET} ${SECONDARY}Updates:${RESET}    ${WARNING}${outdated_packages} packages need updating${RESET}"
+    local random_package_comment
+    random_package_comment="$(get_static_message "motd_update_comment")"
+    echo -e "  ${BULLET}❯${RESET} ${SECONDARY}$(get_static_message "motd_updates_label")${RESET}    ${WARNING}${outdated_packages} $(get_static_message "motd_packages_need_updating")${RESET}"
     echo -e "                ${SUCCESS}(${random_package_comment})${RESET}"
   fi
 
@@ -270,7 +273,7 @@ show_motd() {
   fi
 
   local system_info art_content stats_content
-  system_info=$(get_system_ui_info "$MEOW_MOTD_CACHE_DIR")
+  system_info=$(get_system_info "$MEOW_MOTD_CACHE_DIR")
   art_content=$(load_art "$MEOW_MOTD_ASCII_ART_FILE")
   stats_content=$(build_system_stats "$system_info")
 

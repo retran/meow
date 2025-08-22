@@ -790,7 +790,7 @@ uninstall_component() {
   collect_multiple_components_for_uninstall "${components[@]}"
 
   if [[ ${#multiple_uninstall_order[@]} -eq 0 ]]; then
-    ui_info "No components to uninstall"
+    ui_info "$(get_static_message "no_components_to_uninstall")"
     return 0
   fi
 
