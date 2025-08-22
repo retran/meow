@@ -18,23 +18,23 @@ is_npm_package_installed() {
 }
 
 setup_npm() {
-  package_manager_setup_msg "npm"
+  ui_package_manager_setup "npm"
 
   # Handle dry-run mode
   if is_dry_run; then
     if ! command -v npm >/dev/null 2>&1; then
-      dry_run_info "npm not found - would fail setup"
+      dry_run_ui_info "npm not found - would fail setup"
     else
-      dry_run_info "npm already available, no setup needed"
+      dry_run_ui_info "npm already available, no setup needed"
     fi
     return 0
   fi
 
   if ! command -v npm >/dev/null 2>&1; then
-    error_msg "npm not found"
+    ui_action_error "$(get_static_message 'npm_not_found')"
     return 1
   fi
-  package_manager_ready_msg "npm"
+  ui_package_manager_ready "npm"
 }
 
 install_npm_packages() {
@@ -55,7 +55,7 @@ cleanup_npm() {
   echo ""
 
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    step_header "Cleaning npm cache"
+    ui_step_header "Cleaning npm cache"
     ui_spinner "Cleaning npm cache" \
       --success "npm cache cleaned" \
       --fail "npm cache cleanup failed" \

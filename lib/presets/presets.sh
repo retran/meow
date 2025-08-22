@@ -131,29 +131,29 @@ install_preset() {
   preset_file=$(get_preset_file "$preset")
 
   if [[ ! -f "$preset_file" ]]; then
-    error "Preset '$preset' not found"
+    ui_error "Preset '$preset' not found"
     return 1
   fi
 
   if ! is_preset_available "$preset"; then
-    error "Preset '$preset' is not available on this platform"
+    ui_error "Preset '$preset' is not available on this platform"
     return 1
   fi
 
   if is_preset_installed "$preset"; then
-    warning "Preset '$preset' is already installed"
+    ui_warning "Preset '$preset' is already installed"
     return 0
   fi
 
   # Show beautiful header
-  title "==> Installing Preset: $preset"
+  ui_title "==> Installing Preset: $preset"
 
   # Get all components in topological order
   local installation_order=()
   collect_preset_components_for_installation "$preset" installation_order
 
   if [[ ${#installation_order[@]} -eq 0 ]]; then
-    info "No components to install for this preset"
+    ui_info "No components to install for this preset"
   else
     # Show summary of what will be installed
     local preset_components
@@ -176,12 +176,12 @@ install_preset() {
     done
 
     # Show what will be installed
-    action_msg "Will install ${#preset_components_array[@]} preset components with dependencies"
+    ui_action_start "Will install ${#preset_components_array[@]} preset components with dependencies"
     if [[ ${#components_to_install[@]} -gt 0 ]]; then
-      indent_msg "Total components to install: ${#components_to_install[@]}"
+      ui_indent "Total components to install: ${#components_to_install[@]}"
 
       if [[ "$MEOW_VERBOSE" == "true" ]]; then
-        step_header "Installation order:"
+        ui_step_header "Installation order:"
         for comp in "${installation_order[@]}"; do
           local status=""
           if is_component_installed "$comp"; then
@@ -197,9 +197,9 @@ install_preset() {
           done
 
           if [[ "$is_preset_component" == "true" ]]; then
-            verbose_info "  ➤ $comp (preset component)$status"
+            ui_verbose_info "  ➤ $comp (preset component)$status"
           else
-            verbose_info "  ↪ $comp (dependency)$status"
+            ui_verbose_info "  ↪ $comp (dependency)$status"
           fi
         done
       else
@@ -231,21 +231,21 @@ install_preset() {
         done
 
         if [[ -n "$preset_comp_list" ]]; then
-          indent_msg "Preset components: $preset_comp_list"
+          ui_indent "Preset components: $preset_comp_list"
         fi
         if [[ -n "$deps_list" ]]; then
-          indent_msg "Dependencies: $deps_list"
+          ui_indent "Dependencies: $deps_list"
         fi
       fi
     else
-      indent_msg "All components already installed"
+      ui_indent "$(get_static_message 'all_components_installed')"
     fi
 
     echo ""
 
     # Initialize session and tracking array
     _initialize_session || {
-      error "Session initialization failed"
+      ui_error "$(get_static_message 'session_init_failed')"
       return 1
     }
 
@@ -257,7 +257,7 @@ install_preset() {
       # All components installed via preset are automatic (not manual)
       # Only components installed directly via 'meowctl component install' should be manual
       if ! _install_single_component "$component" false false; then
-        error "Failed to install component: $component"
+        ui_error "$(format_template_message 'component_install_failed' "$component")"
         install_success=false
         break
       fi
@@ -268,7 +268,7 @@ install_preset() {
     unset MEOW_INSTALLING_COMPONENTS
 
     if [[ "$install_success" != "true" ]]; then
-      error "Failed to install required components"
+      ui_error "Failed to install required components"
       return 1
     fi
   fi
@@ -289,14 +289,14 @@ update_preset() {
   local preset="$1"
 
   if ! is_preset_installed "$preset"; then
-    warning "Preset '$preset' is not installed"
+    ui_warning "Preset '$preset' is not installed"
     return 1
   fi
 
-  header "Updating preset: $preset"
+  ui_header "Updating preset: $preset"
 
   # Update all required components that are installed
-  step_header "Updating required components"
+  ui_step_header "Updating required components"
   local required_components
   required_components=$(get_preset_required_components "$preset")
 
@@ -308,17 +308,17 @@ update_preset() {
       if is_component_installed "$component"; then
         components_to_update+=("$component")
       else
-        info "Required component '$component' not installed, skipping"
+        ui_info "Required component '$component' not installed, skipping"
       fi
     done <<<"$required_components"
 
     if [[ ${#components_to_update[@]} -gt 0 ]]; then
-      info "Updating ${#components_to_update[@]} installed components: ${components_to_update[*]}"
+      ui_info "Updating ${#components_to_update[@]} installed components: ${components_to_update[*]}"
       update_component "${components_to_update[@]}"
     fi
   fi
 
-  success_tick_msg "Preset '$preset' updated successfully"
+  ui_action_success "Preset '$preset' updated successfully"
   return 0
 }
 
@@ -352,12 +352,12 @@ update_all_installed_components() {
   components=($(get_all_installed_components))
 
   if [[ ${#components[@]} -eq 0 ]]; then
-    info "No components are currently installed"
+    ui_info "No components are currently installed"
     return 0
   fi
 
-  header "Updating all installed components"
-  info "Found ${#components[@]} installed components: ${components[*]}"
+  ui_header "Updating all installed components"
+  ui_info "Found ${#components[@]} installed components: ${components[*]}"
 
   # Source components library and update all components
   source "${MEOW}/lib/components/components.sh"
@@ -366,7 +366,7 @@ update_all_installed_components() {
 
 # List all available presets
 list_presets() {
-  header "Available Presets"
+  ui_header "Available Presets"
 
   for preset_dir in "${MEOW_PRESETS_DIR}"/*; do
     [[ ! -d "$preset_dir" ]] && continue
@@ -392,7 +392,7 @@ list_presets() {
         availability=" [UNAVAILABLE]"
       fi
 
-      info "${status}${preset_name} - ${description}${availability}"
+      ui_info "${status}${preset_name} - ${description}${availability}"
     fi
   done
 }

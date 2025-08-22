@@ -21,7 +21,7 @@ set_macos_keyboard_layouts() {
 
   # Ensure the script is running on macOS.
   if [[ "$OSTYPE" != "darwin"* ]]; then
-    warning "macOS keyboard layout configuration only works on macOS"
+    ui_warning "macOS keyboard layout configuration only works on macOS"
     return 1
   fi
 
@@ -39,7 +39,7 @@ set_macos_keyboard_layouts() {
       russian_layout_name="Russian"
       ;;
     *)
-      error "Unknown layout type: $layout_type. Use 'das' or 'mbp'"
+      ui_error "Unknown layout type: $layout_type. Use 'das' or 'mbp'"
       return 1
       ;;
   esac
@@ -52,7 +52,7 @@ set_macos_keyboard_layouts() {
     is_russian_selected=1
   fi
 
-  action_msg "Configuring keyboard layouts for $layout_type..."
+  ui_action_start "Configuring keyboard layouts for $layout_type..."
 
   # Set the enabled input sources to "ABC" (U.S.) and the chosen Russian layout.
   # This overwrites the existing list of enabled layouts.
@@ -76,7 +76,7 @@ set_macos_keyboard_layouts() {
 
   # If the Russian layout was active before, restore it as the selected source.
   if [[ "$is_russian_selected" -eq 1 ]]; then
-    action_msg "Restoring active Russian layout..."
+    ui_action_start "Restoring active Russian layout..."
     defaults write com.apple.HIToolbox AppleSelectedInputSources -array \
       "<dict>
           <key>InputSourceKind</key>
@@ -92,5 +92,5 @@ set_macos_keyboard_layouts() {
   # Errors are suppressed in case the process isn't running.
   pkill TextInputMenuAgent 2>/dev/null || true
 
-  success_tick_msg "Keyboard layouts configured for $layout_type"
+  ui_action_success "Keyboard layouts configured for $layout_type"
 }

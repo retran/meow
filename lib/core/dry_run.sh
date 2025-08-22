@@ -19,7 +19,7 @@ dry_run_command() {
   shift
 
   if is_dry_run; then
-    dry_run_info "Would execute: $description"
+    dry_run_ui_info "Would execute: $description"
     return 0
   else
     "$@"
@@ -47,25 +47,25 @@ dry_run_file_operation() {
   if is_dry_run; then
     case "$operation" in
       "create_symlink")
-        dry_run_info "Would create symlink: $target -> $source"
+        dry_run_ui_info "Would create symlink: $target -> $source"
         ;;
       "create_dir")
-        dry_run_info "Would create directory: $target"
+        dry_run_ui_info "Would create directory: $target"
         ;;
       "remove_file")
-        dry_run_info "Would remove file: $target"
+        dry_run_ui_info "Would remove file: $target"
         ;;
       "remove_dir")
-        dry_run_info "Would remove directory: $target"
+        dry_run_ui_info "Would remove directory: $target"
         ;;
       "backup_file")
-        dry_run_info "Would backup file: $target"
+        dry_run_ui_info "Would backup file: $target"
         ;;
       "restore_file")
-        dry_run_info "Would restore file: $target from $source"
+        dry_run_ui_info "Would restore file: $target from $source"
         ;;
       *)
-        dry_run_info "Would perform file operation '$operation' on: $target"
+        dry_run_ui_info "Would perform file operation '$operation' on: $target"
         ;;
     esac
     return 0
@@ -83,16 +83,16 @@ dry_run_package_operation() {
   if is_dry_run; then
     case "$operation" in
       "install")
-        dry_run_info "Would install $manager packages: $packages"
+        dry_run_ui_info "Would install $manager packages: $packages"
         ;;
       "update")
-        dry_run_info "Would update $manager packages: $packages"
+        dry_run_ui_info "Would update $manager packages: $packages"
         ;;
       "remove")
-        dry_run_info "Would remove $manager packages: $packages"
+        dry_run_ui_info "Would remove $manager packages: $packages"
         ;;
       *)
-        dry_run_info "Would perform $manager operation '$operation' on packages: $packages"
+        dry_run_ui_info "Would perform $manager operation '$operation' on packages: $packages"
         ;;
     esac
     return 0
@@ -110,19 +110,19 @@ dry_run_git_operation() {
   if is_dry_run; then
     case "$operation" in
       "clone")
-        dry_run_info "Would clone repository to: $repo_path"
+        dry_run_ui_info "Would clone repository to: $repo_path"
         if [[ -n "$details" ]]; then
-          dry_run_info "  Repository URL: $details"
+          dry_run_ui_info "  Repository URL: $details"
         fi
         ;;
       "pull")
-        dry_run_info "Would pull updates in repository: $repo_path"
+        dry_run_ui_info "Would pull updates in repository: $repo_path"
         ;;
       "checkout")
-        dry_run_info "Would checkout '$details' in repository: $repo_path"
+        dry_run_ui_info "Would checkout '$details' in repository: $repo_path"
         ;;
       *)
-        dry_run_info "Would perform git operation '$operation' in: $repo_path"
+        dry_run_ui_info "Would perform git operation '$operation' in: $repo_path"
         ;;
     esac
     return 0
@@ -137,8 +137,8 @@ dry_run_script_execution() {
   local description="${2:-$(basename "$script_path")}"
 
   if is_dry_run; then
-    dry_run_info "Would execute script: $description"
-    dry_run_info "  Script path: $script_path"
+    dry_run_ui_info "Would execute script: $description"
+    dry_run_ui_info "  Script path: $script_path"
     return 0
   else
     return 1  # Indicates that actual execution should proceed

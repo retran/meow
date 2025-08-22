@@ -46,9 +46,9 @@ install_component_symlink() {
 
   # Handle dry-run mode
   if is_dry_run; then
-    dry_run_info "Would create component installation symlink: ${MEOW_INSTALLED_COMPONENTS_DIR}/${component} -> ${MEOW_COMPONENTS_DIR}/${component}"
+    dry_run_ui_info "Would create component installation symlink: ${MEOW_INSTALLED_COMPONENTS_DIR}/${component} -> ${MEOW_COMPONENTS_DIR}/${component}"
     if [[ "${MEOW_COMPONENT_MANUAL_INSTALL:-}" == "true" ]]; then
-      dry_run_info "Would mark as manually installed: ${MEOW_MANUALLY_INSTALLED_COMPONENTS_DIR}/${component} -> ${MEOW_COMPONENTS_DIR}/${component}"
+      dry_run_ui_info "Would mark as manually installed: ${MEOW_MANUALLY_INSTALLED_COMPONENTS_DIR}/${component} -> ${MEOW_COMPONENTS_DIR}/${component}"
     fi
     return 0
   fi
@@ -72,8 +72,8 @@ remove_component_symlink() {
 
   # Handle dry-run mode
   if is_dry_run; then
-    dry_run_info "Would remove component installation symlink: ${MEOW_INSTALLED_COMPONENTS_DIR}/${component}"
-    dry_run_info "Would remove manual installation symlink: ${MEOW_MANUALLY_INSTALLED_COMPONENTS_DIR}/${component}"
+    dry_run_ui_info "Would remove component installation symlink: ${MEOW_INSTALLED_COMPONENTS_DIR}/${component}"
+    dry_run_ui_info "Would remove manual installation symlink: ${MEOW_MANUALLY_INSTALLED_COMPONENTS_DIR}/${component}"
     return 0
   fi
 
@@ -136,7 +136,7 @@ list_components() {
 
   # Check if component directory exists
   if [[ ! -d "$MEOW_COMPONENTS_DIR" ]]; then
-    error "Components directory not found: $MEOW_COMPONENTS_DIR"
+    ui_error "Components directory not found: $MEOW_COMPONENTS_DIR"
     return 1
   fi
 
@@ -192,7 +192,7 @@ setup_component() {
   local init_script="${component_dir}/scripts/setup.sh"
 
   if [[ -f "$init_script" ]]; then
-    component_setup_msg "$component"
+    ui_component_setup "$component"
 
     # Handle dry-run mode
     if dry_run_script_execution "$init_script" "setup script for $component"; then
@@ -201,9 +201,9 @@ setup_component() {
 
     [[ ! -x "$init_script" ]] && chmod +x "$init_script"
     if "$init_script" "$component" "$MEOW"; then
-      success_tick_msg "Component setup completed successfully"
+      ui_action_success "$(get_static_message 'component_setup_completed')"
     else
-      error_msg "Component setup failed"
+      ui_action_ui_error "$(get_static_message 'component_setup_failed')"
       return 1
     fi
   fi
@@ -217,7 +217,7 @@ cleanup_component() {
 
   if [[ -f "$cleanup_script" ]]; then
     if [[ "$MEOW_VERBOSE" == "true" ]]; then
-      component_cleanup_msg "$component"
+      ui_component_cleanup "$component"
     fi
 
     # Handle dry-run mode
@@ -227,9 +227,9 @@ cleanup_component() {
 
     [[ ! -x "$cleanup_script" ]] && chmod +x "$cleanup_script"
     if "$cleanup_script" "$component" "$MEOW"; then
-      verbose_success_tick_msg "Component cleanup completed successfully"
+      ui_verbose_action_success "$(get_static_message 'component_cleanup_completed')"
     else
-      warning_msg "Component cleanup failed"
+      ui_action_ui_warning "$(get_static_message 'component_cleanup_failed')"
       return 1
     fi
   fi

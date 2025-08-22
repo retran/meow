@@ -8,11 +8,11 @@ _LIB_SYSTEM_RUST_SOURCED=1
 source "${MEOW}/lib/core/ui.sh"
 
 setup_rustup() {
-  step_header "Setting up Rust toolchain"
+  ui_step_header "Setting up Rust toolchain"
 
   if command -v rustup >/dev/null 2>&1; then
     if rustup show >/dev/null 2>&1; then
-      success_tick_msg "Rust toolchain already initialized"
+      ui_action_success "Rust toolchain already initialized"
       install_rust_components
       return 0
     fi
@@ -34,19 +34,19 @@ setup_rustup() {
   if command -v rustup >/dev/null 2>&1 && command -v cargo >/dev/null 2>&1; then
     local rust_version
     rust_version=$(rustc --version 2>/dev/null || echo "unknown")
-    info "Rust version: $rust_version"
+    ui_info "Rust version: $rust_version"
 
     install_rust_components
 
-    success_tick_msg "Rust toolchain setup complete"
+    ui_action_success "Rust toolchain setup complete"
   else
-    warning "Rust toolchain installed but commands not available in current session"
-    info "Please restart your shell or source ~/.cargo/env"
+    ui_warning "Rust toolchain installed but commands not available in current session"
+    ui_info "Please restart your shell or source ~/.cargo/env"
   fi
 }
 
 install_rust_components() {
-  step_header "Installing Rust components"
+  ui_step_header "Installing Rust components"
 
   ui_spinner "Installing clippy component" \
     --success "clippy installed" \
@@ -59,8 +59,8 @@ install_rust_components() {
     rustup component add rust-analyzer
 
   if command -v rustfmt >/dev/null 2>&1; then
-    success_tick_msg "rustfmt available"
+    ui_action_success "rustfmt available"
   else
-    warning "rustfmt not available"
+    ui_warning "rustfmt not available"
   fi
 }

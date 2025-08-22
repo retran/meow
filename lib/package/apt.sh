@@ -19,17 +19,17 @@ is_apt_package_installed() {
 
 setup_apt() {
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    package_manager_setup_msg "APT"
+    ui_package_manager_setup "APT"
   fi
 
   # Handle dry-run mode
   if is_dry_run; then
     if ! command -v apt-get >/dev/null 2>&1; then
-      dry_run_info "apt-get not found - would fail setup"
+      dry_run_ui_info "apt-get not found - would fail setup"
     else
-      dry_run_info "Would update APT package index"
-      dry_run_info "  Command: sudo apt-get update"
-      dry_run_info "  Would refresh available package information"
+      dry_run_ui_info "Would update APT package index"
+      dry_run_ui_info "  Command: sudo apt-get update"
+      dry_run_ui_info "  Would refresh available package information"
     fi
     return 0
   fi
@@ -48,7 +48,7 @@ setup_apt() {
   fi
 
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    package_manager_ready_msg "APT"
+    ui_package_manager_ready "APT"
   fi
 }
 
@@ -68,14 +68,14 @@ uninstall_apt_packages() {
 cleanup_apt() {
   # Handle dry-run mode
   if is_dry_run; then
-    dry_run_info "Would clean APT package cache and remove unused packages"
-    dry_run_info "  Commands: sudo apt-get autoremove -y && sudo apt-get clean"
-    dry_run_info "  Would remove orphaned packages and clear download cache"
+    dry_run_ui_info "Would clean APT package cache and remove unused packages"
+    dry_run_ui_info "  Commands: sudo apt-get autoremove -y && sudo apt-get clean"
+    dry_run_ui_info "  Would remove orphaned packages and clear download cache"
     return 0
   fi
 
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    package_manager_cleaning_msg "APT"
+    ui_package_manager_cleaning "APT"
     ui_spinner "Removing unused packages" \
       --success "APT autoremove completed" \
       --fail "APT autoremove failed" \

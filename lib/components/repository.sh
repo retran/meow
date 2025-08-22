@@ -69,12 +69,12 @@ clone_component_repository() {
 
   # Remove existing repository if present
   if [[ -d "$installed_dir" ]]; then
-    step_header "Removing existing repository for component: $component"
+    ui_step_header "Removing existing repository for component: $component"
     rm -rf "$installed_dir"
   fi
 
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    step_header "Cloning repository to .downloads/$component"
+    ui_step_header "Cloning repository to .downloads/$component"
   fi
 
   # Clone repository with spinner
@@ -102,23 +102,23 @@ update_component_repository() {
 
   # Clone if repository doesn't exist
   if [[ ! -d "$installed_dir" ]]; then
-    warning "Repository not found, cloning to .downloads/$component instead"
+    ui_warning "Repository not found, cloning to .downloads/$component instead"
     clone_component_repository "$component"
     return $?
   fi
 
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    step_header "Updating repository for component: $component"
+    ui_step_header "Updating repository for component: $component"
   fi
 
   # Update repository using git with spinner
   ui_spinner "Updating $component repository" \
-    --success "Repository updated successfully" \
+    --success "$(get_static_message 'repo_updated')" \
     --fail "Failed to update repository" \
     sh -c "cd '$installed_dir' && git fetch && git reset --hard \"origin/\$(git rev-parse --abbrev-ref HEAD)\""
 
   if [[ $? -ne 0 ]]; then
-    warning "Failed to update repository, trying to re-clone"
+    ui_warning "Failed to update repository, trying to re-clone"
     clone_component_repository "$component"
     return $?
   fi
@@ -144,13 +144,13 @@ cleanup_component_repository() {
 
   # Remove repository directory if it exists
   if [[ -d "${repo_dir}/.git" ]]; then
-    step_header "Cleaning up repository for $component"
+    ui_step_header "Cleaning up repository for $component"
 
     rm -rf "$repo_dir" || {
-      error "Failed to remove repository directory: $repo_dir"
+      ui_error "Failed to remove repository directory: $repo_dir"
       return 1
     }
 
-    success_tick_msg "Repository cleaned up for $component"
+    ui_action_success "Repository cleaned up for $component"
   fi
 }

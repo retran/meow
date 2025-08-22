@@ -19,17 +19,17 @@ is_pacman_package_installed() {
 
 setup_pacman() {
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    step_header "Setting up pacman"
+    ui_step_header "Setting up pacman"
   fi
 
   # Handle dry-run mode
   if is_dry_run; then
     if ! command -v pacman >/dev/null 2>&1; then
-      dry_run_info "pacman not found - would fail setup"
+      dry_run_ui_info "pacman not found - would fail setup"
     else
-      dry_run_info "Would sync pacman package database"
-      dry_run_info "  Command: sudo pacman -Sy"
-      dry_run_info "  Would refresh available package information"
+      dry_run_ui_info "Would sync pacman package database"
+      dry_run_ui_info "  Command: sudo pacman -Sy"
+      dry_run_ui_info "  Would refresh available package information"
     fi
     return 0
   fi
@@ -48,7 +48,7 @@ setup_pacman() {
   fi
 
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    success_tick_msg "pacman ready"
+    ui_action_success "pacman ready"
   fi
 }
 
@@ -67,14 +67,14 @@ uninstall_pacman_packages() {
 cleanup_pacman() {
   # Handle dry-run mode
   if is_dry_run; then
-    dry_run_info "Would clean pacman package cache"
-    dry_run_info "  Command: sudo pacman -Sc --noconfirm"
-    dry_run_info "  Would remove cached packages not currently installed"
+    dry_run_ui_info "Would clean pacman package cache"
+    dry_run_ui_info "  Command: sudo pacman -Sc --noconfirm"
+    dry_run_ui_info "  Would remove cached packages not currently installed"
     return 0
   fi
 
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    step_header "Cleaning pacman"
+    ui_step_header "Cleaning pacman"
     ui_spinner "Pruning cache" \
       --success "pacman cleanup completed" \
       --fail "pacman cleanup failed" \

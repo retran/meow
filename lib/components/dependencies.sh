@@ -228,7 +228,7 @@ topological_sort_for_installation() {
 
     # Prevent infinite loop if we have circular dependencies
     if [[ "$found_installable" == "false" && ${#remaining[@]} -gt 0 ]]; then
-      warning "Circular dependencies detected among: ${remaining[*]}"
+      ui_warning "Circular dependencies detected among: ${remaining[*]}"
       # Add remaining components anyway to avoid infinite loop
       sorted_array_ref+=("${remaining[@]}")
       break
@@ -584,7 +584,7 @@ topological_sort_for_removal() {
 
     # Prevent infinite loop if we have circular dependencies
     if [[ "$found_leaf" == "false" && ${#remaining[@]} -gt 0 ]]; then
-      warning "Circular dependencies detected among: ${remaining[*]}"
+      ui_warning "Circular dependencies detected among: ${remaining[*]}"
       # Add remaining components anyway to avoid infinite loop
       sorted_array_ref+=("${remaining[@]}")
       break

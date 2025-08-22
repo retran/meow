@@ -19,24 +19,24 @@ is_homebrew_package_installed() {
 
 setup_homebrew() {
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    package_manager_setup_msg "Homebrew"
+    ui_package_manager_setup "Homebrew"
   fi
 
   # Handle dry-run mode
   if is_dry_run; then
     if ! command -v brew >/dev/null 2>&1; then
-      dry_run_info "Would install Homebrew using official installation script"
-      dry_run_info "  Script URL: https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh"
-      dry_run_info "  Would configure shell environment after installation"
+      dry_run_ui_info "Would install Homebrew using official installation script"
+      dry_run_ui_info "  Script URL: https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh"
+      dry_run_ui_info "  Would configure shell environment after installation"
     else
-      dry_run_info "Homebrew already available, no setup needed"
+      dry_run_ui_info "Homebrew already available, no setup needed"
     fi
     return 0
   fi
 
   command -v brew >/dev/null 2>&1 || {
     if [[ "$MEOW_VERBOSE" == "true" ]]; then
-      warning "Homebrew not found. Installing..."
+      ui_warning "$(get_static_message 'homebrew_not_found')"
       ui_spinner "Installing Homebrew" \
         --success "Homebrew installed successfully" \
         --fail "Homebrew installation failed" \
@@ -52,7 +52,7 @@ setup_homebrew() {
   }
 
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    package_manager_ready_msg "Homebrew"
+    ui_package_manager_ready "Homebrew"
   fi
 }
 
@@ -72,14 +72,14 @@ uninstall_homebrew_packages() {
 cleanup_homebrew() {
   # Handle dry-run mode
   if is_dry_run; then
-    dry_run_info "Would clean Homebrew cache and unused packages"
-    dry_run_info "  Command: brew cleanup --prune=all"
-    dry_run_info "  Would remove outdated downloads and old package versions"
+    dry_run_ui_info "Would clean Homebrew cache and unused packages"
+    dry_run_ui_info "  Command: brew cleanup --prune=all"
+    dry_run_ui_info "  Would remove outdated downloads and old package versions"
     return 0
   fi
 
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    package_manager_cleaning_msg "Homebrew"
+    ui_package_manager_cleaning "Homebrew"
     ui_spinner "Pruning cache and unused packages" \
       --success "Homebrew cleanup completed" \
       --fail "Homebrew cleanup failed" \

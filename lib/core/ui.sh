@@ -215,12 +215,12 @@ ui_package_manager_initializing() {
   local spinner_key
   case "$manager" in
     "apk") spinner_key="init_apk" ;;
-    "apt") spinner_key="init_apt" ;;  
+    "apt") spinner_key="init_apt" ;;
     "pacman") spinner_key="init_pacman" ;;
     "homebrew") spinner_key="init_homebrew" ;;
     *) spinner_key="init_${manager}" ;;
   esac
-  
+
   parse_spinner_messages "$spinner_key"
   ui_spinner "$SPINNER_PROGRESS" \
     --success "$SPINNER_SUCCESS" \

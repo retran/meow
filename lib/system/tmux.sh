@@ -9,14 +9,14 @@ source "${MEOW}/lib/core/ui.sh"
 
 setup_tmux_plugin_manager() {
   if ! command -v tmux >/dev/null 2>&1; then
-    warning "tmux is not installed, skipping Plugin Manager setup"
+    ui_warning "tmux is not installed, skipping Plugin Manager setup"
     return 0
   fi
 
-  step_header "Setting up tmux Plugin Manager"
+  ui_step_header "Setting up tmux Plugin Manager"
 
   if [[ -d "$HOME/.tmux/plugins/tpm" ]]; then
-    success_tick_msg "tmux Plugin Manager is already installed."
+    ui_action_success "tmux Plugin Manager is already installed."
 
     ui_spinner "Updating tmux Plugin Manager" \
       --success "tmux Plugin Manager update completed" \
@@ -37,13 +37,13 @@ setup_tmux_plugin_manager() {
 }
 
 configure_tmux() {
-  step_header "Setting up tmux environment"
+  ui_step_header "Setting up tmux environment"
 
   if setup_tmux_plugin_manager; then
-    success_tick_msg "tmux environment setup complete."
+    ui_action_success "tmux environment setup complete."
     return 0
   else
-    warning "tmux environment setup encountered issues"
+    ui_warning "tmux environment setup encountered issues"
     return 1
   fi
 }

@@ -18,23 +18,23 @@ is_mas_package_installed() {
 }
 
 setup_mas() {
-  step_header "Setting up mas CLI"
+  ui_step_header "Setting up mas CLI"
 
   # Handle dry-run mode
   if is_dry_run; then
     if ! command -v mas >/dev/null 2>&1; then
-      dry_run_info "mas CLI not found - would warn and fail setup"
+      dry_run_ui_info "mas CLI not found - would warn and fail setup"
     else
-      dry_run_info "mas CLI already available, no setup needed"
+      dry_run_ui_info "mas CLI already available, no setup needed"
     fi
     return 0
   fi
 
   command -v mas >/dev/null 2>&1 || {
-    warning "mas CLI not found"
+    ui_warning "$(get_static_message 'mas_not_found')"
     return 1
   }
-  success_tick_msg "mas CLI available"
+  ui_action_success "mas CLI available"
 }
 
 install_mas_packages() {
@@ -48,18 +48,18 @@ update_mas_packages() {
 uninstall_mas_packages() {
   # mas CLI не поддерживает удаление приложений, поэтому просто информируем об этом
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    step_header "Mac App Store Package Removal ($1)"
+    ui_step_header "Mac App Store Package Removal ($1)"
   fi
   local package_file="${MEOW_COMPONENTS_DIR}/$1/packages/mas.list"
   if [[ -f "$package_file" ]]; then
-    warning "Mac App Store apps cannot be automatically uninstalled via mas CLI"
+    ui_warning "Mac App Store apps cannot be automatically uninstalled via mas CLI"
     if [[ "$MEOW_VERBOSE" == "true" ]]; then
-      info "Please manually uninstall the following apps through Launchpad or Applications folder:"
+      ui_info "Please manually uninstall the following apps through Launchpad or Applications folder:"
       while IFS= read -r line; do
         local package_name
         package_name=$(parse_package_line "$line")
         [[ -z "$package_name" ]] && continue
-        info "  - $package_name"
+        ui_info "  - $package_name"
       done <"$package_file"
     fi
   fi
@@ -72,16 +72,16 @@ cleanup_mas() {
 
   # Handle dry-run mode
   if is_dry_run; then
-    dry_run_info "Mac App Store cleanup would be skipped (no cleanup needed)"
-    dry_run_info "  App Store manages downloads automatically"
+    dry_run_ui_info "Mac App Store cleanup would be skipped (no cleanup needed)"
+    dry_run_ui_info "  App Store manages downloads automatically"
     return 0
   fi
 
   # Mac App Store doesn't have a built-in cleanup command
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    step_header "Cleaning Mac App Store (no-op)"
-    success_tick_msg "Mac App Store cleanup skipped"
+    ui_step_header "Cleaning Mac App Store (no-op)"
+    ui_action_success "Mac App Store cleanup skipped"
   else
-    success_tick_msg "Mac App Store cleanup skipped"
+    ui_action_success "Mac App Store cleanup skipped"
   fi
 }

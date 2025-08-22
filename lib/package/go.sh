@@ -16,23 +16,23 @@ is_go_package_installed() {
 }
 
 setup_go() {
-  step_header "Setting up Go"
+  ui_step_header "Setting up Go"
 
   # Handle dry-run mode
   if is_dry_run; then
     if ! command -v go >/dev/null 2>&1; then
-      dry_run_info "Go not found - would fail setup"
+      dry_run_ui_info "Go not found - would fail setup"
     else
-      dry_run_info "Go already available, ready for package installation"
+      dry_run_ui_info "Go already available, ready for package installation"
     fi
     return 0
   fi
 
   command -v go >/dev/null 2>&1 || {
-    error_msg "Go not found"
+    ui_action_error "$(get_static_message 'go_not_found')"
     return 1
   }
-  success_tick_msg "Go available"
+  ui_action_success "Go available"
 }
 
 install_go_packages() {
@@ -47,12 +47,12 @@ update_go_packages() {
 uninstall_go_packages() {
   # Show header only in verbose mode
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    step_header "Go Package Removal ($1)"
+    ui_step_header "Go Package Removal ($1)"
   fi
   local package_file="${MEOW_COMPONENTS_DIR}/$1/packages/go.list"
   if [[ -f "$package_file" ]]; then
-    warning "Go packages cannot be automatically uninstalled via go command"
-    info "Go packages are installed to GOPATH/bin. Please manually remove binaries if needed:"
+    ui_warning "Go packages cannot be automatically uninstalled via go command"
+    ui_info "Go packages are installed to GOPATH/bin. Please manually remove binaries if needed:"
 
     # Try to get GOPATH, but handle the case where go is not available
     local go_bin_path=""
@@ -71,7 +71,7 @@ uninstall_go_packages() {
       bin="$(basename "$package_name" | sed 's/@.*//')"
       local binary_path="$go_bin_path/$bin"
       if [[ -f "$binary_path" ]]; then
-        info "  rm \"$binary_path\""
+        ui_info "  rm \"$binary_path\""
       fi
     done <"$package_file"
   fi
@@ -84,16 +84,16 @@ cleanup_go() {
 
   # Handle dry-run mode
   if is_dry_run; then
-    dry_run_info "Go cleanup would be skipped (no cleanup needed)"
-    dry_run_info "  Go modules are cached in GOMODCACHE, managed by Go itself"
+    dry_run_ui_info "Go cleanup would be skipped (no cleanup needed)"
+    dry_run_ui_info "  Go modules are cached in GOMODCACHE, managed by Go itself"
     return 0
   fi
 
   # Go doesn't have a built-in cleanup command
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    step_header "Cleaning Go (no-op)"
-    success_tick_msg "Go cleanup skipped"
+    ui_step_header "Cleaning Go (no-op)"
+    ui_action_success "Go cleanup skipped"
   else
-    success_tick_msg "Go cleanup skipped"
+    ui_action_success "Go cleanup skipped"
   fi
 }

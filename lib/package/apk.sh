@@ -19,17 +19,17 @@ is_apk_package_installed() {
 
 setup_apk() {
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    step_header "Setting up apk"
+    ui_step_header "Setting up apk"
   fi
 
   # Handle dry-run mode
   if is_dry_run; then
     if ! command -v apk >/dev/null 2>&1; then
-      dry_run_info "apk not found - would fail setup"
+      dry_run_ui_info "apk not found - would fail setup"
     else
-      dry_run_info "Would update apk package index"
-      dry_run_info "  Command: sudo apk update"
-      dry_run_info "  Would refresh available package information"
+      dry_run_ui_info "Would update apk package index"
+      dry_run_ui_info "  Command: sudo apk update"
+      dry_run_ui_info "  Would refresh available package information"
     fi
     return 0
   fi
@@ -48,7 +48,7 @@ setup_apk() {
   fi
 
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    success_tick_msg "apk ready"
+    ui_action_success "apk ready"
   fi
 }
 
@@ -67,16 +67,16 @@ uninstall_apk_packages() {
 cleanup_apk() {
   # Handle dry-run mode
   if is_dry_run; then
-    dry_run_info "apk cleanup would be skipped (no cache to clean)"
-    dry_run_info "  apk uses --no-cache flag so no cleanup needed"
+    dry_run_ui_info "apk cleanup would be skipped (no cache to clean)"
+    dry_run_ui_info "  apk uses --no-cache flag so no cleanup needed"
     return 0
   fi
 
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    step_header "Cleaning apk"
-    success_tick_msg "apk cleanup completed (no cache to clean)"
+    ui_step_header "Cleaning apk"
+    ui_action_success "apk cleanup completed (no cache to clean)"
   else
     # In non-verbose mode, just skip silently since apk doesn't need cleanup
-    success_tick_msg "apk cleanup completed"
+    ui_action_success "apk cleanup completed"
   fi
 }

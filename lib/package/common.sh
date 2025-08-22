@@ -15,7 +15,7 @@ cache_package_list() {
   local list_command="$2"
 
   if [[ -z "${!cache_var:-}" ]]; then
-    verbose_action_msg "Caching $manager package list..."
+    ui_verbose_action_start "Caching $manager package list..."
     eval "$cache_var=\"$(eval "$list_command")\""
   fi
 }
@@ -91,7 +91,7 @@ install_packages_generic() {
     [[ -z "$package_name" ]] && continue
 
     if eval "$check_cmd \"$package_name\""; then
-      verbose_success_tick_msg "$package_name (already installed)"
+      ui_verbose_action_success "$package_name (already installed)"
       ((already_installed_count++)) || true
     else
       # Handle dry-run mode
@@ -121,7 +121,7 @@ install_packages_generic() {
         else
           ((failed_count++)) || true
           # Only show errors in non-verbose mode
-          error_msg "Failed to install $package_name"
+          ui_action_error "Failed to install $package_name"
         fi
       fi
     fi
@@ -132,13 +132,13 @@ install_packages_generic() {
   # Compact summary
   if ((failed_count == 0)); then
     if ((installed_count > 0)); then
-      indent_msg "$(capitalize "$manager_name"): ✓ $installed_count installed, $already_installed_count already present"
+      ui_indent "$(capitalize "$manager_name"): ✓ $installed_count installed, $already_installed_count already present"
     else
-      indent_msg "$(capitalize "$manager_name"): ✓ $already_installed_count/$total_packages already present"
+      ui_indent "$(capitalize "$manager_name"): ✓ $already_installed_count/$total_packages already present"
     fi
     return 0
   else
-    indent_msg "$(capitalize "$manager_name"): ✗ $failed_count failed, $installed_count installed, $already_installed_count already present"
+    ui_indent "$(capitalize "$manager_name"): ✗ $failed_count failed, $installed_count installed, $already_installed_count already present"
     return 1
   fi
 }
@@ -210,7 +210,7 @@ update_packages_generic() {
         local test_output
         if [[ "$MEOW_VERBOSE" == "true" ]]; then
           # In verbose mode, show what we're checking
-          verbose_info "Checking if $package_name is up-to-date..."
+          ui_verbose_info "Checking if $package_name is up-to-date..."
           test_output=$(eval "$update_cmd $package_name" 2>&1) || true
         else
           # In non-verbose mode, show silent spinner for the check
@@ -229,7 +229,7 @@ update_packages_generic() {
       fi
 
       if [[ "$is_up_to_date" == "true" ]]; then
-        verbose_success_tick_msg "$package_name (up-to-date)"
+        ui_verbose_action_success "$package_name (up-to-date)"
         ((up_to_date_count++)) || true
       else
         # Handle dry-run mode
@@ -259,26 +259,26 @@ update_packages_generic() {
           else
             ((failed_count++)) || true
             # Only show errors in non-verbose mode
-            error_msg "Failed to update $package_name"
+            ui_action_error "Failed to update $package_name"
           fi
         fi
       fi
     else
-      warning_msg "$package_name (not installed, skipping)"
+      ui_action_warning "$package_name (not installed, skipping)"
     fi
   done <"$package_file"
 
   local duration=$(($(date +%s) - start_time))
   if ((failed_count == 0)); then
     if ((updated_count > 0)); then
-      indent_msg "$(capitalize "$manager_name"): ✓ $updated_count updated, $up_to_date_count up-to-date"
+      ui_indent "$(capitalize "$manager_name"): ✓ $updated_count updated, $up_to_date_count up-to-date"
       return 0
     else
-      indent_msg "$(capitalize "$manager_name"): ✓ $up_to_date_count/$total_packages up-to-date"
+      ui_indent "$(capitalize "$manager_name"): ✓ $up_to_date_count/$total_packages up-to-date"
       return 0
     fi
   else
-    indent_msg "$(capitalize "$manager_name"): ✗ $failed_count failed, $updated_count updated, $up_to_date_count up-to-date"
+    ui_indent "$(capitalize "$manager_name"): ✗ $failed_count failed, $updated_count updated, $up_to_date_count up-to-date"
     return 1
   fi
 }
@@ -306,7 +306,7 @@ uninstall_packages_generic() {
 
   # Show header only in verbose mode
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    step_header "$manager_display_name Package Removal ($component)"
+    ui_step_header "$manager_display_name Package Removal ($component)"
   fi
 
   local package_file="${MEOW_COMPONENTS_DIR}/${component}/packages/${manager_name}.list"
@@ -352,11 +352,11 @@ uninstall_packages_generic() {
         else
           ((failed_count++)) || true
           # Only show errors in non-verbose mode
-          error_msg "Failed to uninstall $package_name"
+          ui_action_error "Failed to uninstall $package_name"
         fi
       fi
     else
-      verbose_info "$package_name (not installed, skipping)"
+      ui_verbose_info "$package_name (not installed, skipping)"
       ((not_installed_count++)) || true
     fi
   done <"$package_file"
@@ -366,13 +366,13 @@ uninstall_packages_generic() {
   # Compact summary
   if ((failed_count == 0)); then
     if ((uninstalled_count > 0)); then
-      indent_msg "$(capitalize "$manager_name"): ✓ $uninstalled_count uninstalled, $not_installed_count not installed"
+      ui_indent "$(capitalize "$manager_name"): ✓ $uninstalled_count uninstalled, $not_installed_count not installed"
     else
-      indent_msg "$(capitalize "$manager_name"): ✓ $not_installed_count/$((uninstalled_count + not_installed_count)) not installed"
+      ui_indent "$(capitalize "$manager_name"): ✓ $not_installed_count/$((uninstalled_count + not_installed_count)) not installed"
     fi
     return 0
   else
-    indent_msg "$(capitalize "$manager_name"): ✗ $failed_count failed, $uninstalled_count uninstalled, $not_installed_count not installed"
+    ui_indent "$(capitalize "$manager_name"): ✗ $failed_count failed, $uninstalled_count uninstalled, $not_installed_count not installed"
     return 1
   fi
 }

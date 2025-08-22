@@ -31,12 +31,12 @@ _initialize_session() {
       --fail "Homebrew initialization failed" \
       setup_homebrew ""
   else
-    warning_msg "No supported package manager found for this OS. Skipping system setup."
+    ui_action_warning "No supported package manager found for this OS. Skipping system setup."
     return 1
   fi
 
   if ! ensure_yq; then
-    error_msg "Failed to ensure yq installation"
+    ui_action_error "Failed to ensure yq installation"
     return 1
   fi
 }

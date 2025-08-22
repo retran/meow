@@ -20,23 +20,23 @@ is_vscode_package_installed() {
 }
 
 setup_vscode() {
-  step_header "Setting up VS Code CLI"
+  ui_step_header "Setting up VS Code CLI"
 
   # Handle dry-run mode
   if is_dry_run; then
     if ! command -v code >/dev/null 2>&1; then
-      dry_run_info "VS Code CLI not found - would warn and skip extensions"
+      dry_run_ui_info "VS Code CLI not found - would warn and skip extensions"
     else
-      dry_run_info "VS Code CLI already available, ready for extension installation"
+      dry_run_ui_info "VS Code CLI already available, ready for extension installation"
     fi
     return 0
   fi
 
   if ! command -v code >/dev/null 2>&1; then
-    warning "VS Code CLI not found, skipping extensions"
+    ui_warning "VS Code CLI not found, skipping extensions"
     return 1
   fi
-  success_tick_msg "VS Code CLI available"
+  ui_action_success "VS Code CLI available"
   return 0
 }
 
@@ -44,7 +44,7 @@ install_vscode_packages() {
   local component="$1"
 
   if ! command -v code >/dev/null 2>&1; then
-    info "VS Code CLI not found, skipping VS Code extension installation"
+    ui_info "VS Code CLI not found, skipping VS Code extension installation"
     return 0
   fi
 
@@ -55,7 +55,7 @@ update_vscode_packages() {
   local component="$1"
 
   if ! command -v code >/dev/null 2>&1; then
-    info "VS Code CLI not found, skipping VS Code extension update"
+    ui_info "VS Code CLI not found, skipping VS Code extension update"
     return 0
   fi
 
@@ -66,7 +66,7 @@ uninstall_vscode_packages() {
   local component="$1"
 
   if ! command -v code >/dev/null 2>&1; then
-    info "VS Code CLI not found, skipping VS Code extension uninstall"
+    ui_info "VS Code CLI not found, skipping VS Code extension uninstall"
     return 0
   fi
 
@@ -79,16 +79,16 @@ cleanup_vscode() {
 
   # Handle dry-run mode
   if is_dry_run; then
-    dry_run_info "VS Code cleanup would be skipped (no cleanup needed)"
-    dry_run_info "  Extensions are managed by VS Code automatically"
+    dry_run_ui_info "VS Code cleanup would be skipped (no cleanup needed)"
+    dry_run_ui_info "  Extensions are managed by VS Code automatically"
     return 0
   fi
 
   # VS Code doesn't have a built-in cleanup command for extensions
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    step_header "Cleaning VS Code (no-op)"
-    success_tick_msg "VS Code cleanup skipped"
+    ui_step_header "Cleaning VS Code (no-op)"
+    ui_action_success "VS Code cleanup skipped"
   else
-    success_tick_msg "VS Code cleanup skipped"
+    ui_action_success "VS Code cleanup skipped"
   fi
 }

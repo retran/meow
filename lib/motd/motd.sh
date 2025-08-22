@@ -269,7 +269,7 @@ show_motd() {
   fi
 
   local system_info art_content stats_content
-  system_info=$(get_system_info "$MEOW_MOTD_CACHE_DIR")
+  system_info=$(get_system_ui_info "$MEOW_MOTD_CACHE_DIR")
   art_content=$(load_art "$MEOW_MOTD_ASCII_ART_FILE")
   stats_content=$(build_system_stats "$system_info")
 

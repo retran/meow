@@ -8,10 +8,10 @@ _LIB_SYSTEM_ZSH_SOURCED=1
 source "${MEOW}/lib/core/ui.sh"
 
 setup_ohmyzsh() {
-  action_msg "Checking for Oh My Zsh installation..."
+  ui_action_start "Checking for Oh My Zsh installation..."
 
   if [[ -d "$HOME/.oh-my-zsh" ]]; then
-    success_tick_msg "Oh My Zsh is already installed."
+    ui_action_success "Oh My Zsh is already installed."
 
     ui_spinner "Updating Oh My Zsh" \
       --success "Oh My Zsh update completed" \
@@ -30,13 +30,13 @@ setup_ohmyzsh() {
 }
 
 configure_zsh() {
-  step_header "Setting up Zsh environment"
+  ui_step_header "Setting up Zsh environment"
 
   if setup_ohmyzsh; then
-    success_tick_msg "Zsh environment setup complete."
+    ui_action_success "Zsh environment setup complete."
     return 0
   else
-    warning "Zsh environment setup encountered issues"
+    ui_warning "Zsh environment setup encountered issues"
     return 1
   fi
 }

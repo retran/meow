@@ -30,7 +30,7 @@ install_component_packages() {
   local packages_dir="${component_dir}/packages"
 
   if [[ ! -d "$component_dir" ]]; then
-    error "Component directory not found: $component_dir"
+    ui_error "Component directory not found: $component_dir"
     return 1
   fi
 
@@ -42,7 +42,7 @@ install_component_packages() {
 
   # Show packages section header only in verbose mode
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    step_header "Installing packages for $component"
+    ui_step_header "Installing packages for $component"
   fi
 
   local has_packages=false
@@ -104,7 +104,7 @@ install_component_packages() {
   # Show compact summary if we had packages and we're not in verbose mode
   if [[ "$has_packages" == "true" && "$MEOW_VERBOSE" != "true" ]]; then
     if [[ $package_errors -gt 0 ]]; then
-      indent_msg "Packages: ✗ $package_errors errors occurred"
+      ui_indent "Packages: ✗ $package_errors errors occurred"
     fi
   fi
 
@@ -120,7 +120,7 @@ uninstall_component_packages() {
   local packages_dir="${component_dir}/packages"
 
   if [[ ! -d "$component_dir" ]]; then
-    error "Component directory not found: $component_dir"
+    ui_error "Component directory not found: $component_dir"
     return 1
   fi
 
@@ -228,7 +228,7 @@ _update_package_manager() {
   # Check if update function exists for this package manager
   local update_function_name="update_${manager_name}_packages"
   if ! declare -F "$update_function_name" >/dev/null; then
-    error_msg "Update function ${update_function_name} not found."
+    ui_action_error "Update function ${update_function_name} not found."
     return 1
   fi
 
@@ -244,13 +244,13 @@ update_component_packages() {
   local component_dir="${MEOW_COMPONENTS_DIR}/${component}"
 
   if [[ ! -d "$component_dir" ]]; then
-    error "Component directory not found: $component_dir"
+    ui_error "Component directory not found: $component_dir"
     return 1
   fi
 
   # Show packages section header only in verbose mode
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    step_header "Updating packages for $component"
+    ui_step_header "Updating packages for $component"
   fi
 
   local package_errors=0
@@ -300,7 +300,7 @@ update_component_packages() {
   # Show compact summary if we had packages and we're not in verbose mode
   if [[ "$has_packages" == "true" && "$MEOW_VERBOSE" != "true" ]]; then
     if [[ $package_errors -gt 0 ]]; then
-      indent_msg "Package updates: ✗ $package_errors errors occurred"
+      ui_indent "Package updates: ✗ $package_errors errors occurred"
     fi
   fi
 

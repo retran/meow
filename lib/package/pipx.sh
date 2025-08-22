@@ -18,23 +18,23 @@ is_pipx_package_installed() {
 }
 
 setup_pipx() {
-  step_header "Setting up pipx"
+  ui_step_header "Setting up pipx"
 
   # Handle dry-run mode
   if is_dry_run; then
     if ! command -v pipx >/dev/null 2>&1; then
-      dry_run_info "pipx not found - would fail setup"
+      dry_run_ui_info "pipx not found - would fail setup"
     else
-      dry_run_info "pipx already available, no setup needed"
+      dry_run_ui_info "pipx already available, no setup needed"
     fi
     return 0
   fi
 
   if ! command -v pipx >/dev/null 2>&1; then
-    error_msg "pipx not found"
+    ui_action_error "pipx not found"
     return 1
   fi
-  success_tick_msg "pipx available"
+  ui_action_success "pipx available"
 }
 
 install_pipx_packages() {
@@ -55,15 +55,15 @@ cleanup_pipx() {
 
   # Handle dry-run mode
   if is_dry_run; then
-    dry_run_info "pipx cleanup would be skipped (no cleanup needed)"
+    dry_run_ui_info "pipx cleanup would be skipped (no cleanup needed)"
     return 0
   fi
 
   # pipx doesn't have a built-in cleanup command, so we'll skip
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    step_header "Cleaning pipx (no-op)"
-    success_tick_msg "pipx cleanup skipped"
+    ui_step_header "Cleaning pipx (no-op)"
+    ui_action_success "pipx cleanup skipped"
   else
-    success_tick_msg "pipx cleanup skipped"
+    ui_action_success "pipx cleanup skipped"
   fi
 }

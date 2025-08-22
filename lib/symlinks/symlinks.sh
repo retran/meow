@@ -29,19 +29,19 @@ create_symlink() {
 
   if [[ ! -e "$expanded_source" ]]; then
     if is_dry_run; then
-      dry_run_info "Would skip symlink (source does not exist): $expanded_target -> $expanded_source"
+      dry_run_ui_info "Would skip symlink (source does not exist): $expanded_target -> $expanded_source"
       return 0
     fi
-    warning_msg "Source $expanded_source does not exist. Skipping symlink for $(basename "$expanded_target")"
+    ui_action_warning "Source $expanded_source does not exist. Skipping symlink for $(basename "$expanded_target")"
     return 0
   fi
 
   # Check current state and handle dry-run accordingly
   if [[ -L "$expanded_target" && "$(readlink "$expanded_target")" == "$expanded_source" ]]; then
     if is_dry_run; then
-      dry_run_info "Symlink already correct: $expanded_target -> $expanded_source"
+      dry_run_ui_info "Symlink already correct: $expanded_target -> $expanded_source"
     else
-      verbose_success_tick_msg "$(basename "$expanded_target") (already correct)"
+      ui_verbose_action_success "$(basename "$expanded_target") (already correct)"
     fi
     return 0
   fi
@@ -49,12 +49,12 @@ create_symlink() {
   # Handle dry-run mode for cases where changes would be made
   if is_dry_run; then
     if [[ -L "$expanded_target" ]]; then
-      dry_run_info "Would update symlink: $expanded_target -> $expanded_source"
-      dry_run_info "  Current target: $(readlink "$expanded_target")"
+      dry_run_ui_info "Would update symlink: $expanded_target -> $expanded_source"
+      dry_run_ui_info "  Current target: $(readlink "$expanded_target")"
     elif [[ -e "$expanded_target" ]]; then
-      dry_run_info "Would backup existing file and create symlink: $expanded_target -> $expanded_source"
+      dry_run_ui_info "Would backup existing file and create symlink: $expanded_target -> $expanded_source"
     else
-      dry_run_info "Would create new symlink: $expanded_target -> $expanded_source"
+      dry_run_ui_info "Would create new symlink: $expanded_target -> $expanded_source"
     fi
     return 0
   fi
@@ -62,7 +62,7 @@ create_symlink() {
   if mkdir -p "$(dirname "$expanded_target")"; then
     debug "Parent directory for $expanded_target ensured."
   else
-    error_msg "Failed to create parent directory for $expanded_target."
+    ui_action_error "Failed to create parent directory for $expanded_target."
     return 1
   fi
 
@@ -72,7 +72,7 @@ create_symlink() {
       if rm "$expanded_target"; then
         debug "Removed existing symlink at $expanded_target"
       else
-        error_msg "Failed to remove existing symlink at $expanded_target."
+        ui_action_error "Failed to remove existing symlink at $expanded_target."
         return 1
       fi
     else
@@ -80,19 +80,19 @@ create_symlink() {
       backup_path="${expanded_target}.backup.$(date +%Y%m%d_%H%M%S)"
       debug "Creating backup of existing file: $expanded_target -> $backup_path"
       if mv "$expanded_target" "$backup_path"; then
-        verbose_info "$(basename "$expanded_target") (backed up to $(basename "$backup_path"))"
+        ui_verbose_info "$(basename "$expanded_target") (backed up to $(basename "$backup_path"))"
       else
-        error_msg "Failed to backup existing file at $expanded_target."
+        ui_action_error "Failed to backup existing file at $expanded_target."
         return 1
       fi
     fi
   fi
 
   if ln -s "$expanded_source" "$expanded_target"; then
-    verbose_success_tick_msg "$(basename "$expanded_target") (created)"
+    ui_verbose_action_success "$(basename "$expanded_target") (created)"
     return 0
   else
-    error_msg "Failed to create symlink: $expanded_target -> $expanded_source"
+    ui_action_error "Failed to create symlink: $expanded_target -> $expanded_source"
     return 1
   fi
 }
@@ -108,12 +108,12 @@ setup_component_symlinks_from_file() {
   start_time=$(date +%s)
 
   if ! command -v yq >/dev/null 2>&1; then
-    error_msg "yq is required to parse symlink configuration. Please install yq."
+    ui_action_error "yq is required to parse symlink configuration. Please install yq."
     return 1
   fi
 
   if [[ ! -f "$symlinks_file" ]]; then
-    warning "No symlinks file found for '$symlink_name' at $symlinks_file"
+    ui_warning "No symlinks file found for '$symlink_name' at $symlinks_file"
     return 0
   fi
 
@@ -121,7 +121,7 @@ setup_component_symlinks_from_file() {
   num_symlinks=$(yq 'length' "$symlinks_file")
 
   if ! [[ "$num_symlinks" =~ ^[0-9]+$ ]] || [[ "$num_symlinks" -eq 0 ]]; then
-    info "No symlinks defined in $symlinks_file."
+    ui_info "No symlinks defined in $symlinks_file."
     return 0
   fi
 
@@ -151,17 +151,17 @@ setup_component_symlinks_from_file() {
   done
 
   if [[ $processed_count -gt 0 && "$MEOW_VERBOSE" == "true" ]]; then
-    info "($processed_count symlinks processed for this OS)"
+    ui_info "($processed_count symlinks processed for this OS)"
   fi
 
   end_time=$(date +%s)
   duration=$((end_time - start_time))
 
   if [[ $failed_count -eq 0 ]]; then
-    verbose_success_tick_msg "Symlinks for '$symlink_name' completed (${duration}s)"
+    ui_verbose_action_success "Symlinks for '$symlink_name' completed (${duration}s)"
     return 0
   else
-    error_msg "Symlinks for '$symlink_name' failed with $failed_count failure(s) (${duration}s)"
+    ui_action_error "Symlinks for '$symlink_name' failed with $failed_count failure(s) (${duration}s)"
     return 1
   fi
 }
