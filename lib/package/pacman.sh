@@ -22,7 +22,6 @@ setup_pacman() {
     ui_step_header "$(get_static_message "pacman_setting_up")"
   fi
 
-  # Handle dry-run mode
   if is_dry_run; then
     if ! command -v pacman >/dev/null 2>&1; then
       dry_run_ui_info "$(get_static_message "pacman_not_found_would_fail")"
@@ -67,7 +66,6 @@ uninstall_pacman_packages() {
 }
 
 cleanup_pacman() {
-  # Handle dry-run mode
   if is_dry_run; then
     dry_run_ui_info "$(get_static_message "pacman_would_clean_cache")"
     dry_run_ui_info "  $(get_static_message "pacman_clean_command")"

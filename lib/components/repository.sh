@@ -12,8 +12,6 @@ source "${MEOW}/lib/core/dry_run.sh"
 source "${MEOW}/lib/strings/strings.sh"
 
 # Check if component has repository configuration
-# Args: $1 - component name
-# Returns: 0 if component has repository config, 1 otherwise
 has_component_repository_config() {
   local component="$1"
   local component_file="${MEOW_COMPONENTS_DIR}/${component}/component.yaml"
@@ -23,8 +21,6 @@ has_component_repository_config() {
 }
 
 # Get repository URL from component configuration
-# Args: $1 - component name
-# Returns: Repository URL or empty if not configured
 get_component_repository_url() {
   local component="$1"
   local component_file="${MEOW_COMPONENTS_DIR}/${component}/component.yaml"
@@ -33,8 +29,6 @@ get_component_repository_url() {
 }
 
 # Get repository branch or tag from component configuration
-# Args: $1 - component name
-# Returns: Branch/tag name, defaults to "main" if not specified
 get_component_repository_branch() {
   local component="$1"
   local component_file="${MEOW_COMPONENTS_DIR}/${component}/component.yaml"
@@ -53,13 +47,10 @@ get_component_repository_branch() {
 }
 
 # Clone component repository to installation directory
-# Args:
-#   $1 - component name
 clone_component_repository() {
   local component="$1"
   local installed_dir="${MEOW_DOWNLOADS_DIR}/${component}"
 
-  # Handle dry-run mode
   local repo_url branch_or_tag
   repo_url=$(get_component_repository_url "$component")
   branch_or_tag=$(get_component_repository_branch "$component")
@@ -68,7 +59,6 @@ clone_component_repository() {
     return 0
   fi
 
-  # Remove existing repository if present
   if [[ -d "$installed_dir" ]]; then
     ui_step_header "$(format_template_message "removing_existing_repo" "$component")"
     rm -rf "$installed_dir"
@@ -78,7 +68,6 @@ clone_component_repository() {
     ui_step_header "$(format_template_message "cloning_repo_to_downloads" "$component")"
   fi
 
-  # Clone repository with spinner
   mkdir -p "$(dirname "$installed_dir")"
 
   ui_spinner "$(parse_spinner_messages "clone_repository" "$component")" \
@@ -88,18 +77,14 @@ clone_component_repository() {
 }
 
 # Update existing component repository
-# Args:
-#   $1 - component name
 update_component_repository() {
   local component="$1"
   local installed_dir="${MEOW_DOWNLOADS_DIR}/${component}"
 
-  # Handle dry-run mode
   if dry_run_git_operation "pull" "$installed_dir"; then
     return 0
   fi
 
-  # Clone if repository doesn't exist
   if [[ ! -d "$installed_dir" ]]; then
     ui_warning "$(format_template_message "repository_not_found_cloning" "$component")"
     clone_component_repository "$component"
@@ -110,7 +95,6 @@ update_component_repository() {
     ui_step_header "$(format_template_message "updating_repo_for_component" "$component")"
   fi
 
-  # Update repository using git with spinner
   ui_spinner "$(parse_spinner_messages "update_repository" "$component")" \
     sh -c "cd '$installed_dir' && git fetch && git reset --hard \"origin/\$(git rev-parse --abbrev-ref HEAD)\""
 
@@ -124,22 +108,19 @@ update_component_repository() {
 }
 
 # Clean up component repository
-# Args:
-#   $1 - component name
 cleanup_component_repository() {
+  # TODO not called
   local component="$1"
   local component_file="${MEOW_COMPONENTS_DIR}/${component}/component.yaml"
 
   [[ -f "$component_file" ]] || return 0
 
-  # Skip if component doesn't have repository config
   if ! yaml_path_exists "$component_file" ".repository"; then
     return 0
   fi
 
   local repo_dir="${MEOW_DOWNLOADS_DIR}/${component}"
 
-  # Remove repository directory if it exists
   if [[ -d "${repo_dir}/.git" ]]; then
     ui_step_header "$(format_template_message "cleaning_up_repo" "$component")"
 

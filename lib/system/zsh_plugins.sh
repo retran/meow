@@ -9,9 +9,7 @@ source "${MEOW}/lib/core/ui.sh"
 source "${MEOW}/lib/core/platform.sh"
 
 # Install Zsh plugins for non-macOS systems
-# Usage: install_zsh_plugins
 install_zsh_plugins() {
-  # Install Zsh plugins on Debian-based and Alpine Linux
   if [[ "$IS_DEBIAN_BASED" == "true" || "$IS_ALPINE" == "true" ]]; then
     ui_action_start "$(get_static_message "checking_zsh_plugins")"
 

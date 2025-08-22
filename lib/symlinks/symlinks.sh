@@ -37,7 +37,6 @@ create_symlink() {
     return 0
   fi
 
-  # Check current state and handle dry-run accordingly
   if [[ -L "$expanded_target" && "$(readlink "$expanded_target")" == "$expanded_source" ]]; then
     if is_dry_run; then
       dry_run_ui_info "$(format_template_message "symlink_already_correct" "$expanded_target" "$expanded_source")"
@@ -47,7 +46,6 @@ create_symlink() {
     return 0
   fi
 
-  # Handle dry-run mode for cases where changes would be made
   if is_dry_run; then
     if [[ -L "$expanded_target" ]]; then
       dry_run_ui_info "$(format_template_message "symlink_update" "$expanded_target" "$expanded_source")"
@@ -224,7 +222,6 @@ restore_backup() {
 
   echo "$(format_template_message "symlinks_restoring_backup" "$(basename "$backup_file")" "$(basename "$original_file")")"
 
-  # Handle dry-run mode
   if dry_run_file_operation "restore_file" "$original_file" "$backup_file"; then
     return 0
   fi

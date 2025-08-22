@@ -26,7 +26,6 @@ is_preset_available() {
 
   [[ -f "$preset_file" ]] || return 1
 
-  # Check platform compatibility
   local platforms
   platforms=$(yq eval '.platforms[]?' "$preset_file" 2>/dev/null)
 
@@ -84,7 +83,6 @@ collect_preset_components_for_installation() {
   local -n result_ref="$2"
   local all_components=()
 
-  # Get preset components
   local preset_components
   preset_components=$(get_preset_required_components "$preset")
 
@@ -95,14 +93,11 @@ collect_preset_components_for_installation() {
     done <<<"$preset_components"
   fi
 
-  # For each preset component, collect all its dependencies recursively
   local collected_components=()
   for component in "${all_components[@]}"; do
-    # Use existing function to collect dependencies
     local component_and_deps=()
     collect_all_dependencies_for_installation "$component" component_and_deps
 
-    # Add all components to our list (avoiding duplicates)
     for comp in "${component_and_deps[@]}"; do
       local already_added=false
       for existing in "${collected_components[@]}"; do
@@ -117,7 +112,6 @@ collect_preset_components_for_installation() {
     done
   done
 
-  # Now do final topological sort on all collected components
   local sorted_components=()
   topological_sort_for_installation collected_components sorted_components
   result_ref=("${sorted_components[@]}")
@@ -145,17 +139,14 @@ install_preset() {
     return 0
   fi
 
-  # Show beautiful header
   ui_title "$(format_template_message "installing_preset" "$preset")"
 
-  # Get all components in topological order
   local installation_order=()
   collect_preset_components_for_installation "$preset" installation_order
 
   if [[ ${#installation_order[@]} -eq 0 ]]; then
     ui_info "$(get_static_message "no_components_to_install_preset")"
   else
-    # Show summary of what will be installed
     local preset_components
     preset_components=$(get_preset_required_components "$preset")
     local preset_components_array=()
@@ -167,7 +158,6 @@ install_preset() {
       done <<<"$preset_components"
     fi
 
-    # Filter out already installed components for the summary
     local components_to_install=()
     for comp in "${installation_order[@]}"; do
       if ! is_component_installed "$comp"; then
@@ -175,7 +165,6 @@ install_preset() {
       fi
     done
 
-    # Show what will be installed
     ui_action_start "$(format_template_message "will_install_preset_components" "${#preset_components_array[@]}")"
     if [[ ${#components_to_install[@]} -gt 0 ]]; then
       ui_indent "$(format_template_message "total_components_to_install" "${#components_to_install[@]}")"
@@ -203,7 +192,6 @@ install_preset() {
           fi
         done
       else
-        # Show compact summary
         local deps_list=""
         local preset_comp_list=""
         for comp in "${components_to_install[@]}"; do
@@ -241,7 +229,6 @@ install_preset() {
       ui_indent "$(get_static_message 'all_components_installed')"
     fi
 
-    # Initialize session and tracking array
     _initialize_session || {
       ui_error "$(get_static_message 'session_init_failed')"
       return 1
@@ -249,11 +236,8 @@ install_preset() {
 
     declare -ga MEOW_INSTALLING_COMPONENTS=()
 
-    # Install all components in topological order
     local install_success=true
     for component in "${installation_order[@]}"; do
-      # All components installed via preset are automatic (not manual)
-      # Only components installed directly via 'meowctl component install' should be manual
       if ! _install_single_component "$component" false false; then
         ui_error "$(format_template_message 'component_install_failed' "$component")"
         install_success=false
@@ -261,7 +245,6 @@ install_preset() {
       fi
     done
 
-    # Cleanup
     _finalize_session
     unset MEOW_INSTALLING_COMPONENTS
 
@@ -271,7 +254,6 @@ install_preset() {
     fi
   fi
 
-  # Mark preset as installed
   if is_dry_run; then
     dry_run_file_operation "create_symlink" "${MEOW_INSTALLED_PRESETS_DIR}/${preset}" "${MEOW_PRESETS_DIR}/${preset}"
   else
@@ -293,13 +275,11 @@ update_preset() {
 
   ui_header "$(format_template_message "updating_preset" "$preset")"
 
-  # Update all required components that are installed
   ui_step_header "$(get_static_message "updating_required_components")"
   local required_components
   required_components=$(get_preset_required_components "$preset")
 
   if [[ -n "$required_components" ]]; then
-    # Convert components to array and update only installed ones in one session
     local components_to_update=()
     while IFS= read -r component; do
       [[ -z "$component" ]] && continue
@@ -325,12 +305,10 @@ get_all_installed_components() {
   local installed_components=()
   local components_dir="${MEOW}/.installed/components"
 
-  # Check if the installed components directory exists
   if [[ ! -d "$components_dir" ]]; then
     return 0
   fi
 
-  # Get all installed components from symlinks
   for component_symlink in "$components_dir"/*; do
     [[ -L "$component_symlink" ]] || continue
     local component_name
@@ -338,7 +316,6 @@ get_all_installed_components() {
     installed_components+=("$component_name")
   done
 
-  # Output components if any found
   if [[ ${#installed_components[@]} -gt 0 ]]; then
     printf '%s\n' "${installed_components[@]}"
   fi
@@ -357,7 +334,6 @@ update_all_installed_components() {
   ui_header "Updating all installed components"
   ui_info "$(format_template_message "found_installed_components" "${#components[@]}" "${components[*]}")"
 
-  # Source components library and update all components
   source "${MEOW}/lib/components/components.sh"
   update_component "${components[@]}"
 }
@@ -373,7 +349,6 @@ list_presets() {
     preset_name=$(basename "$preset_dir")
     local preset_file="${preset_dir}/preset.yaml"
 
-    # Only show presets that have the new format
     if [[ -f "$preset_file" ]]; then
       local description
       description=$(yq eval '.description // ""' "$preset_file" 2>/dev/null)

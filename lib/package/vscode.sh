@@ -22,7 +22,6 @@ is_vscode_package_installed() {
 setup_vscode() {
   ui_step_header "$(get_static_message "vscode_setting_up")"
 
-  # Handle dry-run mode
   if is_dry_run; then
     if ! command -v code >/dev/null 2>&1; then
       dry_run_ui_info "$(get_static_message "vscode_cli_not_found_would_warn")"
@@ -74,14 +73,12 @@ uninstall_vscode_packages() {
 }
 
 cleanup_vscode() {
-  # Handle dry-run mode
   if is_dry_run; then
     dry_run_ui_info "$(get_static_message "vscode_cleanup_would_skip")"
     dry_run_ui_info "  $(get_static_message "vscode_extensions_managed_automatically")"
     return 0
   fi
 
-  # VS Code doesn't have a built-in cleanup command for extensions
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
     ui_step_header "$(get_static_message "vscode_cleaning") (no-op)"
     ui_action_success "VS Code cleanup skipped"

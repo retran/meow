@@ -5,15 +5,15 @@ if [[ -n "${_LIB_CORE_DRY_RUN_SOURCED:-}" ]]; then
 fi
 _LIB_CORE_DRY_RUN_SOURCED=1
 
+# TODO looks broken
+
 source "${MEOW}/lib/core/ui.sh"
 source "${MEOW}/lib/core/colors.sh"
 
-# Check if dry-run mode is enabled
 is_dry_run() {
   [[ "${MEOW_DRY_RUN:-}" == "true" ]]
 }
 
-# Wrapper for commands that should be stubbed in dry-run mode
 dry_run_command() {
   local description="$1"
   shift
@@ -26,24 +26,20 @@ dry_run_command() {
   fi
 }
 
-# Show dry-run message with special formatting
 dry_run_info() {
   local message="$1"
   echo -e "  ${CYAN}$(get_static_message "dry_run_prefix")${RESET} $message"
 }
 
-# Alias for dry_run_info for consistency with UI functions
 dry_run_ui_info() {
   dry_run_info "$@"
 }
 
-# Show dry-run command details with special formatting
 dry_run_command_info() {
   local command="$1"
   echo -e "  ${CYAN}$(get_static_message "dry_run_prefix")${RESET}   $(format_template_message "dry_run_command" "${NORMAL}$command${RESET}")"
 }
 
-# Wrapper for file operations in dry-run mode
 dry_run_file_operation() {
   local operation="$1"
   local target="$2"
@@ -75,11 +71,10 @@ dry_run_file_operation() {
     esac
     return 0
   else
-    return 1 # Indicates that actual operation should proceed
+    return 1
   fi
 }
 
-# Wrapper for package operations in dry-run mode
 dry_run_package_operation() {
   local manager="$1"
   local operation="$2"
@@ -102,7 +97,7 @@ dry_run_package_operation() {
     esac
     return 0
   else
-    return 1 # Indicates that actual operation should proceed
+    return 1
   fi
 }
 
@@ -132,7 +127,7 @@ dry_run_git_operation() {
     esac
     return 0
   else
-    return 1 # Indicates that actual operation should proceed
+    return 1
   fi
 }
 
@@ -146,6 +141,6 @@ dry_run_script_execution() {
     dry_run_ui_info "$(format_template_message "dry_run_script_path" "$script_path")"
     return 0
   else
-    return 1 # Indicates that actual execution should proceed
+    return 1
   fi
 }

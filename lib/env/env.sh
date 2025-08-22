@@ -67,7 +67,6 @@ if [[ -f "$HOME/.secrets" ]]; then
 fi
 
 # Source component environment scripts
-# This discovers and loads environment configuration from all installed components
 _meow_source_component_env_scripts() {
   if [[ -d "${MEOW}/.installed/components" ]]; then
     # Use nullglob to avoid errors when no files match

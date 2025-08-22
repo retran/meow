@@ -22,7 +22,6 @@ setup_homebrew() {
     ui_package_manager_setup "Homebrew"
   fi
 
-  # Handle dry-run mode
   if is_dry_run; then
     if ! command -v brew >/dev/null 2>&1; then
       dry_run_ui_info "$(get_static_message "homebrew_would_install")"
@@ -71,7 +70,6 @@ uninstall_homebrew_packages() {
 }
 
 cleanup_homebrew() {
-  # Handle dry-run mode
   if is_dry_run; then
     dry_run_ui_info "$(get_static_message "homebrew_would_clean_cache")"
     dry_run_ui_info "  $(get_static_message "homebrew_cleanup_command")"

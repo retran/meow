@@ -20,7 +20,6 @@ source "${MEOW}/lib/strings/strings.sh"
 set_macos_keyboard_layouts() {
   local layout_type="$1"
 
-  # Ensure the script is running on macOS.
   if [[ "$OSTYPE" != "darwin"* ]]; then
     ui_warning "$(get_static_message "macos_keyboard_only_works_macos")"
     return 1
@@ -89,8 +88,6 @@ set_macos_keyboard_layouts() {
       </dict>"
   fi
 
-  # Restart the input menu agent to apply the changes immediately.
-  # Errors are suppressed in case the process isn't running.
   pkill TextInputMenuAgent 2>/dev/null || true
 
   ui_action_success "$(format_template_message "macos_keyboard_layouts_configured" "$layout_type")"

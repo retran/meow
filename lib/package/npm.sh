@@ -20,7 +20,6 @@ is_npm_package_installed() {
 setup_npm() {
   ui_package_manager_setup "npm"
 
-  # Handle dry-run mode
   if is_dry_run; then
     if ! command -v npm >/dev/null 2>&1; then
       dry_run_ui_info "$(get_static_message "npm_not_found_would_fail")"

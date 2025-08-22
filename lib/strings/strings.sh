@@ -826,10 +826,6 @@ declare -A UI_MESSAGES=(
   ["install_yq"]="Installing yq v%s|yq v%s installed to /usr/local/bin/yq|Failed to download yq from %s"
 )
 
-# ============================================================================
-# HELPER FUNCTIONS
-# ============================================================================
-
 # Get a static message by key
 get_static_message() {
   local key="$1"
@@ -857,10 +853,8 @@ parse_spinner_messages() {
   messages=$(get_spinner_messages "$key")
   IFS='|' read -r progress_msg success_msg fail_msg <<<"$messages"
 
-  # Always output the progress message for command substitution
   echo "$progress_msg"
 
-  # Export for caller to use
   export SPINNER_PROGRESS="$progress_msg"
   export SPINNER_SUCCESS="$success_msg"
   export SPINNER_FAIL="$fail_msg"

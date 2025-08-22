@@ -8,7 +8,7 @@ fi
 _LIB_CORE_UI_SOURCED=1
 
 source "${MEOW}/lib/core/colors.sh"
-source "${MEOW}/lib/core/strings.sh"
+source "${MEOW}/lib/strings/strings.sh"
 
 MEOW_VERBOSE="${MEOW_VERBOSE:-false}"
 
@@ -153,10 +153,6 @@ ui_confirm() {
   done
 }
 
-# ============================================================================
-# SPINNER FUNCTIONS
-# ============================================================================
-
 # Silent spinner - shows spinner during operation, then removes the line completely
 ui_silent_spinner() {
   local msg="$1"
@@ -165,7 +161,6 @@ ui_silent_spinner() {
   local temp_output_file
   temp_output_file=$(mktemp)
 
-  # Start spinner animation in background
   {
     local spinner_chars="⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"
     local i=0
@@ -178,25 +173,18 @@ ui_silent_spinner() {
   } &
   local spinner_pid=$!
 
-  # Run the actual command
   "$@" >"$temp_output_file" 2>&1 &
   local cmd_pid=$!
 
-  # Wait for command to complete
   wait "$cmd_pid"
   local cmd_exit_status=$?
 
-  # Stop spinner
   kill "$spinner_pid" 2>/dev/null
   wait "$spinner_pid" 2>/dev/null
 
-  # Clear the line completely
   echo -ne "\r$(tput el)"
 
-  # Clean up temp file
   if [[ $cmd_exit_status -ne 0 && -s "$temp_output_file" ]]; then
-    # If command failed and there's output, we might want to show it
-    # But for now, we'll keep it silent and let the caller handle errors
     :
   fi
 
@@ -284,7 +272,6 @@ ui_spinner() {
           ui_content "$line"
         done <"$temp_output_file"
       else
-        # In non-verbose mode, show only the first few lines and suggest verbose mode
         ui_error "$(get_static_message 'command_failed_first_lines')"
         head -n 3 "$temp_output_file" | while IFS= read -r line; do
           ui_content "$line"
@@ -338,7 +325,6 @@ show_final_summary() {
   local success="${3:-true}"
   local start_time="${4:-}"
 
-  # Calculate duration if start time provided
   local duration_text=""
   if [[ -n "$start_time" ]]; then
     local end_time
@@ -361,7 +347,6 @@ show_final_summary() {
     fi
   fi
 
-  # Show summary counts
   local summary_parts=()
   if [[ $MEOW_ERROR_COUNT -gt 0 ]]; then
     summary_parts+=("${MEOW_ERROR_COUNT} error$([ $MEOW_ERROR_COUNT -gt 1 ] && echo "s" || true)")
@@ -382,7 +367,6 @@ show_final_summary() {
       ui_warning "Summary: $summary_text"
     fi
 
-    # Show detailed errors and warnings in verbose mode or if there are errors
     if [[ "$MEOW_VERBOSE" == "true" || $MEOW_ERROR_COUNT -gt 0 ]]; then
       if [[ ${#MEOW_ERRORS[@]} -gt 0 ]]; then
         ui_error "Errors encountered:"
@@ -402,7 +386,7 @@ show_final_summary() {
   return 0
 }
 
-# Reset error/warning counters (for use in tests or multiple operations)
+# Reset error/warning counters
 reset_summary_counters() {
   MEOW_ERROR_COUNT=0
   MEOW_WARNING_COUNT=0

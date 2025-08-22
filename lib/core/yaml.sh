@@ -6,11 +6,6 @@ fi
 _LIB_YAML_SOURCED=1
 
 # Read a single YAML value from a file
-# Args:
-#   $1 - YAML file path
-#   $2 - YAML path expression (e.g., ".description", ".repository.url")
-# Returns:
-#   The YAML value or exits with error code if file/path not found
 read_yaml_value() {
   local yaml_file="$1"
   local yaml_path="$2"
@@ -20,11 +15,6 @@ read_yaml_value() {
 }
 
 # Read a YAML array and return items line by line
-# Args:
-#   $1 - YAML file path
-#   $2 - YAML array path expression (e.g., ".depends_on[]?", ".platforms[]?")
-# Returns:
-#   Array items printed line by line, or exits with error code if empty/not found
 read_yaml_array() {
   local yaml_file="$1"
   local yaml_path="$2"
@@ -37,13 +27,6 @@ read_yaml_array() {
 }
 
 # Process each item in a YAML array with a callback function
-# Args:
-#   $1 - YAML file path
-#   $2 - YAML array path expression
-#   $3 - Callback function name
-#   $4+ - Additional arguments passed to callback
-# Usage:
-#   _process_yaml_array "component.yaml" ".packages[]?" "install_package"
 process_yaml_array() {
   local yaml_file="$1"
   local yaml_path="$2"
@@ -60,11 +43,6 @@ process_yaml_array() {
 }
 
 # Check if a YAML path exists and has a non-null value
-# Args:
-#   $1 - YAML file path
-#   $2 - YAML path expression
-# Returns:
-#   0 if path exists with non-null value, 1 otherwise
 yaml_path_exists() {
   local yaml_file="$1"
   local yaml_path="$2"

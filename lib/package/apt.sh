@@ -22,7 +22,6 @@ setup_apt() {
     ui_package_manager_setup "APT"
   fi
 
-  # Handle dry-run mode
   if is_dry_run; then
     if ! command -v apt-get >/dev/null 2>&1; then
       dry_run_ui_info "$(get_static_message "apt_get_not_found")"
@@ -66,7 +65,6 @@ uninstall_apt_packages() {
 }
 
 cleanup_apt() {
-  # Handle dry-run mode
   if is_dry_run; then
     dry_run_ui_info "$(get_static_message "apt_would_clean_cache")"
     dry_run_ui_info "  $(get_static_message "apt_cleanup_commands")"

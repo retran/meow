@@ -5,7 +5,6 @@ if [[ -n "${_LIB_CORE_COMPONENTS_SOURCED:-}" ]]; then
 fi
 _LIB_CORE_COMPONENTS_SOURCED=1
 
-# Source all component modules
 source "${MEOW}/lib/components/core.sh"
 source "${MEOW}/lib/components/packages.sh"
 source "${MEOW}/lib/components/repository.sh"

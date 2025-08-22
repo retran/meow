@@ -11,18 +11,14 @@ source "${MEOW}/lib/symlinks/symlinks.sh"
 source "${MEOW}/lib/strings/strings.sh"
 
 # Setup symlinks defined in a component's configuration
-# Args:
-#   $1 - component name
 setup_component_symlinks() {
   local component="$1"
   local symlinks_dir="${MEOW_COMPONENTS_DIR}/${component}/symlinks"
 
-  # Check if symlinks directory exists
   if [[ ! -d "$symlinks_dir" ]]; then
     return 0
   fi
 
-  # Check if there are any .yaml files in the symlinks directory
   local yaml_files=()
   mapfile -t yaml_files < <(find "$symlinks_dir" -name "*.yaml" 2>/dev/null)
 
@@ -30,7 +26,6 @@ setup_component_symlinks() {
     return 0
   fi
 
-  # Show symlinks section header only in verbose mode
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
     ui_step_header "$(format_template_message "setting_up_symlinks_for" "$component")"
   fi
@@ -55,7 +50,6 @@ setup_component_symlinks() {
 
   if [[ "$had_symlinks" == "true" ]]; then
     if [[ "$MEOW_VERBOSE" != "true" ]]; then
-      # Show compact summary in non-verbose mode
       if [[ $error_count -eq 0 ]]; then
         local config_plural=$([ $success_count -gt 1 ] && echo "s" || echo "")
         ui_indent "$(format_template_message "symlinks_configuration_checked" "$success_count" "$config_plural")"
@@ -64,7 +58,6 @@ setup_component_symlinks() {
         ui_indent "$(format_template_message "symlinks_errors_successful" "$error_count" "$error_plural" "$success_count")"
       fi
     else
-      # Show detailed summary in verbose mode
       if [[ $error_count -eq 0 ]]; then
         ui_action_success "$(format_template_message "symlinks_configured_successfully" "$success_count")"
       else
@@ -75,17 +68,14 @@ setup_component_symlinks() {
 }
 
 # Remove symlinks created by a component and restore their backups
-# Args: $1 - component name
 remove_component_symlinks() {
   local component="$1"
   local symlinks_dir="${MEOW_COMPONENTS_DIR}/${component}/symlinks"
 
-  # Check if symlinks directory exists
   if [[ ! -d "$symlinks_dir" ]]; then
     return 0
   fi
 
-  # Check if there are any .yaml files in the symlinks directory
   local yaml_files=()
   mapfile -t yaml_files < <(find "$symlinks_dir" -name "*.yaml" 2>/dev/null)
 
@@ -125,15 +115,11 @@ remove_component_symlinks() {
 }
 
 # Remove symlinks from a specific symlink file and restore backups
-# Args:
-#   $1 - component name
-#   $2 - symlink file name (without .yaml extension)
 remove_component_symlinks_from_file() {
   local component="$1"
   local symlink_name="$2"
   local symlinks_file="${MEOW_COMPONENTS_DIR}/${component}/symlinks/${symlink_name}.yaml"
 
-  # Handle dry-run mode
   if is_dry_run; then
     if [[ -f "$symlinks_file" ]]; then
       local num_symlinks
@@ -201,13 +187,10 @@ remove_component_symlinks_from_file() {
     debug "Processing symlink removal: $expanded_target"
     ((processed_count++))
 
-    # Check if the target is a symlink (our symlink)
     if [[ -L "$expanded_target" ]]; then
-      # Remove the symlink
       if rm "$expanded_target"; then
         debug "Removed symlink: $expanded_target"
 
-        # Look for and restore backup
         local backup_pattern="${expanded_target}.backup.*"
         local backup_files=()
         mapfile -t backup_files < <(ls -t $backup_pattern 2>/dev/null)
@@ -229,10 +212,8 @@ remove_component_symlinks_from_file() {
         ((failed_count++))
       fi
     elif [[ -e "$expanded_target" ]]; then
-      # File exists but is not a symlink - probably already restored or modified manually
       ui_verbose_info "$(basename "$expanded_target") (not a symlink, skipping)"
     else
-      # File doesn't exist - already removed or never existed
       ui_verbose_info "$(basename "$expanded_target") (does not exist, skipping)"
     fi
 

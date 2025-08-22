@@ -5,7 +5,6 @@ if [[ "${BASH_SOURCE[0]}" != "${0}" ]] && [[ -n "${_LIB_CORE_BASH_COMPAT_SOURCED
 fi
 _LIB_CORE_BASH_COMPAT_SOURCED=1
 
-# Source strings library
 if [[ -n "${MEOW:-}" ]]; then
   source "$MEOW/lib/strings/strings.sh"
 fi

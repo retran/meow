@@ -17,24 +17,18 @@ source "${MEOW}/lib/core/tools.sh"
 source "${MEOW}/lib/core/yaml.sh"
 
 # Check if a component is currently installed
-# Args: $1 - component name
-# Returns: 0 if installed, 1 if not installed
 is_component_installed() {
   local component="$1"
   [[ -L "${MEOW_INSTALLED_COMPONENTS_DIR}/${component}" ]]
 }
 
 # Check if a component was manually installed (vs. auto-installed as dependency)
-# Args: $1 - component name
-# Returns: 0 if manually installed, 1 if not manually installed
 is_component_manually_installed() {
   local component="$1"
   [[ -L "${MEOW_MANUALLY_INSTALLED_COMPONENTS_DIR}/${component}" ]]
 }
 
 # Create symlink to mark component as installed
-# Args: $1 - component name
-# Side effects: Creates symlinks in installation tracking directories
 install_component_symlink() {
   local component="$1"
   local component_path="${MEOW_COMPONENTS_DIR}/${component}/component.yaml"
@@ -44,7 +38,6 @@ install_component_symlink() {
     return 1
   fi
 
-  # Handle dry-run mode
   if is_dry_run; then
     dry_run_ui_info "$(format_template_message "dry_run_create_component_symlink" "${MEOW_INSTALLED_COMPONENTS_DIR}/${component}" "${MEOW_COMPONENTS_DIR}/${component}")"
     if [[ "${MEOW_COMPONENT_MANUAL_INSTALL:-}" == "true" ]]; then
@@ -53,11 +46,9 @@ install_component_symlink() {
     return 0
   fi
 
-  # Create main installation tracking symlink
   mkdir -p "$MEOW_INSTALLED_COMPONENTS_DIR"
   ln -s "${MEOW_COMPONENTS_DIR}/${component}" "${MEOW_INSTALLED_COMPONENTS_DIR}/${component}"
 
-  # Mark as manually installed if flag is set
   if [[ "${MEOW_COMPONENT_MANUAL_INSTALL:-}" == "true" ]]; then
     mkdir -p "$MEOW_MANUALLY_INSTALLED_COMPONENTS_DIR"
     ln -s "${MEOW_COMPONENTS_DIR}/${component}" "${MEOW_MANUALLY_INSTALLED_COMPONENTS_DIR}/${component}"
@@ -65,8 +56,6 @@ install_component_symlink() {
 }
 
 # Remove symlinks to mark component as uninstalled
-# Args: $1 - component name
-# Side effects: Removes symlinks from installation tracking directories
 remove_component_symlink() {
   local component="$1"
 

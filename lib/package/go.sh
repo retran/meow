@@ -18,7 +18,6 @@ is_go_package_installed() {
 setup_go() {
   ui_step_header "$(get_static_message "go_setting_up")"
 
-  # Handle dry-run mode
   if is_dry_run; then
     if ! command -v go >/dev/null 2>&1; then
       dry_run_ui_info "$(get_static_message "go_not_found_would_fail")"
@@ -45,7 +44,6 @@ update_go_packages() {
 }
 
 uninstall_go_packages() {
-  # Show header only in verbose mode
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
     ui_step_header "$(format_template_message "go_package_removal_header" "$1")"
   fi
@@ -54,12 +52,10 @@ uninstall_go_packages() {
     ui_warning "$(get_static_message "go_packages_cannot_uninstall")"
     ui_info "$(get_static_message "go_packages_manual_removal")"
 
-    # Try to get GOPATH, but handle the case where go is not available
     local go_bin_path=""
     if command -v go >/dev/null 2>&1; then
       go_bin_path="$(go env GOPATH)/bin"
     else
-      # Fallback to default GOPATH if go command is not available
       go_bin_path="${GOPATH:-$HOME/go}/bin"
     fi
 
@@ -79,14 +75,12 @@ uninstall_go_packages() {
 }
 
 cleanup_go() {
-  # Handle dry-run mode
   if is_dry_run; then
     dry_run_ui_info "$(get_static_message "go_cleanup_would_skip")"
     dry_run_ui_info "  $(get_static_message "go_modules_managed_by_go")"
     return 0
   fi
 
-  # Go doesn't have a built-in cleanup command
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
     ui_step_header "$(get_static_message "go_cleaning_noop")"
     ui_action_success "$(get_static_message "go_cleanup_skipped")"

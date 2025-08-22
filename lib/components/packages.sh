@@ -23,8 +23,6 @@ source "${MEOW}/lib/package/cargo.sh"
 source "${MEOW}/lib/package/vscode.sh"
 
 # Install all packages defined for a component across applicable package managers
-# Args:
-#   $1 - component name
 install_component_packages() {
   local component="$1"
   local component_dir="${MEOW_COMPONENTS_DIR}/${component}"
@@ -35,13 +33,10 @@ install_component_packages() {
     return 1
   fi
 
-  # Проверяем, есть ли папка packages
   if [[ ! -d "$packages_dir" ]]; then
-    # Если нет папки packages, значит компонент не требует установки пакетов
     return 0
   fi
 
-  # Show packages section header only in verbose mode
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
     ui_step_header "$(format_template_message "installing_packages_for" "$component")"
   fi
@@ -49,7 +44,6 @@ install_component_packages() {
   local has_packages=false
   local package_errors=0
 
-  # Install packages for platform-specific package managers
   if [[ "$IS_MACOS" == "true" ]]; then
     if [[ -f "${packages_dir}/homebrew.list" ]]; then
       if _install_packages_for_component_manager "$component" "homebrew"; then
@@ -91,7 +85,6 @@ install_component_packages() {
     fi
   fi
 
-  # Install packages for cross-platform managers
   for mgr in pipx npm go cargo vscode; do
     if [[ -f "${packages_dir}/${mgr}.list" ]]; then
       if _install_packages_for_component_manager "$component" "$mgr"; then
@@ -102,7 +95,6 @@ install_component_packages() {
     fi
   done
 
-  # Show compact summary if we had packages and we're not in verbose mode
   if [[ "$has_packages" == "true" && "$MEOW_VERBOSE" != "true" ]]; then
     if [[ $package_errors -gt 0 ]]; then
       ui_indent "$(format_template_message "packages_errors_occurred" "$package_errors")"
@@ -113,8 +105,6 @@ install_component_packages() {
 }
 
 # Uninstall all packages defined for a component across applicable package managers
-# Args:
-#   $1 - component name
 uninstall_component_packages() {
   local component="$1"
   local component_dir="${MEOW_COMPONENTS_DIR}/${component}"
@@ -125,13 +115,10 @@ uninstall_component_packages() {
     return 1
   fi
 
-  # Проверяем, есть ли папка packages
   if [[ ! -d "$packages_dir" ]]; then
-    # Если нет папки packages, значит компонент не требует удаления пакетов
     return 0
   fi
 
-  # Uninstall packages for platform-specific package managers
   if [[ "$IS_MACOS" == "true" ]]; then
     _uninstall_packages_for_component_manager "$component" "homebrew"
     _uninstall_packages_for_component_manager "$component" "mas"
@@ -143,7 +130,6 @@ uninstall_component_packages() {
     _uninstall_packages_for_component_manager "$component" "pacman"
   fi
 
-  # Uninstall packages for cross-platform managers
   for mgr in pipx npm go cargo vscode; do
     _uninstall_packages_for_component_manager "$component" "$mgr"
   done
@@ -152,49 +138,35 @@ uninstall_component_packages() {
 }
 
 # Helper: uninstall packages for a specific package manager
-# Args:
-#   $1 - component name
-#   $2 - package manager name
 _uninstall_packages_for_component_manager() {
   local component="$1"
   local mgr="$2"
   local fn="uninstall_${mgr}_packages"
   local packages_file="${MEOW_COMPONENTS_DIR}/${component}/packages/${mgr}.list"
 
-  # Skip if package manager uninstall function doesn't exist
   declare -F "$fn" >/dev/null || return
 
-  # Skip if package file doesn't exist
   [[ -f "$packages_file" ]] || return
 
-  # Call the uninstall function with component name
   "$fn" "$component"
 }
 
 # Helper: install packages for a specific package manager
-# Args:
-#   $1 - component name
-#   $2 - package manager name
 _install_packages_for_component_manager() {
   local component="$1"
   local mgr="$2"
   local fn="install_${mgr}_packages"
   local packages_file="${MEOW_COMPONENTS_DIR}/${component}/packages/${mgr}.list"
 
-  # Skip if package manager install function doesn't exist
   declare -F "$fn" >/dev/null || return 0
 
-  # Skip if package file doesn't exist
   [[ -f "$packages_file" ]] || return 0
 
-  # Call the install function with component name and return its exit code
   "$fn" "$component"
   return $?
 }
 
 # Helper: Get normalized path to component file
-# Args: $1 - component name (may include "components/" prefix)
-# Returns: Absolute path to component.yaml file
 _get_component_file_path() {
   local component="$1"
   if [[ "$component" == components/* ]]; then
@@ -206,40 +178,30 @@ _get_component_file_path() {
 }
 
 # Update packages for a specific package manager within a component
-# Args:
-#   $1 - package manager name (e.g., "homebrew", "apt", "npm")
-#   $2 - CLI command name for the package manager
-#   $3 - component name
 _update_package_manager() {
   local manager_name="$1"
   local cli_command="$2"
   local component="$3"
   local packages_file="${MEOW_COMPONENTS_DIR}/${component}/packages/${manager_name}.list"
 
-  # Skip if package manager CLI is not available
   if ! command -v "$cli_command" >/dev/null 2>&1; then
     return 0
   fi
 
-  # Skip if package file doesn't exist
   if [[ ! -f "$packages_file" ]]; then
     return 0
   fi
 
-  # Check if update function exists for this package manager
   local update_function_name="update_${manager_name}_packages"
   if ! declare -F "$update_function_name" >/dev/null; then
     ui_action_error "$(format_template_message "update_function_not_found" "$update_function_name")"
     return 1
   fi
 
-  # Call the update function with component name
   "$update_function_name" "$component"
 }
 
 # Update all packages for a component across all applicable package managers
-# Args:
-#   $1 - component name
 update_component_packages() {
   local component="$1"
   local component_dir="${MEOW_COMPONENTS_DIR}/${component}"
@@ -249,7 +211,6 @@ update_component_packages() {
     return 1
   fi
 
-  # Show packages section header only in verbose mode
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
     ui_step_header "$(format_template_message "updating_packages_for" "$component")"
   fi
@@ -257,7 +218,6 @@ update_component_packages() {
   local package_errors=0
   local has_packages=false
 
-  # Update packages for platform-specific package managers
   if [[ "$IS_MACOS" == "true" ]]; then
     if _update_package_manager "homebrew" "brew" "$component"; then
       has_packages=true
@@ -289,7 +249,6 @@ update_component_packages() {
     fi
   fi
 
-  # Update packages for cross-platform managers
   for mgr in pipx npm go cargo vscode; do
     if _update_package_manager "$mgr" "$mgr" "$component"; then
       has_packages=true
@@ -298,7 +257,6 @@ update_component_packages() {
     fi
   done
 
-  # Show compact summary if we had packages and we're not in verbose mode
   if [[ "$has_packages" == "true" && "$MEOW_VERBOSE" != "true" ]]; then
     if [[ $package_errors -gt 0 ]]; then
       ui_indent "$(format_template_message "package_updates_errors_occurred" "$package_errors")"

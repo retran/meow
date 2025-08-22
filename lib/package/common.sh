@@ -48,7 +48,6 @@ install_packages_generic() {
   local install_cmd="$3"
   local check_cmd="$4"
 
-  # Create display name for the package manager
   local manager_display_name
   case "$manager_name" in
     "homebrew") manager_display_name="homebrew" ;;
@@ -68,7 +67,6 @@ install_packages_generic() {
     return 0
   }
 
-  # Count packages first
   local total_packages=0
   while IFS= read -r line; do
     local package_name
@@ -94,7 +92,6 @@ install_packages_generic() {
       ui_verbose_action_success "$(format_template_message "package_already_installed" "$package_name")"
       ((already_installed_count++)) || true
     else
-      # Handle dry-run mode
       if is_dry_run; then
         dry_run_package_operation "$manager_name" "install" "$package_name"
         ((installed_count++)) || true
@@ -115,12 +112,10 @@ install_packages_generic() {
           ((failed_count++)) || true
         fi
       else
-        # In non-verbose mode, show silent spinner that disappears after completion
         if ui_silent_spinner "$(format_template_message "silent_spinner_installing" "$manager_display_name" "$package_name")" $install_cmd "$package_name"; then
           ((installed_count++)) || true
         else
           ((failed_count++)) || true
-          # Only show errors in non-verbose mode
           ui_action_error "$(format_template_message "failed_to_install_package" "$package_name")"
         fi
       fi
@@ -129,7 +124,6 @@ install_packages_generic() {
 
   local duration=$(($(date +%s) - start_time))
 
-  # Compact summary
   if ((failed_count == 0)); then
     if ((installed_count > 0)); then
       ui_indent "$(format_template_message "package_summary_success_installed" "$(capitalize "$manager_name")" "$installed_count" "$already_installed_count")"
@@ -158,7 +152,6 @@ update_packages_generic() {
   local check_cmd="$4"
   local skip_pattern="${5:-}"
 
-  # Create display name for the package manager
   local manager_display_name
   case "$manager_name" in
     "homebrew") manager_display_name="Homebrew" ;;
@@ -175,11 +168,9 @@ update_packages_generic() {
 
   local package_file="${MEOW_COMPONENTS_DIR}/${component}/packages/${manager_name}.list"
   [[ ! -f "$package_file" ]] && {
-    # Тихо возвращаемся, если файла пакетов нет (это нормально)
     return 0
   }
 
-  # Count packages first
   local total_packages=0
   while IFS= read -r line; do
     local package_name
@@ -204,16 +195,13 @@ update_packages_generic() {
     [[ -z "$package_name" ]] && continue
 
     if eval "$check_cmd \"$package_name\""; then
-      # Check if package is up-to-date using skip pattern
       local is_up_to_date=false
       if [[ -n "$skip_pattern" ]]; then
         local test_output
         if [[ "$MEOW_VERBOSE" == "true" ]]; then
-          # In verbose mode, show what we're checking
           ui_verbose_info "$(format_template_message "checking_package_up_to_date" "$package_name")"
           test_output=$(eval "$update_cmd $package_name" 2>&1) || true
         else
-          # In non-verbose mode, show silent spinner for the check
           local temp_file
           temp_file=$(mktemp)
           if ui_silent_spinner "$(format_template_message "silent_spinner_checking" "$manager_display_name" "$package_name")" bash -c "$update_cmd $package_name >$temp_file 2>&1"; then
@@ -232,7 +220,6 @@ update_packages_generic() {
         ui_verbose_action_success "$(format_template_message "package_up_to_date" "$package_name")"
         ((up_to_date_count++)) || true
       else
-        # Handle dry-run mode
         if is_dry_run; then
           dry_run_package_operation "$manager_name" "update" "$package_name"
           ((updated_count++)) || true
@@ -253,12 +240,10 @@ update_packages_generic() {
             ((failed_count++)) || true
           fi
         else
-          # In non-verbose mode, show silent spinner that disappears after completion
           if ui_silent_spinner "$(format_template_message "silent_spinner_updating" "$manager_display_name" "$package_name")" $update_cmd "$package_name"; then
             ((updated_count++)) || true
           else
             ((failed_count++)) || true
-            # Only show errors in non-verbose mode
             ui_action_error "$(format_template_message "failed_to_update_package" "$package_name")"
           fi
         fi
@@ -289,7 +274,6 @@ uninstall_packages_generic() {
   local uninstall_cmd="$3"
   local check_cmd="$4"
 
-  # Create display name for the package manager
   local manager_display_name
   case "$manager_name" in
     "homebrew") manager_display_name="homebrew" ;;
@@ -304,14 +288,12 @@ uninstall_packages_generic() {
     *) manager_display_name="$manager_name" ;;
   esac
 
-  # Show header only in verbose mode
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
     ui_step_header "$manager_display_name Package Removal ($component)"
   fi
 
   local package_file="${MEOW_COMPONENTS_DIR}/${component}/packages/${manager_name}.list"
   [[ ! -f "$package_file" ]] && {
-    # Тихо возвращаемся, если файла пакетов нет (это нормально)
     return 0
   }
 
@@ -325,7 +307,6 @@ uninstall_packages_generic() {
     [[ -z "$package_name" ]] && continue
 
     if eval "$check_cmd \"$package_name\""; then
-      # Handle dry-run mode
       if is_dry_run; then
         dry_run_package_operation "$manager_name" "remove" "$package_name"
         ((uninstalled_count++)) || true
@@ -346,12 +327,10 @@ uninstall_packages_generic() {
           ((failed_count++)) || true
         fi
       else
-        # In non-verbose mode, show silent spinner that disappears after completion
         if ui_silent_spinner "$(format_template_message "silent_spinner_uninstalling" "$manager_display_name" "$package_name")" $uninstall_cmd "$package_name"; then
           ((uninstalled_count++)) || true
         else
           ((failed_count++)) || true
-          # Only show errors in non-verbose mode
           ui_action_error "$(format_template_message "failed_to_uninstall_package" "$package_name")"
         fi
       fi
@@ -363,7 +342,6 @@ uninstall_packages_generic() {
 
   local duration=$(($(date +%s) - start_time))
 
-  # Compact summary
   if ((failed_count == 0)); then
     if ((uninstalled_count > 0)); then
       ui_indent "$(format_template_message "package_summary_success_uninstalled" "$(capitalize "$manager_name")" "$uninstalled_count" "$not_installed_count")"
