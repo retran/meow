@@ -445,77 +445,43 @@ remove_preset_tracking() {
   fi
 }
 
-# Uninstall all installed presets
-uninstall_all_presets() {
-  local force_flag="${1:-}"
-  local installed_presets=()
+# Uninstall all installed presets and all installed components
+uninstall_all() {
+  local components
+  components=($(get_all_installed_components))
 
-  for preset_symlink in "${MEOW_INSTALLED_PRESETS_DIR}"/*; do
-    [[ -L "$preset_symlink" ]] || continue
-    local preset_name
-    preset_name=$(basename "$preset_symlink")
-    installed_presets+=("$preset_name")
-  done
-
-  if [[ ${#installed_presets[@]} -eq 0 ]]; then
-    ui_info "$(get_static_message "no_presets_installed")"
-    return 0
-  fi
-
-  ui_action_start "$(format_template_message "uninstalling_all_presets" "${#installed_presets[@]}")"
-
-  local all_preset_components=()
-  for preset in "${installed_presets[@]}"; do
-    local preset_components
-    preset_components=$(get_preset_required_components "$preset")
-
-    while IFS= read -r component; do
-      [[ -n "$component" && "$component" != "null" ]] || continue
-
-      local already_added=false
-      for existing in "${all_preset_components[@]}"; do
-        if [[ "$existing" == "$component" ]]; then
-          already_added=true
-          break
-        fi
-      done
-      if [[ "$already_added" == "false" ]]; then
-        all_preset_components+=("$component")
-      fi
-    done < <(printf '%s\n' "$preset_components")
-  done
-
-  if [[ ${#all_preset_components[@]} -eq 0 ]]; then
-    ui_info "$(format_template_message "no_components_to_uninstall_all_presets")"
-    for preset in "${installed_presets[@]}"; do
-      remove_preset_tracking "$preset"
-    done
-    ui_success "$(get_static_message "all_presets_uninstalled_successfully")"
-    return 0
-  fi
-
-  local multiple_uninstall_order=()
-  collect_multiple_components_for_uninstall "${all_preset_components[@]}" --filter-source --skip-preset-checks
-
-  if [[ ${#multiple_uninstall_order[@]} -gt 0 ]]; then
-    local args=("${multiple_uninstall_order[@]}")
-    if [[ "$force_flag" == "--force" ]]; then
-      args+=("--force")
-    fi
-    args+=("--skip-preset-checks")
-
-    if ! uninstall_component "${args[@]}"; then
-      ui_error "$(get_static_message "all_presets_uninstall_failed")"
-      return 1
-    fi
+  if [[ ${#components[@]} -eq 0 ]]; then
+    ui_info "$(get_static_message "no_components_currently_installed")"
   else
-    ui_info "$(format_template_message "no_safe_components_to_uninstall_all_presets")"
+    ui_header "Uninstalling all installed components"
+    ui_info "$(format_template_message "found_installed_components" "${#components[@]}" "${components[*]}")"
+
+    source "${MEOW}/lib/components/components.sh"
+    uninstall_component "${components[@]}" --force
   fi
 
-  for preset in "${installed_presets[@]}"; do
-    remove_preset_tracking "$preset"
-  done
+  ui_step_header "Cleaning up installation tracking"
 
-  ui_success "$(get_static_message "all_presets_uninstalled_successfully")"
-  return 0
+  if is_dry_run; then
+    dry_run_file_operation "remove_directory" "${MEOW_INSTALLED_COMPONENTS_DIR}"
+    dry_run_file_operation "remove_directory" "${MEOW_INSTALLED_PRESETS_DIR}"
+    dry_run_file_operation "remove_directory" "${MEOW_MANUALLY_INSTALLED_COMPONENTS_DIR}"
+  else
+    if [[ -d "${MEOW_INSTALLED_COMPONENTS_DIR}" ]]; then
+      rm -rf "${MEOW_INSTALLED_COMPONENTS_DIR:?}"
+      ui_verbose_info "Removed components tracking directory"
+    fi
+
+    if [[ -d "${MEOW_INSTALLED_PRESETS_DIR}" ]]; then
+      rm -rf "${MEOW_INSTALLED_PRESETS_DIR:?}"
+      ui_verbose_info "Removed presets tracking directory"
+    fi
+
+    if [[ -d "${MEOW_MANUALLY_INSTALLED_COMPONENTS_DIR}" ]]; then
+      rm -rf "${MEOW_MANUALLY_INSTALLED_COMPONENTS_DIR:?}"
+      ui_verbose_info "Removed manual installation tracking directory"
+    fi
+  fi
+
+  ui_success "All components uninstalled and installation tracking cleaned"
 }

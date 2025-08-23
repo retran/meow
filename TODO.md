@@ -1,5 +1,6 @@
 # To Do
 
+[ ] relaunch hammerspoon on plugin install
 [ ] check cleanup scripts
 [ ] what is homerow keys?
 [ ] logs

@@ -895,6 +895,18 @@ _uninstall_single_component() {
 
   cleanup_component "$component"
 
+  if has_component_repository_config "$component"; then
+    if [[ "$MEOW_VERBOSE" == "true" ]]; then
+      ui_step_header "$(get_static_message "component_cleaning_repository")"
+    fi
+    if cleanup_component_repository "$component"; then
+      ui_verbose_action_success "$(get_static_message "component_repository_cleaned")"
+    else
+      ui_warning "$(get_static_message "component_repository_cleanup_failed")"
+      success=false
+    fi
+  fi
+
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
     ui_step_header "$(get_static_message "component_uninstalling_packages")"
   fi

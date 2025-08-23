@@ -109,7 +109,6 @@ update_component_repository() {
 
 # Clean up component repository
 cleanup_component_repository() {
-  # TODO not called
   local component="$1"
   local component_file="${MEOW_COMPONENTS_DIR}/${component}/component.yaml"
 
@@ -124,10 +123,14 @@ cleanup_component_repository() {
   if [[ -d "${repo_dir}/.git" ]]; then
     ui_step_header "$(format_template_message "cleaning_up_repo" "$component")"
 
-    rm -rf "$repo_dir" || {
-      ui_error "$(format_template_message "failed_remove_repo_dir" "$repo_dir")"
-      return 1
-    }
+    if is_dry_run; then
+      dry_run_file_operation "remove_directory" "$repo_dir"
+    else
+      rm -rf "$repo_dir" || {
+        ui_error "$(format_template_message "failed_remove_repo_dir" "$repo_dir")"
+        return 1
+      }
+    fi
 
     ui_action_success "$(format_template_message "repo_cleaned_up" "$component")"
   fi

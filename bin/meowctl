@@ -541,7 +541,7 @@ cmd_uninstall() {
 
   local uninstall_success=true
   if [[ "$preset" == "all" ]]; then
-    if ! uninstall_all_presets "$force_flag"; then
+    if ! uninstall_all; then
       uninstall_success=false
     fi
   else
