@@ -2,9 +2,13 @@
 
 [ ] relaunch hammerspoon on plugin install
 [ ] check cleanup scripts
+    [ ] docker-cli, docker-desktop
+    [ ] shell-essentials
+[ ] split toggle to shell-only and desktop
 [ ] what is homerow keys?
 [ ] logs
     [ ] colored messages
+    [ ] --dry-run
     [ ] verbose
     [ ] preset operations
     [ ] backup operations

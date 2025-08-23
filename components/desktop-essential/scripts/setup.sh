@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-# components/desktop-essential/install.sh - Post-installation setup for desktop-essential
-
 set -euo pipefail
 
 COMPONENT_NAME="$1"
