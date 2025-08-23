@@ -1,4 +1,4 @@
-description: "Automatic keyboard layout switching for meowvim in Neovide and Alacritty based on Vim modes"
+description: "Vim mode-based keyboard layout switching for Neovide and Alacritty"
 
 type: hammerspoon
 
@@ -6,5 +6,6 @@ platforms:
   - macos
 
 depends_on:
+  - desktop-essential
   - hammerspoon
   - meowvim

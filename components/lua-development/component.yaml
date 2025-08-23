@@ -1,4 +1,4 @@
-description: "Lua development tools and environment"
+description: "Lua runtime, language server, linting, and package management tools"
 
 depends_on:
   - shell-essential

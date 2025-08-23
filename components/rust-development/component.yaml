@@ -1,4 +1,4 @@
-description: "Rust development tools and environment"
+description: "Rust toolchain, cargo extensions, and debugging support"
 
 depends_on:
   - core-development

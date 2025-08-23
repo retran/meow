@@ -1,4 +1,4 @@
-description: "Docker CLI tools for remote control of Docker on host system from containers"
+description: "Docker CLI tools for remote container management from development environments"
 
 platforms:
   - linux

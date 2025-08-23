@@ -1,6 +1,5 @@
 description: >-
-  Python development environment and package management tools
+  Python runtime, version management, and language server
 
 depends_on:
   - core-development
-

@@ -1,4 +1,4 @@
-description: "Kotlin/Java development tools and environment"
+description: "JVM runtime, Kotlin compiler, and IDE integration"
 
 depends_on:
   - core-development

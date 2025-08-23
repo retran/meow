@@ -1,6 +1,5 @@
 description: >-
-  Markdown writing and technical documentation tools with linting,
-  spell checking, presentation tools, and static site generators
+  Technical writing and documentation tools with linting and static site generation
 
 depends_on:
   - core-development

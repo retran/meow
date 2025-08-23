@@ -1,6 +1,5 @@
 description: >-
-  Complete web development environment extending React with CSS frameworks,
-  build tools, performance monitoring, and deployment utilities
+  Web development stack with CSS frameworks, build tools, and deployment utilities
 
 depends_on:
   - react-development

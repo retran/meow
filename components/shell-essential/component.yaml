@@ -1,5 +1,7 @@
 description: >-
-  Essential shell tools that can be installed on systems without GUI
+  Core command-line utilities and shell environment foundation.
+  Includes modern shell tools, terminal multiplexer, file navigation,
+  and text processing utilities.
 
 depends_on:
   - pipx

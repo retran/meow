@@ -1,4 +1,7 @@
-description: "Hammerspoon automation framework for plugins"
+description: "Lua-based macOS automation framework for system customization"
 
 platforms:
   - macos
+
+depends_on:
+  - desktop-essential

@@ -1,4 +1,4 @@
-description: ".NET development tools and environment"
+description: ".NET SDK, PowerShell, and development tooling"
 
 depends_on:
   - core-development

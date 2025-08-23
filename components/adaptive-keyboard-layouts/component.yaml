@@ -1,4 +1,4 @@
-description: "Adaptive keyboard layout switching based on connected hardware (Hammerspoon script)"
+description: "USB keyboard detection and automatic layout switching via Hammerspoon"
 
 type: hammerspoon
 

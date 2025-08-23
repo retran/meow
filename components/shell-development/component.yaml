@@ -1,5 +1,5 @@
 description: >-
-  Shell development tools for scripting, task running, and documentation
+  Shell scripting tools including linting, formatting, and language server support
 
 depends_on:
   - shell-essential

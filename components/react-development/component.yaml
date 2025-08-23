@@ -1,7 +1,5 @@
 description: >-
-  React development environment extending JavaScript
-  component with React-specific tools, testing utilities,
-  and development frameworks
+  React framework tools, testing utilities, and development scaffolding
 
 depends_on:
   - js-development

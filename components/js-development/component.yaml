@@ -1,6 +1,5 @@
 description: >-
-  JavaScript and TypeScript development environment with essential tools,
-  language servers, and formatters for modern development workflows
+  JavaScript/TypeScript runtime, language servers, and development tools
 
 depends_on:
   - core-development
