@@ -2,6 +2,7 @@
 
 [ ] check cleanup scripts
     [ ] shell-essentials
+    [ ] move from lib?
 [ ] split toggle to shell-only and desktop
 
 [ ] what is homerow keys?
