@@ -504,9 +504,9 @@ Hammerspoon automation framework for macOS.
 | -------------------- | ------------- |
 | **Homebrew** (macOS) | `hammerspoon` |
 
-#### `docker-desktop` - Docker Desktop
+#### `docker-desktop` - OrbStack
 
-Docker desktop application with GUI.
+OrbStack - Fast, light, simple Docker & Linux VMs for macOS.
 
 | Package Manager      | Packages   |
 | -------------------- | ---------- |
@@ -548,12 +548,12 @@ Gaming platforms and applications.
 
 #### `docker-cli` - Docker Tools
 
-Docker command-line tools for containerization.
+Docker CLI tools for remote control of Docker on host system from containers.
 
 | Package Manager         | Packages                      |
 | ----------------------- | ----------------------------- |
 | **APT** (Debian/Ubuntu) | `docker.io`, `docker-compose` |
-| **APK** (Alpine)        | `docker-cli`                  |
+| **APK** (Alpine)        | `docker-cli`, `docker-compose` |
 | **Pacman** (Arch)       | `docker`, `docker-compose`    |
 
 #### `game-development` - Game Creation Tools

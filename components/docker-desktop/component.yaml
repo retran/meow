@@ -1,4 +1,4 @@
-description: "Docker for macOS desktop environment"
+description: "OrbStack - Fast, light, simple Docker & Linux VMs for macOS"
 
 platforms:
   - macos

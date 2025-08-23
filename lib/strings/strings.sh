@@ -599,15 +599,39 @@ declare -A UI_MESSAGES=(
   ["js_dev_removing_eslint_cache"]="  🗑️  Removing ESLint cache..."
   ["js_dev_cleanup_completed"]="✅ JavaScript Development cleanup completed"
 
-  # Component cleanup - Docker Desktop
-  ["docker_cleanup_running"]="🧹 Running Docker Desktop cleanup..."
-  ["docker_stopping_desktop"]="  ⏹️  Stopping Docker Desktop..."
-  ["docker_stopping_daemon"]="  🐳 Stopping Docker daemon..."
-  ["docker_cleaning_networks_volumes"]="  🗑️  Cleaning up Docker networks and volumes..."
-  ["docker_removing_login_items"]="  🗑️  Removing Docker Desktop from login items..."
-  ["docker_cleanup_completed"]="✅ Docker Desktop cleanup completed"
-  ["docker_images_containers_cleaned"]="ℹ️  Note: Docker images and containers have been cleaned up"
-  ["docker_manual_removal_note"]="ℹ️  Note: To fully remove Docker data, manually delete ~/Library/Containers/com.docker.docker"
+  # Component cleanup - OrbStack
+  ["orbstack_cleanup_running"]="🧹 Running OrbStack cleanup..."
+  ["orbstack_stopping_app"]="  ⏹️  Stopping OrbStack..."
+  ["orbstack_stopping_machines"]="  🐳 Stopping running machines..."
+  ["orbstack_cleaning_networks_volumes"]="  🗑️  Cleaning up Docker networks and volumes..."
+  ["orbstack_removing_login_items"]="  🗑️  Removing OrbStack from login items..."
+  ["orbstack_cleanup_completed"]="✅ OrbStack cleanup completed"
+  ["orbstack_images_containers_cleaned"]="ℹ️  Note: Docker images and containers have been cleaned up"
+  ["orbstack_manual_removal_note"]="ℹ️  Note: To fully remove OrbStack data, manually delete ~/Library/Application Support/OrbStack"
+
+  # Component setup - OrbStack
+  ["orbstack_setup_running"]="🚀 Running OrbStack setup..."
+  ["orbstack_starting_app"]="  ▶️  Starting OrbStack..."
+  ["orbstack_waiting_for_startup"]="  ⏳ Waiting for OrbStack to start..."
+  ["orbstack_creating_default_machine"]="  🐧 Creating default Linux machine..."
+  ["orbstack_configuring_docker"]="  🐳 Configuring Docker environment..."
+  ["orbstack_setup_completed"]="✅ OrbStack setup completed"
+  ["orbstack_ready_to_use"]="ℹ️  OrbStack is ready to use with Docker and Linux VMs"
+
+  # Component cleanup - Docker CLI
+  ["docker_cli_cleanup_running"]="🧹 Running Docker CLI cleanup..."
+  ["docker_cli_cleaning_cache"]="  🗑️  Cleaning Docker system cache..."
+  ["docker_cli_cleaning_config"]="  🗑️  Cleaning Docker configuration cache..."
+  ["docker_cli_cleaning_compose_cache"]="  🗑️  Cleaning Docker Compose cache..."
+  ["docker_cli_cleanup_completed"]="✅ Docker CLI cleanup completed"
+
+  # Component setup - Docker CLI
+  ["docker_cli_setup_running"]="🚀 Running Docker CLI setup..."
+  ["docker_cli_checking_host_socket"]="  🔌 Checking Docker host socket access..."
+  ["docker_cli_configuring_context"]="  ⚙️  Configuring Docker context..."
+  ["docker_cli_testing_connection"]="  🐳 Testing Docker connection..."
+  ["docker_cli_setup_completed"]="✅ Docker CLI setup completed"
+  ["docker_cli_ready_to_use"]="ℹ️  Docker CLI is ready to control host Docker daemon"
 
   # Component cleanup - Node
   ["node_cleanup_running"]="🧹 Running Node cleanup..."

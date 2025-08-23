@@ -11,22 +11,6 @@ source "${MEOW}/lib/strings/strings.sh"
 
 ui_action_start "$(get_static_message "kotlin_dev_configuring")"
 
-if command -v java >/dev/null 2>&1; then
-  ui_info "$(get_static_message "kotlin_dev_configuring_java_home")"
-
-  if [[ "$OSTYPE" == "darwin"* ]]; then
-    java_home_path="/opt/homebrew/opt/temurin@21/libexec/openjdk.jdk/Contents/Home"
-    if [[ -d "$java_home_path" ]]; then
-      export JAVA_HOME="$java_home_path"
-    else
-      java_home_path="$(/usr/libexec/java_home -v 21 2>/dev/null || /usr/libexec/java_home 2>/dev/null || true)"
-      if [[ -n "$java_home_path" ]]; then
-        export JAVA_HOME="$java_home_path"
-      fi
-    fi
-  fi
-fi
-
 if [[ -d "/Applications/IntelliJ IDEA.app" ]]; then
   ui_info "$(get_static_message "kotlin_dev_configuring_intellij")"
 

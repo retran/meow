@@ -1,11 +1,7 @@
 #!/usr/bin/env bash
 
-# Docker CLI component cleanup script
-# This script is executed when the docker-cli component is being uninstalled
-
 set -euo pipefail
 
-# Source the strings for localized messages
 source "${MEOW}/lib/strings/strings.sh"
 source "${MEOW}/lib/core/ui.sh"
 
