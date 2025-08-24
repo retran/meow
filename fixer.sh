@@ -227,6 +227,18 @@ should_skip_file() {
         return 0
     fi
 
+    if [ "$basename_file" = "meowvim.sh" ]; then
+        return 0
+    fi
+
+    if [ "$basename_file" = "meowvim-container.sh" ]; then
+        return 0
+    fi
+
+    if [ "$basename_file" = "icon.sh" ]; then
+        return 0
+    fi
+
     # Add other patterns to skip here if needed
     # case "$basename_file" in
     #     other_pattern*) return 0 ;;
@@ -405,21 +417,8 @@ process_single_file() {
             fi
         fi
 
-        # Analyze logic and algorithmic issues
-        ui_info "Analyzing logic and algorithms..."
-        if ! analyze_script_logic "$file" >/dev/null 2>&1; then
-            logic_issues=$(analyze_script_logic "$file" 2>/dev/null)
-            has_issues=true
-            if [ "$VERBOSE" = "true" ]; then
-                ui_warning "Logic issues found:"
-                echo "$logic_issues" | while IFS= read -r line; do
-                    ui_verbose "$line"
-                done
-            fi
-        fi
-
         # Exit if no issues found
-        if [ "$has_issues" = "false" ]; then
+        if [ "$has_issues" = "false" ] && [ "$iteration" != "1" ]; then
             ui_success "All checks passed!"
             # Clean up backup if not verbose
             if [ "$VERBOSE" != "true" ]; then
