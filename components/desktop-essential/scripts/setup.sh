@@ -10,7 +10,7 @@ source "${MEOW}/lib/core/ui.sh"
 source "${MEOW}/lib/strings/strings.sh"
 
 if configure_macos; then
-  ui_action_success "$(get_static_message "desktop_essential_macos_config_complete")"
+  ui_action_success "$(fmt "desktop_essential_macos_config_complete")"
 else
-  ui_warning "$(get_static_message "desktop_essential_macos_config_issues")"
+  ui_warning "$(fmt "desktop_essential_macos_config_issues")"
 fi

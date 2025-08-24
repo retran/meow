@@ -10,20 +10,20 @@ source "${MEOW}/lib/core/ui.sh"
 source "${MEOW}/lib/strings/strings.sh"
 
 if ! command -v npm >/dev/null 2>&1; then
-  ui_warning "$(get_static_message "js_dev_npm_not_found_skip")"
+  ui_warning "$(fmt "js_dev_npm_not_found_skip")"
   exit 0
 fi
 
-ui_action_start "$(get_static_message "js_dev_configuring")"
+ui_action_start "$(fmt "js_dev_configuring")"
 
-ui_info "$(get_static_message "js_dev_configuring_npm")"
+ui_info "$(fmt "js_dev_configuring_npm")"
 
 npm config set init.author.name "$(git config user.name 2>/dev/null || echo "")" 2>/dev/null || true
 npm config set init.author.email "$(git config user.email 2>/dev/null || echo "")" 2>/dev/null || true
 npm config set init.license "MIT" 2>/dev/null || true
 npm config set init.version "0.1.0" 2>/dev/null || true
 
-ui_info "$(get_static_message "js_dev_configuring_typescript")"
+ui_info "$(fmt "js_dev_configuring_typescript")"
 
 mkdir -p "$HOME/.config/typescript" 2>/dev/null || true
 
@@ -48,7 +48,7 @@ if [[ ! -f "$HOME/.config/typescript/tsconfig.json" ]]; then
 EOF
 fi
 
-ui_info "$(get_static_message "js_dev_configuring_eslint")"
+ui_info "$(fmt "js_dev_configuring_eslint")"
 
 if [[ ! -f "$HOME/.config/eslint/eslintrc.js" ]]; then
   mkdir -p "$HOME/.config/eslint" 2>/dev/null || true
@@ -78,4 +78,4 @@ module.exports = {
 EOF
 fi
 
-ui_action_success "$(get_static_message "js_dev_configured_successfully")"
+ui_action_success "$(fmt "js_dev_configured_successfully")"

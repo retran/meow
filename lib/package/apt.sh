@@ -24,11 +24,11 @@ setup_apt() {
 
   if is_dry_run; then
     if ! command -v apt-get >/dev/null 2>&1; then
-      dry_run_ui_info "$(get_static_message "apt_get_not_found")"
+      dry_run_ui_info "$(fmt "apt_get_not_found")"
     else
-      dry_run_ui_info "$(get_static_message "apt_would_update_index")"
-      dry_run_ui_info "  $(get_static_message "apt_update_command")"
-      dry_run_ui_info "  $(get_static_message "apt_would_refresh_info")"
+      dry_run_ui_info "$(fmt "apt_would_update_index")"
+      dry_run_ui_info "  $(fmt "apt_update_command")"
+      dry_run_ui_info "  $(fmt "apt_would_refresh_info")"
     fi
     return 0
   fi
@@ -38,9 +38,9 @@ setup_apt() {
   }
 
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    ui_spinner "$(get_static_message "apt_updating_index")" \
-      --success "$(get_static_message "apt_index_updated")" \
-      --fail "$(get_static_message "apt_index_update_failed")" \
+    ui_spinner "$(fmt "apt_updating_index")" \
+      --success "$(fmt "apt_index_updated")" \
+      --fail "$(fmt "apt_index_update_failed")" \
       sudo apt-get update
   else
     sudo apt-get update >/dev/null 2>&1
@@ -66,9 +66,9 @@ uninstall_apt_packages() {
 
 cleanup_apt() {
   if is_dry_run; then
-    dry_run_ui_info "$(get_static_message "apt_would_clean_cache")"
-    dry_run_ui_info "  $(get_static_message "apt_cleanup_commands")"
-    dry_run_ui_info "  $(get_static_message "apt_would_remove_orphaned")"
+    dry_run_ui_info "$(fmt "apt_would_clean_cache")"
+    dry_run_ui_info "  $(fmt "apt_cleanup_commands")"
+    dry_run_ui_info "  $(fmt "apt_would_remove_orphaned")"
     return 0
   fi
 

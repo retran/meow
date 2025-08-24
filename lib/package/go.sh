@@ -16,22 +16,22 @@ is_go_package_installed() {
 }
 
 setup_go() {
-  ui_step_header "$(get_static_message "go_setting_up")"
+  ui_step_header "$(fmt "go_setting_up")"
 
   if is_dry_run; then
     if ! command -v go >/dev/null 2>&1; then
-      dry_run_ui_info "$(get_static_message "go_not_found_would_fail")"
+      dry_run_ui_info "$(fmt "go_not_found_would_fail")"
     else
-      dry_run_ui_info "$(get_static_message "go_already_available")"
+      dry_run_ui_info "$(fmt "go_already_available")"
     fi
     return 0
   fi
 
   command -v go >/dev/null 2>&1 || {
-    ui_action_error "$(get_static_message 'go_not_found')"
+    ui_action_error "$(fmt 'go_not_found')"
     return 1
   }
-  ui_action_success "$(get_static_message "go_available")"
+  ui_action_success "$(fmt "go_available")"
 }
 
 install_go_packages() {
@@ -45,12 +45,12 @@ update_go_packages() {
 
 uninstall_go_packages() {
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    ui_step_header "$(format_template_message "go_package_removal_header" "$1")"
+    ui_step_header "$(fmt "go_package_removal_header" "$1")"
   fi
   local package_file="${MEOW_COMPONENTS_DIR}/$1/packages/go.list"
   if [[ -f "$package_file" ]]; then
-    ui_warning "$(get_static_message "go_packages_cannot_uninstall")"
-    ui_info "$(get_static_message "go_packages_manual_removal")"
+    ui_warning "$(fmt "go_packages_cannot_uninstall")"
+    ui_info "$(fmt "go_packages_manual_removal")"
 
     local go_bin_path=""
     if command -v go >/dev/null 2>&1; then
@@ -76,15 +76,15 @@ uninstall_go_packages() {
 
 cleanup_go() {
   if is_dry_run; then
-    dry_run_ui_info "$(get_static_message "go_cleanup_would_skip")"
-    dry_run_ui_info "  $(get_static_message "go_modules_managed_by_go")"
+    dry_run_ui_info "$(fmt "go_cleanup_would_skip")"
+    dry_run_ui_info "  $(fmt "go_modules_managed_by_go")"
     return 0
   fi
 
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    ui_step_header "$(get_static_message "go_cleaning_noop")"
-    ui_action_success "$(get_static_message "go_cleanup_skipped")"
+    ui_step_header "$(fmt "go_cleaning_noop")"
+    ui_action_success "$(fmt "go_cleanup_skipped")"
   else
-    ui_action_success "$(get_static_message "go_cleanup_skipped")"
+    ui_action_success "$(fmt "go_cleanup_skipped")"
   fi
 }

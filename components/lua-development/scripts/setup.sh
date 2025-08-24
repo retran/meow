@@ -10,14 +10,14 @@ source "${MEOW}/lib/core/ui.sh"
 source "${MEOW}/lib/strings/strings.sh"
 
 if ! command -v lua >/dev/null 2>&1; then
-  ui_warning "$(get_static_message "lua_dev_lua_not_found_skip")"
+  ui_warning "$(fmt "lua_dev_lua_not_found_skip")"
   exit 0
 fi
 
-ui_action_start "$(get_static_message "lua_dev_configuring")"
+ui_action_start "$(fmt "lua_dev_configuring")"
 
 if command -v luarocks >/dev/null 2>&1; then
-  ui_info "$(get_static_message "lua_dev_configuring_luarocks")"
+  ui_info "$(fmt "lua_dev_configuring_luarocks")"
 
   luarocks_config_dir="$HOME/.luarocks"
   mkdir -p "$luarocks_config_dir" 2>/dev/null || true
@@ -35,14 +35,14 @@ variables = {
 EOF
   fi
 
-  ui_info "$(get_static_message "lua_dev_installing_essential_rocks")"
+  ui_info "$(fmt "lua_dev_installing_essential_rocks")"
   luarocks install --local inspect 2>/dev/null || true
   luarocks install --local penlight 2>/dev/null || true
   luarocks install --local busted 2>/dev/null || true
 fi
 
 if command -v lua-language-server >/dev/null 2>&1; then
-  ui_info "$(get_static_message "lua_dev_configuring_language_server")"
+  ui_info "$(fmt "lua_dev_configuring_language_server")"
 
   lua_ls_config_dir="$HOME/.config/lua-language-server"
   mkdir -p "$lua_ls_config_dir" 2>/dev/null || true
@@ -62,4 +62,4 @@ EOF
   fi
 fi
 
-ui_action_success "$(get_static_message "lua_dev_configured_successfully")"
+ui_action_success "$(fmt "lua_dev_configured_successfully")"

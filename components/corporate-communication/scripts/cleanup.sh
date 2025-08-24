@@ -5,22 +5,22 @@ set -euo pipefail
 source "${MEOW}/lib/strings/strings.sh"
 source "${MEOW}/lib/core/ui.sh"
 
-ui_info "$(get_static_message "corporate_cleanup_running")"
+ui_info "$(fmt "corporate_cleanup_running")"
 
 if pgrep -f "Slack" >/dev/null; then
-  ui_info "$(get_static_message "corporate_stopping_slack")"
+  ui_info "$(fmt "corporate_stopping_slack")"
   pkill -f "Slack" 2>/dev/null || true
   sleep 2
 fi
 
 if pgrep -f "zoom" >/dev/null; then
-  ui_info "$(get_static_message "corporate_stopping_zoom")"
+  ui_info "$(fmt "corporate_stopping_zoom")"
   pkill -f "zoom" 2>/dev/null || true
   sleep 2
 fi
 
 if [[ "$OSTYPE" == "darwin"* ]]; then
-  ui_info "$(get_static_message "corporate_removing_login_items")"
+  ui_info "$(fmt "corporate_removing_login_items")"
 
   osascript -e 'tell application "System Events" to delete login item "Slack"' 2>/dev/null || true
 
@@ -28,7 +28,7 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
   osascript -e 'tell application "System Events" to delete login item "Zoom"' 2>/dev/null || true
 fi
 
-ui_info "$(get_static_message "corporate_cleaning_cache")"
+ui_info "$(fmt "corporate_cleaning_cache")"
 
 rm -rf "$HOME/Library/Logs/Slack" 2>/dev/null || true
 rm -rf "$HOME/Library/Caches/com.tinyspeck.slackmacgap" 2>/dev/null || true
@@ -36,4 +36,4 @@ rm -rf "$HOME/Library/Logs/ZoomPhone" 2>/dev/null || true
 rm -rf "$HOME/Library/Logs/zoom.us" 2>/dev/null || true
 rm -rf "$HOME/Library/Caches/us.zoom.xos" 2>/dev/null || true
 
-ui_success "$(get_static_message "corporate_cleanup_completed")"
+ui_success "$(fmt "corporate_cleanup_completed")"

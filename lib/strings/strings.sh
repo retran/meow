@@ -867,18 +867,16 @@ declare -A UI_MESSAGES=(
   ["install_yq"]="Installing yq v%s|yq v%s installed to /usr/local/bin/yq|Failed to download yq from %s"
 )
 
-# Get a static message by key
-get_static_message() {
+fmt() {
   local key="$1"
-  echo "${UI_MESSAGES[$key]:-$key}"
-}
-
-# Format a template message with parameters
-format_template_message() {
-  local template_key="$1"
   shift
-  local template="${UI_MESSAGES[$template_key]:-$template_key}"
-  printf "$template" "$@"
+  local message="${UI_MESSAGES[$key]:-$key}"
+
+  if [[ $# -eq 0 ]]; then
+    echo "$message"
+  else
+    printf "$message" "$@"
+  fi
 }
 
 # Get spinner message parts (returns: progress|success|fail)

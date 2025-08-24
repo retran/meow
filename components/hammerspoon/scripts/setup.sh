@@ -10,24 +10,24 @@ source "${MEOW}/lib/core/ui.sh"
 source "${MEOW}/lib/strings/strings.sh"
 
 if [[ "$OSTYPE" != "darwin"* ]]; then
-  ui_warning "$(get_static_message "hammerspoon_macos_only")"
+  ui_warning "$(fmt "hammerspoon_macos_only")"
   exit 0
 fi
 
 if ! command -v hs >/dev/null 2>&1 && ! [[ -d "/Applications/Hammerspoon.app" ]]; then
-  ui_warning "$(get_static_message "hammerspoon_not_installed")"
+  ui_warning "$(fmt "hammerspoon_not_installed")"
   exit 0
 fi
 
-ui_action_start "$(get_static_message "hammerspoon_configuring")"
+ui_action_start "$(fmt "hammerspoon_configuring")"
 
 if ! pgrep -x "Hammerspoon" >/dev/null; then
-  ui_info "$(get_static_message "hammerspoon_starting")"
+  ui_info "$(fmt "hammerspoon_starting")"
   open -a Hammerspoon 2>/dev/null || true
   sleep 2
 fi
 
-ui_info "$(get_static_message "hammerspoon_adding_login_items")"
+ui_info "$(fmt "hammerspoon_adding_login_items")"
 osascript -e '
 tell application "System Events"
     try
@@ -38,6 +38,6 @@ tell application "System Events"
 end tell
 ' 2>/dev/null || true
 
-ui_info "$(get_static_message "hammerspoon_accessibility_permissions")"
+ui_info "$(fmt "hammerspoon_accessibility_permissions")"
 
-ui_action_success "$(get_static_message "hammerspoon_configured_successfully")"
+ui_action_success "$(fmt "hammerspoon_configured_successfully")"

@@ -9,7 +9,7 @@ source "${MEOW}/lib/core/colors.sh"
 source "${MEOW}/lib/strings/strings.sh"
 
 if [[ -z "$MEOW" ]]; then
-  echo "$(get_static_message "motd_meow_not_set")" >&2
+  echo "$(fmt "motd_meow_not_set")" >&2
   return 1
 fi
 
@@ -62,7 +62,7 @@ get_comment_collection() {
 
   local count=${#result[@]}
   if [[ $count -eq 0 ]]; then
-    echo "$(get_static_message "motd_fallback")"
+    echo "$(fmt "motd_fallback")"
     return 0
   fi
 
@@ -115,7 +115,7 @@ load_art() {
   local art_file="$1"
 
   if [[ ! -f "$art_file" ]]; then
-    echo "$(format_template_message "motd_ascii_art_not_found" "$art_file")"
+    echo "$(fmt "motd_ascii_art_not_found" "$art_file")"
     return
   fi
 
@@ -130,7 +130,7 @@ build_greeting() {
   local time_current="$3"
 
   local greeting
-  greeting="$(get_static_message "motd_greeting_default")"
+  greeting="$(fmt "motd_greeting_default")"
   local time_collection_key="night" # Default
 
   if ((hour_num >= 5 && hour_num < 12)); then
@@ -143,15 +143,15 @@ build_greeting() {
 
   local time_comment
   time_comment=$(get_comment_collection "motd" "$time_collection_key")
-  if [[ -z "$time_comment" || "$time_comment" == "$(get_static_message "motd_fallback")" ]]; then
-    time_comment="$(get_static_message "motd_time_fallback")"
+  if [[ -z "$time_comment" || "$time_comment" == "$(fmt "motd_fallback")" ]]; then
+    time_comment="$(fmt "motd_time_fallback")"
   fi
 
-  echo -e "${SECONDARY}$(format_template_message "motd_greeting_comrade" "$greeting" "$(whoami)")${RESET}"
+  echo -e "${SECONDARY}$(fmt "motd_greeting_comrade" "$greeting" "$(whoami)")${RESET}"
   echo -e "${SECONDARY}${time_comment}${RESET}"
   echo ""
-  echo -e "${INFO}$(format_template_message "motd_calendar_shows" "$date_full")${RESET}"
-  echo -e "${INFO}$(format_template_message "motd_clock_purrs" "$time_current")${RESET}"
+  echo -e "${INFO}$(fmt "motd_calendar_shows" "$date_full")${RESET}"
+  echo -e "${INFO}$(fmt "motd_clock_purrs" "$time_current")${RESET}"
   echo ""
 }
 
@@ -175,41 +175,41 @@ build_system_stats() {
 
   build_greeting "$hour_num" "$date_full" "$time_current"
 
-  echo -e "${HEADER}$(get_static_message "motd_system_territory")${RESET}"
-  echo -e "  ${BULLET}❯${RESET} ${SECONDARY}$(get_static_message "motd_system_label")${RESET}     ${DATA}${os_info}${RESET}"
-  echo -e "  ${BULLET}❯${RESET} ${SECONDARY}$(get_static_message "motd_shell_label")${RESET}      ${DATA}${SHELL}${RESET}"
+  echo -e "${HEADER}$(fmt "motd_system_territory")${RESET}"
+  echo -e "  ${BULLET}❯${RESET} ${SECONDARY}$(fmt "motd_system_label")${RESET}     ${DATA}${os_info}${RESET}"
+  echo -e "  ${BULLET}❯${RESET} ${SECONDARY}$(fmt "motd_shell_label")${RESET}      ${DATA}${SHELL}${RESET}"
 
   local uptime_collections=("uptime" "base")
   [[ -z "$uptime_info" ]] && uptime_collections+=("uptime" "fallback")
   local random_uptime_comment=$(get_comment_collection "${uptime_collections[@]}")
-  if [[ "$random_uptime_comment" == "$(get_static_message "motd_fallback")" ]]; then
-    random_uptime_comment="$(get_static_message "motd_uptime_fallback")"
+  if [[ "$random_uptime_comment" == "$(fmt "motd_fallback")" ]]; then
+    random_uptime_comment="$(fmt "motd_uptime_fallback")"
   fi
-  echo -e "  ${BULLET}❯${RESET} ${SECONDARY}$(get_static_message "motd_uptime_label")${RESET}     ${DATA}${uptime_info:-"$(get_static_message "motd_unknown_value")"}${RESET}"
+  echo -e "  ${BULLET}❯${RESET} ${SECONDARY}$(fmt "motd_uptime_label")${RESET}     ${DATA}${uptime_info:-"$(fmt "motd_unknown_value")"}${RESET}"
   echo -e "                ${SUCCESS}(${random_uptime_comment})${RESET}"
 
   local disk_collections=("disk" "base")
   [[ -z "$home_disk_space" ]] && disk_collections+=("disk" "fallback")
   local random_disk_comment=$(get_comment_collection "${disk_collections[@]}")
-  if [[ "$random_disk_comment" == "$(get_static_message "motd_fallback")" ]]; then
-    random_disk_comment="$(get_static_message "motd_disk_fallback")"
+  if [[ "$random_disk_comment" == "$(fmt "motd_fallback")" ]]; then
+    random_disk_comment="$(fmt "motd_disk_fallback")"
   fi
-  echo -e "  ${BULLET}❯${RESET} ${SECONDARY}$(get_static_message "motd_disk_label")${RESET}       ${DATA}${home_disk_space:-"$(get_static_message "motd_unable_to_determine")"}${RESET}"
+  echo -e "  ${BULLET}❯${RESET} ${SECONDARY}$(fmt "motd_disk_label")${RESET}       ${DATA}${home_disk_space:-"$(fmt "motd_unable_to_determine")"}${RESET}"
   echo -e "                ${SUCCESS}(${random_disk_comment})${RESET}"
 
   local ram_collections=("ram" "base")
   [[ -z "$ram_stats" ]] && ram_collections+=("ram" "fallback")
   local random_ram_comment=$(get_comment_collection "${ram_collections[@]}")
-  if [[ "$random_ram_comment" == "$(get_static_message "motd_fallback")" ]]; then
-    random_ram_comment="$(get_static_message "motd_ram_fallback")"
+  if [[ "$random_ram_comment" == "$(fmt "motd_fallback")" ]]; then
+    random_ram_comment="$(fmt "motd_ram_fallback")"
   fi
-  echo -e "  ${BULLET}❯${RESET} ${SECONDARY}$(get_static_message "motd_ram_label")${RESET}        ${DATA}${ram_stats:-"$(get_static_message "motd_unknown_value")"}${RESET}"
+  echo -e "  ${BULLET}❯${RESET} ${SECONDARY}$(fmt "motd_ram_label")${RESET}        ${DATA}${ram_stats:-"$(fmt "motd_unknown_value")"}${RESET}"
   echo -e "                ${SUCCESS}(${random_ram_comment})${RESET}"
 
   if [[ "$outdated_packages" -gt 0 ]]; then
     local random_package_comment
-    random_package_comment="$(get_static_message "motd_update_comment")"
-    echo -e "  ${BULLET}❯${RESET} ${SECONDARY}$(get_static_message "motd_updates_label")${RESET}    ${WARNING}${outdated_packages} $(get_static_message "motd_packages_need_updating")${RESET}"
+    random_package_comment="$(fmt "motd_update_comment")"
+    echo -e "  ${BULLET}❯${RESET} ${SECONDARY}$(fmt "motd_updates_label")${RESET}    ${WARNING}${outdated_packages} $(fmt "motd_packages_need_updating")${RESET}"
     echo -e "                ${SUCCESS}(${random_package_comment})${RESET}"
   fi
 
@@ -270,7 +270,7 @@ display_art_and_stats() {
 
 show_motd() {
   if ! command -v yq >/dev/null 2>&1; then
-    echo "$(get_static_message "motd_yq_not_installed")" >&2
+    echo "$(fmt "motd_yq_not_installed")" >&2
   fi
 
   local system_info art_content stats_content

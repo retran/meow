@@ -70,7 +70,7 @@ install_component() {
   done
 
   if [[ ${#components[@]} -eq 0 ]]; then
-    ui_error "$(get_static_message 'no_components_specified_install')"
+    ui_error "$(fmt 'no_components_specified_install')"
     return 1
   fi
 
@@ -78,7 +78,7 @@ install_component() {
   collect_multiple_components_for_installation "${components[@]}"
 
   if [[ ${#multiple_installation_order[@]} -eq 0 ]]; then
-    ui_info "$(get_static_message 'no_components_to_install')"
+    ui_info "$(fmt 'no_components_to_install')"
     return 0
   fi
 
@@ -90,12 +90,12 @@ install_component() {
   done
 
   local plural_suffix=$([ ${#components[@]} -gt 1 ] && echo "s" || echo "")
-  ui_action_start "$(format_template_message "components_install_count" "${#components[@]}" "$plural_suffix")"
+  ui_action_start "$(fmt "components_install_count" "${#components[@]}" "$plural_suffix")"
   if [[ ${#components_to_install[@]} -gt 0 ]]; then
-    ui_indent "$(format_template_message "total_components_install" "${#components_to_install[@]}")"
+    ui_indent "$(fmt "total_components_install" "${#components_to_install[@]}")"
 
     if [[ "$MEOW_VERBOSE" == "true" ]]; then
-      ui_step_header "$(get_static_message 'installation_order')"
+      ui_step_header "$(fmt 'installation_order')"
       for comp in "${multiple_installation_order[@]}"; do
         local status=""
         if is_component_installed "$comp"; then
@@ -144,18 +144,18 @@ install_component() {
       done
 
       if [[ -n "$requested_comp_list" ]]; then
-        ui_indent "$(format_template_message "requested_components" "$requested_comp_list")"
+        ui_indent "$(fmt "requested_components" "$requested_comp_list")"
       fi
       if [[ -n "$deps_list" ]]; then
-        ui_indent "$(format_template_message "new_dependencies" "$deps_list")"
+        ui_indent "$(fmt "new_dependencies" "$deps_list")"
       fi
     fi
   else
-    ui_indent "$(get_static_message 'all_components_installed')"
+    ui_indent "$(fmt 'all_components_installed')"
   fi
 
   _initialize_session || {
-    ui_error "$(get_static_message 'session_init_failed')"
+    ui_error "$(fmt 'session_init_failed')"
     return 1
   }
 
@@ -180,7 +180,7 @@ install_component() {
     fi
 
     if ! _install_single_component "$component" "$comp_is_manual" "$comp_is_dependency"; then
-      ui_error "$(format_template_message 'component_install_failed' "$component")"
+      ui_error "$(fmt 'component_install_failed' "$component")"
       install_success=false
       break
     fi
@@ -211,18 +211,18 @@ _install_single_component() {
   done
 
   if [[ "$already_installing" == "true" ]]; then
-    ui_verbose_info "$(format_template_message "component_already_installing" "$component")"
+    ui_verbose_info "$(fmt "component_already_installing" "$component")"
     return 0
   fi
 
   local component_file="${MEOW_COMPONENTS_DIR}/${component}/component.yaml"
   if [[ ! -f "$component_file" ]]; then
-    ui_error "$(format_template_message 'component_not_found' "$component")"
+    ui_error "$(fmt 'component_not_found' "$component")"
     return 1
   fi
 
   if ! is_component_available "$component"; then
-    ui_error "$(format_template_message 'component_not_available' "$component")"
+    ui_error "$(fmt 'component_not_available' "$component")"
     return 1
   fi
 
@@ -230,9 +230,9 @@ _install_single_component() {
     if [[ "$is_manual" == "true" ]] && ! is_component_manually_installed "$component"; then
       mkdir -p "$MEOW_MANUALLY_INSTALLED_COMPONENTS_DIR"
       ln -s "${MEOW_COMPONENTS_DIR}/${component}" "${MEOW_MANUALLY_INSTALLED_COMPONENTS_DIR}/${component}"
-      ui_action_success "$(format_template_message 'component_marked_manual' "$component")"
+      ui_action_success "$(fmt 'component_marked_manual' "$component")"
     else
-      ui_verbose_info "$(format_template_message 'component_already_installed' "$component")"
+      ui_verbose_info "$(fmt 'component_already_installed' "$component")"
     fi
     return 0
   fi
@@ -241,7 +241,7 @@ _install_single_component() {
     ui_component_installing "$component"
   else
     if [[ "$is_dependency" == "true" ]]; then
-      ui_dependency "$(format_template_message "component_installing_prefix" "$component")"
+      ui_dependency "$(fmt "component_installing_prefix" "$component")"
     else
       ui_component_installing "$component"
     fi
@@ -251,7 +251,7 @@ _install_single_component() {
 
   export MEOW_COMPONENT_MANUAL_INSTALL="$is_manual"
   if ! install_component_packages "$component"; then
-    ui_error "$(format_template_message 'component_packages_failed' "$component")"
+    ui_error "$(fmt 'component_packages_failed' "$component")"
     return 1
   fi
 
@@ -263,7 +263,7 @@ _install_single_component() {
     fi
 
     if ! clone_component_repository "$component"; then
-      ui_error "$(format_template_message 'component_repo_failed' "$component")"
+      ui_error "$(fmt 'component_repo_failed' "$component")"
       return 1
     fi
   fi
@@ -272,7 +272,7 @@ _install_single_component() {
 
   setup_component "$component"
 
-  _icon_msg_core "${GREEN}✓ " "$(format_template_message 'component_installed' "$component")"
+  _icon_msg_core "${GREEN}✓ " "$(fmt 'component_installed' "$component")"
   unset MEOW_COMPONENT_MANUAL_INSTALL
   return 0
 }
@@ -312,7 +312,7 @@ update_component() {
   local components=("$@")
 
   if [[ ${#components[@]} -eq 0 ]]; then
-    ui_error "$(get_static_message 'no_components_specified_update')"
+    ui_error "$(fmt 'no_components_specified_update')"
     return 1
   fi
 
@@ -320,15 +320,15 @@ update_component() {
   collect_multiple_components_for_update "${components[@]}"
 
   if [[ ${#multiple_update_order[@]} -eq 0 ]]; then
-    ui_info "$(get_static_message 'no_components_to_update')"
+    ui_info "$(fmt 'no_components_to_update')"
     return 0
   fi
 
-  ui_action_start "$(format_template_message "components_update_summary" "${#components[@]}" "$([ ${#components[@]} -gt 1 ] && echo "s" || echo "")")"
-  ui_indent "$(format_template_message "components_update_total" "${#multiple_update_order[@]}")"
+  ui_action_start "$(fmt "components_update_summary" "${#components[@]}" "$([ ${#components[@]} -gt 1 ] && echo "s" || echo "")")"
+  ui_indent "$(fmt "components_update_total" "${#multiple_update_order[@]}")"
 
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    ui_step_header "$(get_static_message 'update_order')"
+    ui_step_header "$(fmt 'update_order')"
     for comp in "${multiple_update_order[@]}"; do
       local is_requested_component=false
       for requested_comp in "${components[@]}"; do
@@ -372,15 +372,15 @@ update_component() {
     done
 
     if [[ -n "$requested_comp_list" ]]; then
-      ui_indent "$(format_template_message "components_update_requested" "$requested_comp_list")"
+      ui_indent "$(fmt "components_update_requested" "$requested_comp_list")"
     fi
     if [[ -n "$deps_list" ]]; then
-      ui_indent "$(format_template_message "components_update_dependencies" "$deps_list")"
+      ui_indent "$(fmt "components_update_dependencies" "$deps_list")"
     fi
   fi
 
   _initialize_session || {
-    ui_error "$(get_static_message 'session_init_failed')"
+    ui_error "$(fmt 'session_init_failed')"
     return 1
   }
 
@@ -403,7 +403,7 @@ update_component() {
     fi
 
     if ! _update_single_component "$component" "$comp_is_dependency"; then
-      ui_warning "$(format_template_message "component_update_failed_continue" "$component")"
+      ui_warning "$(fmt "component_update_failed_continue" "$component")"
     fi
   done
 
@@ -475,18 +475,18 @@ _update_single_component() {
   done
 
   if [[ "$already_updated" == "true" ]]; then
-    ui_verbose_info "$(format_template_message "component_already_updated" "$component")"
+    ui_verbose_info "$(fmt "component_already_updated" "$component")"
     return 0
   fi
 
   local component_file="${MEOW_COMPONENTS_DIR}/${component}/component.yaml"
   if [[ ! -f "$component_file" ]]; then
-    ui_error "$(format_template_message 'component_not_found' "$component")"
+    ui_error "$(fmt 'component_not_found' "$component")"
     return 1
   fi
 
   if ! is_component_installed "$component"; then
-    ui_verbose_info "$(format_template_message "component_not_installed_skip_update" "$component")"
+    ui_verbose_info "$(fmt "component_not_installed_skip_update" "$component")"
     return 0
   fi
 
@@ -494,7 +494,7 @@ _update_single_component() {
     ui_component_updating "$component"
   else
     if [[ "$is_dependency" == "true" ]]; then
-      ui_dependency "$(format_template_message "component_updating_prefix" "$component")"
+      ui_dependency "$(fmt "component_updating_prefix" "$component")"
     else
       ui_component_updating "$component"
     fi
@@ -504,29 +504,29 @@ _update_single_component() {
 
   if has_component_repository_config "$component"; then
     if [[ "$MEOW_VERBOSE" == "true" ]]; then
-      ui_step_header "$(format_template_message "component_updating_repository" "$component")"
+      ui_step_header "$(fmt "component_updating_repository" "$component")"
     fi
     if update_component_repository "$component"; then
-      ui_verbose_action_success "$(get_static_message 'repo_updated')"
+      ui_verbose_action_success "$(fmt 'repo_updated')"
     else
-      ui_warning "$(get_static_message "component_repo_update_failed")"
+      ui_warning "$(fmt "component_repo_update_failed")"
     fi
   fi
 
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    ui_step_header "$(format_template_message "component_updating_packages" "$component")"
+    ui_step_header "$(fmt "component_updating_packages" "$component")"
   fi
   if update_component_packages "$component"; then
-    ui_verbose_action_success "$(get_static_message 'packages_updated')"
+    ui_verbose_action_success "$(fmt 'packages_updated')"
   else
-    ui_warning "$(get_static_message "component_packages_update_failed")"
+    ui_warning "$(fmt "component_packages_update_failed")"
   fi
 
   setup_component "$component"
 
   setup_component_symlinks "$component"
 
-  _icon_msg_core "${CYAN}✓ " "$(format_template_message 'component_updated' "$component")"
+  _icon_msg_core "${CYAN}✓ " "$(fmt 'component_updated' "$component")"
 
   return 0
 }
@@ -688,19 +688,19 @@ uninstall_component() {
   done
 
   if [[ ${#components[@]} -eq 0 ]]; then
-    ui_error "$(get_static_message 'no_components_specified_uninstall')"
+    ui_error "$(fmt 'no_components_specified_uninstall')"
     return 1
   fi
 
   for component in "${components[@]}"; do
     if ! is_component_installed "$component"; then
-      ui_warning "$(format_template_message "component_not_installed_warning" "$component")"
+      ui_warning "$(fmt "component_not_installed_warning" "$component")"
       return 1
     fi
 
     local component_file="${MEOW_COMPONENTS_DIR}/${component}/component.yaml"
     if [[ ! -f "$component_file" ]]; then
-      ui_error "$(format_template_message "component_file_not_found_error" "$component_file")"
+      ui_error "$(fmt "component_file_not_found_error" "$component_file")"
       return 1
     fi
   done
@@ -727,11 +727,11 @@ uninstall_component() {
       done
 
       if [[ ${#filtered_dependents[@]} -gt 0 ]]; then
-        ui_error "$(format_template_message "component_uninstall_blocked_components" "$component")"
+        ui_error "$(fmt "component_uninstall_blocked_components" "$component")"
         for dep_comp in "${filtered_dependents[@]}"; do
-          ui_action_error "$(format_template_message "component_uninstall_dependent_item" "$dep_comp")"
+          ui_action_error "$(fmt "component_uninstall_dependent_item" "$dep_comp")"
         done
-        ui_error "$(get_static_message "component_uninstall_use_force")"
+        ui_error "$(fmt "component_uninstall_use_force")"
         return 1
       fi
 
@@ -747,16 +747,16 @@ uninstall_component() {
 
       # Skip preset dependency check if flag is set
       if [[ ${#filtered_presets[@]} -gt 0 && "$skip_preset_checks" == "false" ]]; then
-        ui_error "$(format_template_message "component_uninstall_blocked_presets" "$component")"
+        ui_error "$(fmt "component_uninstall_blocked_presets" "$component")"
         for current_preset in "${filtered_presets[@]}"; do
-          ui_action_error "$(format_template_message "component_uninstall_dependent_item" "$current_preset")"
+          ui_action_error "$(fmt "component_uninstall_dependent_item" "$current_preset")"
         done
-        ui_error "$(get_static_message "component_uninstall_presets_use_force")"
+        ui_error "$(fmt "component_uninstall_presets_use_force")"
         return 1
       fi
     done
   else
-    ui_info "$(get_static_message "component_force_flag_detected")"
+    ui_info "$(fmt "component_force_flag_detected")"
   fi
 
   local multiple_uninstall_order=()
@@ -770,7 +770,7 @@ uninstall_component() {
   collect_multiple_components_for_uninstall "${collect_args[@]}"
 
   if [[ ${#multiple_uninstall_order[@]} -eq 0 ]]; then
-    ui_info "$(get_static_message "no_components_to_uninstall")"
+    ui_info "$(fmt "no_components_to_uninstall")"
     return 0
   fi
 
@@ -779,11 +779,11 @@ uninstall_component() {
   if [[ $component_count -gt 1 ]]; then
     plural_suffix="s"
   fi
-  ui_action_start "$(format_template_message "components_uninstall_summary" "$component_count" "$plural_suffix")"
-  ui_indent "$(format_template_message "components_uninstall_total" "${#multiple_uninstall_order[@]}")"
+  ui_action_start "$(fmt "components_uninstall_summary" "$component_count" "$plural_suffix")"
+  ui_indent "$(fmt "components_uninstall_total" "${#multiple_uninstall_order[@]}")"
 
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    ui_step_header "$(get_static_message "component_uninstall_order")"
+    ui_step_header "$(fmt "component_uninstall_order")"
     for comp in "${multiple_uninstall_order[@]}"; do
       local is_requested_component=false
       for requested_comp in "${components[@]}"; do
@@ -794,9 +794,9 @@ uninstall_component() {
       done
 
       if [[ "$is_requested_component" == "true" ]]; then
-        ui_verbose_info "$(format_template_message "component_requested_uninstall_indicator" "$comp")"
+        ui_verbose_info "$(fmt "component_requested_uninstall_indicator" "$comp")"
       else
-        ui_verbose_info "$(format_template_message "component_unused_dependency_indicator" "$comp")"
+        ui_verbose_info "$(fmt "component_unused_dependency_indicator" "$comp")"
       fi
     done
   else
@@ -827,15 +827,15 @@ uninstall_component() {
     done
 
     if [[ -n "$requested_comp_list" ]]; then
-      ui_indent "$(format_template_message "components_uninstall_requested" "$requested_comp_list")"
+      ui_indent "$(fmt "components_uninstall_requested" "$requested_comp_list")"
     fi
     if [[ -n "$deps_list" ]]; then
-      ui_indent "$(format_template_message "components_uninstall_unused" "$deps_list")"
+      ui_indent "$(fmt "components_uninstall_unused" "$deps_list")"
     fi
   fi
 
   if ! _initialize_session; then
-    ui_error "$(get_static_message 'session_init_failed')"
+    ui_error "$(fmt 'session_init_failed')"
     return 1
   fi
 
@@ -851,7 +851,7 @@ uninstall_component() {
     done
 
     if ! _uninstall_single_component "$component" "$is_requested_component"; then
-      ui_warning "$(format_template_message "component_uninstall_failed" "$component")"
+      ui_warning "$(fmt "component_uninstall_failed" "$component")"
       overall_success=false
     fi
   done
@@ -861,7 +861,7 @@ uninstall_component() {
   if [[ "$overall_success" == "true" ]]; then
     return 0
   else
-    ui_warning "$(format_template_message "components_uninstalled_with_errors" "$([ ${#components[@]} -gt 1 ] && echo "s" || echo "")")"
+    ui_warning "$(fmt "components_uninstalled_with_errors" "$([ ${#components[@]} -gt 1 ] && echo "s" || echo "")")"
     return 1
   fi
 }
@@ -877,19 +877,19 @@ _uninstall_single_component() {
     if [[ "$is_requested_component" == "true" ]]; then
       ui_component_uninstalling "$component"
     else
-      ui_dependency "$(format_template_message "component_removing_unused" "$component")"
+      ui_dependency "$(fmt "component_removing_unused" "$component")"
     fi
   fi
 
   local success=true
 
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    ui_step_header "$(get_static_message "component_removing_symlinks")"
+    ui_step_header "$(fmt "component_removing_symlinks")"
   fi
   if remove_component_symlinks "$component"; then
-    ui_verbose_action_success "$(get_static_message "component_symlinks_removed_successfully")"
+    ui_verbose_action_success "$(fmt "component_symlinks_removed_successfully")"
   else
-    ui_warning "$(get_static_message "component_symlinks_removal_failed")"
+    ui_warning "$(fmt "component_symlinks_removal_failed")"
     success=false
   fi
 
@@ -897,34 +897,34 @@ _uninstall_single_component() {
 
   if has_component_repository_config "$component"; then
     if [[ "$MEOW_VERBOSE" == "true" ]]; then
-      ui_step_header "$(get_static_message "component_cleaning_repository")"
+      ui_step_header "$(fmt "component_cleaning_repository")"
     fi
     if cleanup_component_repository "$component"; then
-      ui_verbose_action_success "$(get_static_message "component_repository_cleaned")"
+      ui_verbose_action_success "$(fmt "component_repository_cleaned")"
     else
-      ui_warning "$(get_static_message "component_repository_cleanup_failed")"
+      ui_warning "$(fmt "component_repository_cleanup_failed")"
       success=false
     fi
   fi
 
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    ui_step_header "$(get_static_message "component_uninstalling_packages")"
+    ui_step_header "$(fmt "component_uninstalling_packages")"
   fi
   if uninstall_component_packages "$component"; then
-    ui_verbose_action_success "$(get_static_message 'packages_uninstalled')"
+    ui_verbose_action_success "$(fmt 'packages_uninstalled')"
   else
-    ui_warning "$(get_static_message "component_packages_uninstall_failed")"
+    ui_warning "$(fmt "component_packages_uninstall_failed")"
     success=false
   fi
 
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    ui_step_header "$(get_static_message "component_removing_tracking")"
+    ui_step_header "$(fmt "component_removing_tracking")"
   fi
   remove_component_symlink "$component"
-  ui_verbose_action_success "$(get_static_message "component_tracking_removed")"
+  ui_verbose_action_success "$(fmt "component_tracking_removed")"
 
   if [[ "$success" == "true" ]]; then
-    _icon_msg_core "${RED}✓ " "$(format_template_message 'component_uninstalled' "$component")"
+    _icon_msg_core "${RED}✓ " "$(fmt 'component_uninstalled' "$component")"
     return 0
   else
     return 1

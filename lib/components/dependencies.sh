@@ -216,7 +216,7 @@ topological_sort_for_installation() {
     remaining=("${new_remaining[@]}")
 
     if [[ "$found_installable" == "false" && ${#remaining[@]} -gt 0 ]]; then
-      ui_warning "$(format_template_message "circular_dependencies_detected" "${remaining[*]}")"
+      ui_warning "$(fmt "circular_dependencies_detected" "${remaining[*]}")"
       sorted_array_ref+=("${remaining[@]}")
       break
     fi

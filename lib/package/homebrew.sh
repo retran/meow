@@ -24,18 +24,18 @@ setup_homebrew() {
 
   if is_dry_run; then
     if ! command -v brew >/dev/null 2>&1; then
-      dry_run_ui_info "$(get_static_message "homebrew_would_install")"
-      dry_run_ui_info "  $(get_static_message "homebrew_install_script_url")"
-      dry_run_ui_info "  $(get_static_message "homebrew_would_configure")"
+      dry_run_ui_info "$(fmt "homebrew_would_install")"
+      dry_run_ui_info "  $(fmt "homebrew_install_script_url")"
+      dry_run_ui_info "  $(fmt "homebrew_would_configure")"
     else
-      dry_run_ui_info "$(get_static_message "homebrew_already_available")"
+      dry_run_ui_info "$(fmt "homebrew_already_available")"
     fi
     return 0
   fi
 
   command -v brew >/dev/null 2>&1 || {
     if [[ "$MEOW_VERBOSE" == "true" ]]; then
-      ui_warning "$(get_static_message 'homebrew_not_found')"
+      ui_warning "$(fmt 'homebrew_not_found')"
       parse_spinner_messages "homebrew_install" >/dev/null
       ui_spinner "$SPINNER_PROGRESS" \
         --success "$SPINNER_SUCCESS" \
@@ -71,9 +71,9 @@ uninstall_homebrew_packages() {
 
 cleanup_homebrew() {
   if is_dry_run; then
-    dry_run_ui_info "$(get_static_message "homebrew_would_clean_cache")"
-    dry_run_ui_info "  $(get_static_message "homebrew_cleanup_command")"
-    dry_run_ui_info "  $(get_static_message "homebrew_would_remove_outdated")"
+    dry_run_ui_info "$(fmt "homebrew_would_clean_cache")"
+    dry_run_ui_info "  $(fmt "homebrew_cleanup_command")"
+    dry_run_ui_info "  $(fmt "homebrew_would_remove_outdated")"
     return 0
   fi
 

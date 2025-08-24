@@ -19,22 +19,22 @@ is_apk_package_installed() {
 
 setup_apk() {
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    ui_step_header "$(get_static_message "apk_setting_up")"
+    ui_step_header "$(fmt "apk_setting_up")"
   fi
 
   if is_dry_run; then
     if ! command -v apk >/dev/null 2>&1; then
-      dry_run_ui_info "$(get_static_message "apk_not_found_would_fail")"
+      dry_run_ui_info "$(fmt "apk_not_found_would_fail")"
     else
-      dry_run_ui_info "$(get_static_message "apk_would_update_index")"
-      dry_run_ui_info "  $(get_static_message "apk_update_command")"
-      dry_run_ui_info "  $(get_static_message "apk_would_refresh_info")"
+      dry_run_ui_info "$(fmt "apk_would_update_index")"
+      dry_run_ui_info "  $(fmt "apk_update_command")"
+      dry_run_ui_info "  $(fmt "apk_would_refresh_info")"
     fi
     return 0
   fi
 
   command -v apk >/dev/null 2>&1 || {
-    ui_error "$(get_static_message "apk_not_found")"
+    ui_error "$(fmt "apk_not_found")"
     return 1
   }
 
@@ -43,13 +43,13 @@ setup_apk() {
       sudo apk update
   else
     sudo apk update >/dev/null 2>&1 || {
-      ui_error "$(get_static_message "apk_failed_update")"
+      ui_error "$(fmt "apk_failed_update")"
       return 1
     }
   fi
 
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    ui_action_success "$(get_static_message "apk_setup_complete")"
+    ui_action_success "$(fmt "apk_setup_complete")"
   fi
 }
 
@@ -67,15 +67,15 @@ uninstall_apk_packages() {
 
 cleanup_apk() {
   if is_dry_run; then
-    dry_run_ui_info "$(get_static_message "apk_cleanup_would_skip")"
-    dry_run_ui_info "  $(get_static_message "apk_no_cache_info")"
+    dry_run_ui_info "$(fmt "apk_cleanup_would_skip")"
+    dry_run_ui_info "  $(fmt "apk_no_cache_info")"
     return 0
   fi
 
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    ui_step_header "$(get_static_message "apk_cleaning")"
-    ui_action_success "$(get_static_message "apk_cleanup_completed")"
+    ui_step_header "$(fmt "apk_cleaning")"
+    ui_action_success "$(fmt "apk_cleanup_completed")"
   else
-    ui_action_success "$(get_static_message "apk_cleanup_completed_short")"
+    ui_action_success "$(fmt "apk_cleanup_completed_short")"
   fi
 }

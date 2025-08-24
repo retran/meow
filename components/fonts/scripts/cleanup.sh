@@ -5,10 +5,10 @@ set -euo pipefail
 source "${MEOW}/lib/strings/strings.sh"
 source "${MEOW}/lib/core/ui.sh"
 
-ui_info "$(get_static_message "fonts_cleanup_running")"
+ui_info "$(fmt "fonts_cleanup_running")"
 
 if [[ "$OSTYPE" == "darwin"* ]]; then
-  ui_info "$(get_static_message "fonts_clearing_cache")"
+  ui_info "$(fmt "fonts_clearing_cache")"
 
   sudo atsutil databases -remove 2>/dev/null || true
   atsutil server -shutdown 2>/dev/null || true
@@ -16,8 +16,8 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
 fi
 
 if command -v fc-cache >/dev/null 2>&1; then
-  ui_info "$(get_static_message "fonts_clearing_fontconfig_cache")"
+  ui_info "$(fmt "fonts_clearing_fontconfig_cache")"
   fc-cache -f 2>/dev/null || true
 fi
 
-ui_success "$(get_static_message "fonts_cleanup_completed")"
+ui_success "$(fmt "fonts_cleanup_completed")"

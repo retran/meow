@@ -29,7 +29,7 @@ install_component_packages() {
   local packages_dir="${component_dir}/packages"
 
   if [[ ! -d "$component_dir" ]]; then
-    ui_error "$(format_template_message "component_dir_not_found" "$component_dir")"
+    ui_error "$(fmt "component_dir_not_found" "$component_dir")"
     return 1
   fi
 
@@ -38,7 +38,7 @@ install_component_packages() {
   fi
 
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    ui_step_header "$(format_template_message "installing_packages_for" "$component")"
+    ui_step_header "$(fmt "installing_packages_for" "$component")"
   fi
 
   local has_packages=false
@@ -97,7 +97,7 @@ install_component_packages() {
 
   if [[ "$has_packages" == "true" && "$MEOW_VERBOSE" != "true" ]]; then
     if [[ $package_errors -gt 0 ]]; then
-      ui_indent "$(format_template_message "packages_errors_occurred" "$package_errors")"
+      ui_indent "$(fmt "packages_errors_occurred" "$package_errors")"
     fi
   fi
 
@@ -111,7 +111,7 @@ uninstall_component_packages() {
   local packages_dir="${component_dir}/packages"
 
   if [[ ! -d "$component_dir" ]]; then
-    ui_error "$(format_template_message "component_dir_not_found" "$component_dir")"
+    ui_error "$(fmt "component_dir_not_found" "$component_dir")"
     return 1
   fi
 
@@ -194,7 +194,7 @@ _update_package_manager() {
 
   local update_function_name="update_${manager_name}_packages"
   if ! declare -F "$update_function_name" >/dev/null; then
-    ui_action_error "$(format_template_message "update_function_not_found" "$update_function_name")"
+    ui_action_error "$(fmt "update_function_not_found" "$update_function_name")"
     return 1
   fi
 
@@ -207,12 +207,12 @@ update_component_packages() {
   local component_dir="${MEOW_COMPONENTS_DIR}/${component}"
 
   if [[ ! -d "$component_dir" ]]; then
-    ui_error "$(format_template_message "component_dir_not_found" "$component_dir")"
+    ui_error "$(fmt "component_dir_not_found" "$component_dir")"
     return 1
   fi
 
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    ui_step_header "$(format_template_message "updating_packages_for" "$component")"
+    ui_step_header "$(fmt "updating_packages_for" "$component")"
   fi
 
   local package_errors=0
@@ -259,7 +259,7 @@ update_component_packages() {
 
   if [[ "$has_packages" == "true" && "$MEOW_VERBOSE" != "true" ]]; then
     if [[ $package_errors -gt 0 ]]; then
-      ui_indent "$(format_template_message "package_updates_errors_occurred" "$package_errors")"
+      ui_indent "$(fmt "package_updates_errors_occurred" "$package_errors")"
     fi
   fi
 

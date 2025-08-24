@@ -60,12 +60,12 @@ clone_component_repository() {
   fi
 
   if [[ -d "$installed_dir" ]]; then
-    ui_step_header "$(format_template_message "removing_existing_repo" "$component")"
+    ui_step_header "$(fmt "removing_existing_repo" "$component")"
     rm -rf "$installed_dir"
   fi
 
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    ui_step_header "$(format_template_message "cloning_repo_to_downloads" "$component")"
+    ui_step_header "$(fmt "cloning_repo_to_downloads" "$component")"
   fi
 
   mkdir -p "$(dirname "$installed_dir")"
@@ -86,20 +86,20 @@ update_component_repository() {
   fi
 
   if [[ ! -d "$installed_dir" ]]; then
-    ui_warning "$(format_template_message "repository_not_found_cloning" "$component")"
+    ui_warning "$(fmt "repository_not_found_cloning" "$component")"
     clone_component_repository "$component"
     return $?
   fi
 
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    ui_step_header "$(format_template_message "updating_repo_for_component" "$component")"
+    ui_step_header "$(fmt "updating_repo_for_component" "$component")"
   fi
 
   ui_spinner "$(parse_spinner_messages "update_repository" "$component")" \
     sh -c "cd '$installed_dir' && git fetch && git reset --hard \"origin/\$(git rev-parse --abbrev-ref HEAD)\""
 
   if [[ $? -ne 0 ]]; then
-    ui_warning "$(get_static_message "failed_update_trying_reclone")"
+    ui_warning "$(fmt "failed_update_trying_reclone")"
     clone_component_repository "$component"
     return $?
   fi
@@ -121,17 +121,17 @@ cleanup_component_repository() {
   local repo_dir="${MEOW_DOWNLOADS_DIR}/${component}"
 
   if [[ -d "${repo_dir}/.git" ]]; then
-    ui_step_header "$(format_template_message "cleaning_up_repo" "$component")"
+    ui_step_header "$(fmt "cleaning_up_repo" "$component")"
 
     if is_dry_run; then
       dry_run_file_operation "remove_directory" "$repo_dir"
     else
       rm -rf "$repo_dir" || {
-        ui_error "$(format_template_message "failed_remove_repo_dir" "$repo_dir")"
+        ui_error "$(fmt "failed_remove_repo_dir" "$repo_dir")"
         return 1
       }
     fi
 
-    ui_action_success "$(format_template_message "repo_cleaned_up" "$component")"
+    ui_action_success "$(fmt "repo_cleaned_up" "$component")"
   fi
 }

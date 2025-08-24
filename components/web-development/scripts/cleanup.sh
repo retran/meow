@@ -5,25 +5,25 @@ set -euo pipefail
 source "${MEOW}/lib/strings/strings.sh"
 source "${MEOW}/lib/core/ui.sh"
 
-ui_info "$(get_static_message "web_dev_cleanup_running")"
+ui_info "$(fmt "web_dev_cleanup_running")"
 
 if [[ -d "$HOME/.sass-cache" ]]; then
-  ui_info "$(get_static_message "web_dev_cleaning_sass_cache")"
+  ui_info "$(fmt "web_dev_cleaning_sass_cache")"
   rm -rf "$HOME/.sass-cache" 2>/dev/null || true
 fi
 
-ui_info "$(get_static_message "web_dev_cleaning_tailwind_cache")"
+ui_info "$(fmt "web_dev_cleaning_tailwind_cache")"
 find "$HOME" -name ".tailwindcss-cache" -type d -exec rm -rf {} + 2>/dev/null || true
 
 if [[ -d "$HOME/.config/lighthouse" ]]; then
-  ui_info "$(get_static_message "web_dev_cleaning_lighthouse_cache")"
+  ui_info "$(fmt "web_dev_cleaning_lighthouse_cache")"
   rm -rf "$HOME/.config/lighthouse/cache" 2>/dev/null || true
   rm -f "$HOME/lighthouse-report*.html" 2>/dev/null || true
 fi
 
 if [[ -d "$HOME/.netlify" ]]; then
-  ui_info "$(get_static_message "web_dev_cleaning_netlify_cache")"
+  ui_info "$(fmt "web_dev_cleaning_netlify_cache")"
   rm -rf "$HOME/.netlify/cache" 2>/dev/null || true
 fi
 
-ui_success "$(get_static_message "web_dev_cleanup_completed")"
+ui_success "$(fmt "web_dev_cleanup_completed")"

@@ -11,7 +11,7 @@ source "${MEOW}/lib/core/platform.sh"
 # Install Zsh plugins for non-macOS systems
 install_zsh_plugins() {
   if [[ "$IS_DEBIAN_BASED" == "true" || "$IS_ALPINE" == "true" ]]; then
-    ui_action_start "$(get_static_message "checking_zsh_plugins")"
+    ui_action_start "$(fmt "checking_zsh_plugins")"
 
     local zsh_custom_dir="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
     if [[ -d "$zsh_custom_dir" ]]; then
@@ -23,9 +23,9 @@ install_zsh_plugins() {
         git clone --depth 1 https://github.com/zsh-users/zsh-syntax-highlighting.git \
           "${zsh_custom_dir}/plugins/zsh-syntax-highlighting" >/dev/null 2>&1
       fi
-      ui_action_success "$(get_static_message "zsh_plugins_checked_installed")"
+      ui_action_success "$(fmt "zsh_plugins_checked_installed")"
     else
-      ui_warning "$(format_template_message "oh_my_zsh_dir_not_found" "$zsh_custom_dir")"
+      ui_warning "$(fmt "oh_my_zsh_dir_not_found" "$zsh_custom_dir")"
     fi
   fi
 }

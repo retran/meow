@@ -18,22 +18,22 @@ is_pipx_package_installed() {
 }
 
 setup_pipx() {
-  ui_step_header "$(get_static_message "pipx_setting_up")"
+  ui_step_header "$(fmt "pipx_setting_up")"
 
   if is_dry_run; then
     if ! command -v pipx >/dev/null 2>&1; then
-      dry_run_ui_info "$(get_static_message "pipx_not_found_would_fail")"
+      dry_run_ui_info "$(fmt "pipx_not_found_would_fail")"
     else
-      dry_run_ui_info "$(get_static_message "pipx_already_available")"
+      dry_run_ui_info "$(fmt "pipx_already_available")"
     fi
     return 0
   fi
 
   if ! command -v pipx >/dev/null 2>&1; then
-    ui_action_error "$(get_static_message "pipx_not_found")"
+    ui_action_error "$(fmt "pipx_not_found")"
     return 1
   fi
-  ui_action_success "$(get_static_message "pipx_available")"
+  ui_action_success "$(fmt "pipx_available")"
 }
 
 install_pipx_packages() {
@@ -55,7 +55,7 @@ cleanup_pipx() {
   fi
 
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    ui_step_header "$(get_static_message "pipx_cleaning") (no-op)"
+    ui_step_header "$(fmt "pipx_cleaning") (no-op)"
     ui_action_success "pipx cleanup skipped"
   else
     ui_action_success "pipx cleanup skipped"

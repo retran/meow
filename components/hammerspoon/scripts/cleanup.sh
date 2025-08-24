@@ -8,16 +8,16 @@ set -euo pipefail
 source "${MEOW}/lib/strings/strings.sh"
 source "${MEOW}/lib/core/ui.sh"
 
-ui_info "$(get_static_message "hammerspoon_cleanup_running")"
+ui_info "$(fmt "hammerspoon_cleanup_running")"
 
 if pgrep -x "Hammerspoon" >/dev/null; then
-  ui_info "$(get_static_message "hammerspoon_stopping")"
+  ui_info "$(fmt "hammerspoon_stopping")"
   osascript -e 'tell application "Hammerspoon" to quit'
   sleep 2
 fi
 
 if command -v osascript >/dev/null 2>&1; then
-  ui_info "$(get_static_message "hammerspoon_removing_login_items")"
+  ui_info "$(fmt "hammerspoon_removing_login_items")"
   osascript -e '
     tell application "System Events"
         try
@@ -29,8 +29,8 @@ fi
 
 local_hammerspoon_dir="$HOME/.hammerspoon"
 if [[ -d "$local_hammerspoon_dir" ]]; then
-  ui_info "$(get_static_message "hammerspoon_cleaning_logs")"
+  ui_info "$(fmt "hammerspoon_cleaning_logs")"
   find "$local_hammerspoon_dir" -name "*.log" -delete 2>/dev/null || true
 fi
 
-ui_success "$(get_static_message "hammerspoon_cleanup_completed")"
+ui_success "$(fmt "hammerspoon_cleanup_completed")"

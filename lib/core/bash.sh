@@ -38,26 +38,26 @@ show_bash_version_info() {
   current_version=$(get_bash_version_number)
 
   if [[ -n "${_LIB_CORE_UI_SOURCED:-}" ]]; then
-    ui_info "$(format_template_message "bash_version_info" "${BASH_VERSION}" "$current_version")"
+    ui_info "$(fmt "bash_version_info" "${BASH_VERSION}" "$current_version")"
 
     if check_bash_version 4 0; then
-      ui_success "$(get_static_message "bash_modern_features_available")"
+      ui_success "$(fmt "bash_modern_features_available")"
     else
-      ui_warning "$(get_static_message "bash_using_compatibility_mode")"
+      ui_warning "$(fmt "bash_using_compatibility_mode")"
     fi
   else
-    echo "$(format_template_message "bash_version_info" "${BASH_VERSION}" "$current_version")"
+    echo "$(fmt "bash_version_info" "${BASH_VERSION}" "$current_version")"
   fi
 }
 
 warn_bash_compatibility() {
   if ! check_bash_version 4 0; then
     if [[ -n "${_LIB_CORE_UI_SOURCED:-}" ]]; then
-      ui_info_detail "$(get_static_message "bash_3_2_compatibility_mode")"
-      ui_info "$(get_static_message "bash_upgrade_recommendation")"
+      ui_info_detail "$(fmt "bash_3_2_compatibility_mode")"
+      ui_info "$(fmt "bash_upgrade_recommendation")"
     else
-      echo "$(get_static_message "bash_3_2_compatibility_mode")"
-      echo "$(get_static_message "bash_upgrade_recommendation")"
+      echo "$(fmt "bash_3_2_compatibility_mode")"
+      echo "$(fmt "bash_upgrade_recommendation")"
     fi
   fi
 }

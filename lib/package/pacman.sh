@@ -19,22 +19,22 @@ is_pacman_package_installed() {
 
 setup_pacman() {
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    ui_step_header "$(get_static_message "pacman_setting_up")"
+    ui_step_header "$(fmt "pacman_setting_up")"
   fi
 
   if is_dry_run; then
     if ! command -v pacman >/dev/null 2>&1; then
-      dry_run_ui_info "$(get_static_message "pacman_not_found_would_fail")"
+      dry_run_ui_info "$(fmt "pacman_not_found_would_fail")"
     else
-      dry_run_ui_info "$(get_static_message "pacman_would_sync_db")"
-      dry_run_ui_info "  $(get_static_message "pacman_sync_command")"
-      dry_run_ui_info "  $(get_static_message "pacman_would_refresh_info")"
+      dry_run_ui_info "$(fmt "pacman_would_sync_db")"
+      dry_run_ui_info "  $(fmt "pacman_sync_command")"
+      dry_run_ui_info "  $(fmt "pacman_would_refresh_info")"
     fi
     return 0
   fi
 
   command -v pacman >/dev/null 2>&1 || {
-    ui_error "$(get_static_message "pacman_not_found")"
+    ui_error "$(fmt "pacman_not_found")"
     return 1
   }
 
@@ -43,13 +43,13 @@ setup_pacman() {
       sudo pacman -Sy
   else
     sudo pacman -Sy >/dev/null 2>&1 || {
-      ui_error "$(get_static_message "pacman_failed_sync")"
+      ui_error "$(fmt "pacman_failed_sync")"
       return 1
     }
   fi
 
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    ui_action_success "$(get_static_message "pacman_setup_complete")"
+    ui_action_success "$(fmt "pacman_setup_complete")"
   fi
 }
 
@@ -67,14 +67,14 @@ uninstall_pacman_packages() {
 
 cleanup_pacman() {
   if is_dry_run; then
-    dry_run_ui_info "$(get_static_message "pacman_would_clean_cache")"
-    dry_run_ui_info "  $(get_static_message "pacman_clean_command")"
-    dry_run_ui_info "  $(get_static_message "pacman_would_remove_cached")"
+    dry_run_ui_info "$(fmt "pacman_would_clean_cache")"
+    dry_run_ui_info "  $(fmt "pacman_clean_command")"
+    dry_run_ui_info "  $(fmt "pacman_would_remove_cached")"
     return 0
   fi
 
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    ui_step_header "$(get_static_message "pacman_cleaning")"
+    ui_step_header "$(fmt "pacman_cleaning")"
     ui_spinner "$(parse_spinner_messages "pacman_prune")" \
       sudo pacman -Sc --noconfirm
   else

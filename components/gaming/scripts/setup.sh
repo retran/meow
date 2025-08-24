@@ -9,10 +9,10 @@ source "${MEOW}/lib/core/platform.sh"
 source "${MEOW}/lib/core/ui.sh"
 source "${MEOW}/lib/strings/strings.sh"
 
-ui_action_start "$(get_static_message "gaming_configuring")"
+ui_action_start "$(fmt "gaming_configuring")"
 
 if [[ -d "/Applications/Steam.app" ]]; then
-  ui_info "$(get_static_message "gaming_configuring_steam")"
+  ui_info "$(fmt "gaming_configuring_steam")"
 
   mkdir -p "$HOME/Library/Application Support/Steam/steamapps" 2>/dev/null || true
 
@@ -23,7 +23,7 @@ if [[ -d "/Applications/Steam.app" ]]; then
 fi
 
 if [[ -d "/Applications/GeForce NOW.app" ]]; then
-  ui_info "$(get_static_message "gaming_configuring_geforce_now")"
+  ui_info "$(fmt "gaming_configuring_geforce_now")"
 
   geforce_config_dir="$HOME/Library/Application Support/NVIDIA Corporation/GeForce NOW"
   if [[ -d "$geforce_config_dir" ]]; then
@@ -31,8 +31,8 @@ if [[ -d "/Applications/GeForce NOW.app" ]]; then
   fi
 fi
 
-ui_info "$(get_static_message "gaming_configuring_system_settings")"
+ui_info "$(fmt "gaming_configuring_system_settings")"
 
 sudo sysctl -w net.inet.tcp.delayed_ack=0 2>/dev/null || true
 
-ui_action_success "$(get_static_message "gaming_configured_successfully")"
+ui_action_success "$(fmt "gaming_configured_successfully")"

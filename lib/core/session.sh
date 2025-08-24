@@ -24,12 +24,12 @@ _initialize_session() {
     ui_spinner "$(parse_spinner_messages "init_homebrew")" \
       setup_homebrew ""
   else
-    ui_action_warning "$(get_static_message "session_unsupported_package_manager")"
+    ui_action_warning "$(fmt "session_unsupported_package_manager")"
     return 1
   fi
 
   if ! ensure_yq; then
-    ui_action_error "$(get_static_message "session_yq_install_failed")"
+    ui_action_error "$(fmt "session_yq_install_failed")"
     return 1
   fi
 }

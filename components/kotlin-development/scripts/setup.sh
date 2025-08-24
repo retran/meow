@@ -9,10 +9,10 @@ source "${MEOW}/lib/core/platform.sh"
 source "${MEOW}/lib/core/ui.sh"
 source "${MEOW}/lib/strings/strings.sh"
 
-ui_action_start "$(get_static_message "kotlin_dev_configuring")"
+ui_action_start "$(fmt "kotlin_dev_configuring")"
 
 if [[ -d "/Applications/IntelliJ IDEA.app" ]]; then
-  ui_info "$(get_static_message "kotlin_dev_configuring_intellij")"
+  ui_info "$(fmt "kotlin_dev_configuring_intellij")"
 
   intellij_config_dir="$HOME/Library/Application Support/JetBrains/IntelliJIdea"
   mkdir -p "$intellij_config_dir/options" 2>/dev/null || true
@@ -42,7 +42,7 @@ EOF
   fi
 fi
 
-ui_info "$(get_static_message "kotlin_dev_configuring_gradle")"
+ui_info "$(fmt "kotlin_dev_configuring_gradle")"
 gradle_dir="$HOME/.gradle"
 mkdir -p "$gradle_dir" 2>/dev/null || true
 
@@ -65,4 +65,4 @@ org.gradle.jvmargs=-Xmx2g -XX:MaxMetaspaceSize=512m -XX:+HeapDumpOnOutOfMemoryEr
 EOF
 fi
 
-ui_action_success "$(get_static_message "kotlin_dev_configured_successfully")"
+ui_action_success "$(fmt "kotlin_dev_configured_successfully")"
