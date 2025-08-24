@@ -275,20 +275,31 @@ You are a shell script expert. Fix the following Bash script to ensure:
    - Clear function and variable names
 
 3. **Messaging**:
-    - Clear and informative messages for users
     - Resolve TODOs
     - parse_spinner_messages is deleted, replace it with proper messages
-    - Ensure good user feedback and progress indication
     - Revise messages for --verbose and --dry-run modes
 
-4. **Portability**: Works on both Linux (Bash 4+/GNU) and macOS (Bash 3.2/BSD)
+4. Keep things as simple as possible but do not change original logic.
+    - you must preserve the original intent and functionality of the script
+    - you must not remove any existing functionality
+    - you must not add any new functionality
+    - you must not change the behavior of existing functionality
+    - you must not modify the overall structure or flow of the script
+    - you must not introduce new dependencies or external calls
+    - you must not use any Bash 4+ features
 
-5. **Code Quality**:
+5. **Portability**: Works on both Linux (Bash 4+/GNU) and macOS (Bash 3.2/BSD)
+
+6. **Code Quality**:
    - Proper indentation and formatting
    - Descriptive names
    - Handle edge cases gracefully
    - Remove dead code and unused variables
    - Consistent coding style
+
+7. **Keep only necessary comments, remove all others**.
+
+8. **Do not include any debugging or development artifacts (e.g., test code, console logs) in the final script.**
 
 **IMPORTANT**: Return the COMPLETE fixed script with ALL content included. Do not truncate, abbreviate, or skip any parts. The output must be the full, working script that can be directly saved to a file.
 
@@ -500,6 +511,11 @@ process_single_file() {
     if [ $iteration -gt $MAX_ITERATIONS ]; then
         ui_error "Maximum iterations ($MAX_ITERATIONS) reached"
         return 1
+    fi
+
+    # Show original content if verbose
+    if [ "$VERBOSE" = "true" ]; then
+        show_file_content "$file" "📄 Updated content:"
     fi
 
     return 0
