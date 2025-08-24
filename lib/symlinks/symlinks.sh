@@ -1,5 +1,12 @@
 #!/usr/bin/env bash
 
+# Helper function for safe string formatting, injected by the inliner script.
+_f() {
+  local template="$1"
+  shift
+  printf -- "$template" "$@"
+}
+
 if [[ "${BASH_SOURCE[0]}" != "${0}" ]] && [[ -n "${_LIB_PACKAGE_SYMLINKS_SOURCED:-}" ]]; then
   return 0
 fi
@@ -8,7 +15,7 @@ _LIB_PACKAGE_SYMLINKS_SOURCED=1
 source "${MEOW}/lib/core/ui.sh"
 source "${MEOW}/lib/core/defs.sh"
 source "${MEOW}/lib/core/dry_run.sh"
-source "${MEOW}/lib/strings/strings.sh"
+
 source "${MEOW}/lib/package/homebrew.sh"
 source "${MEOW}/lib/package/apt.sh"
 
@@ -30,30 +37,30 @@ create_symlink() {
 
   if [[ ! -e "$expanded_source" ]]; then
     if is_dry_run; then
-      dry_run_ui_info "$(fmt "symlink_skip_source_missing" "$expanded_target" "$expanded_source")"
+      dry_run_ui_info "$(_f "Would skip symlink (source does not exist): %s -> %s" "$expanded_target" "$expanded_source")"
       return 0
     fi
-    ui_action_warning "$(fmt "symlink_source_missing" "$expanded_source" "$(basename "$expanded_target")")"
+    ui_action_warning "$(_f "Source %s does not exist. Skipping symlink for %s" "$expanded_source" "$(basename "$expanded_target")")"
     return 0
   fi
 
   if [[ -L "$expanded_target" && "$(readlink "$expanded_target")" == "$expanded_source" ]]; then
     if is_dry_run; then
-      dry_run_ui_info "$(fmt "symlink_already_correct" "$expanded_target" "$expanded_source")"
+      dry_run_ui_info "$(_f "Symlink already correct: %s -> %s" "$expanded_target" "$expanded_source")"
     else
-      ui_verbose_action_success "$(fmt "already_correct")"
+      ui_verbose_action_success "already correct"
     fi
     return 0
   fi
 
   if is_dry_run; then
     if [[ -L "$expanded_target" ]]; then
-      dry_run_ui_info "$(fmt "symlink_update" "$expanded_target" "$expanded_source")"
-      dry_run_ui_info "  $(fmt "symlink_current_target" "$(readlink "$expanded_target")")"
+      dry_run_ui_info "$(_f "Would update symlink: %s -> %s" "$expanded_target" "$expanded_source")"
+      dry_run_ui_info "  $(_f "Current target: %s" "$(readlink "$expanded_target")")"
     elif [[ -e "$expanded_target" ]]; then
-      dry_run_ui_info "$(fmt "symlink_backup_and_create" "$expanded_target" "$expanded_source")"
+      dry_run_ui_info "$(_f "Would backup existing file and create symlink: %s -> %s" "$expanded_target" "$expanded_source")"
     else
-      dry_run_ui_info "$(fmt "symlink_create_new" "$expanded_target" "$expanded_source")"
+      dry_run_ui_info "$(_f "Would create new symlink: %s -> %s" "$expanded_target" "$expanded_source")"
     fi
     return 0
   fi
@@ -61,7 +68,7 @@ create_symlink() {
   if mkdir -p "$(dirname "$expanded_target")"; then
     debug "Parent directory for $expanded_target ensured."
   else
-    ui_action_error "$(fmt "symlink_parent_dir_failed" "$expanded_target")"
+    ui_action_error "$(_f "Failed to create parent directory for %s." "$expanded_target")"
     return 1
   fi
 
@@ -71,7 +78,7 @@ create_symlink() {
       if rm "$expanded_target"; then
         debug "Removed existing symlink at $expanded_target"
       else
-        ui_action_error "$(fmt "symlink_remove_failed" "$expanded_target")"
+        ui_action_error "$(_f "Failed to remove existing symlink at %s." "$expanded_target")"
         return 1
       fi
     else
@@ -79,19 +86,19 @@ create_symlink() {
       backup_path="${expanded_target}.backup.$(date +%Y%m%d_%H%M%S)"
       debug "Creating backup of existing file: $expanded_target -> $backup_path"
       if mv "$expanded_target" "$backup_path"; then
-        ui_verbose_info "$(fmt "symlink_backed_up" "$(basename "$expanded_target")" "$(basename "$backup_path")")"
+        ui_verbose_info "$(_f "%s (backed up to %s)" "$(basename "$expanded_target")" "$(basename "$backup_path")")"
       else
-        ui_action_error "$(fmt "symlink_backup_failed" "$expanded_target")"
+        ui_action_error "$(_f "Failed to backup existing file at %s." "$expanded_target")"
         return 1
       fi
     fi
   fi
 
   if ln -s "$expanded_source" "$expanded_target"; then
-    ui_verbose_action_success "$(fmt "symlink_created" "$(basename "$expanded_target")")"
+    ui_verbose_action_success "$(_f "%s (created)" "$(basename "$expanded_target")")"
     return 0
   else
-    ui_action_error "$(fmt "symlink_create_failed" "$expanded_target" "$expanded_source")"
+    ui_action_error "$(_f "Failed to create symlink: %s -> %s" "$expanded_target" "$expanded_source")"
     return 1
   fi
 }
@@ -107,12 +114,12 @@ setup_component_symlinks_from_file() {
   start_time=$(date +%s)
 
   if ! command -v yq >/dev/null 2>&1; then
-    ui_action_error "$(fmt "yq_required")"
+    ui_action_error "yq is required to parse symlink configuration. Please install yq."
     return 1
   fi
 
   if [[ ! -f "$symlinks_file" ]]; then
-    ui_warning "$(fmt "no_symlinks_file" "$symlink_name" "$symlinks_file")"
+    ui_warning "$(_f "No symlinks file found for '%s' at %s" "$symlink_name" "$symlinks_file")"
     return 0
   fi
 
@@ -120,7 +127,7 @@ setup_component_symlinks_from_file() {
   num_symlinks=$(yq 'length' "$symlinks_file")
 
   if ! [[ "$num_symlinks" =~ ^[0-9]+$ ]] || [[ "$num_symlinks" -eq 0 ]]; then
-    ui_info "$(fmt "no_symlinks_defined" "$symlinks_file")"
+    ui_info "$(_f "No symlinks defined in %s." "$symlinks_file")"
     return 0
   fi
 
@@ -150,17 +157,17 @@ setup_component_symlinks_from_file() {
   done
 
   if [[ $processed_count -gt 0 && "$MEOW_VERBOSE" == "true" ]]; then
-    ui_info "$(fmt "symlinks_processed_count" "$processed_count")"
+    ui_info "$(_f "(%d symlinks processed for this OS)" "$processed_count")"
   fi
 
   end_time=$(date +%s)
   duration=$((end_time - start_time))
 
   if [[ $failed_count -eq 0 ]]; then
-    ui_verbose_action_success "$(fmt "symlinks_completed" "$symlink_name" "$duration")"
+    ui_verbose_action_success "$(_f "Symlinks for '%s' completed (%ss)" "$symlink_name" "$duration")"
     return 0
   else
-    ui_action_error "$(fmt "symlinks_failed" "$symlink_name" "$failed_count" "$duration")"
+    ui_action_error "$(_f "Symlinks for '%s' failed with %d failure(s) (%ss)" "$symlink_name" "$failed_count" "$duration")"
     return 1
   fi
 }
@@ -176,32 +183,32 @@ list_backups() {
   local target_pattern="${1:-}"
 
   if [[ -z "$target_pattern" ]]; then
-    echo "$(fmt "symlinks_listing_all_backups")"
+    echo "Listing all symlink backups:"
     local found=false
     for backup_file in "$HOME"/.*.backup.*; do
       if [[ -f "$backup_file" ]]; then
         local original_file="${backup_file%.backup.*}"
         local backup_timestamp="${backup_file##*.backup.}"
-        echo "$(fmt "symlinks_backup_entry_simple" "$(basename "$original_file")" "$(basename "$backup_file")" "$backup_timestamp")"
+        echo "$(_f "  %s -> %s (created: %s)" "$(basename "$original_file")" "$(basename "$backup_file")" "$backup_timestamp")"
         found=true
       fi
     done
     if [[ "$found" == false ]]; then
-      echo "$(fmt "symlinks_no_backups_found")"
+      echo "  No symlink backups found"
     fi
   else
-    echo "$(fmt "symlinks_listing_backups_pattern" "$target_pattern")"
+    echo "$(_f "Listing backups for pattern: %s" "$target_pattern")"
     local found=false
     for backup_file in "$HOME"/*"${target_pattern}"*.backup.*; do
       if [[ -f "$backup_file" ]]; then
         local original_file="${backup_file%.backup.*}"
         local backup_timestamp="${backup_file##*.backup.}"
-        echo "$(fmt "symlinks_backup_entry" "$(basename "$original_file")" "$(basename "$backup_file")" "$backup_timestamp")"
+        echo "$(_f "TODO: write message - symlinks_backup_entry" "$(basename "$original_file")" "$(basename "$backup_file")" "$backup_timestamp")"
         found=true
       fi
     done
     if [[ "$found" == false ]]; then
-      echo "$(fmt "symlinks_no_backups_for_pattern" "$target_pattern")"
+      echo "$(_f "  No backups found for pattern: %s" "$target_pattern")"
     fi
   fi
 }
@@ -214,35 +221,35 @@ restore_backup() {
   fi
 
   if [[ ! -f "$backup_file" ]]; then
-    echo "$(fmt "symlinks_backup_not_found" "$backup_file")"
+    echo "$(_f "Backup file not found: %s" "$backup_file")"
     return 1
   fi
 
   local original_file="${backup_file%.backup.*}"
 
-  echo "$(fmt "symlinks_restoring_backup" "$(basename "$backup_file")" "$(basename "$original_file")")"
+  echo "$(_f "Restoring backup: %s -> %s" "$(basename "$backup_file")" "$(basename "$original_file")")"
 
   if dry_run_file_operation "restore_file" "$original_file" "$backup_file"; then
     return 0
   fi
 
   if [[ -e "$original_file" || -L "$original_file" ]]; then
-    echo "$(fmt "symlinks_target_exists_backup")"
+    echo "  Target location already exists, creating backup of current state"
     local current_backup
     current_backup="${original_file}.backup.$(date +%Y%m%d_%H%M%S).current"
     if mv "$original_file" "$current_backup"; then
-      echo "$(fmt "symlinks_current_backed_up" "$(basename "$current_backup")")"
+      echo "$(_f "  Current state backed up to %s" "$(basename "$current_backup")")"
     else
-      echo "$(fmt "symlinks_backup_current_failed")"
+      echo "  Failed to backup current state"
       return 1
     fi
   fi
 
   if mv "$backup_file" "$original_file"; then
-    echo "$(fmt "symlinks_restore_success" "$(basename "$original_file")")"
+    echo "$(_f "  Successfully restored %s" "$(basename "$original_file")")"
     return 0
   else
-    echo "$(fmt "symlinks_restore_failed")"
+    echo "  Failed to restore backup"
     return 1
   fi
 }

@@ -22,15 +22,15 @@ setup_npm() {
 
   if is_dry_run; then
     if ! command -v npm >/dev/null 2>&1; then
-      dry_run_ui_info "$(fmt "npm_not_found_would_fail")"
+      dry_run_ui_info "npm not found - would fail setup"
     else
-      dry_run_ui_info "$(fmt "npm_already_available")"
+      dry_run_ui_info "npm already available, no setup needed"
     fi
     return 0
   fi
 
   if ! command -v npm >/dev/null 2>&1; then
-    ui_action_error "$(fmt 'npm_not_found')"
+    ui_action_error "npm not found"
     return 1
   fi
   ui_package_manager_ready "npm"

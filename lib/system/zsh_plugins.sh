@@ -1,5 +1,12 @@
 #!/usr/bin/env bash
 
+# Helper function for safe string formatting, injected by the inliner script.
+_f() {
+  local template="$1"
+  shift
+  printf -- "$template" "$@"
+}
+
 if [[ "${BASH_SOURCE[0]}" != "${0}" ]] && [[ -n "${_LIB_SYSTEM_ZSH_PLUGINS_SOURCED:-}" ]]; then
   return 0
 fi
@@ -11,7 +18,7 @@ source "${MEOW}/lib/core/platform.sh"
 # Install Zsh plugins for non-macOS systems
 install_zsh_plugins() {
   if [[ "$IS_DEBIAN_BASED" == "true" || "$IS_ALPINE" == "true" ]]; then
-    ui_action_start "$(fmt "checking_zsh_plugins")"
+    ui_action_start "Checking Zsh plugins..."
 
     local zsh_custom_dir="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
     if [[ -d "$zsh_custom_dir" ]]; then
@@ -23,9 +30,9 @@ install_zsh_plugins() {
         git clone --depth 1 https://github.com/zsh-users/zsh-syntax-highlighting.git \
           "${zsh_custom_dir}/plugins/zsh-syntax-highlighting" >/dev/null 2>&1
       fi
-      ui_action_success "$(fmt "zsh_plugins_checked_installed")"
+      ui_action_success "Zsh plugins checked/installed"
     else
-      ui_warning "$(fmt "oh_my_zsh_dir_not_found" "$zsh_custom_dir")"
+      ui_warning "$(_f "Oh My Zsh dir not found at '%s'. Skipping plugins" "$zsh_custom_dir")"
     fi
   fi
 }

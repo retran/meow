@@ -1,5 +1,12 @@
 #!/usr/bin/env bash
 
+# Helper function for safe string formatting, injected by the inliner script.
+_f() {
+  local template="$1"
+  shift
+  printf -- "$template" "$@"
+}
+
 if [[ -n "${_LIB_PACKAGE_MAS_SOURCED:-}" ]]; then
   return 0
 fi
@@ -18,22 +25,22 @@ is_mas_package_installed() {
 }
 
 setup_mas() {
-  ui_step_header "$(fmt "mas_setting_up")"
+  ui_step_header "Setting up mas CLI"
 
   if is_dry_run; then
     if ! command -v mas >/dev/null 2>&1; then
-      dry_run_ui_info "$(fmt "mas_not_found_would_fail")"
+      dry_run_ui_info "mas CLI not found - would warn and fail setup"
     else
-      dry_run_ui_info "$(fmt "mas_already_available")"
+      dry_run_ui_info "mas CLI already available, no setup needed"
     fi
     return 0
   fi
 
   command -v mas >/dev/null 2>&1 || {
-    ui_warning "$(fmt 'mas_not_found')"
+    ui_warning "mas CLI not found"
     return 1
   }
-  ui_action_success "$(fmt "mas_cli_available")"
+  ui_action_success "mas CLI available"
 }
 
 install_mas_packages() {
@@ -46,13 +53,13 @@ update_mas_packages() {
 
 uninstall_mas_packages() {
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    ui_step_header "$(fmt "mas_package_removal_header" "$1")"
+    ui_step_header "$(_f "TODO: write message - mas_package_removal_header" "$1")"
   fi
   local package_file="${MEOW_COMPONENTS_DIR}/$1/packages/mas.list"
   if [[ -f "$package_file" ]]; then
-    ui_warning "$(fmt "mas_manual_uninstall_warning")"
+    ui_warning "App Store apps cannot be automatically uninstalled via mas CLI"
     if [[ "$MEOW_VERBOSE" == "true" ]]; then
-      ui_info "$(fmt "mas_manual_uninstall_instruction")"
+      ui_info "Please manually uninstall the following apps through Launchpad or Applications folder:"
       while IFS= read -r line; do
         local package_name
         package_name=$(parse_package_line "$line")
@@ -66,15 +73,15 @@ uninstall_mas_packages() {
 
 cleanup_mas() {
   if is_dry_run; then
-    dry_run_ui_info "$(fmt "mas_cleanup_would_skip")"
-    dry_run_ui_info "  $(fmt "mas_app_store_manages_downloads")"
+    dry_run_ui_info "App Store cleanup would be skipped (no cleanup needed)"
+    dry_run_ui_info "  App Store manages downloads automatically"
     return 0
   fi
 
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    ui_step_header "$(fmt "mas_cleaning_noop")"
-    ui_action_success "$(fmt "mas_cleanup_skipped")"
+    ui_step_header "Cleaning App Store (no-op)"
+    ui_action_success "App Store cleanup skipped"
   else
-    ui_action_success "$(fmt "mas_cleanup_skipped")"
+    ui_action_success "App Store cleanup skipped"
   fi
 }

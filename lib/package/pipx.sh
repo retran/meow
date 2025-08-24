@@ -18,22 +18,22 @@ is_pipx_package_installed() {
 }
 
 setup_pipx() {
-  ui_step_header "$(fmt "pipx_setting_up")"
+  ui_step_header "Setting up pipx"
 
   if is_dry_run; then
     if ! command -v pipx >/dev/null 2>&1; then
-      dry_run_ui_info "$(fmt "pipx_not_found_would_fail")"
+      dry_run_ui_info "pipx not found - would fail setup"
     else
-      dry_run_ui_info "$(fmt "pipx_already_available")"
+      dry_run_ui_info "pipx already available, no setup needed"
     fi
     return 0
   fi
 
   if ! command -v pipx >/dev/null 2>&1; then
-    ui_action_error "$(fmt "pipx_not_found")"
+    ui_action_error "pipx not found"
     return 1
   fi
-  ui_action_success "$(fmt "pipx_available")"
+  ui_action_success "pipx available"
 }
 
 install_pipx_packages() {
@@ -55,7 +55,7 @@ cleanup_pipx() {
   fi
 
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    ui_step_header "$(fmt "pipx_cleaning") (no-op)"
+    ui_step_header "Cleaning pipx (no-op)"
     ui_action_success "pipx cleanup skipped"
   else
     ui_action_success "pipx cleanup skipped"

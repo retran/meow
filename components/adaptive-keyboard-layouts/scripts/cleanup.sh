@@ -2,13 +2,12 @@
 
 set -euo pipefail
 
-source "${MEOW}/lib/strings/strings.sh"
 source "${MEOW}/lib/core/ui.sh"
 
-ui_info "$(fmt "adaptive_keyboard_cleanup_running")"
+ui_info "TODO: write message - adaptive_keyboard_cleanup_running"
 
 if [[ "$OSTYPE" == "darwin"* ]]; then
-  ui_info "$(fmt "adaptive_keyboard_cleaning_preferences")"
+  ui_info "TODO: write message - adaptive_keyboard_cleaning_preferences"
 
   rm -f "$HOME/Library/Preferences/com.apple.HIToolbox.plist.backup" 2>/dev/null || true
 
@@ -18,7 +17,7 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
   defaults delete com.apple.HIToolbox AppleSelectedInputSources 2>/dev/null || true
 fi
 
-ui_info "$(fmt "adaptive_keyboard_cleaning_temp_files")"
+ui_info "TODO: write message - adaptive_keyboard_cleaning_temp_files"
 rm -rf "/tmp/keyboard_layout_*" 2>/dev/null || true
 
-ui_success "$(fmt "adaptive_keyboard_cleanup_completed")"
+ui_success "TODO: write message - adaptive_keyboard_cleanup_completed"

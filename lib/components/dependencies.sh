@@ -1,5 +1,12 @@
 #!/usr/bin/env bash
 
+# Helper function for safe string formatting, injected by the inliner script.
+_f() {
+  local template="$1"
+  shift
+  printf -- "$template" "$@"
+}
+
 if [[ -n "${_LIB_COMPONENTS_DEPENDENCIES_SOURCED:-}" ]]; then
   return 0
 fi
@@ -8,7 +15,6 @@ _LIB_COMPONENTS_DEPENDENCIES_SOURCED=1
 source "${MEOW}/lib/core/defs.sh"
 source "${MEOW}/lib/core/ui.sh"
 source "${MEOW}/lib/core/yaml.sh"
-source "${MEOW}/lib/strings/strings.sh"
 
 # Import core component functions we depend on
 source "${MEOW}/lib/components/core.sh"
@@ -216,7 +222,7 @@ topological_sort_for_installation() {
     remaining=("${new_remaining[@]}")
 
     if [[ "$found_installable" == "false" && ${#remaining[@]} -gt 0 ]]; then
-      ui_warning "$(fmt "circular_dependencies_detected" "${remaining[*]}")"
+      ui_warning "$(_f "Circular dependencies detected among: %s" "${remaining[*]}")"
       sorted_array_ref+=("${remaining[@]}")
       break
     fi

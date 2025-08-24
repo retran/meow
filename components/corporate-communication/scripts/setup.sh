@@ -7,12 +7,11 @@ MEOW="$2"
 
 source "${MEOW}/lib/core/platform.sh"
 source "${MEOW}/lib/core/ui.sh"
-source "${MEOW}/lib/strings/strings.sh"
 
-ui_action_start "$(fmt "corporate_configuring")"
+ui_action_start "TODO: write message - corporate_configuring"
 
 if [[ -d "/Applications/Slack.app" ]]; then
-  ui_info "$(fmt "corporate_configuring_slack")"
+  ui_info "TODO: write message - corporate_configuring_slack"
 
   osascript -e '
   tell application "System Events"
@@ -26,10 +25,10 @@ if [[ -d "/Applications/Slack.app" ]]; then
 fi
 
 if [[ -d "/Applications/zoom.us.app" ]]; then
-  ui_info "$(fmt "corporate_configuring_zoom")"
+  ui_info "TODO: write message - corporate_configuring_zoom"
 
   defaults write us.zoom.xos ZoomEnterMaxWndWhenViewShare -bool true 2>/dev/null || true
   defaults write us.zoom.xos ZoomShouldAutoFitToWindowWhenViewShare -bool true 2>/dev/null || true
 fi
 
-ui_action_success "$(fmt "corporate_configured_successfully")"
+ui_action_success "TODO: write message - corporate_configured_successfully"

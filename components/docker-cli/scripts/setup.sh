@@ -2,17 +2,16 @@
 
 set -euo pipefail
 
-source "${MEOW}/lib/strings/strings.sh"
 source "${MEOW}/lib/core/ui.sh"
 
-ui_info "$(fmt "docker_cli_setup_running")"
+ui_info "🚀 Running Docker CLI setup..."
 
 if ! command -v docker >/dev/null 2>&1; then
   ui_warning "Docker CLI not found. Installation may not be complete."
   exit 1
 fi
 
-ui_info "$(fmt "docker_cli_checking_host_socket")"
+ui_info "  🔌 Checking Docker host socket access..."
 
 DOCKER_SOCKETS=(
   "/var/run/docker.sock"
@@ -40,7 +39,7 @@ else
   ui_info "  Found Docker socket: $DOCKER_HOST_FOUND"
 fi
 
-ui_info "$(fmt "docker_cli_configuring_context")"
+ui_info "  ⚙️  Configuring Docker context..."
 
 if [[ -n "$DOCKER_HOST_FOUND" ]]; then
   docker context create host --docker "host=unix://$DOCKER_HOST_FOUND" 2>/dev/null || \
@@ -48,11 +47,11 @@ if [[ -n "$DOCKER_HOST_FOUND" ]]; then
   docker context use host 2>/dev/null || true
 fi
 
-ui_info "$(fmt "docker_cli_testing_connection")"
+ui_info "  🐳 Testing Docker connection..."
 
 if docker version >/dev/null 2>&1; then
-  ui_success "$(fmt "docker_cli_setup_completed")"
-  ui_info "$(fmt "docker_cli_ready_to_use")"
+  ui_success "✅ Docker CLI setup completed"
+  ui_info "ℹ️  Docker CLI is ready to control host Docker daemon"
 else
   ui_warning "Docker connection test failed. Please check:"
   ui_info "  1. Docker daemon is running on host"

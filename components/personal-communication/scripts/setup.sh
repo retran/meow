@@ -7,12 +7,11 @@ MEOW="$2"
 
 source "${MEOW}/lib/core/platform.sh"
 source "${MEOW}/lib/core/ui.sh"
-source "${MEOW}/lib/strings/strings.sh"
 
-ui_action_start "$(fmt "personal_comm_configuring")"
+ui_action_start "TODO: write message - personal_comm_configuring"
 
 if [[ -d "/Applications/Discord.app" ]]; then
-  ui_info "$(fmt "personal_comm_configuring_discord")"
+  ui_info "TODO: write message - personal_comm_configuring_discord"
 
   discord_config_dir="$HOME/Library/Application Support/discord"
   mkdir -p "$discord_config_dir" 2>/dev/null || true
@@ -37,17 +36,17 @@ if os.path.exists(settings_file):
 fi
 
 if [[ -d "/Applications/Telegram.app" ]]; then
-  ui_info "$(fmt "personal_comm_configuring_telegram")"
+  ui_info "TODO: write message - personal_comm_configuring_telegram"
 
   defaults write com.tdesktop.Telegram StartInTray -bool true 2>/dev/null || true
 fi
 
 if [[ -d "/Applications/WhatsApp.app" ]]; then
-  ui_info "$(fmt "personal_comm_configuring_whatsapp")"
+  ui_info "TODO: write message - personal_comm_configuring_whatsapp"
 
   defaults write WhatsApp KeepAlive -bool true 2>/dev/null || true
 fi
 
-ui_info "$(fmt "personal_comm_configuring_notifications")"
+ui_info "TODO: write message - personal_comm_configuring_notifications"
 
-ui_action_success "$(fmt "personal_comm_configured_successfully")"
+ui_action_success "TODO: write message - personal_comm_configured_successfully"

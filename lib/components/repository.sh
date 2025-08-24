@@ -1,5 +1,12 @@
 #!/usr/bin/env bash
 
+# Helper function for safe string formatting, injected by the inliner script.
+_f() {
+  local template="$1"
+  shift
+  printf -- "$template" "$@"
+}
+
 if [[ -n "${_LIB_COMPONENTS_REPOSITORY_SOURCED:-}" ]]; then
   return 0
 fi
@@ -9,7 +16,6 @@ source "${MEOW}/lib/core/defs.sh"
 source "${MEOW}/lib/core/ui.sh"
 source "${MEOW}/lib/core/yaml.sh"
 source "${MEOW}/lib/core/dry_run.sh"
-source "${MEOW}/lib/strings/strings.sh"
 
 # Check if component has repository configuration
 has_component_repository_config() {
@@ -60,12 +66,12 @@ clone_component_repository() {
   fi
 
   if [[ -d "$installed_dir" ]]; then
-    ui_step_header "$(fmt "removing_existing_repo" "$component")"
+    ui_step_header "$(_f "Removing existing repository for component: %s" "$component")"
     rm -rf "$installed_dir"
   fi
 
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    ui_step_header "$(fmt "cloning_repo_to_downloads" "$component")"
+    ui_step_header "$(_f "Cloning repository to .downloads/%s" "$component")"
   fi
 
   mkdir -p "$(dirname "$installed_dir")"
@@ -86,20 +92,20 @@ update_component_repository() {
   fi
 
   if [[ ! -d "$installed_dir" ]]; then
-    ui_warning "$(fmt "repository_not_found_cloning" "$component")"
+    ui_warning "$(_f "Repository not found, cloning to .downloads/%s instead" "$component")"
     clone_component_repository "$component"
     return $?
   fi
 
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    ui_step_header "$(fmt "updating_repo_for_component" "$component")"
+    ui_step_header "$(_f "Updating repository for component: %s" "$component")"
   fi
 
   ui_spinner "$(parse_spinner_messages "update_repository" "$component")" \
     sh -c "cd '$installed_dir' && git fetch && git reset --hard \"origin/\$(git rev-parse --abbrev-ref HEAD)\""
 
   if [[ $? -ne 0 ]]; then
-    ui_warning "$(fmt "failed_update_trying_reclone")"
+    ui_warning "Failed to update repository, trying to re-clone"
     clone_component_repository "$component"
     return $?
   fi
@@ -121,17 +127,17 @@ cleanup_component_repository() {
   local repo_dir="${MEOW_DOWNLOADS_DIR}/${component}"
 
   if [[ -d "${repo_dir}/.git" ]]; then
-    ui_step_header "$(fmt "cleaning_up_repo" "$component")"
+    ui_step_header "$(_f "Cleaning up repository for %s" "$component")"
 
     if is_dry_run; then
       dry_run_file_operation "remove_directory" "$repo_dir"
     else
       rm -rf "$repo_dir" || {
-        ui_error "$(fmt "failed_remove_repo_dir" "$repo_dir")"
+        ui_error "$(_f "Failed to remove repository directory: %s" "$repo_dir")"
         return 1
       }
     fi
 
-    ui_action_success "$(fmt "repo_cleaned_up" "$component")"
+    ui_action_success "$(_f "Repository cleaned up for %s" "$component")"
   fi
 }

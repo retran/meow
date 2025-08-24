@@ -9,18 +9,18 @@ source "${MEOW}/lib/core/ui.sh"
 
 setup_tmux_plugin_manager() {
   if ! command -v tmux >/dev/null 2>&1; then
-    ui_warning "$(fmt "tmux_not_installed_skip_plugin")"
+    ui_warning "tmux is not installed, skipping Plugin Manager setup"
     return 0
   fi
 
-  ui_step_header "$(fmt "tmux_setting_up_plugin_manager")"
+  ui_step_header "Setting up tmux Plugin Manager"
 
   if [[ -d "$HOME/.tmux/plugins/tpm" ]]; then
-    ui_action_success "$(fmt "tmux_plugin_manager_already_installed")"
+    ui_action_success "tmux Plugin Manager is already installed."
 
-    ui_spinner "$(fmt "tmux_updating_plugin_manager")" \
-      --success "$(fmt "tmux_plugin_manager_update_completed")" \
-      --fail "$(fmt "tmux_plugin_manager_update_failed")" \
+    ui_spinner "Updating tmux Plugin Manager" \
+      --success "tmux Plugin Manager update completed" \
+      --fail "Failed to update tmux Plugin Manager" \
       git -C "$HOME/.tmux/plugins/tpm" pull
 
     return $?
@@ -28,22 +28,22 @@ setup_tmux_plugin_manager() {
 
   mkdir -p "$HOME/.tmux/plugins"
 
-  ui_spinner "$(fmt "tmux_installing_plugin_manager")" \
-    --success "$(fmt "tmux_plugin_manager_install_completed")" \
-    --fail "$(fmt "tmux_plugin_manager_install_failed")" \
+  ui_spinner "Installing tmux Plugin Manager" \
+    --success "tmux Plugin Manager installation completed" \
+    --fail "Failed to install tmux Plugin Manager" \
     git clone https://github.com/tmux-plugins/tpm "$HOME/.tmux/plugins/tpm"
 
   return $?
 }
 
 configure_tmux() {
-  ui_step_header "$(fmt "tmux_setting_up_environment")"
+  ui_step_header "Setting up tmux environment"
 
   if setup_tmux_plugin_manager; then
-    ui_action_success "$(fmt "tmux_environment_setup_complete")"
+    ui_action_success "tmux environment setup complete."
     return 0
   else
-    ui_warning "$(fmt "tmux_setup_issues")"
+    ui_warning "tmux environment setup encountered issues"
     return 1
   fi
 }

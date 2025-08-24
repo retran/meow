@@ -1,13 +1,16 @@
 #!/usr/bin/env bash
 
+# Helper function for safe string formatting, injected by the inliner script.
+_f() {
+  local template="$1"
+  shift
+  printf -- "$template" "$@"
+}
+
 if [[ "${BASH_SOURCE[0]}" != "${0}" ]] && [[ -n "${_LIB_CORE_BASH_COMPAT_SOURCED:-}" ]]; then
   return 0
 fi
 _LIB_CORE_BASH_COMPAT_SOURCED=1
-
-if [[ -n "${MEOW:-}" ]]; then
-  source "$MEOW/lib/strings/strings.sh"
-fi
 
 get_bash_version_number() {
   local version="${BASH_VERSION%%[^0-9.]*}"
@@ -38,26 +41,26 @@ show_bash_version_info() {
   current_version=$(get_bash_version_number)
 
   if [[ -n "${_LIB_CORE_UI_SOURCED:-}" ]]; then
-    ui_info "$(fmt "bash_version_info" "${BASH_VERSION}" "$current_version")"
+    ui_info "$(_f "Bash version: %s (%s)" "${BASH_VERSION}" "$current_version")"
 
     if check_bash_version 4 0; then
-      ui_success "$(fmt "bash_modern_features_available")"
+      ui_success "Modern bash features available"
     else
-      ui_warning "$(fmt "bash_using_compatibility_mode")"
+      ui_warning "Using compatibility mode for bash 3.2"
     fi
   else
-    echo "$(fmt "bash_version_info" "${BASH_VERSION}" "$current_version")"
+    echo "$(_f "Bash version: %s (%s)" "${BASH_VERSION}" "$current_version")"
   fi
 }
 
 warn_bash_compatibility() {
   if ! check_bash_version 4 0; then
     if [[ -n "${_LIB_CORE_UI_SOURCED:-}" ]]; then
-      ui_info_detail "$(fmt "bash_3_2_compatibility_mode")"
-      ui_info "$(fmt "bash_upgrade_recommendation")"
+      ui_info_detail "Running in bash 3.2 compatibility mode"
+      ui_info "Consider upgrading to bash 4.0+ for optimal performance"
     else
-      echo "$(fmt "bash_3_2_compatibility_mode")"
-      echo "$(fmt "bash_upgrade_recommendation")"
+      echo "Running in bash 3.2 compatibility mode"
+      echo "Consider upgrading to bash 4.0+ for optimal performance"
     fi
   fi
 }

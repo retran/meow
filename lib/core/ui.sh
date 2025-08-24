@@ -1,5 +1,12 @@
 #!/usr/bin/env bash
 
+# Helper function for safe string formatting, injected by the inliner script.
+_f() {
+  local template="$1"
+  shift
+  printf -- "$template" "$@"
+}
+
 # lib/core/ui.sh - Semantic UI functions for terminal output
 
 if [[ "${BASH_SOURCE[0]}" != "${0}" ]] && [[ -n "${_LIB_CORE_UI_SOURCED:-}" ]]; then
@@ -8,7 +15,6 @@ fi
 _LIB_CORE_UI_SOURCED=1
 
 source "${MEOW}/lib/core/colors.sh"
-source "${MEOW}/lib/strings/strings.sh"
 
 MEOW_VERBOSE="${MEOW_VERBOSE:-false}"
 
@@ -91,37 +97,37 @@ ui_verbose_action_success() { [[ "$MEOW_VERBOSE" == "true" ]] && ui_action_succe
 
 ui_component_installing() {
   local component="$1"
-  _icon_msg_core "${GREEN}➤ " "$(fmt 'installing_component' "$component")"
+  _icon_msg_core "${GREEN}➤ " "$(_f "Installing component: %s" "$component")"
 }
 
 ui_component_updating() {
   local component="$1"
-  _icon_msg_core "${CYAN}➤ " "$(fmt 'updating_component' "$component")"
+  _icon_msg_core "${CYAN}➤ " "$(_f "Updating component: %s" "$component")"
 }
 
 ui_component_uninstalling() {
   local component="$1"
-  _icon_msg_core "${RED}➤ " "$(fmt 'uninstalling_component' "$component")"
+  _icon_msg_core "${RED}➤ " "$(_f "Uninstalling component: %s" "$component")"
 }
 
 ui_package_manager_setup() {
   local manager="$1"
-  _base_msg "${BLUE}" "$(fmt 'setting_up_package_manager' "$manager")"
+  _base_msg "${BLUE}" "$(_f "Setting up %s package manager" "$manager")"
 }
 
 ui_package_manager_ready() {
   local manager="$1"
-  _icon_msg_core "${GREEN}✓ " "$(fmt 'manager_ready' "$manager")"
+  _icon_msg_core "${GREEN}✓ " "$(_f "%s package manager ready" "$manager")"
 }
 
 ui_package_manager_cleaning() {
   local manager="$1"
-  _base_msg "${YELLOW}" "$(fmt 'cleaning_package_manager' "$manager")"
+  _base_msg "${YELLOW}" "$(_f "Cleaning %s package manager" "$manager")"
 }
 
 # Interactive confirmation prompt
 ui_confirm() {
-  local message="${1:-$(fmt 'confirm_default')}"
+  local message="${1:-Confirm}"
   local default_response="${2:-N}"
   local prompt_suffix
   local default_upper
@@ -267,19 +273,19 @@ ui_spinner() {
     local temp_file="$temp_output_file"
     if [[ -s "$temp_output_file" ]]; then
       if [[ "$MEOW_VERBOSE" == "true" ]]; then
-        ui_error "$(fmt 'command_output')"
+        ui_error "Command output:"
         while IFS= read -r line; do
           ui_content "$line"
         done <"$temp_output_file"
       else
-        ui_error "$(fmt 'command_failed_first_lines')"
+        ui_error "Command failed. First few lines of output:"
         head -n 3 "$temp_output_file" | while IFS= read -r line; do
           ui_content "$line"
         done
         local line_count
         line_count=$(wc -l <"$temp_output_file")
         if [[ $line_count -gt 3 ]]; then
-          ui_info "$(fmt 'command_more_lines_hidden' $((line_count - 3)))"
+          ui_info "$(_f "%d more lines hidden..." $((line_count - 3)))"
         fi
       fi
     fi

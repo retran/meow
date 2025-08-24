@@ -24,11 +24,11 @@ setup_apt() {
 
   if is_dry_run; then
     if ! command -v apt-get >/dev/null 2>&1; then
-      dry_run_ui_info "$(fmt "apt_get_not_found")"
+      dry_run_ui_info "apt-get not found - would fail setup"
     else
-      dry_run_ui_info "$(fmt "apt_would_update_index")"
-      dry_run_ui_info "  $(fmt "apt_update_command")"
-      dry_run_ui_info "  $(fmt "apt_would_refresh_info")"
+      dry_run_ui_info "Would update APT package index"
+      dry_run_ui_info "  Command: sudo apt-get update"
+      dry_run_ui_info "  Would refresh available package information"
     fi
     return 0
   fi
@@ -38,9 +38,9 @@ setup_apt() {
   }
 
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    ui_spinner "$(fmt "apt_updating_index")" \
-      --success "$(fmt "apt_index_updated")" \
-      --fail "$(fmt "apt_index_update_failed")" \
+    ui_spinner "Updating APT index" \
+      --success "APT index updated" \
+      --fail "Failed to update APT index" \
       sudo apt-get update
   else
     sudo apt-get update >/dev/null 2>&1
@@ -66,9 +66,9 @@ uninstall_apt_packages() {
 
 cleanup_apt() {
   if is_dry_run; then
-    dry_run_ui_info "$(fmt "apt_would_clean_cache")"
-    dry_run_ui_info "  $(fmt "apt_cleanup_commands")"
-    dry_run_ui_info "  $(fmt "apt_would_remove_orphaned")"
+    dry_run_ui_info "Would clean APT package cache and remove unused packages"
+    dry_run_ui_info "  Commands: sudo apt-get autoremove -y && sudo apt-get clean"
+    dry_run_ui_info "  Would remove orphaned packages and clear download cache"
     return 0
   fi
 

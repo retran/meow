@@ -1,5 +1,12 @@
 #!/usr/bin/env bash
 
+# Helper function for safe string formatting, injected by the inliner script.
+_f() {
+  local template="$1"
+  shift
+  printf -- "$template" "$@"
+}
+
 if [[ -n "${_LIB_COMPONENTS_PACKAGES_SOURCED:-}" ]]; then
   return 0
 fi
@@ -8,7 +15,6 @@ _LIB_COMPONENTS_PACKAGES_SOURCED=1
 source "${MEOW}/lib/core/defs.sh"
 source "${MEOW}/lib/core/ui.sh"
 source "${MEOW}/lib/core/platform.sh"
-source "${MEOW}/lib/strings/strings.sh"
 
 source "${MEOW}/lib/package/common.sh"
 source "${MEOW}/lib/package/homebrew.sh"
@@ -29,7 +35,7 @@ install_component_packages() {
   local packages_dir="${component_dir}/packages"
 
   if [[ ! -d "$component_dir" ]]; then
-    ui_error "$(fmt "component_dir_not_found" "$component_dir")"
+    ui_error "$(_f "Component directory not found: %s" "$component_dir")"
     return 1
   fi
 
@@ -38,7 +44,7 @@ install_component_packages() {
   fi
 
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    ui_step_header "$(fmt "installing_packages_for" "$component")"
+    ui_step_header "$(_f "Installing packages for %s" "$component")"
   fi
 
   local has_packages=false
@@ -97,7 +103,7 @@ install_component_packages() {
 
   if [[ "$has_packages" == "true" && "$MEOW_VERBOSE" != "true" ]]; then
     if [[ $package_errors -gt 0 ]]; then
-      ui_indent "$(fmt "packages_errors_occurred" "$package_errors")"
+      ui_indent "$(_f "Packages: ✗ %d errors occurred" "$package_errors")"
     fi
   fi
 
@@ -111,7 +117,7 @@ uninstall_component_packages() {
   local packages_dir="${component_dir}/packages"
 
   if [[ ! -d "$component_dir" ]]; then
-    ui_error "$(fmt "component_dir_not_found" "$component_dir")"
+    ui_error "$(_f "Component directory not found: %s" "$component_dir")"
     return 1
   fi
 
@@ -194,7 +200,7 @@ _update_package_manager() {
 
   local update_function_name="update_${manager_name}_packages"
   if ! declare -F "$update_function_name" >/dev/null; then
-    ui_action_error "$(fmt "update_function_not_found" "$update_function_name")"
+    ui_action_error "$(_f "Update function %s not found." "$update_function_name")"
     return 1
   fi
 
@@ -207,12 +213,12 @@ update_component_packages() {
   local component_dir="${MEOW_COMPONENTS_DIR}/${component}"
 
   if [[ ! -d "$component_dir" ]]; then
-    ui_error "$(fmt "component_dir_not_found" "$component_dir")"
+    ui_error "$(_f "Component directory not found: %s" "$component_dir")"
     return 1
   fi
 
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    ui_step_header "$(fmt "updating_packages_for" "$component")"
+    ui_step_header "$(_f "Updating packages for %s" "$component")"
   fi
 
   local package_errors=0
@@ -259,7 +265,7 @@ update_component_packages() {
 
   if [[ "$has_packages" == "true" && "$MEOW_VERBOSE" != "true" ]]; then
     if [[ $package_errors -gt 0 ]]; then
-      ui_indent "$(fmt "package_updates_errors_occurred" "$package_errors")"
+      ui_indent "$(_f "Package updates: ✗ %d errors occurred" "$package_errors")"
     fi
   fi
 

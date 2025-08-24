@@ -2,32 +2,31 @@
 
 set -euo pipefail
 
-source "${MEOW}/lib/strings/strings.sh"
 source "${MEOW}/lib/core/ui.sh"
 
-ui_info "$(fmt "dotnet_cleanup_running")"
+ui_info "🧹 Running .NET Development cleanup..."
 
 if command -v dotnet >/dev/null 2>&1; then
-  ui_info "$(fmt "dotnet_cleaning_nuget_cache")"
+  ui_info "  📦 Cleaning NuGet cache..."
   dotnet nuget locals all --clear 2>/dev/null || true
 
-  ui_info "$(fmt "dotnet_cleaning_temp_files")"
+  ui_info "  🗑️  Cleaning .NET temporary files..."
   dotnet clean 2>/dev/null || true
 fi
 
 if [[ -d "$HOME/.nuget/packages" ]]; then
-  ui_info "$(fmt "dotnet_cleaning_nuget_packages")"
+  ui_info "  🗑️  Cleaning NuGet packages cache..."
   rm -rf "$HOME/.nuget/packages/.tools" 2>/dev/null || true
 fi
 
 if [[ -d "$HOME/.omnisharp" ]]; then
-  ui_info "$(fmt "dotnet_cleaning_omnisharp")"
+  ui_info "  🗑️  Cleaning OmniSharp cache..."
   rm -rf "$HOME/.omnisharp" 2>/dev/null || true
 fi
 
 if [[ -d "/tmp/.dotnet" ]]; then
-  ui_info "$(fmt "dotnet_cleaning_dotnet_temp")"
+  ui_info "  🗑️  Cleaning dotnet temp files..."
   rm -rf "/tmp/.dotnet" 2>/dev/null || true
 fi
 
-ui_success "$(fmt "dotnet_cleanup_completed")"
+ui_success "✅ .NET Development cleanup completed"

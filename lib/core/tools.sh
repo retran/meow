@@ -1,5 +1,12 @@
 #!/usr/bin/env bash
 
+# Helper function for safe string formatting, injected by the inliner script.
+_f() {
+  local template="$1"
+  shift
+  printf -- "$template" "$@"
+}
+
 if [[ -n "${_LIB_CORE_TOOLS_SOURCED:-}" ]]; then
   return 0
 fi
@@ -7,7 +14,6 @@ _LIB_CORE_TOOLS_SOURCED=1
 
 source "${MEOW}/lib/core/ui.sh"
 source "${MEOW}/lib/core/dry_run.sh"
-source "${MEOW}/lib/strings/strings.sh"
 
 YQ_VERSION="${YQ_VERSION:-v4.47.1}"
 
@@ -17,11 +23,11 @@ ensure_yq() {
     actual_version=$(yq --version | awk '{print $4}')
 
     if [[ "$actual_version" == "$YQ_VERSION" ]]; then
-      ui_verbose_info "$(fmt "yq_already_installed" "$YQ_VERSION")"
+      ui_verbose_info "$(_f "⇒ yq %s is already installed." "$YQ_VERSION")"
       return 0
     fi
 
-    ui_action_warning "$(fmt "yq_version_mismatch" "$YQ_VERSION" "$actual_version")"
+    ui_action_warning "$(_f "Found yq, but version mismatch. Expected: '%s', Found: '%s'" "$YQ_VERSION" "$actual_version")"
   fi
 
   # Handle dry-run mode
@@ -32,7 +38,7 @@ ensure_yq() {
     return 0
   fi
 
-  ui_action_start "$(fmt "yq_installing" "$YQ_VERSION")"
+  ui_action_start "$(_f "Installing yq v%s..." "$YQ_VERSION")"
 
   local OS ARCH BIN_NAME URL DEST TMPBIN
 
@@ -40,7 +46,7 @@ ensure_yq() {
     Linux) OS="linux" ;;
     Darwin) OS="darwin" ;;
     *)
-      ui_action_error "$(fmt "yq_unsupported_os" "$(uname -s)")"
+      ui_action_error "$(_f "Unsupported OS: %s" "$(uname -s)")"
       return 1
       ;;
   esac
@@ -50,7 +56,7 @@ ensure_yq() {
       [[ "$(uname -m)" == "x86_64" ]] && ARCH="amd64" || ARCH="arm64"
       ;;
     *)
-      ui_action_error "$(fmt "yq_unsupported_arch" "$(uname -m)")"
+      ui_action_error "$(_f "Unsupported architecture: %s" "$(uname -m)")"
       return 1
       ;;
   esac
@@ -63,10 +69,10 @@ ensure_yq() {
   if curl -fsSL "$URL" -o "$TMPBIN"; then
     sudo mv "$TMPBIN" "$DEST" || return 1
     sudo chmod +x "$DEST" || return 1
-    ui_action_success "$(fmt "yq_installed_successfully" "$YQ_VERSION" "$DEST")"
+    ui_action_success "$(_f "yq v%s installed to %s" "$YQ_VERSION" "$DEST")"
     return 0
   else
-    ui_action_error "$(fmt "yq_download_failed" "$URL")"
+    ui_action_error "$(_f "Failed to download yq from %s" "$URL")"
     return 1
   fi
 }

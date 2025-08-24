@@ -7,12 +7,11 @@ MEOW="$2"
 
 source "${MEOW}/lib/core/platform.sh"
 source "${MEOW}/lib/core/ui.sh"
-source "${MEOW}/lib/strings/strings.sh"
 
-ui_action_start "$(fmt "game_dev_configuring")"
+ui_action_start "TODO: write message - game_dev_configuring"
 
 if [[ -d "/Applications/Blender.app" ]]; then
-  ui_info "$(fmt "game_dev_configuring_blender")"
+  ui_info "TODO: write message - game_dev_configuring_blender"
 
   blender_scripts_dir="$HOME/Library/Application Support/Blender/4.2/scripts"
   mkdir -p "$blender_scripts_dir/addons" 2>/dev/null || true
@@ -44,7 +43,7 @@ EOF
 fi
 
 if [[ -d "/Applications/krita.app" ]]; then
-  ui_info "$(fmt "game_dev_configuring_krita")"
+  ui_info "TODO: write message - game_dev_configuring_krita"
 
   krita_resources_dir="$HOME/Library/Application Support/krita/resources"
   mkdir -p "$krita_resources_dir/brushes" 2>/dev/null || true
@@ -74,4 +73,4 @@ EOF
   fi
 fi
 
-ui_action_success "$(fmt "game_dev_configured_successfully")"
+ui_action_success "TODO: write message - game_dev_configured_successfully"

@@ -1,5 +1,12 @@
 #!/usr/bin/env bash
 
+# Helper function for safe string formatting, injected by the inliner script.
+_f() {
+  local template="$1"
+  shift
+  printf -- "$template" "$@"
+}
+
 if [[ "${BASH_SOURCE[0]}" != "${0}" ]] && [[ -n "${_LIB_SYSTEM_MACOS_KEYBOARD_SOURCED:-}" ]]; then
   return 0
 fi
@@ -9,7 +16,6 @@ MEOW="${MEOW:-$HOME/.meow}"
 
 source "${MEOW}/lib/core/defs.sh"
 source "${MEOW}/lib/core/ui.sh"
-source "${MEOW}/lib/strings/strings.sh"
 
 # Set keyboard layouts for macOS.
 # This function configures the enabled input sources (keyboard layouts)
@@ -21,7 +27,7 @@ set_macos_keyboard_layouts() {
   local layout_type="$1"
 
   if [[ "$OSTYPE" != "darwin"* ]]; then
-    ui_warning "$(fmt "macos_keyboard_only_works_macos")"
+    ui_warning "This function only works on macOS"
     return 1
   fi
 
@@ -39,7 +45,7 @@ set_macos_keyboard_layouts() {
       russian_layout_name="Russian"
       ;;
     *)
-      ui_error "$(fmt "macos_keyboard_unknown_layout_type" "$layout_type")"
+      ui_error "$(_f "Unknown layout type: %s. Use 'das' or 'mbp'" "$layout_type")"
       return 1
       ;;
   esac
@@ -52,7 +58,7 @@ set_macos_keyboard_layouts() {
     is_russian_selected=1
   fi
 
-  ui_action_start "$(fmt "macos_keyboard_configuring_layouts" "$layout_type")"
+  ui_action_start "$(_f "Configuring keyboard layouts for %s..." "$layout_type")"
 
   # Set the enabled input sources to "ABC" (U.S.) and the chosen Russian layout.
   # This overwrites the existing list of enabled layouts.
@@ -76,7 +82,7 @@ set_macos_keyboard_layouts() {
 
   # If the Russian layout was active before, restore it as the selected source.
   if [[ "$is_russian_selected" -eq 1 ]]; then
-    ui_action_start "$(fmt "macos_keyboard_restoring_russian")"
+    ui_action_start "Restoring active Russian layout"
     defaults write com.apple.HIToolbox AppleSelectedInputSources -array \
       "<dict>
           <key>InputSourceKind</key>
@@ -90,5 +96,5 @@ set_macos_keyboard_layouts() {
 
   pkill TextInputMenuAgent 2>/dev/null || true
 
-  ui_action_success "$(fmt "macos_keyboard_layouts_configured" "$layout_type")"
+  ui_action_success "$(_f "Keyboard layouts configured for %s" "$layout_type")"
 }

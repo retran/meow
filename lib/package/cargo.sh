@@ -18,22 +18,22 @@ is_cargo_package_installed() {
 }
 
 setup_cargo() {
-  ui_step_header "$(fmt "cargo_setting_up")"
+  ui_step_header "Setting up Cargo"
 
   if is_dry_run; then
     if ! command -v cargo >/dev/null 2>&1; then
-      dry_run_ui_info "$(fmt "cargo_not_found_would_fail")"
+      dry_run_ui_info "cargo not found - would fail setup"
     else
-      dry_run_ui_info "$(fmt "cargo_already_available")"
+      dry_run_ui_info "Cargo already available, ready for package installation"
     fi
     return 0
   fi
 
   command -v cargo >/dev/null 2>&1 || {
-    ui_action_error "$(fmt "cargo_not_found")"
+    ui_action_error "cargo not found"
     return 1
   }
-  ui_action_success "$(fmt "cargo_available")"
+  ui_action_success "Cargo available"
 }
 
 install_cargo_packages() {
@@ -51,15 +51,15 @@ uninstall_cargo_packages() {
 
 cleanup_cargo() {
   if is_dry_run; then
-    dry_run_ui_info "$(fmt "cargo_cleanup_would_skip")"
-    dry_run_ui_info "  $(fmt "cargo_packages_managed_by_toolchain")"
+    dry_run_ui_info "Cargo cleanup would be skipped (no cleanup needed)"
+    dry_run_ui_info "  Cargo packages are installed per-user, managed by Rust toolchain"
     return 0
   fi
 
   if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    ui_step_header "$(fmt "cargo_cleaning_noop")"
-    ui_action_success "$(fmt "cargo_cleanup_skipped")"
+    ui_step_header "Cleaning Cargo (no-op)"
+    ui_action_success "Cargo cleanup skipped"
   else
-    ui_action_success "$(fmt "cargo_cleanup_skipped")"
+    ui_action_success "Cargo cleanup skipped"
   fi
 }

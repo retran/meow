@@ -7,12 +7,11 @@ MEOW="$2"
 
 source "${MEOW}/lib/core/platform.sh"
 source "${MEOW}/lib/core/ui.sh"
-source "${MEOW}/lib/strings/strings.sh"
 
-ui_action_start "$(fmt "media_configuring")"
+ui_action_start "TODO: write message - media_configuring"
 
 if [[ -d "/Applications/OBS.app" ]]; then
-  ui_info "$(fmt "media_configuring_obs")"
+  ui_info "TODO: write message - media_configuring_obs"
 
   obs_config_dir="$HOME/Library/Application Support/obs-studio"
   mkdir -p "$obs_config_dir/basic/scenes" 2>/dev/null || true
@@ -78,4 +77,4 @@ EOF
   fi
 fi
 
-ui_action_success "$(fmt "media_configured_successfully")"
+ui_action_success "TODO: write message - media_configured_successfully"

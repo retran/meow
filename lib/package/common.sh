@@ -1,5 +1,12 @@
 #!/usr/bin/env bash
 
+# Helper function for safe string formatting, injected by the inliner script.
+_f() {
+  local template="$1"
+  shift
+  printf -- "$template" "$@"
+}
+
 if [[ -n "${_LIB_PACKAGE_COMMON_SOURCED:-}" ]]; then
   return 0
 fi
@@ -15,7 +22,7 @@ cache_package_list() {
   local list_command="$2"
 
   if [[ -z "${!cache_var:-}" ]]; then
-    ui_verbose_action_start "$(fmt "caching_package_list" "$manager")"
+    ui_verbose_action_start "$(_f "TODO: write message - caching_package_list" "$manager")"
     eval "$cache_var=\"$(eval "$list_command")\""
   fi
 }
@@ -89,7 +96,7 @@ install_packages_generic() {
     [[ -z "$package_name" ]] && continue
 
     if eval "$check_cmd \"$package_name\""; then
-      ui_verbose_action_success "$(fmt "package_already_installed" "$package_name")"
+      ui_verbose_action_success "$(_f "Package already installed: %s" "$package_name")"
       ((already_installed_count++)) || true
     else
       if is_dry_run; then
@@ -101,9 +108,9 @@ install_packages_generic() {
       if [[ "$MEOW_VERBOSE" == "true" ]]; then
         run_package_operation "$package_name" \
           "install" \
-          "$(fmt "installing_package" "$package_name")" \
-          "$(fmt "successfully_installed_package" "$package_name")" \
-          "$(fmt "failed_to_install_package" "$package_name")" \
+          "$(_f "Installing %s" "$package_name")" \
+          "$(_f "Successfully installed %s" "$package_name")" \
+          "$(_f "Failed to install %s" "$package_name")" \
           "" \
           $install_cmd "$package_name"
         if [[ $? -eq 0 ]]; then
@@ -112,11 +119,11 @@ install_packages_generic() {
           ((failed_count++)) || true
         fi
       else
-        if ui_silent_spinner "$(fmt "silent_spinner_installing" "$manager_display_name" "$package_name")" $install_cmd "$package_name"; then
+        if ui_silent_spinner "$(_f "Installing %s %s" "$manager_display_name" "$package_name")" $install_cmd "$package_name"; then
           ((installed_count++)) || true
         else
           ((failed_count++)) || true
-          ui_action_error "$(fmt "failed_to_install_package" "$package_name")"
+          ui_action_error "$(_f "Failed to install %s" "$package_name")"
         fi
       fi
     fi
@@ -126,13 +133,13 @@ install_packages_generic() {
 
   if ((failed_count == 0)); then
     if ((installed_count > 0)); then
-      ui_indent "$(fmt "package_summary_success_installed" "$(capitalize "$manager_name")" "$installed_count" "$already_installed_count")"
+      ui_indent "$(_f "%s: ✓ %d installed, %d already present" "$(capitalize "$manager_name")" "$installed_count" "$already_installed_count")"
     else
-      ui_indent "$(fmt "package_summary_success_present" "$(capitalize "$manager_name")" "$already_installed_count" "$total_packages")"
+      ui_indent "$(_f "%s: ✓ %d/%d already present" "$(capitalize "$manager_name")" "$already_installed_count" "$total_packages")"
     fi
     return 0
   else
-    ui_indent "$(fmt "package_summary_failed_install" "$(capitalize "$manager_name")" "$failed_count" "$installed_count" "$already_installed_count")"
+    ui_indent "$(_f "%s: ✗ %d failed, %d installed, %d already present" "$(capitalize "$manager_name")" "$failed_count" "$installed_count" "$already_installed_count")"
     return 1
   fi
 }
@@ -199,12 +206,12 @@ update_packages_generic() {
       if [[ -n "$skip_pattern" ]]; then
         local test_output
         if [[ "$MEOW_VERBOSE" == "true" ]]; then
-          ui_verbose_info "$(fmt "checking_package_up_to_date" "$package_name")"
+          ui_verbose_info "$(_f "TODO: write message - checking_package_up_to_date" "$package_name")"
           test_output=$(eval "$update_cmd $package_name" 2>&1) || true
         else
           local temp_file
           temp_file=$(mktemp)
-          if ui_silent_spinner "$(fmt "silent_spinner_checking" "$manager_display_name" "$package_name")" bash -c "$update_cmd $package_name >$temp_file 2>&1"; then
+          if ui_silent_spinner "$(_f "Checking %s %s" "$manager_display_name" "$package_name")" bash -c "$update_cmd $package_name >$temp_file 2>&1"; then
             test_output=$(cat "$temp_file")
           else
             test_output=$(cat "$temp_file")
@@ -217,7 +224,7 @@ update_packages_generic() {
       fi
 
       if [[ "$is_up_to_date" == "true" ]]; then
-        ui_verbose_action_success "$(fmt "package_up_to_date" "$package_name")"
+        ui_verbose_action_success "$(_f "TODO: write message - package_up_to_date" "$package_name")"
         ((up_to_date_count++)) || true
       else
         if is_dry_run; then
@@ -229,9 +236,9 @@ update_packages_generic() {
         if [[ "$MEOW_VERBOSE" == "true" ]]; then
           run_package_operation "$package_name" \
             "update" \
-            "$(fmt "updating_package" "$package_name")" \
-            "$(fmt "successfully_updated_package" "$package_name")" \
-            "$(fmt "failed_to_update_package" "$package_name")" \
+            "$(_f "Updating %s" "$package_name")" \
+            "$(_f "Successfully updated %s" "$package_name")" \
+            "$(_f "Failed to update %s" "$package_name")" \
             "" \
             $update_cmd "$package_name"
           if [[ $? -eq 0 ]]; then
@@ -240,30 +247,30 @@ update_packages_generic() {
             ((failed_count++)) || true
           fi
         else
-          if ui_silent_spinner "$(fmt "silent_spinner_updating" "$manager_display_name" "$package_name")" $update_cmd "$package_name"; then
+          if ui_silent_spinner "$(_f "Updating %s %s" "$manager_display_name" "$package_name")" $update_cmd "$package_name"; then
             ((updated_count++)) || true
           else
             ((failed_count++)) || true
-            ui_action_error "$(fmt "failed_to_update_package" "$package_name")"
+            ui_action_error "$(_f "Failed to update %s" "$package_name")"
           fi
         fi
       fi
     else
-      ui_action_warning "$(fmt "package_not_installed_skipping" "$package_name")"
+      ui_action_warning "$(_f "Package not installed, skipping: %s" "$package_name")"
     fi
   done <"$package_file"
 
   local duration=$(($(date +%s) - start_time))
   if ((failed_count == 0)); then
     if ((updated_count > 0)); then
-      ui_indent "$(fmt "package_summary_success_updated" "$(capitalize "$manager_name")" "$updated_count" "$up_to_date_count")"
+      ui_indent "$(_f "%s: ✓ %d updated, %d up-to-date" "$(capitalize "$manager_name")" "$updated_count" "$up_to_date_count")"
       return 0
     else
-      ui_indent "$(fmt "package_summary_success_up_to_date" "$(capitalize "$manager_name")" "$up_to_date_count" "$total_packages")"
+      ui_indent "$(_f "%s: ✓ %d/%d up-to-date" "$(capitalize "$manager_name")" "$up_to_date_count" "$total_packages")"
       return 0
     fi
   else
-    ui_indent "$(fmt "package_summary_failed_update" "$(capitalize "$manager_name")" "$failed_count" "$updated_count" "$up_to_date_count")"
+    ui_indent "$(_f "%s: ✗ %d failed, %d updated, %d up-to-date" "$(capitalize "$manager_name")" "$failed_count" "$updated_count" "$up_to_date_count")"
     return 1
   fi
 }
@@ -316,9 +323,9 @@ uninstall_packages_generic() {
       if [[ "$MEOW_VERBOSE" == "true" ]]; then
         run_package_operation "$package_name" \
           "uninstall" \
-          "$(fmt "uninstalling_package" "$package_name")" \
-          "$(fmt "successfully_uninstalled_package" "$package_name")" \
-          "$(fmt "failed_to_uninstall_package" "$package_name")" \
+          "$(_f "Uninstalling %s" "$package_name")" \
+          "$(_f "Successfully uninstalled %s" "$package_name")" \
+          "$(_f "Failed to uninstall %s" "$package_name")" \
           "" \
           $uninstall_cmd "$package_name"
         if [[ $? -eq 0 ]]; then
@@ -327,15 +334,15 @@ uninstall_packages_generic() {
           ((failed_count++)) || true
         fi
       else
-        if ui_silent_spinner "$(fmt "silent_spinner_uninstalling" "$manager_display_name" "$package_name")" $uninstall_cmd "$package_name"; then
+        if ui_silent_spinner "$(_f "Uninstalling %s %s" "$manager_display_name" "$package_name")" $uninstall_cmd "$package_name"; then
           ((uninstalled_count++)) || true
         else
           ((failed_count++)) || true
-          ui_action_error "$(fmt "failed_to_uninstall_package" "$package_name")"
+          ui_action_error "$(_f "Failed to uninstall %s" "$package_name")"
         fi
       fi
     else
-      ui_verbose_info "$(fmt "package_not_installed_skipping" "$package_name")"
+      ui_verbose_info "$(_f "Package not installed, skipping: %s" "$package_name")"
       ((not_installed_count++)) || true
     fi
   done <"$package_file"
@@ -344,13 +351,13 @@ uninstall_packages_generic() {
 
   if ((failed_count == 0)); then
     if ((uninstalled_count > 0)); then
-      ui_indent "$(fmt "package_summary_success_uninstalled" "$(capitalize "$manager_name")" "$uninstalled_count" "$not_installed_count")"
+      ui_indent "$(_f "%s: ✓ %d uninstalled, %d not installed" "$(capitalize "$manager_name")" "$uninstalled_count" "$not_installed_count")"
     else
-      ui_indent "$(fmt "package_summary_success_not_installed" "$(capitalize "$manager_name")" "$not_installed_count" "$((uninstalled_count + not_installed_count))")"
+      ui_indent "$(_f "%s: ✓ %d/%d not installed" "$(capitalize "$manager_name")" "$not_installed_count" "$((uninstalled_count + not_installed_count))")"
     fi
     return 0
   else
-    ui_indent "$(fmt "package_summary_failed_uninstall" "$(capitalize "$manager_name")" "$failed_count" "$uninstalled_count" "$not_installed_count")"
+    ui_indent "$(_f "%s: ✗ %d failed, %d uninstalled, %d not installed" "$(capitalize "$manager_name")" "$failed_count" "$uninstalled_count" "$not_installed_count")"
     return 1
   fi
 }

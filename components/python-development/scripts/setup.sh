@@ -7,20 +7,19 @@ MEOW="$2"
 
 source "${MEOW}/lib/core/platform.sh"
 source "${MEOW}/lib/core/ui.sh"
-source "${MEOW}/lib/strings/strings.sh"
 
 if ! command -v python3 >/dev/null 2>&1; then
-  ui_warning "$(fmt "python_dev_python_not_found_skip")"
+  ui_warning "TODO: write message - python_dev_python_not_found_skip"
   exit 0
 fi
 
-ui_action_start "$(fmt "python_dev_configuring")"
+ui_action_start "TODO: write message - python_dev_configuring"
 
 if command -v pyenv >/dev/null 2>&1; then
-  ui_info "$(fmt "python_dev_configuring_pyenv")"
+  ui_info "TODO: write message - python_dev_configuring_pyenv"
 
   if [[ -z "$(pyenv versions --bare)" ]]; then
-    ui_info "$(fmt "python_dev_installing_latest_python")"
+    ui_info "TODO: write message - python_dev_installing_latest_python"
     latest_python=$(pyenv install --list | grep -E '^\s*[0-9]+\.[0-9]+\.[0-9]+$' | tail -1 | tr -d ' ')
     if [[ -n "$latest_python" ]]; then
       pyenv install "$latest_python" 2>/dev/null || true
@@ -29,8 +28,8 @@ if command -v pyenv >/dev/null 2>&1; then
   fi
 fi
 
-ui_info "$(fmt "python_dev_creating_directories")"
+ui_info "TODO: write message - python_dev_creating_directories"
 mkdir -p "$HOME/.local/bin" 2>/dev/null || true
 mkdir -p "$HOME/.cache/pip" 2>/dev/null || true
 
-ui_action_success "$(fmt "python_dev_configuration_completed")"
+ui_action_success "TODO: write message - python_dev_configuration_completed"
