@@ -1,11 +1,7 @@
 #!/usr/bin/env bash
 
 # Helper function for safe string formatting, injected by the inliner script.
-_f() {
-  local template="$1"
-  shift
-  printf -- "$template" "$@"
-}
+source "${MEOW}/lib/core/ui.sh"
 
 # lib/core/ui.sh - Semantic UI functions for terminal output
 
@@ -22,6 +18,12 @@ declare -g MEOW_ERROR_COUNT=0
 declare -g MEOW_WARNING_COUNT=0
 declare -ga MEOW_ERRORS=()
 declare -ga MEOW_WARNINGS=()
+
+_f() {
+  local template="$1"
+  shift
+  printf -- "$template" "$@"
+}
 
 _base_msg() {
   local color_prefix="$1"

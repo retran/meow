@@ -1,11 +1,7 @@
 #!/usr/bin/env bash
 
 # Helper function for safe string formatting, injected by the inliner script.
-_f() {
-  local template="$1"
-  shift
-  printf -- "$template" "$@"
-}
+source "${MEOW}/lib/core/ui.sh"
 
 if [[ -n "${_LIB_COMPONENTS_SYMLINKS_SOURCED:-}" ]]; then
   return 0
