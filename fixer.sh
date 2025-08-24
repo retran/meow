@@ -435,6 +435,11 @@ process_single_file() {
             if [ "$VERBOSE" != "true" ]; then
                 rm -f "$backup_file"
             fi
+
+            if [ "$VERBOSE" = "true" ]; then
+                show_file_content "$file" "📄 Final content:"
+            fi
+
             return 0
         fi
 
@@ -510,14 +515,16 @@ process_single_file() {
     # Handle max iterations reached
     if [ $iteration -gt $MAX_ITERATIONS ]; then
         ui_error "Maximum iterations ($MAX_ITERATIONS) reached"
+        # Show final content if verbose
+        if [ "$VERBOSE" = "true" ]; then
+            show_file_content "$file" "📄 Final content:"
+        fi
         return 1
     fi
 
-    # Show original content if verbose
     if [ "$VERBOSE" = "true" ]; then
-        show_file_content "$file" "📄 Updated content:"
+        show_file_content "$file" "📄 Final content:"
     fi
-
     return 0
 }
 
