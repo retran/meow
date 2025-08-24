@@ -160,7 +160,6 @@ collect_dependencies_recursively_for_installation_stdout() {
 
 collect_all_dependencies_for_installation() {
   local component="$1"
-  local _result_array_name="$2"
 
   local all_deps_raw_with_duplicates
   all_deps_raw_with_duplicates=$(collect_dependencies_recursively_for_installation_stdout "$component")
@@ -178,15 +177,15 @@ collect_all_dependencies_for_installation() {
   done < <(printf '%s\n' "$unique_deps_raw")
 
   local sorted_deps_raw
-  sorted_deps_raw=$(topological_sort_for_installation_stdout "${all_components_unsorted_and_unique[@]}")
+  sorted_deps_raw=$(topological_sort_for_installation "${all_components_unsorted_and_unique[@]}")
 
-  eval "${_result_array_name}=()"
+  local result=()
   while IFS= read -r item; do
-    eval "${_result_array_name}+=(\"$item\")"
+    result+=("$item")
   done < <(printf '%s\n' "$sorted_deps_raw")
 }
 
-topological_sort_for_installation_stdout() {
+topological_sort_for_installation() {
   local remaining_components=("$@")
   local sorted_components=()
 
