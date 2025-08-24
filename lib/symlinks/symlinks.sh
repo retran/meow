@@ -1,19 +1,16 @@
 #!/usr/bin/env bash
 
-# Helper function for safe string formatting, injected by the inliner script.
-source "${MEOW}/lib/core/ui.sh"
-
-if [[ "${BASH_SOURCE[0]}" != "${0}" ]] && [[ -n "${_LIB_PACKAGE_SYMLINKS_SOURCED:-}" ]]; then
-  return 0
-fi
-_LIB_PACKAGE_SYMLINKS_SOURCED=1
-
 source "${MEOW}/lib/core/ui.sh"
 source "${MEOW}/lib/core/defs.sh"
 source "${MEOW}/lib/core/dry_run.sh"
 
 source "${MEOW}/lib/package/homebrew.sh"
 source "${MEOW}/lib/package/apt.sh"
+
+if [[ -n "${_LIB_PACKAGE_SYMLINKS_SOURCED:-}" ]]; then
+  return 0
+fi
+_LIB_PACKAGE_SYMLINKS_SOURCED=1
 
 expand_path() {
   local path="$1"
@@ -51,8 +48,7 @@ create_symlink() {
 
   if is_dry_run; then
     if [[ -L "$expanded_target" ]]; then
-      dry_run_ui_info "$(_f "Would update symlink: %s -> %s" "$expanded_target" "$expanded_source")"
-      dry_run_ui_info "  $(_f "Current target: %s" "$(readlink "$expanded_target")")"
+      dry_run_ui_info "$(_f "Would update existing symlink: %s -> %s (current target: %s)" "$expanded_target" "$expanded_source" "$(readlink "$expanded_target")")"
     elif [[ -e "$expanded_target" ]]; then
       dry_run_ui_info "$(_f "Would backup existing file and create symlink: %s -> %s" "$expanded_target" "$expanded_source")"
     else
@@ -61,12 +57,11 @@ create_symlink() {
     return 0
   fi
 
-  if mkdir -p "$(dirname "$expanded_target")"; then
-    debug "Parent directory for $expanded_target ensured."
-  else
+  if ! mkdir -p "$(dirname "$expanded_target")"; then
     ui_action_error "$(_f "Failed to create parent directory for %s." "$expanded_target")"
     return 1
   fi
+  debug "Parent directory for $expanded_target ensured."
 
   if [[ -e "$expanded_target" || -L "$expanded_target" ]]; then
     if [[ -L "$expanded_target" ]]; then
@@ -153,7 +148,7 @@ setup_component_symlinks_from_file() {
   done
 
   if [[ $processed_count -gt 0 && "$MEOW_VERBOSE" == "true" ]]; then
-    ui_info "$(_f "(%d symlinks processed for this OS)" "$processed_count")"
+    ui_verbose_info "$(_f "(%d symlinks processed for this OS)" "$processed_count")"
   fi
 
   end_time=$(date +%s)
@@ -170,7 +165,6 @@ setup_component_symlinks_from_file() {
 
 debug() {
   if [ "${DEBUG:-0}" = "1" ]; then
-    # shellcheck disable=SC2005
     printf '%s\n' "${MAGENTA}DEBUG:${RESET} $*" >&2
   fi
 }
@@ -179,32 +173,35 @@ list_backups() {
   local target_pattern="${1:-}"
 
   if [[ -z "$target_pattern" ]]; then
-    echo "Listing all symlink backups:"
+    ui_info "Listing all symlink backups:"
     local found=false
     for backup_file in "$HOME"/.*.backup.*; do
       if [[ -f "$backup_file" ]]; then
         local original_file="${backup_file%.backup.*}"
         local backup_timestamp="${backup_file##*.backup.}"
-        echo "$(_f "  %s -> %s (created: %s)" "$(basename "$original_file")" "$(basename "$backup_file")" "$backup_timestamp")"
+        ui_info "$(_f "  %s -> %s (backed up at: %s)" "$(basename "$original_file")" "$(basename "$backup_file")" "$backup_timestamp")"
         found=true
       fi
     done
-    if [[ "$found" == false ]]; then
-      echo "  No symlink backups found"
+    if [[ "$found" == "false" ]]; then
+      ui_info "  No symlink backups found."
     fi
   else
-    echo "$(_f "Listing backups for pattern: %s" "$target_pattern")"
+    ui_info "$(_f "Listing backups for pattern: %s" "$target_pattern")"
     local found=false
+    # Use shopt -s nullglob for robustness if no matches, but for Bash 3.2, simpler to just check if -f
+    # This loop might execute with the literal pattern if no matches, if "$HOME"/*"${target_pattern}"*.backup.*" doesn't expand
+    # The -f check handles this
     for backup_file in "$HOME"/*"${target_pattern}"*.backup.*; do
       if [[ -f "$backup_file" ]]; then
         local original_file="${backup_file%.backup.*}"
         local backup_timestamp="${backup_file##*.backup.}"
-        echo "$(_f "TODO: write message - symlinks_backup_entry" "$(basename "$original_file")" "$(basename "$backup_file")" "$backup_timestamp")"
+        ui_info "$(_f "  %s -> %s (backed up at: %s)" "$(basename "$original_file")" "$(basename "$backup_file")" "$backup_timestamp")"
         found=true
       fi
     done
-    if [[ "$found" == false ]]; then
-      echo "$(_f "  No backups found for pattern: %s" "$target_pattern")"
+    if [[ "$found" == "false" ]]; then
+      ui_info "$(_f "  No backups found for pattern: %s" "$target_pattern")"
     fi
   fi
 }
@@ -212,40 +209,41 @@ list_backups() {
 restore_backup() {
   local backup_file="$1"
 
+  # If backup_file is not an absolute path, assume it's relative to HOME
   if [[ ! -f "$backup_file" && ! "$backup_file" = /* ]]; then
     backup_file="$HOME/$backup_file"
   fi
 
   if [[ ! -f "$backup_file" ]]; then
-    echo "$(_f "Backup file not found: %s" "$backup_file")"
+    ui_action_error "$(_f "Backup file not found: %s" "$backup_file")"
     return 1
   fi
 
   local original_file="${backup_file%.backup.*}"
 
-  echo "$(_f "Restoring backup: %s -> %s" "$(basename "$backup_file")" "$(basename "$original_file")")"
+  ui_info "$(_f "Restoring backup: %s -> %s" "$(basename "$backup_file")" "$(basename "$original_file")")"
 
   if dry_run_file_operation "restore_file" "$original_file" "$backup_file"; then
     return 0
   fi
 
   if [[ -e "$original_file" || -L "$original_file" ]]; then
-    echo "  Target location already exists, creating backup of current state"
+    ui_info "  Target location already exists, creating backup of current state."
     local current_backup
     current_backup="${original_file}.backup.$(date +%Y%m%d_%H%M%S).current"
     if mv "$original_file" "$current_backup"; then
-      echo "$(_f "  Current state backed up to %s" "$(basename "$current_backup")")"
+      ui_info "$(_f "  Current state backed up to %s" "$(basename "$current_backup")")"
     else
-      echo "  Failed to backup current state"
+      ui_action_error "  Failed to backup current state."
       return 1
     fi
   fi
 
   if mv "$backup_file" "$original_file"; then
-    echo "$(_f "  Successfully restored %s" "$(basename "$original_file")")"
+    ui_action_success "$(_f "  Successfully restored %s" "$(basename "$original_file")")"
     return 0
   else
-    echo "  Failed to restore backup"
+    ui_action_error "  Failed to restore backup."
     return 1
   fi
 }

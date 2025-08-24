@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-set -euo pipefail
-
 MEOW="${MEOW:-$HOME/.meow}"
 
 if [[ -f "./config/env/env.sh" && -d "./presets" ]]; then

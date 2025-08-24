@@ -1,123 +1,164 @@
 #!/usr/bin/env bash
 
-# Helper function for safe string formatting, injected by the inliner script.
+# Source UI utilities
 source "${MEOW}/lib/core/ui.sh"
 
+# Ensure the script is sourced only once
 if [[ -n "${_LIB_COMPONENTS_SYMLINKS_SOURCED:-}" ]]; then
   return 0
 fi
 _LIB_COMPONENTS_SYMLINKS_SOURCED=1
 
+# Source core definitions and symlinks utilities
 source "${MEOW}/lib/core/defs.sh"
-source "${MEOW}/lib/core/ui.sh"
 source "${MEOW}/lib/symlinks/symlinks.sh"
 
-# Setup symlinks defined in a component's configuration
+# Sets up symlinks for a given component by processing its YAML configuration files.
+#
+# Arguments:
+#   $1 - The name of the component.
 setup_component_symlinks() {
+
   local component="$1"
   local symlinks_dir="${MEOW_COMPONENTS_DIR}/${component}/symlinks"
 
+  # Exit early if the symlinks directory does not exist
   if [[ ! -d "$symlinks_dir" ]]; then
     return 0
   fi
 
   local yaml_files=()
-  mapfile -t yaml_files < <(find "$symlinks_dir" -name "*.yaml" 2>/dev/null)
+  local find_cmd_output
 
+  # Use a while loop to correctly handle null-separated output from find.
+  # This ensures compatibility with Bash 3.2 and handles filenames with special characters.
+  if find_cmd_output=$(find "$symlinks_dir" -name "*.yaml" -print0 2>/dev/null); then
+    local item
+    while IFS= read -r -d '' item; do
+      yaml_files=("${yaml_files[@]}" "$item")
+    done <<<"$find_cmd_output"
+  fi
+
+  # Exit early if no YAML files are found
   if [[ ${#yaml_files[@]} -eq 0 ]]; then
     return 0
   fi
 
-  if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    ui_step_header "$(_f "Setting up symlinks for component: %s" "$component")"
+  if [[ "$MEOW_VERBOSE" = "true" ]]; then
+    ui_step_header "$(_f "Setting up symlinks for component '%s'" "$component")"
   fi
 
-  local had_symlinks=false
+  local had_symlinks="false"
   local success_count=0
   local error_count=0
 
   for yaml_file in "${yaml_files[@]}"; do
     local symlink_name
     symlink_name=$(basename "$yaml_file" .yaml)
-    had_symlinks=true
+    had_symlinks="true"
 
     if setup_component_symlinks_from_file "$component" "$symlink_name"; then
-      ui_verbose_action_success "$(_f "TODO: write message - symlinks_for_configured" "$symlink_name")"
+      ui_verbose_action_success "$(_f "Symlink configuration for '%s' processed successfully." "$symlink_name")"
       ((success_count++))
     else
-      ui_action_warning "$(_f "TODO: write message - symlinks_setup_failed" "$symlink_name")"
+      ui_action_warning "$(_f "Failed to process symlink configuration for '%s'." "$symlink_name")"
       ((error_count++))
     fi
   done
 
-  if [[ "$had_symlinks" == "true" ]]; then
+  if [[ "$had_symlinks" = "true" ]]; then
     if [[ "$MEOW_VERBOSE" != "true" ]]; then
-      if [[ $error_count -eq 0 ]]; then
-        local config_plural=$([ $success_count -gt 1 ] && echo "s" || echo "")
+      if [[ "$error_count" -eq 0 ]]; then
+        local config_plural=$([ "$success_count" -gt 1 ] && echo "s" || echo "")
         ui_indent "$(_f "Symlinks: ✓ %d configuration%s checked" "$success_count" "$config_plural")"
       else
-        local error_plural=$([ $error_count -gt 1 ] && echo "s" || echo "")
-        ui_indent "$(_f "TODO: write message - symlinks_errors_successful" "$error_count" "$error_plural" "$success_count")"
+        local error_plural=$([ "$error_count" -gt 1 ] && echo "s" || echo "")
+        ui_indent "$(_f "Symlinks: ✕ %d error%s, %d successful" "$error_count" "$error_plural" "$success_count")"
       fi
-    else
-      if [[ $error_count -eq 0 ]]; then
-        ui_action_success "$(_f "TODO: write message - symlinks_configured_successfully" "$success_count")"
+    else # MEOW_VERBOSE is "true"
+      local total_processed=$((success_count + error_count))
+      local error_plural_verbose=$([ "$error_count" -gt 1 ] && echo "s" || echo "")
+      if [[ "$error_count" -eq 0 ]]; then
+        ui_action_success "$(_f "All %d symlink configurations processed successfully." "$total_processed")"
       else
-        ui_warning "$(_f "TODO: write message - symlinks_configured_with_errors" "$error_count" "$success_count" "$((success_count + error_count))")"
+        ui_warning "$(_f "Processed %d symlink configurations with %d error%s (%d successful)." "$total_processed" "$error_count" "$error_plural_verbose" "$success_count")"
       fi
     fi
   fi
 }
 
-# Remove symlinks created by a component and restore their backups
+# Removes symlinks for a given component by processing its YAML configuration files.
+#
+# Arguments:
+#   $1 - The name of the component.
 remove_component_symlinks() {
+
   local component="$1"
   local symlinks_dir="${MEOW_COMPONENTS_DIR}/${component}/symlinks"
 
+  # Exit early if the symlinks directory does not exist
   if [[ ! -d "$symlinks_dir" ]]; then
     return 0
   fi
 
   local yaml_files=()
-  mapfile -t yaml_files < <(find "$symlinks_dir" -name "*.yaml" 2>/dev/null)
+  local find_cmd_output
 
+  # Use a while loop to correctly handle null-separated output from find.
+  # This ensures compatibility with Bash 3.2 and handles filenames with special characters.
+  if find_cmd_output=$(find "$symlinks_dir" -name "*.yaml" -print0 2>/dev/null); then
+    local item
+    while IFS= read -r -d '' item; do
+      yaml_files=("${yaml_files[@]}" "$item")
+    done <<<"$find_cmd_output"
+  fi
+
+  # Exit early if no YAML files are found
   if [[ ${#yaml_files[@]} -eq 0 ]]; then
     return 0
   fi
 
-  if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    ui_step_header "$(_f "Removing symlinks for component: %s" "$component")"
+  if [[ "$MEOW_VERBOSE" = "true" ]]; then
+    ui_step_header "$(_f "Removing symlinks for component '%s'" "$component")"
   fi
 
-  local had_symlinks=false
+  local had_symlinks="false"
   local success_count=0
   local error_count=0
 
   for yaml_file in "${yaml_files[@]}"; do
     local symlink_name
     symlink_name=$(basename "$yaml_file" .yaml)
-    had_symlinks=true
+    had_symlinks="true"
 
     if remove_component_symlinks_from_file "$component" "$symlink_name"; then
-      ui_verbose_action_success "$(_f "Symlinks for '%s' removed successfully" "$symlink_name")"
+      ui_verbose_action_success "$(_f "Symlink configuration for '%s' processed successfully." "$symlink_name")"
       ((success_count++))
     else
-      ui_warning "$(_f "Failed to remove symlinks for '%s'" "$symlink_name")"
+      ui_action_warning "$(_f "Failed to process symlink configuration for '%s'." "$symlink_name")"
       ((error_count++))
     fi
   done
 
-  if [[ "$had_symlinks" == "true" ]]; then
-    if [[ $error_count -eq 0 ]]; then
-      ui_action_success "$(_f "Component symlinks removed successfully (%d symlink files)" "$success_count")"
+  if [[ "$had_symlinks" = "true" ]]; then
+    local total_processed=$((success_count + error_count))
+    local error_plural=$([ "$error_count" -gt 1 ] && echo "s" || echo "")
+    if [[ "$error_count" -eq 0 ]]; then
+      ui_action_success "$(_f "All %d component symlink files processed successfully." "$total_processed")"
     else
-      ui_warning "$(_f "Component symlinks removed with %d errors (%d/%d symlink files)" "$error_count" "$success_count" "$((success_count + error_count))")"
+      ui_warning "$(_f "Processed %d component symlink files with %d error%s (%d successful)." "$total_processed" "$error_count" "$error_plural" "$success_count")"
     fi
   fi
 }
 
-# Remove symlinks from a specific symlink file and restore backups
+# Removes symlinks defined in a specific YAML file for a component.
+# If a backup exists, it attempts to restore it.
+#
+# Arguments:
+#   $1 - The name of the component.
+#   $2 - The base name of the symlink YAML file (e.g., 'git' for 'git.yaml').
 remove_component_symlinks_from_file() {
+
   local component="$1"
   local symlink_name="$2"
   local symlinks_file="${MEOW_COMPONENTS_DIR}/${component}/symlinks/${symlink_name}.yaml"
@@ -126,11 +167,14 @@ remove_component_symlinks_from_file() {
     if [[ -f "$symlinks_file" ]]; then
       local num_symlinks
       num_symlinks=$(yq 'length' "$symlinks_file" 2>/dev/null || echo "0")
-      if [[ "$num_symlinks" =~ ^[0-9]+$ ]] && [[ "$num_symlinks" -gt 0 ]]; then
+
+      # Check if num_symlinks is a valid non-negative integer
+      if case "$num_symlinks" in [1-9][0-9]* | 0) true ;; *) false ;; esac && [[ "$num_symlinks" -gt 0 ]]; then
         local i=0
-        while [[ $i -lt $num_symlinks ]]; do
+        while [[ "$i" -lt "$num_symlinks" ]]; do
           local target_path
           target_path=$(yq ".[$i].target" "$symlinks_file" 2>/dev/null)
+
           if [[ "$target_path" != "null" && -n "$target_path" ]]; then
             local expanded_target
             expanded_target=$(expand_path "$target_path")
@@ -139,12 +183,18 @@ remove_component_symlinks_from_file() {
             elif [[ -e "$expanded_target" ]]; then
               dry_run_ui_info "$(_f "Would skip non-symlink: %s" "$expanded_target")"
             else
-              dry_run_ui_info "$(_f "Would skip non-existent: %s" "$expanded_target")"
+              dry_run_ui_info "$(_f "Would skip non-existent target: %s" "$expanded_target")"
             fi
+          else
+            dry_run_ui_info "$(_f "Would skip symlink entry %d in %s due to missing or empty target path." "$i" "$symlinks_file")"
           fi
           ((i++))
         done
+      else
+        dry_run_ui_info "$(_f "No symlinks defined or invalid content for dry-run in %s." "$symlinks_file")"
       fi
+    else
+      dry_run_ui_info "$(_f "Symlinks file %s not found for dry-run." "$symlinks_file")"
     fi
     return 0
   fi
@@ -159,25 +209,26 @@ remove_component_symlinks_from_file() {
   fi
 
   if [[ ! -f "$symlinks_file" ]]; then
-    ui_warning "$(_f "No symlinks file found for '%s' at %s" "$symlink_name" "$symlinks_file")"
+    ui_warning "$(_f "No symlinks configuration file found for '%s' at %s." "$symlink_name" "$symlinks_file")"
     return 0
   fi
 
   local num_symlinks
-  num_symlinks=$(yq 'length' "$symlinks_file")
+  num_symlinks=$(yq 'length' "$symlinks_file" || echo "0")
 
-  if ! [[ "$num_symlinks" =~ ^[0-9]+$ ]] || [[ "$num_symlinks" -eq 0 ]]; then
-    ui_warning "$(_f "No symlinks defined in %s" "$symlinks_file")"
+  # Check if num_symlinks is a valid non-negative integer or zero
+  if ! case "$num_symlinks" in [1-9][0-9]* | 0) true ;; *) false ;; esac || [[ "$num_symlinks" -eq 0 ]]; then
+    ui_warning "$(_f "No symlinks defined or invalid content in %s." "$symlinks_file")"
     return 0
   fi
 
   local i=0
-  while [[ $i -lt $num_symlinks ]]; do
+  while [[ "$i" -lt "$num_symlinks" ]]; do
     local target_path
     target_path=$(yq ".[$i].target" "$symlinks_file")
 
-    if [[ "$target_path" == "null" ]]; then
-      ui_warning "$(_f "Missing 'target' key in symlink entry %d of %s" "$i" "$symlinks_file")"
+    if [[ "$target_path" = "null" || -z "$target_path" ]]; then
+      ui_warning "$(_f "Missing or empty 'target' key in symlink entry %d of %s. Skipping." "$i" "$symlinks_file")"
       ((failed_count++))
       ((i++))
       continue
@@ -186,51 +237,51 @@ remove_component_symlinks_from_file() {
     local expanded_target
     expanded_target=$(expand_path "$target_path")
 
-    debug "Processing symlink removal: $expanded_target"
+    debug "$(_f "Attempting to remove symlink: %s" "$expanded_target")"
     ((processed_count++))
 
     if [[ -L "$expanded_target" ]]; then
       if rm "$expanded_target"; then
-        debug "Removed symlink: $expanded_target"
+        debug "$(_f "Successfully removed symlink: %s" "$expanded_target")"
 
         local backup_pattern="${expanded_target}.backup.*"
-        local backup_files=()
-        mapfile -t backup_files < <(ls -t $backup_pattern 2>/dev/null)
+        local latest_backup
+        # Use LC_ALL=C with ls -t for predictable sorting, addressing SC2012 info
+        latest_backup=$(LC_ALL=C ls -t "$backup_pattern" 2>/dev/null | head -n 1)
 
-        if [[ ${#backup_files[@]} -gt 0 ]]; then
-          local latest_backup="${backup_files[0]}"
+        if [[ -n "$latest_backup" ]]; then
           if mv "$latest_backup" "$expanded_target"; then
-            ui_verbose_info "$(basename "$expanded_target") (restored from backup)"
+            ui_verbose_info "$(_f "Restored '%s' from backup." "$(basename "$expanded_target")")"
             ((restored_count++))
           else
-            ui_warning "$(_f "Failed to restore backup for %s" "$(basename "$expanded_target")")"
+            ui_action_error "$(_f "Failed to restore backup for '%s'." "$(basename "$expanded_target")")"
             ((failed_count++))
           fi
         else
-          ui_verbose_info "$(basename "$expanded_target") (removed, no backup found)"
+          ui_verbose_info "$(_f "Removed '%s', no backup found to restore." "$(basename "$expanded_target")")"
         fi
       else
-        ui_action_error "$(_f "Failed to remove symlink: %s" "$expanded_target")"
+        ui_action_error "$(_f "Failed to remove symlink: %s." "$expanded_target")"
         ((failed_count++))
       fi
     elif [[ -e "$expanded_target" ]]; then
-      ui_verbose_info "$(basename "$expanded_target") (not a symlink, skipping)"
+      ui_verbose_info "$(_f "Skipping '%s': it is not a symlink, cannot remove." "$(basename "$expanded_target")")"
     else
-      ui_verbose_info "$(basename "$expanded_target") (does not exist, skipping)"
+      ui_verbose_info "$(_f "Skipping '%s': target does not exist, no action needed." "$(basename "$expanded_target")")"
     fi
 
     ((i++))
   done
 
-  if [[ $failed_count -eq 0 ]]; then
-    if [[ $restored_count -gt 0 ]]; then
-      ui_action_success "$(_f "Processed %d symlinks (%d restored from backup)" "$processed_count" "$restored_count")"
+  if [[ "$failed_count" -eq 0 ]]; then
+    if [[ "$restored_count" -gt 0 ]]; then
+      ui_action_success "$(_f "Processed %d symlinks successfully (%d restored from backup)." "$processed_count" "$restored_count")"
     else
-      ui_action_success "$(_f "Processed %d symlinks (no backups to restore)" "$processed_count")"
+      ui_action_success "$(_f "Processed %d symlinks successfully (no backups to restore)." "$processed_count")"
     fi
     return 0
   else
-    ui_action_error "$(_f "Failed to process %d of %d symlinks" "$failed_count" "$processed_count")"
+    ui_action_error "$(_f "Failed to process %d of %d symlinks." "$failed_count" "$processed_count")"
     return 1
   fi
 }

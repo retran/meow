@@ -1,65 +1,91 @@
 #!/usr/bin/env bash
 
-if [[ -n "${_LIB_PACKAGE_CARGO_SOURCED:-}" ]]; then
+# This script provides functions for managing Cargo packages, ensuring Bash 3.2 compatibility.
+
+if [ -n "${_LIB_PACKAGE_CARGO_SOURCED:-}" ]; then
   return 0
 fi
 _LIB_PACKAGE_CARGO_SOURCED=1
 
+# Ensure MEOW is defined and points to the root of the project.
+# This check is crucial for sourcing relative paths.
+if [ -z "${MEOW:-}" ]; then
+  echo "Error: MEOW environment variable is not set. Please set it to the root of your project." >&2
+  exit 1
+fi
+
 source "${MEOW}/lib/package/common.sh"
 source "${MEOW}/lib/core/dry_run.sh"
 
+# Caches the list of installed Cargo packages.
+# Uses 'cargo install --list' and 'awk' to extract package names.
 _cache_installed_cargo_packages() {
   cache_package_list "cargo" "cargo install --list 2>/dev/null | awk '/:/ {print \$1}'"
 }
 
+# Checks if a given Cargo package is installed.
+# Arguments:
+#   $1 - The name of the Cargo package to check.
 is_cargo_package_installed() {
   _cache_installed_cargo_packages
   is_package_installed "cargo" "$1"
 }
 
+# Sets up Cargo by checking its availability.
+# Provides appropriate messages for dry-run mode.
 setup_cargo() {
   ui_step_header "Setting up Cargo"
 
   if is_dry_run; then
     if ! command -v cargo >/dev/null 2>&1; then
-      dry_run_ui_info "cargo not found - would fail setup"
+      dry_run_ui_info "Cargo not found - would fail setup."
     else
-      dry_run_ui_info "Cargo already available, ready for package installation"
+      dry_run_ui_info "Cargo already available, ready for package installation."
     fi
     return 0
   fi
 
-  command -v cargo >/dev/null 2>&1 || {
-    ui_action_error "cargo not found"
+  if ! command -v cargo >/dev/null 2>&1; then
+    ui_action_error "Cargo not found. Please install Rust and Cargo."
     return 1
-  }
+  fi
   ui_action_success "Cargo available"
 }
 
+# Installs a list of Cargo packages.
+# Arguments:
+#   $1 - Space-separated list of Cargo packages to install.
 install_cargo_packages() {
   install_packages_generic "$1" "cargo" "cargo install" "is_cargo_package_installed"
 }
 
+# Updates a list of Cargo packages.
+# Uses 'cargo install --force' for updating.
+# Arguments:
+#   $1 - Space-separated list of Cargo packages to update.
 update_cargo_packages() {
   update_packages_generic "$1" "cargo" "cargo install --force" "is_cargo_package_installed" \
     "(already installed|Installing)"
 }
 
+# Uninstalls a list of Cargo packages.
+# Arguments:
+#   $1 - Space-separated list of Cargo packages to uninstall.
 uninstall_cargo_packages() {
   uninstall_packages_generic "$1" "cargo" "cargo uninstall" "is_cargo_package_installed"
 }
 
+# Performs cleanup related to Cargo.
+# Notes that Cargo cleanup is generally a no-op as packages are user-managed.
 cleanup_cargo() {
   if is_dry_run; then
-    dry_run_ui_info "Cargo cleanup would be skipped (no cleanup needed)"
-    dry_run_ui_info "  Cargo packages are installed per-user, managed by Rust toolchain"
+    dry_run_ui_info "Cargo cleanup would be skipped (no cleanup needed)."
+    dry_run_ui_info "  Cargo packages are installed per-user, managed by Rust toolchain."
     return 0
   fi
 
-  if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    ui_step_header "Cleaning Cargo (no-op)"
-    ui_action_success "Cargo cleanup skipped"
-  else
-    ui_action_success "Cargo cleanup skipped"
+  if [ "${MEOW_VERBOSE:-false}" = "true" ]; then
+    ui_step_header "Cleaning Cargo"
   fi
+  ui_action_success "Cargo cleanup skipped (no-op)."
 }

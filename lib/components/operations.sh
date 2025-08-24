@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-# Helper function for safe string formatting, injected by the inliner script.
-source "${MEOW}/lib/core/ui.sh"
+MEOW_INSTALLING_COMPONENTS=()
+MEOW_UPDATED_COMPONENTS=()
 
 if [[ -n "${_LIB_COMPONENTS_OPERATIONS_SOURCED:-}" ]]; then
   return 0
@@ -19,40 +19,55 @@ source "${MEOW}/lib/components/repository.sh"
 source "${MEOW}/lib/components/dependencies.sh"
 source "${MEOW}/lib/components/symlinks.sh"
 
-# Collect all components and dependencies for multiple component installation in topological order
+# Collect all components and dependencies for multiple component installation in topological order.
+# Arguments:
+#   $@: List of components to consider.
+# Outputs: Components, one per line, in topological order for installation.
 collect_multiple_components_for_installation() {
   local components_array=("$@")
-  local -n result_ref="multiple_installation_order"
-  local all_components=()
-
   local collected_components=()
+
   for component in "${components_array[@]}"; do
+    local component_and_deps_str
+    component_and_deps_str="$(collect_all_dependencies_for_installation "$component")" || {
+      ui_error "$(_f "Failed to collect dependencies for component: %s" "$component")"
+      return 1
+    }
+
     local component_and_deps=()
-    collect_all_dependencies_for_installation "$component" component_and_deps
+    while IFS= read -r comp; do
+      component_and_deps+=("$comp")
+    done <<<"$component_and_deps_str"
 
     for comp in "${component_and_deps[@]}"; do
-      local already_added=false
+      local already_added="false"
       for existing in "${collected_components[@]}"; do
-        if [[ "$existing" == "$comp" ]]; then
-          already_added=true
+        if [[ "$existing" = "$comp" ]]; then
+          already_added="true"
           break
         fi
       done
-      if [[ "$already_added" == "false" ]]; then
+      if [[ "$already_added" = "false" ]]; then
         collected_components+=("$comp")
       fi
     done
   done
 
-  local sorted_components=()
-  topological_sort_for_installation collected_components sorted_components
-  result_ref=("${sorted_components[@]}")
+  local sorted_components_str
+  sorted_components_str="$(topological_sort_for_installation "${collected_components[@]}")" || {
+    ui_error "Failed to topologically sort components for installation."
+    return 1
+  }
+  echo "$sorted_components_str"
 }
 
-# Public wrapper for installing components - handles session management
+# Public wrapper for installing components - handles session management.
+# Arguments:
+#   [--manual | --auto]: Sets installation mode for requested components. Defaults to --manual.
+#   $@: List of components to install.
 install_component() {
   local components=()
-  local is_manual="true"
+  local is_manual="true" # Default to manual installation
 
   while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -72,15 +87,23 @@ install_component() {
   done
 
   if [[ ${#components[@]} -eq 0 ]]; then
-    ui_error "TODO: write message - no_components_specified_install"
+    ui_error "No components specified for installation."
     return 1
   fi
 
+  local multiple_installation_order_str
+  multiple_installation_order_str="$(collect_multiple_components_for_installation "${components[@]}")" || {
+    ui_error "Failed to determine installation order."
+    return 1
+  }
+
   local multiple_installation_order=()
-  collect_multiple_components_for_installation "${components[@]}"
+  while IFS= read -r comp; do
+    multiple_installation_order+=("$comp")
+  done <<<"$multiple_installation_order_str"
 
   if [[ ${#multiple_installation_order[@]} -eq 0 ]]; then
-    ui_info "No components to install"
+    ui_info "No new components or dependencies to install."
     return 0
   fi
 
@@ -91,12 +114,16 @@ install_component() {
     fi
   done
 
-  local plural_suffix=$([ ${#components[@]} -gt 1 ] && echo "s" || echo "")
+  local plural_suffix=""
+  if [[ ${#components[@]} -gt 1 ]]; then
+    plural_suffix="s"
+  fi
   ui_action_start "$(_f "Will install %d component%s with dependencies" "${#components[@]}" "$plural_suffix")"
+
   if [[ ${#components_to_install[@]} -gt 0 ]]; then
     ui_indent "$(_f "Total components to install: %d" "${#components_to_install[@]}")"
 
-    if [[ "$MEOW_VERBOSE" == "true" ]]; then
+    if [[ "$MEOW_VERBOSE" = "true" ]]; then
       ui_step_header "Installation order:"
       for comp in "${multiple_installation_order[@]}"; do
         local status=""
@@ -104,33 +131,33 @@ install_component() {
           status=" (already installed)"
         fi
 
-        local is_requested_component=false
+        local is_requested_component="false"
         for requested_comp in "${components[@]}"; do
-          if [[ "$requested_comp" == "$comp" ]]; then
-            is_requested_component=true
+          if [[ "$requested_comp" = "$comp" ]]; then
+            is_requested_component="true"
             break
           fi
         done
 
-        if [[ "$is_requested_component" == "true" ]]; then
-          ui_verbose_info "  ➤ $comp (requested component)$status"
+        if [[ "$is_requested_component" = "true" ]]; then
+          ui_verbose_info "$(_f "  ➤ %s (requested component)%s" "$comp" "$status")"
         else
-          ui_verbose_info "  ↪ $comp (dependency)$status"
+          ui_verbose_info "$(_f "  ↪ %s (dependency)%s" "$comp" "$status")"
         fi
       done
     else
       local deps_list=""
       local requested_comp_list=""
-      for comp in "${components_to_install[@]}"; do
-        local is_requested_component=false
+      for comp in "${multiple_installation_order[@]}"; do
+        local is_requested_component="false"
         for requested_comp in "${components[@]}"; do
-          if [[ "$requested_comp" == "$comp" ]]; then
-            is_requested_component=true
+          if [[ "$requested_comp" = "$comp" ]]; then
+            is_requested_component="true"
             break
           fi
         done
 
-        if [[ "$is_requested_component" == "true" ]]; then
+        if [[ "$is_requested_component" = "true" ]]; then
           if [[ -z "$requested_comp_list" ]]; then
             requested_comp_list="$comp"
           else
@@ -153,43 +180,43 @@ install_component() {
       fi
     fi
   else
-    ui_indent "All components already installed"
+    ui_indent "All requested components and their dependencies are already installed."
   fi
 
   _initialize_session || {
-    ui_error "Session initialization failed"
+    ui_error "Session initialization failed."
     return 1
   }
 
-  declare -ga MEOW_INSTALLING_COMPONENTS=()
+  MEOW_INSTALLING_COMPONENTS=() # Reset global array for this session
 
-  local install_success=true
+  local install_success="true"
   for component in "${multiple_installation_order[@]}"; do
     local comp_is_manual="$is_manual"
-    local comp_is_dependency=false
+    local comp_is_dependency="false"
 
-    local is_requested_component=false
+    local is_requested_component="false"
     for requested_comp in "${components[@]}"; do
-      if [[ "$requested_comp" == "$component" ]]; then
-        is_requested_component=true
+      if [[ "$requested_comp" = "$component" ]]; then
+        is_requested_component="true"
         break
       fi
     done
 
-    if [[ "$is_requested_component" == "false" ]]; then
-      comp_is_dependency=true
-      comp_is_manual="false"
+    if [[ "$is_requested_component" = "false" ]]; then
+      comp_is_dependency="true"
+      comp_is_manual="false" # Dependencies are always auto-installed
     fi
 
     if ! _install_single_component "$component" "$comp_is_manual" "$comp_is_dependency"; then
-      ui_error "$(_f "TODO: write message - component_install_failed" "$component")"
-      install_success=false
+      ui_error "$(_f "Failed to install component: %s" "$component")"
+      install_success="false"
       break
     fi
   done
 
   _finalize_session
-  unset MEOW_INSTALLING_COMPONENTS
+  MEOW_INSTALLING_COMPONENTS=() # Clear global array after session
 
   if [[ "$install_success" != "true" ]]; then
     return 1
@@ -198,52 +225,62 @@ install_component() {
   return 0
 }
 
-# Install a single component without dependencies (used by topologically sorted install)
+# Install a single component without dependencies.
+# Arguments:
+#   $1: Component name.
+#   $2: "true" if manually installed, "false" if auto-installed (default: "true").
+#   $3: "true" if a dependency, "false" otherwise (default: "false").
 _install_single_component() {
   local component="$1"
   local is_manual="${2:-true}"
   local is_dependency="${3:-false}"
 
-  local already_installing=false
+  local already_installing="false"
   for installing_comp in "${MEOW_INSTALLING_COMPONENTS[@]}"; do
-    if [[ "$installing_comp" == "$component" ]]; then
-      already_installing=true
+    if [[ "$installing_comp" = "$component" ]]; then
+      already_installing="true"
       break
     fi
   done
 
-  if [[ "$already_installing" == "true" ]]; then
-    ui_verbose_info "$(_f "Component '%s' already being installed in this session, skipping" "$component")"
+  if [[ "$already_installing" = "true" ]]; then
+    ui_verbose_info "$(_f "Component '%s' already being installed in this session, skipping." "$component")"
     return 0
   fi
 
   local component_file="${MEOW_COMPONENTS_DIR}/${component}/component.yaml"
   if [[ ! -f "$component_file" ]]; then
-    ui_error "$(_f "TODO: write message - component_not_found" "$component")"
+    ui_error "$(_f "Component '%s' definition file not found at %s." "$component" "$component_file")"
     return 1
   fi
 
   if ! is_component_available "$component"; then
-    ui_error "$(_f "TODO: write message - component_not_available" "$component")"
+    ui_error "$(_f "Component '%s' is not available for installation." "$component")"
     return 1
   fi
 
   if is_component_installed "$component"; then
-    if [[ "$is_manual" == "true" ]] && ! is_component_manually_installed "$component"; then
-      mkdir -p "$MEOW_MANUALLY_INSTALLED_COMPONENTS_DIR"
-      ln -s "${MEOW_COMPONENTS_DIR}/${component}" "${MEOW_MANUALLY_INSTALLED_COMPONENTS_DIR}/${component}"
-      ui_action_success "$(_f "TODO: write message - component_marked_manual" "$component")"
+    if [[ "$is_manual" = "true" ]] && ! is_component_manually_installed "$component"; then
+      mkdir -p "$MEOW_MANUALLY_INSTALLED_COMPONENTS_DIR" || {
+        ui_error "$(_f "Failed to create directory for manual installations: %s" "$MEOW_MANUALLY_INSTALLED_COMPONENTS_DIR")"
+        return 1
+      }
+      ln -s "${MEOW_COMPONENTS_DIR}/${component}" "${MEOW_MANUALLY_INSTALLED_COMPONENTS_DIR}/${component}" || {
+        ui_error "$(_f "Failed to mark component '%s' as manually installed (symlink creation failed)." "$component")"
+        return 1
+      }
+      ui_action_success "$(_f "Component '%s' is now marked as manually installed." "$component")"
     else
-      ui_verbose_info "$(_f "TODO: write message - component_already_installed" "$component")"
+      ui_verbose_info "$(_f "Component '%s' is already installed." "$component")"
     fi
     return 0
   fi
 
-  if [[ "$MEOW_VERBOSE" == "true" ]]; then
+  if [[ "$MEOW_VERBOSE" = "true" ]]; then
     ui_component_installing "$component"
   else
-    if [[ "$is_dependency" == "true" ]]; then
-      ui_dependency "$(_f "Installing component: %s" "$component")"
+    if [[ "$is_dependency" = "true" ]]; then
+      ui_dependency "$(_f "Installing dependency: %s" "$component")"
     else
       ui_component_installing "$component"
     fi
@@ -253,19 +290,19 @@ _install_single_component() {
 
   export MEOW_COMPONENT_MANUAL_INSTALL="$is_manual"
   if ! install_component_packages "$component"; then
-    ui_error "$(_f "TODO: write message - component_packages_failed" "$component")"
+    ui_error "$(_f "Failed to install packages for component: %s" "$component")"
     return 1
   fi
 
   install_component_symlink "$component"
 
   if has_component_repository_config "$component"; then
-    if [[ "$MEOW_VERBOSE" == "true" ]]; then
-      repo_ui_component_installing "$component"
+    if [[ "$MEOW_VERBOSE" = "true" ]]; then
+      ui_step_header "$(_f "Cloning repository for %s" "$component")"
     fi
 
     if ! clone_component_repository "$component"; then
-      ui_error "$(_f "TODO: write message - component_repo_failed" "$component")"
+      ui_error "$(_f "Failed to clone repository for component: %s" "$component")"
       return 1
     fi
   fi
@@ -279,86 +316,112 @@ _install_single_component() {
   return 0
 }
 
-# Collect all components and dependencies for multiple component update in topological order
+# Collect all components and dependencies for multiple component update in topological order.
+# Arguments:
+#   $@: List of components to consider.
+# Outputs: Components, one per line, in topological order for update.
 collect_multiple_components_for_update() {
   local components_array=("$@")
-  local -n result_ref="multiple_update_order"
-  local all_components=()
-
   local collected_components=()
+
   for component in "${components_array[@]}"; do
+    local component_and_deps_str
+    component_and_deps_str="$(collect_installed_dependencies_for_update "$component")" || {
+      ui_error "$(_f "Failed to collect installed dependencies for update for component: %s" "$component")"
+      return 1
+    }
+
     local component_and_deps=()
-    collect_installed_dependencies_for_update "$component" component_and_deps
+    while IFS= read -r comp; do
+      component_and_deps+=("$comp")
+    done <<<"$component_and_deps_str"
 
     for comp in "${component_and_deps[@]}"; do
-      local already_added=false
+      local already_added="false"
       for existing in "${collected_components[@]}"; do
-        if [[ "$existing" == "$comp" ]]; then
-          already_added=true
+        if [[ "$existing" = "$comp" ]]; then
+          already_added="true"
           break
         fi
       done
-      if [[ "$already_added" == "false" ]]; then
+      if [[ "$already_added" = "false" ]]; then
         collected_components+=("$comp")
       fi
     done
   done
 
-  local sorted_components=()
-  topological_sort_for_installation collected_components sorted_components
-  result_ref=("${sorted_components[@]}")
+  local sorted_components_str
+  sorted_components_str="$(topological_sort_for_installation "${collected_components[@]}")" || {
+    ui_error "Failed to topologically sort components for update."
+    return 1
+  }
+  echo "$sorted_components_str"
 }
 
-# Public wrapper for updating components - handles session management
+# Public wrapper for updating components - handles session management.
+# Arguments:
+#   $@: List of components to update.
 update_component() {
   local components=("$@")
 
   if [[ ${#components[@]} -eq 0 ]]; then
-    ui_error "TODO: write message - no_components_specified_update"
+    ui_error "No components specified for update."
     return 1
   fi
 
+  local multiple_update_order_str
+  multiple_update_order_str="$(collect_multiple_components_for_update "${components[@]}")" || {
+    ui_error "Failed to determine update order."
+    return 1
+  }
+
   local multiple_update_order=()
-  collect_multiple_components_for_update "${components[@]}"
+  while IFS= read -r comp; do
+    multiple_update_order+=("$comp")
+  done <<<"$multiple_update_order_str"
 
   if [[ ${#multiple_update_order[@]} -eq 0 ]]; then
-    ui_info "No components to update"
+    ui_info "No components to update."
     return 0
   fi
 
-  ui_action_start "$(_f "Will update %d component%s with dependencies" "${#components[@]}" "$([ ${#components[@]} -gt 1 ] && echo "s" || echo "")")"
+  local plural_suffix=""
+  if [[ ${#components[@]} -gt 1 ]]; then
+    plural_suffix="s"
+  fi
+  ui_action_start "$(_f "Will update %d component%s with dependencies" "${#components[@]}" "$plural_suffix")"
   ui_indent "$(_f "Total components to update: %d" "${#multiple_update_order[@]}")"
 
-  if [[ "$MEOW_VERBOSE" == "true" ]]; then
+  if [[ "$MEOW_VERBOSE" = "true" ]]; then
     ui_step_header "Update order:"
     for comp in "${multiple_update_order[@]}"; do
-      local is_requested_component=false
+      local is_requested_component="false"
       for requested_comp in "${components[@]}"; do
-        if [[ "$requested_comp" == "$comp" ]]; then
-          is_requested_component=true
+        if [[ "$requested_comp" = "$comp" ]]; then
+          is_requested_component="true"
           break
         fi
       done
 
-      if [[ "$is_requested_component" == "true" ]]; then
-        ui_verbose_info "  ➤ $comp (requested component)"
+      if [[ "$is_requested_component" = "true" ]]; then
+        ui_verbose_info "$(_f "  ➤ %s (requested component)" "$comp")"
       else
-        ui_verbose_info "  ↪ $comp (dependency)"
+        ui_verbose_info "$(_f "  ↪ %s (dependency)" "$comp")"
       fi
     done
   else
     local deps_list=""
     local requested_comp_list=""
     for comp in "${multiple_update_order[@]}"; do
-      local is_requested_component=false
+      local is_requested_component="false"
       for requested_comp in "${components[@]}"; do
-        if [[ "$requested_comp" == "$comp" ]]; then
-          is_requested_component=true
+        if [[ "$requested_comp" = "$comp" ]]; then
+          is_requested_component="true"
           break
         fi
       done
 
-      if [[ "$is_requested_component" == "true" ]]; then
+      if [[ "$is_requested_component" = "true" ]]; then
         if [[ -z "$requested_comp_list" ]]; then
           requested_comp_list="$comp"
         else
@@ -382,121 +445,161 @@ update_component() {
   fi
 
   _initialize_session || {
-    ui_error "Session initialization failed"
+    ui_error "Session initialization failed."
     return 1
   }
 
-  declare -ga MEOW_UPDATED_COMPONENTS=()
+  MEOW_UPDATED_COMPONENTS=() # Reset global array for this session
 
-  local update_success=true
+  # Original code continued even if a component failed to update. This preserves that behavior.
   for component in "${multiple_update_order[@]}"; do
-    local comp_is_dependency=false
+    local comp_is_dependency="false"
 
-    local is_requested_component=false
+    local is_requested_component="false"
     for requested_comp in "${components[@]}"; do
-      if [[ "$requested_comp" == "$component" ]]; then
-        is_requested_component=true
+      if [[ "$requested_comp" = "$component" ]]; then
+        is_requested_component="true"
         break
       fi
     done
 
-    if [[ "$is_requested_component" == "false" ]]; then
-      comp_is_dependency=true
+    if [[ "$is_requested_component" = "false" ]]; then
+      comp_is_dependency="true"
     fi
 
     if ! _update_single_component "$component" "$comp_is_dependency"; then
-      ui_warning "$(_f "Failed to update component: %s, continuing with other components" "$component")"
+      ui_warning "$(_f "Failed to update component: %s, continuing with other components." "$component")"
     fi
   done
 
   _finalize_session
-  unset MEOW_UPDATED_COMPONENTS
+  MEOW_UPDATED_COMPONENTS=() # Clear global array after session
 
   return 0
 }
 
-# Internal recursive function for updating components
-# Collect all installed dependencies for update in topological order
+# Internal function: Collect all installed dependencies for update in topological order.
+# Arguments:
+#   $1: The component for which to collect dependencies.
+# Outputs: Dependencies, one per line, in topological order.
 collect_installed_dependencies_for_update() {
   local component="$1"
-  local -n result_ref="$2"
+  local all_components_str
+
+  all_components_str="$(collect_installed_dependencies_recursively "$component")" || {
+    ui_error "$(_f "Failed to recursively collect installed dependencies for component: %s" "$component")"
+    return 1
+  }
+
   local all_components=()
+  while IFS= read -r comp; do
+    all_components+=("$comp")
+  done <<<"$all_components_str"
 
-  collect_installed_dependencies_recursively "$component" all_components
+  # Ensure the component itself is included in the list for update
+  local already_added="false"
+  for existing in "${all_components[@]}"; do
+    if [[ "$existing" = "$component" ]]; then
+      already_added="true"
+      break
+    fi
+  done
+  if [[ "$already_added" = "false" ]]; then
+    all_components+=("$component")
+  fi
 
-  all_components+=("$component")
-
-  local sorted_deps=()
-  topological_sort_for_installation all_components sorted_deps
-  result_ref=("${sorted_deps[@]}")
+  local sorted_deps_str
+  sorted_deps_str="$(topological_sort_for_installation "${all_components[@]}")" || {
+    ui_error "Failed to topologically sort collected dependencies for update."
+    return 1
+  }
+  echo "$sorted_deps_str"
 }
 
-# Recursively collect all installed dependencies of a component for update
+# Recursively collect all installed dependencies of a component for update.
+# Arguments:
+#   $1: The component from which to start collecting dependencies.
+# Outputs: Dependencies, one per line.
 collect_installed_dependencies_recursively() {
   local component="$1"
-  local -n all_deps_ref="$2"
+  local all_deps_output=()
 
   _collect_installed_deps_rec() {
     local comp="$1"
-    local dependencies=()
 
-    get_component_dependencies "$comp" dependencies
+    local dependencies=()
+    local dep_str
+    dep_str="$(get_component_dependencies "$comp")" || {
+      ui_warning "$(_f "Failed to get dependencies for '%s', some dependencies might be missed." "$comp")"
+      return 0 # Continue processing
+    }
+
+    while IFS= read -r dep; do
+      dependencies+=("$dep")
+    done <<<"$dep_str"
 
     for dep in "${dependencies[@]}"; do
       if [[ -n "$dep" ]] && is_component_installed "$dep"; then
-        local already_added=false
-        for existing in "${all_deps_ref[@]}"; do
-          if [[ "$existing" == "$dep" ]]; then
-            already_added=true
+        local already_added="false"
+        for existing in "${all_deps_output[@]}"; do
+          if [[ "$existing" = "$dep" ]]; then
+            already_added="true"
             break
           fi
         done
 
-        if [[ "$already_added" == "false" ]]; then
-          all_deps_ref+=("$dep")
-          _collect_installed_deps_rec "$dep"
+        if [[ "$already_added" = "false" ]]; then
+          all_deps_output+=("$dep")
+          _collect_installed_deps_rec "$dep" # Recursive call
         fi
       fi
     done
   }
 
   _collect_installed_deps_rec "$component"
+
+  for dep in "${all_deps_output[@]}"; do
+    echo "$dep"
+  done
 }
 
-# Update a single component without dependencies (used by topologically sorted update)
+# Update a single component without dependencies.
+# Arguments:
+#   $1: Component name.
+#   $2: "true" if a dependency, "false" otherwise (default: "false").
 _update_single_component() {
   local component="$1"
   local is_dependency="${2:-false}"
 
-  local already_updated=false
+  local already_updated="false"
   for updated_comp in "${MEOW_UPDATED_COMPONENTS[@]}"; do
-    if [[ "$updated_comp" == "$component" ]]; then
-      already_updated=true
+    if [[ "$updated_comp" = "$component" ]]; then
+      already_updated="true"
       break
     fi
   done
 
-  if [[ "$already_updated" == "true" ]]; then
-    ui_verbose_info "$(_f "Component '%s' already updated in this session, skipping" "$component")"
+  if [[ "$already_updated" = "true" ]]; then
+    ui_verbose_info "$(_f "Component '%s' already updated in this session, skipping." "$component")"
     return 0
   fi
 
   local component_file="${MEOW_COMPONENTS_DIR}/${component}/component.yaml"
   if [[ ! -f "$component_file" ]]; then
-    ui_error "$(_f "TODO: write message - component_not_found" "$component")"
+    ui_error "$(_f "Component '%s' definition file not found at %s." "$component" "$component_file")"
     return 1
   fi
 
   if ! is_component_installed "$component"; then
-    ui_verbose_info "$(_f "Component '%s' is not installed, skipping update" "$component")"
+    ui_verbose_info "$(_f "Component '%s' is not installed, skipping update." "$component")"
     return 0
   fi
 
-  if [[ "$MEOW_VERBOSE" == "true" ]]; then
+  if [[ "$MEOW_VERBOSE" = "true" ]]; then
     ui_component_updating "$component"
   else
-    if [[ "$is_dependency" == "true" ]]; then
-      ui_dependency "$(_f "Updating component: %s" "$component")"
+    if [[ "$is_dependency" = "true" ]]; then
+      ui_dependency "$(_f "Updating dependency: %s" "$component")"
     else
       ui_component_updating "$component"
     fi
@@ -505,23 +608,23 @@ _update_single_component() {
   MEOW_UPDATED_COMPONENTS+=("$component")
 
   if has_component_repository_config "$component"; then
-    if [[ "$MEOW_VERBOSE" == "true" ]]; then
+    if [[ "$MEOW_VERBOSE" = "true" ]]; then
       ui_step_header "$(_f "Updating repository for %s" "$component")"
     fi
     if update_component_repository "$component"; then
-      ui_verbose_action_success "Repository updated successfully"
+      ui_verbose_action_success "Repository updated successfully."
     else
-      ui_warning "Repository update failed, continuing with package updates"
+      ui_warning "$(_f "Repository update failed for %s, continuing with package updates." "$component")"
     fi
   fi
 
-  if [[ "$MEOW_VERBOSE" == "true" ]]; then
+  if [[ "$MEOW_VERBOSE" = "true" ]]; then
     ui_step_header "$(_f "Updating packages for %s" "$component")"
   fi
   if update_component_packages "$component"; then
-    ui_verbose_action_success "Packages updated successfully"
+    ui_verbose_action_success "Packages updated successfully."
   else
-    ui_warning "Some package updates may have failed"
+    ui_warning "$(_f "Some package updates may have failed for %s." "$component")"
   fi
 
   setup_component "$component"
@@ -533,48 +636,70 @@ _update_single_component() {
   return 0
 }
 
-# Collect all components for multiple component uninstall in topological order
+# Collect all components for multiple component uninstall in topological order.
+# Arguments:
+#   $@: List of components to consider, optionally followed by flags:
+#       --filter-source: Filters the initial set of components based on removability.
+#       --skip-preset-checks: Skips checking if components are required by presets.
+#       --exclude-preset=<name>: Excludes a specific preset from dependency checks.
+# Outputs: Components, one per line, in reverse topological order for uninstallation.
 collect_multiple_components_for_uninstall() {
+  local all_args=("$@")
   local filter_source_components="false"
   local skip_preset_checks="false"
   local exclude_preset=""
 
-  # Process optional flags
-  while [[ ${#@} -gt 0 ]]; do
-    case "${@: -1}" in
+  local components_array=()
+  local i
+  local num_args=${#all_args[@]}
+  local components_start_index=0
+
+  # Iterate from the end to find flags
+  for ((i = num_args - 1; i >= 0; i--)); do
+    local current_arg="${all_args[$i]}"
+    case "$current_arg" in
       "--filter-source")
         filter_source_components="true"
-        set -- "${@:1:$(($# - 1))}" # Remove last argument
         ;;
       "--skip-preset-checks")
         skip_preset_checks="true"
-        set -- "${@:1:$(($# - 1))}" # Remove last argument
         ;;
       --exclude-preset=*)
-        exclude_preset="${@: -1}"
-        exclude_preset="${exclude_preset#--exclude-preset=}"
-        set -- "${@:1:$(($# - 1))}" # Remove last argument
+        exclude_preset="${current_arg#--exclude-preset=}"
         ;;
       *)
+        # Not a flag, so all arguments before this index are components.
+        # If no flags are found, components_start_index will remain 0 and all_args will be components.
+        components_start_index=$((i + 1))
         break
         ;;
     esac
+    if [[ $i -eq 0 ]]; then # Handle case where all args are flags
+      components_start_index=0
+    fi
   done
 
-  local components_array=("$@")
-  local -n result_ref="multiple_uninstall_order"
-  local all_components=()
+  # Populate the 'components_array' with arguments *before* the flags
+  for ((i = 0; i < components_start_index; i++)); do
+    components_array+=("${all_args[$i]}")
+  done
 
   local collected_components=()
-  local dependencies_to_check=()
 
   # Add initial components, with optional filtering
-  if [[ "$filter_source_components" == "true" ]]; then
-    # Filter source components using the same logic as dependencies
+  if [[ "$filter_source_components" = "true" ]]; then
     local source_components_to_filter=("${components_array[@]}")
-    local filtered_source_components=()
-    filter_removable_dependencies_with_context source_components_to_filter components_array filtered_source_components "$skip_preset_checks" "$exclude_preset"
-    collected_components=("${filtered_source_components[@]}")
+    local all_components_for_context=("${components_array[@]}") # Context for filtering
+    local filtered_source_components_str
+
+    filtered_source_components_str="$(filter_removable_dependencies_with_context "${source_components_to_filter[@]}" "${all_components_for_context[@]}" "$skip_preset_checks" "$exclude_preset")" || {
+      ui_error "Failed to filter source components for uninstallation."
+      return 1
+    }
+
+    while IFS= read -r comp; do
+      collected_components+=("$comp")
+    done <<<"$filtered_source_components_str"
   else
     # Add source components without filtering (original behavior)
     for component in "${components_array[@]}"; do
@@ -582,73 +707,82 @@ collect_multiple_components_for_uninstall() {
     done
   fi
 
-  for component in "${components_array[@]}"; do
-    local dependencies=()
-    get_component_dependencies "$component" dependencies
-
-    for dep in "${dependencies[@]}"; do
-      if [[ -n "$dep" ]] && is_component_installed "$dep"; then
-        local already_added=false
-        for existing in "${dependencies_to_check[@]}"; do
-          if [[ "$existing" == "$dep" ]]; then
-            already_added=true
-            break
-          fi
-        done
-        if [[ "$already_added" == "false" ]]; then
-          dependencies_to_check+=("$dep")
-        fi
-      fi
-    done
-  done
-
   local previous_count=0
   local current_count=${#collected_components[@]}
 
-  while [[ $current_count -gt $previous_count ]]; do
-    previous_count=$current_count
-    dependencies_to_check=()
+  # Iteratively collect dependencies that also become removable
+  while [[ "$current_count" -gt "$previous_count" ]]; do
+    previous_count="$current_count"
+    local new_dependencies_to_check=()
 
     for component in "${collected_components[@]}"; do
+      local dependencies_str
+      dependencies_str="$(get_component_dependencies "$component")" || {
+        ui_warning "$(_f "Failed to get dependencies for '%s', some dependencies might be missed during recursive check." "$component")"
+        continue
+      }
+
       local dependencies=()
-      get_component_dependencies "$component" dependencies
+      while IFS= read -r dep; do
+        dependencies+=("$dep")
+      done <<<"$dependencies_str"
 
       for dep in "${dependencies[@]}"; do
         if [[ -n "$dep" ]] && is_component_installed "$dep"; then
-          local already_added=false
-          for existing in "${dependencies_to_check[@]}"; do
-            if [[ "$existing" == "$dep" ]]; then
-              already_added=true
+          local already_added="false"
+          # Check against new_dependencies_to_check to avoid duplicates within this iteration
+          for existing in "${new_dependencies_to_check[@]}"; do
+            if [[ "$existing" = "$dep" ]]; then
+              already_added="true"
               break
             fi
           done
-          for existing in "${collected_components[@]}"; do
-            if [[ "$existing" == "$dep" ]]; then
-              already_added=true
-              break
-            fi
-          done
-          if [[ "$already_added" == "false" ]]; then
-            dependencies_to_check+=("$dep")
+          # Check against collected_components to ensure it's not already marked for uninstall
+          if [[ "$already_added" = "false" ]]; then
+            for existing in "${collected_components[@]}"; do
+              if [[ "$existing" = "$dep" ]]; then
+                already_added="true"
+                break
+              fi
+            done
+          fi
+
+          if [[ "$already_added" = "false" ]]; then
+            new_dependencies_to_check+=("$dep")
           fi
         fi
       done
     done
 
-    if [[ ${#dependencies_to_check[@]} -gt 0 ]]; then
-      local all_components_to_remove=("${collected_components[@]}" "${dependencies_to_check[@]}")
+    if [[ ${#new_dependencies_to_check[@]} -gt 0 ]]; then
+      local all_components_to_remove=()
+      for comp in "${collected_components[@]}"; do
+        all_components_to_remove+=("$comp")
+      done
+      for comp in "${new_dependencies_to_check[@]}"; do
+        all_components_to_remove+=("$comp")
+      done
+
+      local removable_dependencies_str
+      removable_dependencies_str="$(filter_removable_dependencies_with_context "${new_dependencies_to_check[@]}" "${all_components_to_remove[@]}" "$skip_preset_checks" "$exclude_preset")" || {
+        ui_error "Failed to filter removable dependencies during recursive check."
+        return 1
+      }
+
       local removable_dependencies=()
-      filter_removable_dependencies_with_context dependencies_to_check all_components_to_remove removable_dependencies "$skip_preset_checks" "$exclude_preset"
+      while IFS= read -r dep; do
+        removable_dependencies+=("$dep")
+      done <<<"$removable_dependencies_str"
 
       for dep in "${removable_dependencies[@]}"; do
-        local already_added=false
+        local already_added="false"
         for existing in "${collected_components[@]}"; do
-          if [[ "$existing" == "$dep" ]]; then
-            already_added=true
+          if [[ "$existing" = "$dep" ]]; then
+            already_added="true"
             break
           fi
         done
-        if [[ "$already_added" == "false" ]]; then
+        if [[ "$already_added" = "false" ]]; then
           collected_components+=("$dep")
         fi
       done
@@ -657,79 +791,118 @@ collect_multiple_components_for_uninstall() {
     current_count=${#collected_components[@]}
   done
 
-  result_ref=("${collected_components[@]}")
+  local sorted_components_str
+  sorted_components_str="$(topological_sort_for_installation "${collected_components[@]}")" || {
+    ui_error "Failed to topologically sort components for uninstall."
+    return 1
+  }
+
+  # Reverse the order for uninstallation
+  local sorted_components=()
+  while IFS= read -r comp; do
+    sorted_components+=("$comp")
+  done <<<"$sorted_components_str"
+
+  for ((i = ${#sorted_components[@]} - 1; i >= 0; i--)); do
+    echo "${sorted_components[$i]}"
+  done
 }
 
-# Public wrapper for uninstalling components - handles session management
+# Public wrapper for uninstalling components - handles session management.
+# Arguments:
+#   $@: List of components to uninstall, optionally followed by flags:
+#       --force: Skips dependency and preset checks.
+#       --skip-preset-checks: Skips checking if components are required by presets.
+#       --exclude-preset=<name>: Excludes a specific preset from dependency checks.
 uninstall_component() {
-  local components=("$@")
-  local force_flag=""
+  local all_args=("$@")
+  local components=()
+  local force_flag="false"
   local skip_preset_checks="false"
   local exclude_preset=""
 
-  # Process flags
-  while [[ ${#components[@]} -gt 0 ]]; do
-    case "${components[-1]}" in
+  local i
+  local num_args=${#all_args[@]}
+  local components_start_index=0
+
+  # Iterate from the end to find flags
+  for ((i = num_args - 1; i >= 0; i--)); do
+    local current_arg="${all_args[$i]}"
+    case "$current_arg" in
       "--force")
-        force_flag="--force"
-        unset 'components[-1]'
+        force_flag="true"
         ;;
       "--skip-preset-checks")
         skip_preset_checks="true"
-        unset 'components[-1]'
         ;;
       --exclude-preset=*)
-        exclude_preset="${components[-1]}"
-        exclude_preset="${exclude_preset#--exclude-preset=}"
-        unset 'components[-1]'
+        exclude_preset="${current_arg#--exclude-preset=}"
         ;;
       *)
+        # Not a flag, so all arguments before this index are components.
+        # If no flags are found, components_start_index will remain 0 and all_args will be components.
+        components_start_index=$((i + 1))
         break
         ;;
     esac
+    if [[ $i -eq 0 ]]; then # Handle case where all args are flags
+      components_start_index=0
+    fi
+  done
+
+  # Populate the 'components' array with arguments *before* the flags
+  for ((i = 0; i < components_start_index; i++)); do
+    components+=("${all_args[$i]}")
   done
 
   if [[ ${#components[@]} -eq 0 ]]; then
-    ui_error "TODO: write message - no_components_specified_uninstall"
+    ui_error "No components specified for uninstallation."
     return 1
   fi
 
   for component in "${components[@]}"; do
     if ! is_component_installed "$component"; then
-      ui_warning "$(_f "Component '%s' is not installed" "$component")"
+      ui_warning "$(_f "Component '%s' is not installed, skipping uninstallation." "$component")"
       return 1
     fi
 
     local component_file="${MEOW_COMPONENTS_DIR}/${component}/component.yaml"
     if [[ ! -f "$component_file" ]]; then
-      ui_error "$(_f "Component file not found: %s" "$component_file")"
+      ui_error "$(_f "Component definition file for '%s' not found at %s." "$component" "$component_file")"
       return 1
     fi
   done
 
-  if [[ "$force_flag" != "--force" ]]; then
+  if [[ "$force_flag" != "true" ]]; then
     for component in "${components[@]}"; do
-      local dependent_components
-      mapfile -t dependent_components < <(get_components_depending_on "$component")
+      local dependent_components=()
+      local dep_str
+      dep_str="$(get_components_depending_on "$component")" || {
+        ui_warning "$(_f "Failed to get components depending on '%s', potential dependency issues might occur." "$component")"
+        continue
+      }
+      while IFS= read -r dep; do
+        dependent_components+=("$dep")
+      done <<<"$dep_str"
 
       local filtered_dependents=()
       for dep in "${dependent_components[@]}"; do
         if [[ -n "$dep" ]]; then
-          local dep_is_being_uninstalled=false
+          local dep_is_being_uninstalled="false"
           for uninstall_comp in "${components[@]}"; do
-            if [[ "$uninstall_comp" == "$dep" ]]; then
-              dep_is_being_uninstalled=true
+            if [[ "$uninstall_comp" = "$dep" ]]; then
+              dep_is_being_uninstalled="true"
               break
             fi
           done
-          if [[ "$dep_is_being_uninstalled" == "false" ]]; then
+          if [[ "$dep_is_being_uninstalled" = "false" ]]; then
             filtered_dependents+=("$dep")
           fi
         fi
       done
 
       if [[ ${#filtered_dependents[@]} -gt 0 ]]; then
-        ui_error "$(_f "Cannot uninstall component '%s' because it is required by the following components:" "$component")"
+        ui_error "$(_f "Cannot uninstall component '%s' because it is required by the following installed components:" "$component")"
         for dep_comp in "${filtered_dependents[@]}"; do
           ui_action_error "$(_f "  - %s" "$dep_comp")"
         done
@@ -737,8 +910,15 @@ uninstall_component() {
         return 1
       fi
 
-      local dependent_presets
-      mapfile -t dependent_presets < <(get_presets_depending_on "$component" "$exclude_preset")
+      local dependent_presets=()
+      local preset_str
+      preset_str="$(get_presets_depending_on "$component" "$exclude_preset")" || {
+        ui_warning "$(_f "Failed to get presets depending on '%s', preset dependency issues might occur." "$component")"
+        continue
+      }
+      while IFS= read -r current_preset; do
+        dependent_presets+=("$current_preset")
+      done <<<"$preset_str"
 
       local filtered_presets=()
       for current_preset in "${dependent_presets[@]}"; do
@@ -747,8 +927,7 @@ uninstall_component() {
         fi
       done
 
-      # Skip preset dependency check if flag is set
-      if [[ ${#filtered_presets[@]} -gt 0 && "$skip_preset_checks" == "false" ]]; then
+      if [[ ${#filtered_presets[@]} -gt 0 && "$skip_preset_checks" = "false" ]]; then
         ui_error "$(_f "Cannot uninstall component '%s' because it is required by the following installed presets:" "$component")"
         for current_preset in "${filtered_presets[@]}"; do
           ui_action_error "$(_f "  - %s" "$current_preset")"
@@ -758,44 +937,53 @@ uninstall_component() {
       fi
     done
   else
-    ui_info "Force flag detected - skipping dependency checks"
+    ui_info "Force flag detected - skipping dependency checks."
   fi
 
-  local multiple_uninstall_order=()
   local collect_args=("${components[@]}")
-  if [[ "$skip_preset_checks" == "true" ]]; then
+  if [[ "$skip_preset_checks" = "true" ]]; then
     collect_args+=("--skip-preset-checks")
   fi
   if [[ -n "$exclude_preset" ]]; then
     collect_args+=("--exclude-preset=$exclude_preset")
   fi
-  collect_multiple_components_for_uninstall "${collect_args[@]}"
+
+  local multiple_uninstall_order_str
+  multiple_uninstall_order_str="$(collect_multiple_components_for_uninstall "${collect_args[@]}")" || {
+    ui_error "Failed to determine uninstallation order."
+    return 1
+  }
+
+  local multiple_uninstall_order=()
+  while IFS= read -r comp; do
+    multiple_uninstall_order+=("$comp")
+  done <<<"$multiple_uninstall_order_str"
 
   if [[ ${#multiple_uninstall_order[@]} -eq 0 ]]; then
-    ui_info "No components to uninstall"
+    ui_info "No components to uninstall."
     return 0
   fi
 
   local component_count=${#components[@]}
   local plural_suffix=""
-  if [[ $component_count -gt 1 ]]; then
+  if [[ "$component_count" -gt 1 ]]; then
     plural_suffix="s"
   fi
   ui_action_start "$(_f "Will uninstall %d component%s with dependencies" "$component_count" "$plural_suffix")"
   ui_indent "$(_f "Total components to uninstall: %d" "${#multiple_uninstall_order[@]}")"
 
-  if [[ "$MEOW_VERBOSE" == "true" ]]; then
+  if [[ "$MEOW_VERBOSE" = "true" ]]; then
     ui_step_header "Uninstall order:"
     for comp in "${multiple_uninstall_order[@]}"; do
-      local is_requested_component=false
+      local is_requested_component="false"
       for requested_comp in "${components[@]}"; do
-        if [[ "$requested_comp" == "$comp" ]]; then
-          is_requested_component=true
+        if [[ "$requested_comp" = "$comp" ]]; then
+          is_requested_component="true"
           break
         fi
       done
 
-      if [[ "$is_requested_component" == "true" ]]; then
+      if [[ "$is_requested_component" = "true" ]]; then
         ui_verbose_info "$(_f "  ➤ %s (requested component)" "$comp")"
       else
         ui_verbose_info "$(_f "  ↪ %s (unused dependency)" "$comp")"
@@ -805,15 +993,15 @@ uninstall_component() {
     local deps_list=""
     local requested_comp_list=""
     for comp in "${multiple_uninstall_order[@]}"; do
-      local is_requested_component=false
+      local is_requested_component="false"
       for requested_comp in "${components[@]}"; do
-        if [[ "$requested_comp" == "$comp" ]]; then
-          is_requested_component=true
+        if [[ "$requested_comp" = "$comp" ]]; then
+          is_requested_component="true"
           break
         fi
       done
 
-      if [[ "$is_requested_component" == "true" ]]; then
+      if [[ "$is_requested_component" = "true" ]]; then
         if [[ -z "$requested_comp_list" ]]; then
           requested_comp_list="$comp"
         else
@@ -825,7 +1013,7 @@ uninstall_component() {
         else
           deps_list="$deps_list, $comp"
         fi
-      fi
+      fi # CLOSES 'if [[ "$is_requested_component" = "true" ]]'
     done
 
     if [[ -n "$requested_comp_list" ]]; then
@@ -837,98 +1025,103 @@ uninstall_component() {
   fi
 
   if ! _initialize_session; then
-    ui_error "Session initialization failed"
+    ui_error "Session initialization failed."
     return 1
   fi
 
-  local overall_success=true
+  local overall_success="true"
 
   for component in "${multiple_uninstall_order[@]}"; do
-    local is_requested_component=false
+    local is_requested_component="false"
     for requested_comp in "${components[@]}"; do
-      if [[ "$requested_comp" == "$component" ]]; then
-        is_requested_component=true
+      if [[ "$requested_comp" = "$component" ]]; then
+        is_requested_component="true"
         break
       fi
     done
 
     if ! _uninstall_single_component "$component" "$is_requested_component"; then
-      ui_warning "$(_f "Failed to uninstall component: %s" "$component")"
-      overall_success=false
+      ui_warning "$(_f "Failed to uninstall component: %s." "$component")"
+      overall_success="false"
     fi
   done
 
   _finalize_session
 
-  if [[ "$overall_success" == "true" ]]; then
+  if [[ "$overall_success" = "true" ]]; then
+    ui_action_success "$(_f "Component%s uninstalled successfully." "$plural_suffix")"
     return 0
   else
-    ui_warning "$(_f "Component%s uninstalled with some warnings/errors" "$([ ${#components[@]} -gt 1 ] && echo "s" || echo "")")"
+    ui_warning "$(_f "Component%s uninstalled with some warnings/errors." "$plural_suffix")"
     return 1
   fi
 }
 
-# Uninstall a single component - internal function called during batch uninstall
+# Uninstall a single component - internal function called during batch uninstall.
+# Arguments:
+#   $1: Component name.
+#   $2: "true" if it was a requested component, "false" if an unused dependency (default: "true").
 _uninstall_single_component() {
   local component="$1"
   local is_requested_component="${2:-true}"
 
-  if [[ "$MEOW_VERBOSE" == "true" ]]; then
+  if [[ "$MEOW_VERBOSE" = "true" ]]; then
     ui_component_uninstalling "$component"
   else
-    if [[ "$is_requested_component" == "true" ]]; then
+    if [[ "$is_requested_component" = "true" ]]; then
       ui_component_uninstalling "$component"
     else
       ui_dependency "$(_f "Removing unused dependency: %s" "$component")"
     fi
   fi
 
-  local success=true
+  local success="true"
 
-  if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    ui_step_header "Removing symlinks and restoring backups"
+  if [[ "$MEOW_VERBOSE" = "true" ]]; then
+    ui_step_header "$(_f "Removing symlinks and restoring backups for %s" "$component")"
   fi
   if remove_component_symlinks "$component"; then
-    ui_verbose_action_success "Symlinks removed and backups restored successfully"
+    ui_verbose_action_success "Symlinks removed and backups restored successfully."
   else
-    ui_warning "Some symlink removal/backup restoration may have failed"
-    success=false
+    ui_warning "$(_f "Some symlink removal/backup restoration may have failed for %s." "$component")"
+    success="false"
   fi
 
   cleanup_component "$component"
 
   if has_component_repository_config "$component"; then
-    if [[ "$MEOW_VERBOSE" == "true" ]]; then
-      ui_step_header "TODO: write message - component_cleaning_repository"
+    if [[ "$MEOW_VERBOSE" = "true" ]]; then
+      ui_step_header "$(_f "Cleaning up repository for %s" "$component")"
     fi
     if cleanup_component_repository "$component"; then
-      ui_verbose_action_success "TODO: write message - component_repository_cleaned"
+      ui_verbose_action_success "Repository cleaned successfully."
     else
-      ui_warning "TODO: write message - component_repository_cleanup_failed"
-      success=false
+      ui_warning "$(_f "Repository cleanup failed for %s." "$component")"
+      success="false"
     fi
   fi
 
-  if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    ui_step_header "Uninstalling packages"
+  if [[ "$MEOW_VERBOSE" = "true" ]]; then
+    ui_step_header "$(_f "Uninstalling packages for %s" "$component")"
   fi
   if uninstall_component_packages "$component"; then
-    ui_verbose_action_success "Packages uninstalled successfully"
+    ui_verbose_action_success "Packages uninstalled successfully."
   else
-    ui_warning "Some package uninstallation may have failed"
-    success=false
+    ui_warning "$(_f "Some package uninstallation may have failed for %s." "$component")"
+    success="false"
   fi
 
-  if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    ui_step_header "Removing component tracking"
+  if [[ "$MEOW_VERBOSE" = "true" ]]; then
+    ui_step_header "$(_f "Removing component tracking for %s" "$component")"
   fi
   remove_component_symlink "$component"
-  ui_verbose_action_success "Component tracking removed"
+  ui_verbose_action_success "Component tracking removed."
 
-  if [[ "$success" == "true" ]]; then
+  if [[ "$success" = "true" ]]; then
     _icon_msg_core "${RED}✓ " "$(_f "Component uninstalled: %s" "$component")"
     return 0
   else
+    _icon_msg_core "${RED}✗ " "$(_f "Failed to fully uninstall component: %s" "$component")"
     return 1
   fi
 }

@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 
-# Helper function for safe string formatting, injected by the inliner script.
-source "${MEOW}/lib/core/ui.sh"
-
 if [[ -n "${_LIB_CORE_TOOLS_SOURCED:-}" ]]; then
   return 0
 fi
@@ -11,26 +8,47 @@ _LIB_CORE_TOOLS_SOURCED=1
 source "${MEOW}/lib/core/ui.sh"
 source "${MEOW}/lib/core/dry_run.sh"
 
+# Default yq version, can be overridden by environment variable
 YQ_VERSION="${YQ_VERSION:-v4.47.1}"
 
 ensure_yq() {
   if command -v yq >/dev/null 2>&1; then
     local actual_version
-    actual_version=$(yq --version | awk '{print $4}')
+    # Extract version string from yq --version output. Works for both GNU and BSD awk.
+    actual_version=$(yq --version 2>/dev/null | awk '{print $4}')
 
-    if [[ "$actual_version" == "$YQ_VERSION" ]]; then
-      ui_verbose_info "$(_f "⇒ yq %s is already installed." "$YQ_VERSION")"
+    # Check for exact version match. '=' in [[ ]] is a literal string comparison in Bash 3.2.
+    if [[ "$actual_version" = "$YQ_VERSION" ]]; then
+      ui_verbose_info "$(_f "⇒ yq %s is already installed and matches the required version." "$YQ_VERSION")"
       return 0
     fi
 
-    ui_action_warning "$(_f "Found yq, but version mismatch. Expected: '%s', Found: '%s'" "$YQ_VERSION" "$actual_version")"
+    ui_action_warning "$(_f "Found yq, but version mismatch (expected: '%s', found: '%s'). Attempting to install required version." "$YQ_VERSION" "$actual_version")"
   fi
 
-  # Handle dry-run mode
   if is_dry_run; then
-    dry_run_ui_info "Would install yq v${YQ_VERSION} to /usr/local/bin/yq"
-    dry_run_command_ui_info "curl -fsSL https://github.com/mikefarah/yq/releases/download/v${YQ_VERSION}/yq_\$(uname -s | tr '[:upper:]' '[:lower:]')_\$(uname -m | sed 's/x86_64/amd64/') -o /tmp/yq"
-    dry_run_command_ui_info "sudo mv /tmp/yq /usr/local/bin/yq && sudo chmod +x /usr/local/bin/yq"
+    dry_run_ui_info "Would install yq v${YQ_VERSION}."
+
+    local dry_run_os dry_run_arch
+    case "$(uname -s)" in
+      Linux) dry_run_os="linux" ;;
+      Darwin) dry_run_os="darwin" ;;
+      *) dry_run_os="unknown_os" ;; # Fallback for dry-run if OS is unexpectedly unsupported
+    esac
+
+    case "$(uname -m)" in
+      x86_64) dry_run_arch="amd64" ;;
+      aarch64 | arm64) dry_run_arch="arm64" ;;
+      *) dry_run_arch="unknown_arch" ;; # Fallback for dry-run if arch is unexpectedly unsupported
+    esac
+
+    local dry_run_bin_name="yq_${dry_run_os}_${dry_run_arch}"
+    local dry_run_url="https://github.com/mikefarah/yq/releases/download/v${YQ_VERSION}/${dry_run_bin_name}"
+    local dry_run_tmpbin="/tmp/yq_${dry_run_os}_${dry_run_arch}_${YQ_VERSION}.tmp"
+    local dry_run_dest="/usr/local/bin/yq"
+
+    dry_run_command_ui_info "curl -fsSL \"$dry_run_url\" -o \"$dry_run_tmpbin\""
+    dry_run_command_ui_info "sudo mv \"$dry_run_tmpbin\" \"$dry_run_dest\" && sudo chmod +x \"$dry_run_dest\""
     return 0
   fi
 
@@ -38,21 +56,22 @@ ensure_yq() {
 
   local OS ARCH BIN_NAME URL DEST TMPBIN
 
+  # Determine OS type
   case "$(uname -s)" in
     Linux) OS="linux" ;;
     Darwin) OS="darwin" ;;
     *)
-      ui_action_error "$(_f "Unsupported OS: %s" "$(uname -s)")"
+      ui_action_error "$(_f "Unsupported OS: %s. Cannot install yq." "$(uname -s)")"
       return 1
       ;;
   esac
 
+  # Determine architecture type and map to yq binary name
   case "$(uname -m)" in
-    x86_64 | aarch64 | arm64)
-      [[ "$(uname -m)" == "x86_64" ]] && ARCH="amd64" || ARCH="arm64"
-      ;;
+    x86_64) ARCH="amd64" ;;
+    aarch64 | arm64) ARCH="arm64" ;;
     *)
-      ui_action_error "$(_f "Unsupported architecture: %s" "$(uname -m)")"
+      ui_action_error "$(_f "Unsupported architecture: %s. Cannot install yq." "$(uname -m)")"
       return 1
       ;;
   esac
@@ -60,15 +79,29 @@ ensure_yq() {
   BIN_NAME="yq_${OS}_${ARCH}"
   URL="https://github.com/mikefarah/yq/releases/download/v${YQ_VERSION}/${BIN_NAME}"
   DEST="/usr/local/bin/yq"
-  TMPBIN="/tmp/${BIN_NAME}"
+  # Use a more unique temporary file name to prevent conflicts
+  TMPBIN="/tmp/yq_${OS}_${ARCH}_${YQ_VERSION}.tmp"
 
+  ui_verbose_info "$(_f "Attempting to download yq from: %s" "$URL")"
+
+  # Download the yq binary
   if curl -fsSL "$URL" -o "$TMPBIN"; then
-    sudo mv "$TMPBIN" "$DEST" || return 1
-    sudo chmod +x "$DEST" || return 1
-    ui_action_success "$(_f "yq v%s installed to %s" "$YQ_VERSION" "$DEST")"
-    return 0
+    ui_verbose_info "$(_f "Downloaded yq to temporary location: %s" "$TMPBIN")"
+    # Move the binary to the destination and make it executable
+    if sudo mv "$TMPBIN" "$DEST"; then
+      if sudo chmod +x "$DEST"; then
+        ui_action_success "$(_f "yq v%s successfully installed to %s." "$YQ_VERSION" "$DEST")"
+        return 0
+      else
+        ui_action_error "$(_f "Failed to make yq executable at %s." "$DEST")"
+        return 1
+      fi
+    else
+      ui_action_error "$(_f "Failed to move yq binary from %s to %s." "$TMPBIN" "$DEST")"
+      return 1
+    fi
   else
-    ui_action_error "$(_f "Failed to download yq from %s" "$URL")"
+    ui_action_error "$(_f "Failed to download yq from %s. Please check your network connection or the URL." "$URL")"
     return 1
   fi
 }

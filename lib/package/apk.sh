@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+# Guard to prevent multiple sourcing
 if [[ -n "${_LIB_PACKAGE_APK_SOURCED:-}" ]]; then
   return 0
 fi
@@ -18,38 +19,41 @@ is_apk_package_installed() {
 }
 
 setup_apk() {
-  if [[ "$MEOW_VERBOSE" == "true" ]]; then
+  if [[ "$MEOW_VERBOSE" = "true" ]]; then
     ui_step_header "Setting up apk"
   fi
 
   if is_dry_run; then
     if ! command -v apk >/dev/null 2>&1; then
-      dry_run_ui_info "apk not found - would fail setup"
+      dry_run_ui_info "apk not found. Setup would fail."
     else
-      dry_run_ui_info "Would update apk package index"
+      dry_run_ui_info "Would update apk package index."
       dry_run_ui_info "  Command: sudo apk update"
-      dry_run_ui_info "  Would refresh available package information"
+      dry_run_ui_info "  This would refresh available package information."
     fi
     return 0
   fi
 
   command -v apk >/dev/null 2>&1 || {
-    ui_error "apk not found"
+    ui_error "apk not found. Please ensure apk is installed and in your PATH."
     return 1
   }
 
-  if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    ui_spinner "$(parse_spinner_messages "apk_update")" \
-      sudo apk update
+  if [[ "$MEOW_VERBOSE" = "true" ]]; then
+    ui_spinner "Updating apk package index..." \
+      sudo apk update || {
+      ui_error "Failed to update apk package index."
+      return 1
+    }
   else
     sudo apk update >/dev/null 2>&1 || {
-      ui_error "Failed to update apk package index"
+      ui_error "Failed to update apk package index silently."
       return 1
     }
   fi
 
-  if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    ui_action_success "apk available"
+  if [[ "$MEOW_VERBOSE" = "true" ]]; then
+    ui_action_success "apk available and package index updated."
   fi
 }
 
@@ -67,15 +71,13 @@ uninstall_apk_packages() {
 
 cleanup_apk() {
   if is_dry_run; then
-    dry_run_ui_info "apk cleanup would be skipped (no cache to clean)"
-    dry_run_ui_info "  apk uses --no-cache flag so no cleanup needed"
+    dry_run_ui_info "apk cleanup would be skipped (no cache to clean)."
+    dry_run_ui_info "  apk typically manages its own cache via '--no-cache' during installation, so explicit cleanup is rarely needed."
     return 0
   fi
 
-  if [[ "$MEOW_VERBOSE" == "true" ]]; then
+  if [[ "$MEOW_VERBOSE" = "true" ]]; then
     ui_step_header "Cleaning apk"
-    ui_action_success "apk cleanup completed (no cache to clean)"
-  else
-    ui_action_success "apk cleanup completed"
   fi
+  ui_action_success "apk cleanup completed (no cache to clean)."
 }

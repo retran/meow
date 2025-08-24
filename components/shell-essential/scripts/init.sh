@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-if [[ "${BASH_SOURCE[0]}" != "${0}" ]] && [[ -n "${_COMPONENT_SHELL_ESSENTIAL_INIT_SOURCED:-}" ]]; then
+if [[ -n "${_COMPONENT_SHELL_ESSENTIAL_INIT_SOURCED:-}" ]]; then
   return 0
 fi
 _COMPONENT_SHELL_ESSENTIAL_INIT_SOURCED=1
@@ -19,7 +19,7 @@ base_plugins=(
   encode64
 )
 
-conditional_plugins=(git git-lfs git-escape-magic gitignore)
+# conditional_plugins is implicitly initialized as an empty array when += is first used.
 
 command -v gh &>/dev/null && conditional_plugins+=(github gh)
 command -v ssh &>/dev/null && conditional_plugins+=(ssh)
@@ -33,7 +33,9 @@ command -v tmux &>/dev/null && conditional_plugins+=(tmux)
 command -v brew &>/dev/null && conditional_plugins+=(brew)
 
 os_plugins=()
-[[ "$OSTYPE" == "darwin"* ]] && os_plugins+=(macos)
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  os_plugins+=(macos)
+fi
 
 export plugins=("${base_plugins[@]}" "${conditional_plugins[@]}" "${os_plugins[@]}")
 
@@ -44,7 +46,9 @@ else
 fi
 
 export ZSH="$HOME/.oh-my-zsh"
-[[ -f "$ZSH/oh-my-zsh.sh" ]] && source "$ZSH/oh-my-zsh.sh"
+if [[ -f "$ZSH/oh-my-zsh.sh" ]]; then
+  source "$ZSH/oh-my-zsh.sh"
+fi
 
 command -v nvim >/dev/null 2>&1 && {
   alias vim='nvim'
@@ -56,4 +60,3 @@ command -v fd &>/dev/null && alias find='fd'
 command -v fzf &>/dev/null && source <(fzf --zsh)
 command -v zoxide &>/dev/null && eval "$(zoxide init zsh --cmd cd)"
 command -v starship &>/dev/null && eval "$(starship init zsh)"
-

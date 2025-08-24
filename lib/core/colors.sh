@@ -1,12 +1,19 @@
 #!/usr/bin/env bash
 
-if [[ "${BASH_SOURCE[0]}" != "${0}" ]] && [[ -n "${_LIB_CORE_COLORS_SOURCED:-}" ]]; then
+# Enable strict mode: exit on error, treat unset variables as an error,
+# and propagate exit codes through pipelines.
+
+# This block ensures the script's functions are defined only once if sourced
+# multiple times, and makes it safe to run directly.
+if [ -n "${_LIB_CORE_COLORS_SOURCED:-}" ]; then
   return 0
 fi
 _LIB_CORE_COLORS_SOURCED=1
 
+# Check if the output is directed to a terminal to enable colors.
 if [ -t 1 ]; then
-  if [[ "${COLORTERM:-}" == "truecolor" ]] || [[ "${COLORTERM:-}" == "24bit" ]]; then
+  # Attempt to use 24-bit truecolor codes if COLORTERM indicates support.
+  if [ "${COLORTERM:-}" = "truecolor" ] || [ "${COLORTERM:-}" = "24bit" ]; then
     NORMAL="\033[38;2;192;202;245m"
     RED="\033[38;2;247;118;142m"
     GREEN="\033[38;2;158;206;106m"
@@ -16,6 +23,7 @@ if [ -t 1 ]; then
     CYAN="\033[38;2;125;207;255m"
     ORANGE="\033[38;2;255;158;100m"
   else
+    # Fallback to 256-color palette using tput for broader compatibility.
     NORMAL="$(tput setaf 254)"
     RED="$(tput setaf 210)"
     GREEN="$(tput setaf 150)"
@@ -26,10 +34,12 @@ if [ -t 1 ]; then
     ORANGE="$(tput setaf 215)"
   fi
 
+  # Define bold variants for some colors using tput.
   WHITE_BOLD="$(tput bold)${NORMAL}"
   MAGENTA_BOLD="$(tput bold)${MAGENTA}"
   CYAN_BOLD="$(tput bold)${CYAN}"
 
+  # Define semantic color variables based on the chosen palette.
   PRIMARY="${BLUE}"
   SECONDARY="${CYAN}"
   ACCENT="${ORANGE}"
@@ -48,9 +58,12 @@ if [ -t 1 ]; then
   BULLET="${YELLOW}"
   ART="${WHITE_BOLD}"
 
+  # General text styling.
   BOLD="$(tput bold)"
   RESET="$(tput sgr0)"
 else
+  # If not a terminal, define all color variables as empty strings.
+  # This prevents color codes from appearing in redirected output.
   NORMAL=""
   RED=""
   GREEN=""

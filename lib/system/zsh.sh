@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-if [[ "${BASH_SOURCE[0]}" != "${0}" ]] && [[ -n "${_LIB_SYSTEM_ZSH_SOURCED:-}" ]]; then
+# Sourcing guard to prevent multiple executions if sourced multiple times.
+if [[ -n "${_LIB_SYSTEM_ZSH_SOURCED:-}" ]]; then
   return 0
 fi
 _LIB_SYSTEM_ZSH_SOURCED=1
@@ -10,21 +11,23 @@ source "${MEOW}/lib/core/ui.sh"
 setup_ohmyzsh() {
   ui_action_start "Checking for Oh My Zsh installation..."
 
-  if [[ -d "$HOME/.oh-my-zsh" ]]; then
+  local ohmyzsh_path="$HOME/.oh-my-zsh"
+
+  if [[ -d "$ohmyzsh_path" ]]; then
     ui_action_success "Oh My Zsh is already installed."
 
-    ui_spinner "Updating Oh My Zsh" \
-      --success "Oh My Zsh update completed" \
-      --fail "Failed to update Oh My Zsh" \
-      sh -c 'ZSH="$HOME/.oh-my-zsh" zsh -i "$HOME/.oh-my-zsh/tools/upgrade.sh"'
+    ui_spinner "Updating Oh My Zsh..." \
+      --success "Oh My Zsh updated successfully." \
+      --fail "Failed to update Oh My Zsh." \
+      sh -c 'OHMYZSH_DIR="$1"; ZSH="$OHMYZSH_DIR" zsh -i "$OHMYZSH_DIR/tools/upgrade.sh"' _ "$ohmyzsh_path"
 
     return $?
   fi
 
-  ui_spinner "Installing Oh My Zsh" \
-    --success "Oh My Zsh installation completed" \
-    --fail "Failed to install Oh My Zsh" \
-    sh -c 'RUNZSH=no CHSH=no KEEP_ZSHRC=yes sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"'
+  ui_spinner "Installing Oh My Zsh..." \
+    --success "Oh My Zsh installed successfully." \
+    --fail "Failed to install Oh My Zsh." \
+    RUNZSH=no CHSH=no KEEP_ZSHRC=yes sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 
   return $?
 }
@@ -36,7 +39,7 @@ configure_zsh() {
     ui_action_success "Zsh environment setup complete."
     return 0
   else
-    ui_warning "Zsh environment setup encountered issues"
+    ui_warning "Zsh environment setup encountered issues."
     return 1
   fi
 }

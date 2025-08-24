@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 
-if [[ "${BASH_SOURCE[0]}" != "${0}" ]] && [[ -n "${_COMPONENT_CORE_DEVELOPMENT_INIT_SOURCED:-}" ]]; then
+if [[ -n "${_COMPONENT_CORE_DEVELOPMENT_INIT_SOURCED:-}" ]]; then
   return 0
 fi
 _COMPONENT_CORE_DEVELOPMENT_INIT_SOURCED=1
 
 # Git commit message preparation function
 _prepare_commit_message() {
-  sed '/^```/d' |
+  sed '/^/d' |
     (
       read -r subject
       echo "$subject"

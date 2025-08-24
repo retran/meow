@@ -1,17 +1,15 @@
 #!/usr/bin/env bash
 
-# Helper function for safe string formatting, injected by the inliner script.
-source "${MEOW}/lib/core/ui.sh"
-
-if [[ "${BASH_SOURCE[0]}" != "${0}" ]] && [[ -n "${_LIB_MOTD_SOURCED:-}" ]]; then
+if [[ -n "${_LIB_MOTD_SOURCED:-}" ]]; then
   return 0
 fi
 _LIB_MOTD_SOURCED=1
 
 source "${MEOW}/lib/core/colors.sh"
+source "${MEOW}/lib/core/ui.sh"
 
 if [[ -z "$MEOW" ]]; then
-  echo "Error: MEOW environment variable is not set." >&2
+  echo "Error: MEOW environment variable is not set. Please set it to the root of your Meow repository." >&2
   return 1
 fi
 
@@ -19,10 +17,12 @@ readonly MEOW_MOTD_ASSETS_DIR="${MEOW}/assets"
 readonly MEOW_MOTD_CACHE_DIR="${HOME}/.cache/meow-motd"
 readonly MEOW_MOTD_ASCII_ART_FILE="${MEOW_MOTD_ASSETS_DIR}/ascii/motd.ascii"
 
-mkdir -p "${MEOW_MOTD_CACHE_DIR}"
+mkdir -p "${MEOW_MOTD_CACHE_DIR}" || {
+  echo "Error: Could not create cache directory ${MEOW_MOTD_CACHE_DIR}." >&2
+  return 1
+}
 
-source "${MEOW}/lib/core/colors.sh"
-
+# Loads comments from a YAML file using yq
 load_yaml_comments() {
   local category="$1"
   local section="$2"
@@ -35,13 +35,14 @@ load_yaml_comments() {
   if command -v yq >/dev/null 2>&1; then
     (
       set -o pipefail
-      yq -r ".${category}.${section}[]" "$yaml_file" 2>/dev/null
+      yq -r ".${category}.${section}[]" "$yaml_file" 2>/dev/null || return 1
     )
   else
     return 1
   fi
 }
 
+# Gets a random comment from a collection specified by category-section pairs
 get_comment_collection() {
   local -a result
   local line
@@ -54,7 +55,7 @@ get_comment_collection() {
     local collection_content
     collection_content=$(load_yaml_comments "$category" "$section")
     if [[ $? -eq 0 && -n "$collection_content" ]]; then
-      while read -r line; do
+      while IFS= read -r line; do
         if [[ -n "$line" ]]; then
           result+=("$line")
         fi
@@ -63,16 +64,17 @@ get_comment_collection() {
   done
 
   local count=${#result[@]}
-  if [[ $count -eq 0 ]]; then
-    echo "A fancy digital cat comment should be here"
+  if [[ "$count" -eq 0 ]]; then
+    echo "No special comment, but you're still paw-some!"
     return 0
   fi
 
-  local index=$(((RANDOM % count) + 1))
+  local index=$((RANDOM % count))
   local selected_comment="${result[index]}"
   echo "$selected_comment"
 }
 
+# Gathers system information
 get_system_info() {
   local cache_dir="$1"
 
@@ -81,21 +83,33 @@ get_system_info() {
   date_full=$(date +"%A, %B %d, %Y")
   time_current=$(date +"%H:%M:%S")
   os_info=$(uname -srm)
-  uptime_info=$(uptime | sed -E 's/^.*up *//; s/, *[0-9]+ user.*//; s/, *load average.*//; s/^[ \\t]*//; s/[ \\t]*$//')
-  home_disk_space=$(df -h "$HOME" | awk 'NR==2 {print $4 "B free / " $5 " used"}')
 
-  if [[ "$OSTYPE" == "darwin"* ]]; then
+  uptime_info=$(uptime | sed -E 's/^.*up *//; s/, *[0-9]+ user.*//; s/, *load average.*//; s/^[[:space:]]*//; s/[[:space:]]*$//')
+  home_disk_space=$(df -h "$HOME" | awk 'NR==2 {print $4 " free / " $5 " used"}')
+
+  if [[ "$OSTYPE" = "darwin"* ]]; then
     ram_stats=$(top -l 1 -n 0 | grep PhysMem: | awk '{print $2 " used, " $6 " unused"}')
   fi
 
   outdated_packages="0"
+
   if command -v brew >/dev/null 2>&1; then
     local brew_cache_file="${cache_dir}/brew_outdated"
-    if [[ -f "$brew_cache_file" && $(($(date +%s) - $(stat -f %m "$brew_cache_file" 2>/dev/null || stat -c %Y "$brew_cache_file" 2>/dev/null))) -lt 600 ]]; then
+    local current_time_s
+    current_time_s=$(date +%s)
+    local file_mod_time_s
+
+    if [[ "$OSTYPE" = "darwin"* ]]; then
+      file_mod_time_s=$(stat -f %m "$brew_cache_file" 2>/dev/null)
+    else
+      file_mod_time_s=$(stat -c %Y "$brew_cache_file" 2>/dev/null)
+    fi
+
+    if [[ -f "$brew_cache_file" ]] && [[ $((current_time_s - file_mod_time_s)) -lt 600 ]]; then
       outdated_packages=$(cat "$brew_cache_file")
     else
       outdated_packages=$(brew outdated | wc -l | tr -d ' ')
-      echo "${outdated_packages:-0}" >"$brew_cache_file"
+      echo "${outdated_packages:-0}" >"$brew_cache_file" || echo "Warning: Could not write to brew cache file." >&2
     fi
   fi
 
@@ -113,11 +127,12 @@ hour_num=${hour_num}
 EOF
 }
 
+# Loads ASCII art from a file
 load_art() {
   local art_file="$1"
 
   if [[ ! -f "$art_file" ]]; then
-    echo "$(_f "ASCII art file not found: %s" "$art_file")"
+    _f "ASCII art file not found: %s" "$art_file" >&2
     return
   fi
 
@@ -126,30 +141,34 @@ load_art() {
   done <"$art_file"
 }
 
+# Constructs the greeting message based on time of day
 build_greeting() {
   local hour_num="$1"
   local date_full="$2"
   local time_current="$3"
 
-  local greeting
-  greeting="Meowvelous day"
-  local time_collection_key="night" # Default
+  local greeting="Meowvelous day"
+  local time_collection_key="night" # Default to night
 
   if ((hour_num >= 5 && hour_num < 12)); then
     time_collection_key="morning"
+    greeting="Good morning"
   elif ((hour_num >= 12 && hour_num < 18)); then
     time_collection_key="afternoon"
+    greeting="Good afternoon"
   elif ((hour_num >= 18 && hour_num < 22)); then
     time_collection_key="evening"
+    greeting="Good evening"
   fi
 
   local time_comment
   time_comment=$(get_comment_collection "motd" "$time_collection_key")
-  if [[ -z "$time_comment" || "$time_comment" == "A fancy digital cat comment should be here" ]]; then
+
+  if [[ -z "$time_comment" ]] || [[ "$time_comment" = "No special comment, but you're still paw-some!" ]]; then
     time_comment="Hope you have a purr-ductive time!"
   fi
 
-  echo -e "${SECONDARY}$(_f "%s, сomrade %s!" "$greeting" "$(whoami)")${RESET}"
+  echo -e "${SECONDARY}$(_f "%s, comrade %s!" "$greeting" "$(whoami)")${RESET}"
   echo -e "${SECONDARY}${time_comment}${RESET}"
   echo ""
   echo -e "${INFO}$(_f "Calendar shows %s" "$date_full")${RESET}"
@@ -157,17 +176,26 @@ build_greeting() {
   echo ""
 }
 
+# Constructs the system statistics block
 build_system_stats() {
   local system_info="$1"
 
-  local date_full=$(echo "$system_info" | grep '^date_full=' | cut -d'=' -f2-)
-  local time_current=$(echo "$system_info" | grep '^time_current=' | cut -d'=' -f2-)
-  local os_info=$(echo "$system_info" | grep '^os_info=' | cut -d'=' -f2-)
-  local uptime_info=$(echo "$system_info" | grep '^uptime_info=' | cut -d'=' -f2-)
-  local home_disk_space=$(echo "$system_info" | grep '^home_disk_space=' | cut -d'=' -f2-)
-  local ram_stats=$(echo "$system_info" | grep '^ram_stats=' | cut -d'=' -f2-)
-  local outdated_packages=$(echo "$system_info" | grep '^outdated_packages=' | cut -d'=' -f2-)
-  local hour_num=$(echo "$system_info" | grep '^hour_num=' | cut -d'=' -f2-)
+  local date_full
+  date_full=$(echo "$system_info" | grep '^date_full=' | cut -d'=' -f2-)
+  local time_current
+  time_current=$(echo "$system_info" | grep '^time_current=' | cut -d'=' -f2-)
+  local os_info
+  os_info=$(echo "$system_info" | grep '^os_info=' | cut -d'=' -f2-)
+  local uptime_info
+  uptime_info=$(echo "$system_info" | grep '^uptime_info=' | cut -d'=' -f2-)
+  local home_disk_space
+  home_disk_space=$(echo "$system_info" | grep '^home_disk_space=' | cut -d'=' -f2-)
+  local ram_stats
+  ram_stats=$(echo "$system_info" | grep '^ram_stats=' | cut -d'=' -f2-)
+  local outdated_packages
+  outdated_packages=$(echo "$system_info" | grep '^outdated_packages=' | cut -d'=' -f2-)
+  local hour_num
+  hour_num=$(echo "$system_info" | grep '^hour_num=' | cut -d'=' -f2-)
 
   date_full="${date_full:-$(date +"%A, %B %d, %Y")}"
   time_current="${time_current:-$(date +"%H:%M:%S")}"
@@ -181,36 +209,38 @@ build_system_stats() {
   echo -e "  ${BULLET}❯${RESET} ${SECONDARY}System:${RESET}     ${DATA}${os_info}${RESET}"
   echo -e "  ${BULLET}❯${RESET} ${SECONDARY}Shell:${RESET}      ${DATA}${SHELL}${RESET}"
 
-  local uptime_collections=("uptime" "base")
+  local -a uptime_collections=("uptime" "base")
   [[ -z "$uptime_info" ]] && uptime_collections+=("uptime" "fallback")
-  local random_uptime_comment=$(get_comment_collection "${uptime_collections[@]}")
-  if [[ "$random_uptime_comment" == "A fancy digital cat comment should be here" ]]; then
+  local random_uptime_comment
+  random_uptime_comment=$(get_comment_collection "${uptime_collections[@]}")
+  if [[ "$random_uptime_comment" = "No special comment, but you're still paw-some!" ]]; then
     random_uptime_comment="Your system is up and running!"
   fi
   echo -e "  ${BULLET}❯${RESET} ${SECONDARY}Uptime:${RESET}     ${DATA}${uptime_info:-"Unknown"}${RESET}"
   echo -e "                ${SUCCESS}(${random_uptime_comment})${RESET}"
 
-  local disk_collections=("disk" "base")
+  local -a disk_collections=("disk" "base")
   [[ -z "$home_disk_space" ]] && disk_collections+=("disk" "fallback")
-  local random_disk_comment=$(get_comment_collection "${disk_collections[@]}")
-  if [[ "$random_disk_comment" == "A fancy digital cat comment should be here" ]]; then
+  local random_disk_comment
+  random_disk_comment=$(get_comment_collection "${disk_collections[@]}")
+  if [[ "$random_disk_comment" = "No special comment, but you're still paw-some!" ]]; then
     random_disk_comment="May your storage be plentiful!"
   fi
   echo -e "  ${BULLET}❯${RESET} ${SECONDARY}Disk:${RESET}       ${DATA}${home_disk_space:-"Unable to determine"}${RESET}"
   echo -e "                ${SUCCESS}(${random_disk_comment})${RESET}"
 
-  local ram_collections=("ram" "base")
+  local -a ram_collections=("ram" "base")
   [[ -z "$ram_stats" ]] && ram_collections+=("ram" "fallback")
-  local random_ram_comment=$(get_comment_collection "${ram_collections[@]}")
-  if [[ "$random_ram_comment" == "A fancy digital cat comment should be here" ]]; then
+  local random_ram_comment
+  random_ram_comment=$(get_comment_collection "${ram_collections[@]}")
+  if [[ "$random_ram_comment" = "No special comment, but you're still paw-some!" ]]; then
     random_ram_comment="May your memory serve you well, comrade!"
   fi
   echo -e "  ${BULLET}❯${RESET} ${SECONDARY}RAM:${RESET}        ${DATA}${ram_stats:-"Unknown"}${RESET}"
   echo -e "                ${SUCCESS}(${random_ram_comment})${RESET}"
 
   if [[ "$outdated_packages" -gt 0 ]]; then
-    local random_package_comment
-    random_package_comment="Time for some updates!"
+    local random_package_comment="Time for some updates!"
     echo -e "  ${BULLET}❯${RESET} ${SECONDARY}Updates:${RESET}    ${WARNING}${outdated_packages} packages need updating${RESET}"
     echo -e "                ${SUCCESS}(${random_package_comment})${RESET}"
   fi
@@ -218,6 +248,7 @@ build_system_stats() {
   echo ""
 }
 
+# Displays ASCII art and system stats side-by-side
 display_art_and_stats() {
   local art_content="$1"
   local stats_content="$2"
@@ -225,8 +256,8 @@ display_art_and_stats() {
   local -a art_array
   local -a stats_array
 
-  while IFS= read -r line; do art_array+=("$line"); done < <(printf '%s\n' "$art_content")
-  while IFS= read -r line; do stats_array+=("$line"); done < <(printf '%s\n' "$stats_content")
+  while IFS= read -r line || [[ -n "$line" ]]; do art_array+=("$line"); done < <(printf '%s\n' "$art_content")
+  while IFS= read -r line || [[ -n "$line" ]]; do stats_array+=("$line"); done < <(printf '%s\n' "$stats_content")
 
   local max_art_width=0
   local num_art_lines=${#art_array[@]}
@@ -239,13 +270,13 @@ display_art_and_stats() {
     max_total_lines=$num_stats_lines
   fi
 
-  local column_gap=" "
+  local column_gap="    " # 4 spaces between columns
   local ESC=$(printf '\x1b')
 
+  # Calculate max width of art lines without escape codes for alignment
   for art_line in "${art_array[@]}"; do
-    local stripped_line="${art_line//${ESC}\[[0-9;]*m/}"
-    stripped_line="${stripped_line//${ESC}\[?25[hl]/}"
-
+    local stripped_line="${art_line//${ESC}\[[0-9;]*m/}" # Remove SGR codes
+    stripped_line="${stripped_line//${ESC}\[?25[hl]/}"   # Remove cursor codes
     if ((${#stripped_line} > max_art_width)); then
       max_art_width=${#stripped_line}
     fi
@@ -261,6 +292,7 @@ display_art_and_stats() {
 
     printf "%s%s" "$column_gap" "$art_line"
 
+    # Add padding spaces to align the second column
     local padding_spaces=$((max_art_width - current_plain_art_len))
     if ((padding_spaces > 0)); then
       printf "%*s" "$padding_spaces" ""
@@ -281,5 +313,5 @@ show_motd() {
   stats_content=$(build_system_stats "$system_info")
 
   display_art_and_stats "$art_content" "$stats_content"
-  tput cnorm
+  tput cnorm # Ensure cursor is visible
 }

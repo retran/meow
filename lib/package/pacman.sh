@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-if [[ -n "${_LIB_PACKAGE_PACMAN_SOURCED:-}" ]]; then
+if [ -n "${_LIB_PACKAGE_PACMAN_SOURCED:-}" ]; then
   return 0
 fi
 _LIB_PACKAGE_PACMAN_SOURCED=1
@@ -18,38 +18,31 @@ is_pacman_package_installed() {
 }
 
 setup_pacman() {
-  if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    ui_step_header "Setting up pacman"
-  fi
-
   if is_dry_run; then
+    dry_run_ui_info "Would check for pacman installation and sync package database."
     if ! command -v pacman >/dev/null 2>&1; then
-      dry_run_ui_info "pacman not found - would fail setup"
+      dry_run_ui_info "pacman not found - setup would fail."
     else
-      dry_run_ui_info "Would sync pacman package database"
-      dry_run_ui_info "  Command: sudo pacman -Sy"
-      dry_run_ui_info "  Would refresh available package information"
+      dry_run_ui_info "Command: sudo pacman -Sy"
+      dry_run_ui_info "This would refresh available package information."
     fi
     return 0
   fi
 
-  command -v pacman >/dev/null 2>&1 || {
-    ui_error "pacman not found"
+  if ! command -v pacman >/dev/null 2>&1; then
+    ui_error "pacman not found. Please install pacman to proceed."
     return 1
-  }
-
-  if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    ui_spinner "$(parse_spinner_messages "pacman_sync")" \
-      sudo pacman -Sy
-  else
-    sudo pacman -Sy >/dev/null 2>&1 || {
-      ui_error "Failed to sync pacman database"
-      return 1
-    }
   fi
 
-  if [[ "$MEOW_VERBOSE" == "true" ]]; then
+  if [ "$MEOW_VERBOSE" = "true" ]; then
+    ui_step_header "Setting up pacman"
+    ui_spinner "Syncing pacman package database..." sudo pacman -Sy
     ui_action_success "pacman ready"
+  else
+    ui_spinner "Syncing pacman package database..." sudo pacman -Sy || {
+      ui_error "Failed to sync pacman database."
+      return 1
+    }
   fi
 }
 
@@ -67,18 +60,14 @@ uninstall_pacman_packages() {
 
 cleanup_pacman() {
   if is_dry_run; then
-    dry_run_ui_info "Would clean pacman package cache"
-    dry_run_ui_info "  Command: sudo pacman -Sc --noconfirm"
-    dry_run_ui_info "  Would remove cached packages not currently installed"
+    dry_run_ui_info "Would clean pacman package cache."
+    dry_run_ui_info "Command: sudo pacman -Sc --noconfirm"
+    dry_run_ui_info "This would remove cached packages not currently installed."
     return 0
   fi
 
-  if [[ "$MEOW_VERBOSE" == "true" ]]; then
-    ui_step_header "Cleaning pacman"
-    ui_spinner "$(parse_spinner_messages "pacman_prune")" \
-      sudo pacman -Sc --noconfirm
-  else
-    ui_spinner "$(parse_spinner_messages "pacman_cleanup")" \
-      sudo pacman -Sc --noconfirm
+  if [ "$MEOW_VERBOSE" = "true" ]; then
+    ui_step_header "Cleaning pacman cache"
   fi
+  ui_spinner "Pruning pacman cache..." sudo pacman -Sc --noconfirm
 }
