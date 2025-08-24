@@ -12,7 +12,6 @@ source "${MEOW}/lib/core/defs.sh"
 source "${MEOW}/lib/core/ui.sh"
 source "${MEOW}/lib/core/session.sh"
 source "${MEOW}/lib/core/dry_run.sh"
-
 source "${MEOW}/lib/components/core.sh"
 source "${MEOW}/lib/components/packages.sh"
 source "${MEOW}/lib/components/repository.sh"

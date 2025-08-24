@@ -8,7 +8,6 @@ _LIB_COMPONENTS_PACKAGES_SOURCED=1
 
 source "${MEOW}/lib/core/defs.sh"
 source "${MEOW}/lib/core/platform.sh"
-
 source "${MEOW}/lib/package/common.sh"
 source "${MEOW}/lib/package/homebrew.sh"
 source "${MEOW}/lib/package/mas.sh"

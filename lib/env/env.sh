@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-# Ensure the script is sourced only once per session.
 if [[ -n "${_MEOW_CORE_ENV_SOURCED:-}" ]]; then
   return 0
 fi
@@ -57,12 +56,10 @@ fi
 _meow_source_component_env_scripts() {
   if [[ -d "${MEOW}/.installed/components" ]]; then
     for component_link in "${MEOW}/.installed/components"/*; do
-      # In Bash, if no files match the glob, component_link will be the literal pattern.
-      # The -L check handles this gracefully, evaluating to false for a non-existent literal.
       [[ -L "$component_link" ]] || continue
 
-      local component_name
-      component_name=$(basename "$component_link")
+      # shellcheck disable=SC2155
+      local component_name=$(basename "$component_link")
 
       local env_script="${MEOW}/components/${component_name}/scripts/env.sh"
       if [[ -f "$env_script" ]]; then

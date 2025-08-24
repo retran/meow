@@ -53,8 +53,6 @@ command -v nvim >/dev/null 2>&1 && {
   alias vi='nvim'
 }
 
-command -v bat >/dev/null 2>&1 && alias cat='bat -p'
-command -v fd &>/dev/null && alias find='fd'
 command -v fzf &>/dev/null && source <(fzf --zsh)
 command -v zoxide &>/dev/null && eval "$(zoxide init zsh --cmd cd)"
 command -v starship &>/dev/null && eval "$(starship init zsh)"
