@@ -119,7 +119,7 @@ setup_component_symlinks_from_file() {
 
   local is_numeric=true
   case "$num_symlinks" in
-    "" | *[!0-9]* ) # Check for empty string or non-numeric characters
+    "" | *[!0-9]*) # Check for empty string or non-numeric characters
       is_numeric=false
       ;;
   esac

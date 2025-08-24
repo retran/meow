@@ -18,7 +18,7 @@ setup_ohmyzsh() {
     ui_spinner "Updating Oh My Zsh..." \
       --success "Oh My Zsh updated successfully." \
       --fail "Failed to update Oh My Zsh." \
-      ZSH="$ohmyzsh_path" sh -c 'zsh -i "$1/tools/upgrade.sh"' _ "$ohmyzsh_path"
+      ZSH="$ohmyzsh_path" sh -c "zsh -i \"${ohmyzsh_path}/tools/upgrade.sh\""
 
     return $?
   fi

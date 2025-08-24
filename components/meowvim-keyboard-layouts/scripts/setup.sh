@@ -7,8 +7,7 @@ source "${MEOW}/lib/core/platform.sh"
 source "${MEOW}/lib/core/ui.sh"
 
 case "$OSTYPE" in
-  darwin*)
-    ;;
+  darwin*) ;;
   *)
     ui_warning "This script is intended for macOS only. Exiting."
     exit 0

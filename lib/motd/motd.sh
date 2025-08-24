@@ -296,7 +296,7 @@ display_art_and_stats() {
 
     printf "%s%s\n" "$column_gap" "$stats_line"
 
-    i=$((i+1))
+    i=$((i + 1))
   done
 }
 

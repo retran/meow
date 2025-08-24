@@ -40,6 +40,7 @@ setup_component_symlinks() {
   local success_count=0
   local error_count=0
 
+  local yaml_file
   for yaml_file in "${yaml_files[@]}"; do
     local symlink_name
     symlink_name=$(basename "$yaml_file" .yaml)
@@ -105,6 +106,7 @@ remove_component_symlinks() {
   local success_count=0
   local error_count=0
 
+  local yaml_file
   for yaml_file in "${yaml_files[@]}"; do
     local symlink_name
     symlink_name=$(basename "$yaml_file" .yaml)
@@ -211,9 +213,39 @@ remove_component_symlinks_from_file() {
 
     if [[ -L "$expanded_target" ]]; then
       if rm "$expanded_target"; then
-        local backup_pattern="${expanded_target}.backup.*"
-        local latest_backup
-        latest_backup=$(LC_ALL=C ls -t "$backup_pattern" 2>/dev/null | head -n 1)
+        local backup_pattern_base="$(basename "$expanded_target").backup.*"
+        local backup_dir="$(dirname "$expanded_target")"
+        local latest_backup=""
+        local latest_mtime=0
+
+        # Determine stat command based on OS
+        local STAT_CMD
+        if uname | grep -q "Darwin"; then
+          STAT_CMD="stat -f %m" # macOS (BSD stat)
+        else
+          STAT_CMD="stat -c %Y" # Linux (GNU stat)
+        fi
+
+        local potential_backups_list=()
+        local find_backup_output
+        if find_backup_output=$(find "$backup_dir" -maxdepth 1 -type f -name "$backup_pattern_base" -print0 2>/dev/null); then
+          local backup_item
+          while IFS= read -r -d '' backup_item; do
+            potential_backups_list=("${potential_backups_list[@]}" "$backup_item")
+          done <<<"$find_backup_output"
+        fi
+
+        local backup_file
+        for backup_file in "${potential_backups_list[@]}"; do
+          if [[ -f "$backup_file" ]]; then
+            local current_mtime
+            current_mtime=$($STAT_CMD "$backup_file" 2>/dev/null)
+            if [[ -n "$current_mtime" && "$current_mtime" -gt "$latest_mtime" ]]; then
+              latest_mtime="$current_mtime"
+              latest_backup="$backup_file"
+            fi
+          fi
+        done
 
         if [[ -n "$latest_backup" ]]; then
           if mv "$latest_backup" "$expanded_target"; then
