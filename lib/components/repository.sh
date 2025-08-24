@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-# This script provides functions for managing Git repositories associated with Meow components.
-
 if [[ -n "${_LIB_COMPONENTS_REPOSITORY_SOURCED:-}" ]]; then
   return 0
 fi

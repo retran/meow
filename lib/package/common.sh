@@ -9,7 +9,6 @@ source "${MEOW}/lib/core/ui.sh"
 source "${MEOW}/lib/core/platform.sh"
 source "${MEOW}/lib/core/dry_run.sh"
 
-# Logs a dry-run message for package operations.
 dry_run_package_operation() {
   local manager_display_name="$1"
   local operation="$2"
@@ -17,7 +16,6 @@ dry_run_package_operation() {
   dry_run_log "$(_f "Would %s %s package %s" "$operation" "$manager_display_name" "$package_name")"
 }
 
-# Executes a package operation command with verbose output.
 run_package_operation() {
   local start_msg="$1"
   local success_msg="$2"
@@ -36,8 +34,6 @@ run_package_operation() {
   fi
 }
 
-# Caches the list of installed packages for a given manager.
-# The list is stored in a dynamically named global variable.
 cache_package_list() {
   local manager="$1"
   local list_command="$2"
@@ -46,12 +42,12 @@ cache_package_list() {
 
   if [ -z "${!cache_var:-}" ]; then
     ui_verbose_action_start "$(_f "Caching installed %s packages..." "$manager")"
+    # shellcheck disable=SC2296 # indirect assignment with eval is necessary for Bash 3.2
     eval "$cache_var=\"$(eval "$list_command")\""
     ui_verbose_action_success "$(_f "Successfully cached %s packages." "$manager")"
   fi
 }
 
-# Checks if a package is installed for a given manager using the cached list.
 is_package_installed() {
   local manager="$1"
   local package="$2"
@@ -61,7 +57,6 @@ is_package_installed() {
   grep -qE "^$package$" <<<"${!cache_var}"
 }
 
-# Parses a line from a package list file, removing comments and whitespace.
 parse_package_line() {
   local line="$1"
 
@@ -79,7 +74,6 @@ parse_package_line() {
   echo "$line"
 }
 
-# Capitalizes the first letter of a string.
 capitalize() {
   local str="$1"
   local first_char rest
@@ -88,8 +82,6 @@ capitalize() {
   echo "${first_char}${rest}"
 }
 
-# Generic function to install packages managed by a specific package manager.
-# Reads package names from a manager-specific list file.
 install_packages_generic() {
   local component="$1"
   local manager_name="$2"
@@ -148,6 +140,7 @@ install_packages_generic() {
       fi
 
       if [ "$MEOW_VERBOSE" = "true" ]; then
+        # shellcheck disable=SC2086 # Arguments are intentionally word-split by run_package_operation's design
         if run_package_operation \
           "$(_f "Installing %s %s..." "$manager_display_name" "$package_name")" \
           "$(_f "Successfully installed %s %s." "$manager_display_name" "$package_name")" \
@@ -158,6 +151,7 @@ install_packages_generic() {
           ((failed_count++)) || true
         fi
       else
+        # shellcheck disable=SC2086 # Arguments are intentionally word-split by ui_silent_spinner's design
         if ui_silent_spinner "$(_f "Installing %s %s" "$manager_display_name" "$package_name")" $install_cmd "$package_name"; then
           ((installed_count++)) || true
         else
@@ -181,7 +175,6 @@ install_packages_generic() {
   fi
 }
 
-# Generic function to update packages managed by a specific package manager.
 update_packages_generic() {
   local component="$1"
   local manager_name="$2"
@@ -247,6 +240,7 @@ update_packages_generic() {
             return 1
           }
 
+          # shellcheck disable=SC2086 # Arguments are intentionally word-split by ui_silent_spinner's design
           if ui_silent_spinner "$(_f "Checking %s %s" "$manager_display_name" "$package_name")" bash -c "eval \"$update_cmd \\\"$package_name\\\"\" >\"$temp_file\" 2>&1"; then
             test_output=$(cat "$temp_file")
           else
@@ -255,7 +249,6 @@ update_packages_generic() {
           fi
           rm -f "$temp_file" || true
         fi
-        # Check if output matches the skip pattern, indicating it's already up-to-date.
         if echo "$test_output" | grep -Eq "$skip_pattern"; then
           is_up_to_date=true
         fi
@@ -272,6 +265,7 @@ update_packages_generic() {
         fi
 
         if [ "$MEOW_VERBOSE" = "true" ]; then
+          # shellcheck disable=SC2086 # Arguments are intentionally word-split by run_package_operation's design
           if run_package_operation \
             "$(_f "Updating %s %s..." "$manager_display_name" "$package_name")" \
             "$(_f "Successfully updated %s %s." "$manager_display_name" "$package_name")" \
@@ -282,6 +276,7 @@ update_packages_generic() {
             ((failed_count++)) || true
           fi
         else
+          # shellcheck disable=SC2086 # Arguments are intentionally word-split by ui_silent_spinner's design
           if ui_silent_spinner "$(_f "Updating %s %s" "$manager_display_name" "$package_name")" $update_cmd "$package_name"; then
             ((updated_count++)) || true
           else
@@ -309,8 +304,6 @@ update_packages_generic() {
   fi
 }
 
-# Generic function to uninstall packages managed by a specific package manager.
-# Reads package names from a manager-specific list file.
 uninstall_packages_generic() {
   local component="$1"
   local manager_name="$2"
@@ -345,18 +338,15 @@ uninstall_packages_generic() {
       continue
     fi
 
-    # Check if the package is installed before attempting to uninstall.
-    # eval is used here because check_cmd can be a function name or a command string.
     if eval "$check_cmd \"$package_name\""; then
       if is_dry_run; then
         dry_run_package_operation "$manager_display_name" "remove" "$package_name"
-        ((uninstalled_count++)) || true # Count as 'would be uninstalled' for dry-run
+        ((uninstalled_count++)) || true
         continue
       fi
 
       if [ "$MEOW_VERBOSE" = "true" ]; then
-        # In verbose mode, use run_package_operation for detailed messages.
-        # $uninstall_cmd is intentionally word-split here.
+        # shellcheck disable=SC2086 # Arguments are intentionally word-split by run_package_operation's design
         if run_package_operation \
           "$(_f "Uninstalling %s %s..." "$manager_display_name" "$package_name")" \
           "$(_f "Successfully uninstalled %s %s." "$manager_display_name" "$package_name")" \
@@ -367,8 +357,7 @@ uninstall_packages_generic() {
           ((failed_count++)) || true
         fi
       else
-        # In silent mode, use ui_silent_spinner.
-        # $uninstall_cmd is intentionally word-split here.
+        # shellcheck disable=SC2086 # Arguments are intentionally word-split by ui_silent_spinner's design
         if ui_silent_spinner "$(_f "Uninstalling %s %s" "$manager_display_name" "$package_name")" $uninstall_cmd "$package_name"; then
           ((uninstalled_count++)) || true
         else
@@ -382,7 +371,6 @@ uninstall_packages_generic() {
     fi
   done <"$package_file"
 
-  # Summarize the uninstallation results.
   if ((failed_count == 0)); then
     if ((uninstalled_count > 0)); then
       ui_indent "$(_f "%s: ✓ %d uninstalled, %d not installed" "$(capitalize "$manager_name")" "$uninstalled_count" "$not_installed_count")"

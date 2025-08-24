@@ -20,12 +20,6 @@ MEOW_WARNING_COUNT=0
 MEOW_ERRORS=()
 MEOW_WARNINGS=()
 
-_f() {
-  local template="$1"
-  shift
-  printf -- "$template" "$@"
-}
-
 _base_msg() {
   local color_prefix="$1"
   shift
@@ -148,8 +142,8 @@ ui_confirm() {
   local message="${1:-Confirm}"
   local default_response="${2:-N}"
   local prompt_suffix
-  local default_upper
 
+  local default_upper
   default_upper=$(echo "$default_response" | tr '[:lower:]' '[:upper:]')
 
   case "$default_upper" in
@@ -270,7 +264,7 @@ ui_spinner() {
   if [[ "$MEOW_DRY_RUN" = "true" ]]; then
     ui_info_detail "$(printf "Dry run: Skipping execution of '%s'" "${cmd_and_args[*]}")"
     cmd_exit_status=0
-    printf "" >"$temp_output_file" # Ensure file exists but is empty for dry run
+    printf "" >"$temp_output_file"
   else
     "${cmd_and_args[@]}" >"$temp_output_file" 2>&1 &
     pid=$!

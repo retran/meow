@@ -19,8 +19,6 @@ base_plugins=(
   encode64
 )
 
-# conditional_plugins is implicitly initialized as an empty array when += is first used.
-
 command -v gh &>/dev/null && conditional_plugins+=(github gh)
 command -v ssh &>/dev/null && conditional_plugins+=(ssh)
 command -v docker &>/dev/null && conditional_plugins+=(docker docker-compose)

@@ -1,25 +1,16 @@
 #!/usr/bin/env bash
 
-# Check if script is sourced or executed. If sourced, prevent re-execution if already loaded.
 if [[ -n "${_LIB_DEFS_SOURCED:-}" ]]; then
   return 0
 fi
 _LIB_DEFS_SOURCED=1
 
-# Strict mode: exit on error, unset variables, and pipefail
-
-# Global flags
 VERBOSE=0
 DRY_RUN=0
 
-# Spinner variables
 _spinner_pid=""
-_spinner_char_idx=0
-_spinner_chars=("-" "\\" "|" "/") # Bash 3.2 compatible array
+_spinner_chars=("-" "\\" "|" "/")
 
-# --- Utility Functions ---
-
-# Function to print messages to stderr
 log_message() {
   local level="$1"
   local message="$2"
@@ -36,7 +27,7 @@ log_warn() {
 
 log_error() {
   log_message "ERROR" "$1"
-  return 1 # Indicate error for set -e
+  return 1
 }
 
 verbose_log() {
@@ -51,29 +42,24 @@ dry_run_log() {
   fi
 }
 
-# Handles script exit on error, ensuring spinner is stopped.
 error_exit() {
   local code=$?
   local line_num="${BASH_LINENO[0]}"
   local cmd="${BASH_COMMAND}"
 
-  # If a spinner is running, stop it before exiting
   if [[ -n "${_spinner_pid}" ]]; then
     _stop_spinner
-    printf "\n" >&2 # Add a newline after the spinner if it was stopped
+    printf "\n" >&2
   fi
 
-  # Only report error if exit code is non-zero
   if [[ "$code" -ne 0 ]]; then
     log_error "Command '${cmd}' failed with exit code ${code} on line ${line_num}."
   fi
   exit "$code"
 }
 
-# Trap ERR to call error_exit, ensuring cleanup before exit.
 trap error_exit ERR
 
-# Ensure a directory exists, creating it if necessary
 ensure_dir_exists() {
   local dir="$1"
   verbose_log "Ensuring directory exists: '$dir'"
@@ -90,55 +76,41 @@ ensure_dir_exists() {
   return 0
 }
 
-# Portable way to get the immediate target of a symlink.
-# Behaves consistently on Linux and macOS readlink for this purpose.
 get_link_target() {
   local file="$1"
   if [[ -L "$file" ]]; then
     readlink "$file"
   else
-    printf "%s\n" "$file" # Not a symlink, return original path
+    printf "%s\n" "$file"
   fi
 }
 
-# --- Spinner Function ---
-# This function replaces any previous parse_spinner_messages by directly managing messages.
-
 _start_spinner() {
   local msg="$1"
-  # Use a subshell to run the spinner, so it doesn't block the main script
   (
-    # Disable error handling in spinner subshell
     set +e
     local i=0
-    local num_chars=${#_spinner_chars[@]} # Get array length in Bash 3.2
+    local num_chars=${#_spinner_chars[@]}
     while true; do
       printf "\r%s %s" "${_spinner_chars[i % num_chars]}" "$msg"
-      i=$(((i + 1) % num_chars)) # Bash 3.2 compatible arithmetic
+      i=$(((i + 1) % num_chars))
       sleep 0.1
     done
   ) &
   _spinner_pid=$!
-  # Ensure spinner stops on any script exit, including clean exit
-  trap "_stop_spinner; exit 0" EXIT # Re-trap EXIT to ensure spinner stops cleanly
+  trap "_stop_spinner; exit 0" EXIT
 }
 
 _stop_spinner() {
   if [[ -n "${_spinner_pid}" ]]; then
-    kill "$_spinner_pid" >/dev/null 2>&1 || true # Kill the spinner process
-    wait "$_spinner_pid" >/dev/null 2>&1 || true # Wait for it to terminate
+    kill "$_spinner_pid" >/dev/null 2>&1 || true
+    wait "$_spinner_pid" >/dev/null 2>&1 || true
     _spinner_pid=""
-    # Clear the spinner line by overwriting with spaces and then return cursor
-    printf "\r%$(tput cols 2>/dev/null || printf "80")s\r" "" >&2 # Use tput cols for width, fallback to 80
-    trap error_exit ERR                                           # Restore original error trap
+    printf "\r%$(tput cols 2>/dev/null || printf "80")s\r" "" >&2
+    trap error_exit ERR
   fi
 }
 
-# --- Core Logic Functions ---
-
-# Function to create a symlink from a source to a destination.
-# $1: Source path (absolute recommended for consistency).
-# $2: Destination path (where the link will be created).
 link_file() {
   local source_path="$1"
   local dest_path="$2"
@@ -157,8 +129,6 @@ link_file() {
   if [[ -e "$dest_path" ]]; then
     if [[ -L "$dest_path" ]]; then
       local existing_target="$(get_link_target "$dest_path")"
-      # For absolute paths, direct comparison is reliable.
-      # readlink with absolute source path will return absolute target path.
       if [[ "$existing_target" = "$source_path" ]]; then
         log_info "Link '$dest_path' already points to '$source_path'. Skipping."
         return 0
@@ -203,8 +173,6 @@ link_file() {
   return 0
 }
 
-# Function to remove a path (symlink or file/directory).
-# $1: Path to remove.
 remove_path() {
   local path_to_remove="$1"
   local display_name="$(basename "$path_to_remove")"
@@ -221,7 +189,7 @@ remove_path() {
     log_info "Dry run: Removed '$display_name'."
   else
     _start_spinner "Removing '$display_name'..."
-    if ! rm -rf "$path_to_remove"; then # Use -rf for recursive removal of directories/symlinks
+    if ! rm -rf "$path_to_remove"; then
       _stop_spinner
       log_error "Failed to remove '$path_to_remove'."
       return 1
@@ -232,8 +200,6 @@ remove_path() {
   return 0
 }
 
-# Install a preset by creating a symlink.
-# $1: preset name
 install_preset() {
   local preset_name="$1"
   local source_path="${MEOW_PRESETS_DIR}/${preset_name}"
@@ -245,8 +211,6 @@ install_preset() {
   return 0
 }
 
-# Uninstall a preset by removing its symlink.
-# $1: preset name
 uninstall_preset() {
   local preset_name="$1"
   local dest_path="${MEOW_INSTALLED_PRESETS_DIR}/${preset_name}"
@@ -257,8 +221,6 @@ uninstall_preset() {
   return 0
 }
 
-# Install a component by creating a symlink.
-# $1: component name
 install_component() {
   local component_name="$1"
   local source_path="${MEOW_COMPONENTS_DIR}/${component_name}"
@@ -270,8 +232,6 @@ install_component() {
   return 0
 }
 
-# Uninstall a component by removing its symlink.
-# $1: component name
 uninstall_component() {
   local component_name="$1"
   local dest_path="${MEOW_INSTALLED_COMPONENTS_DIR}/${component_name}"
@@ -282,8 +242,6 @@ uninstall_component() {
   return 0
 }
 
-# Manually install a component by copying it.
-# $1: component name
 manual_install_component() {
   local component_name="$1"
   local source_path="${MEOW_COMPONENTS_DIR}/${component_name}"
@@ -316,7 +274,7 @@ manual_install_component() {
     log_info "Dry run: Manual install '$component_name' from '$source_path' to '$dest_path'."
   else
     _start_spinner "Copying '$component_name'..."
-    if ! cp -R "$source_path" "$dest_path"; then # -R for recursive copy
+    if ! cp -R "$source_path" "$dest_path"; then
       _stop_spinner
       log_error "Failed to copy '$source_path' to '$dest_path'."
       return 1
@@ -327,8 +285,6 @@ manual_install_component() {
   return 0
 }
 
-# Uninstall a manually installed component by removing the copied file/directory.
-# $1: component name
 manual_uninstall_component() {
   local component_name="$1"
   local dest_path="${MEOW_MANUALLY_INSTALLED_COMPONENTS_DIR}/${component_name}"
@@ -339,8 +295,6 @@ manual_uninstall_component() {
   return 0
 }
 
-# List installed components/presets.
-# $1: type ("presets", "components", or "manual-components")
 list_installed() {
   local type="$1"
   local target_dir=""
@@ -373,12 +327,8 @@ list_installed() {
   fi
 
   local count=0
-  # Use find for listing to handle directories and files robustly,
-  # and avoid issues with shell globbing if there are many items or unusual characters.
-  # For Bash 3.2, no readarray. Use while read.
-  # find's output is piped to sort for consistent ordering, then to while read.
   while IFS= read -r item; do
-    if [[ -n "$item" ]]; then # Ensure item is not empty
+    if [[ -n "$item" ]]; then
       local base_item="$(basename "$item")"
       if [[ -L "$item" ]]; then
         local target_link="$(get_link_target "$item")"
@@ -396,9 +346,6 @@ list_installed() {
   return 0
 }
 
-# --- Argument Parsing ---
-
-# Show usage information
 usage() {
   printf "Usage: %s [OPTIONS] COMMAND [ARGUMENTS]\n" "$(basename "$0")"
   printf "\nOptions:\n"
@@ -419,9 +366,8 @@ usage() {
   exit 0
 }
 
-# Parse command line arguments
 parse_args() {
-  local cmd_executed=0 # Flag to indicate if a command has been found and executed
+  local cmd_executed=0
 
   while [[ "$#" -gt 0 ]]; do
     case "$1" in
@@ -449,7 +395,7 @@ parse_args() {
             fi
             install_preset "$1"
             cmd_executed=1
-            break # Exit loop after command execution
+            break
             ;;
           uninstall)
             shift
@@ -540,49 +486,40 @@ parse_args() {
             ;;
         esac
         ;;
-      --) # End of options
+      --)
         shift
         break
         ;;
-      -*) # Unknown option
+      -*)
         log_error "Unknown option: '$1'"
         usage
         ;;
-      *) # Positional argument (should be a command if not already processed)
+      *)
         log_error "Unknown command or argument: '$1'"
         usage
         ;;
     esac
   done
 
-  # If no command was executed by this point, show usage.
   if [[ "$cmd_executed" -eq 0 ]]; then
     log_error "No command specified or executed."
     usage
   fi
-  exit 0 # Exit successfully after command execution
+  exit 0
 }
 
-# --- Main Execution ---
-
-# Ensure MEOW environment variable is set.
 if [[ -z "${MEOW:-}" ]]; then
   log_error "MEOW environment variable is not set. Please set it to the root directory of your MEOW installation."
   exit 1
 fi
 
-# Ensure MEOW directory exists and make it an absolute path.
-# This is crucial for consistent symlink targets and path resolution.
 if [[ ! -d "$MEOW" ]]; then
   log_error "MEOW directory does not exist: '$MEOW'"
   exit 1
 fi
-# Get absolute path for MEOW; portable for Bash 3.2
 MEOW="$(cd "$MEOW" && pwd)" || error_exit
 log_info "MEOW_HOME set to: '$MEOW'"
 
-# Define readonly directories AFTER MEOW has been absolutized.
-# This ensures all paths are absolute and consistent.
 readonly MEOW_PRESETS_DIR="${MEOW}/presets"
 readonly MEOW_INSTALLED_PRESETS_DIR="${MEOW}/.installed/presets"
 
@@ -592,7 +529,6 @@ readonly MEOW_MANUALLY_INSTALLED_COMPONENTS_DIR="${MEOW}/.installed/components-m
 
 readonly MEOW_DOWNLOADS_DIR="${MEOW}/.downloads"
 
-# Ensure base directories exist (source directories might not exist if empty)
 ensure_dir_exists "$MEOW_PRESETS_DIR" || error_exit
 ensure_dir_exists "$MEOW_COMPONENTS_DIR" || error_exit
 ensure_dir_exists "$MEOW_INSTALLED_PRESETS_DIR" || error_exit
@@ -600,5 +536,4 @@ ensure_dir_exists "$MEOW_INSTALLED_COMPONENTS_DIR" || error_exit
 ensure_dir_exists "$MEOW_MANUALLY_INSTALLED_COMPONENTS_DIR" || error_exit
 ensure_dir_exists "$MEOW_DOWNLOADS_DIR" || error_exit
 
-# Call argument parser. It will execute commands and exit.
 parse_args "$@"

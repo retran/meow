@@ -1,6 +1,4 @@
 #!/usr/bin/env bash
-
-# Guard to prevent multiple sourcing
 if [[ -n "${_LIB_PACKAGE_APK_SOURCED:-}" ]]; then
   return 0
 fi

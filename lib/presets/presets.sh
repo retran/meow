@@ -1,17 +1,10 @@
 #!/usr/bin/env bash
 
-# Global script settings for robustness
-
-# This script is part of a larger system.
-# The first source to ui.sh is expected to be injected by an inliner script.
-# The second source is for explicit dependency tracking within the module.
-# If _LIB_PACKAGE_PRESET_SYSTEM_SOURCED is already set, we've been sourced before, so exit.
 if [[ -n "${_LIB_PACKAGE_PRESET_SYSTEM_SOURCED:-}" ]]; then
   return 0
 fi
 _LIB_PACKAGE_PRESET_SYSTEM_SOURCED=1
 
-# Source core libraries and components
 source "${MEOW}/lib/core/defs.sh"
 source "${MEOW}/lib/core/platform.sh"
 source "${MEOW}/lib/core/colors.sh"
@@ -20,15 +13,11 @@ source "${MEOW}/lib/core/session.sh"
 source "${MEOW}/lib/core/dry_run.sh"
 source "${MEOW}/lib/components/components.sh"
 
-# Check if a preset is installed
-# Returns 0 if installed (symlink exists), 1 otherwise.
 is_preset_installed() {
   local preset="$1"
   [[ -L "${MEOW_INSTALLED_PRESETS_DIR}/${preset}" ]]
 }
 
-# Check if a preset is available on the current platform
-# Returns 0 if available, 1 otherwise.
 is_preset_available() {
   local preset="$1"
   local preset_file
@@ -68,13 +57,11 @@ is_preset_available() {
   return 0
 }
 
-# Get the file path for a given preset
 get_preset_file() {
   local preset="$1"
   echo "${MEOW_PRESETS_DIR}/${preset}/preset.yaml"
 }
 
-# Get required components for a preset (prints newline-separated component names)
 get_preset_required_components() {
   local preset="$1"
   local preset_file
@@ -87,8 +74,6 @@ get_preset_required_components() {
   yq eval '.required[]?' "$preset_file" 2>/dev/null | grep -v "^null$" || true
 }
 
-# Collect all components and dependencies for preset installation in topological order
-# This function prints the topologically sorted component names to stdout, newline-separated.
 collect_preset_components_for_installation() {
   local preset="$1"
 
@@ -107,7 +92,6 @@ collect_preset_components_for_installation() {
   local deps_output
 
   for component_name in "${preset_required_array[@]}"; do
-    # Assuming collect_all_dependencies_for_installation prints newline-separated components to stdout
     deps_output=$(collect_all_dependencies_for_installation "$component_name")
 
     if [[ -n "$deps_output" ]]; then
@@ -127,15 +111,11 @@ collect_preset_components_for_installation() {
     fi
   done
 
-  # Assuming topological_sort_for_installation takes components as arguments
-  # and prints the topologically sorted list to stdout.
   if [[ ${#collected_unique_components[@]} -gt 0 ]]; then
     topological_sort_for_installation "${collected_unique_components[@]}"
   fi
 }
 
-# Install a preset (install all required components)
-# Returns 0 on success, 1 on failure.
 install_preset() {
   local preset="$1"
 
@@ -291,8 +271,6 @@ install_preset() {
   return 0
 }
 
-# Update a preset (update all installed components from the preset)
-# Returns 0 on success, 1 on failure.
 update_preset() {
   local preset="$1"
 
@@ -332,7 +310,6 @@ update_preset() {
   return 0
 }
 
-# Get list of all installed components (prints newline-separated names to stdout)
 get_all_installed_components() {
   local components_dir="${MEOW_INSTALLED_COMPONENTS_DIR}"
 
@@ -346,8 +323,6 @@ get_all_installed_components() {
   done
 }
 
-# Update all installed components
-# Returns 0 on success, 1 on failure.
 update_all_installed_components() {
   local components_str
   components_str=$(get_all_installed_components)
@@ -372,7 +347,6 @@ update_all_installed_components() {
   return 0
 }
 
-# List all available presets
 list_presets() {
   ui_header "Available Presets"
 
@@ -404,8 +378,6 @@ list_presets() {
   done
 }
 
-# Uninstall a preset and its safe dependencies
-# Returns 0 on success, 1 on failure.
 uninstall_preset() {
   local preset="$1"
   local force_flag="${2:-}"
@@ -444,7 +416,6 @@ uninstall_preset() {
     local preset_name="$preset"
 
     local multiple_uninstall_order_str
-    # Assuming collect_multiple_components_for_uninstall prints newline-separated components to stdout
     multiple_uninstall_order_str=$(collect_multiple_components_for_uninstall "${preset_components_array[@]}" --filter-source --exclude-preset="$preset_name")
 
     local multiple_uninstall_order=()
@@ -476,7 +447,6 @@ uninstall_preset() {
   return 0
 }
 
-# Remove preset tracking (symlink from .installed/presets)
 remove_preset_tracking() {
   local preset="$1"
 
@@ -487,8 +457,6 @@ remove_preset_tracking() {
   fi
 }
 
-# Uninstall all installed presets and all installed components
-# Returns 0 on success, 1 on failure.
 uninstall_all() {
   local components_str
   components_str=$(get_all_installed_components)

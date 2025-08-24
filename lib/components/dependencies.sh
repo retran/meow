@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-# Guard to prevent double sourcing
 if [[ -n "${_LIB_COMPONENTS_DEPENDENCIES_SOURCED:-}" ]]; then
   return 0
 fi
@@ -11,8 +10,6 @@ source "${MEOW}/lib/core/ui.sh"
 source "${MEOW}/lib/core/yaml.sh"
 source "${MEOW}/lib/components/core.sh"
 
-# Get all components that depend on a given component.
-# Prints component names to stdout, one per line.
 get_components_depending_on() {
   local target_component="$1"
   local components=()
@@ -32,13 +29,13 @@ get_components_depending_on() {
 
     local deps_raw
     if ! deps_raw=$(read_yaml_array "$component_file" ".depends_on[]?"); then
-      continue # No dependencies or error reading YAML
+      continue
     fi
 
     while IFS= read -r dep; do
       if [[ -n "$dep" && "$dep" != "null" ]]; then
-        dep="${dep#components/}"                    # Remove "components/" prefix if present
-        if [[ "$dep" = "$target_component" ]]; then # Use = for literal comparison
+        dep="${dep#components/}"
+        if [[ "$dep" = "$target_component" ]]; then
           components+=("$component_name")
           break
         fi
@@ -49,8 +46,6 @@ get_components_depending_on() {
   printf '%s\n' "${components[@]}"
 }
 
-# Get all presets that depend on a given component.
-# Prints preset names to stdout, one per line.
 get_presets_depending_on() {
   local target_component="$1"
   local exclude_preset="${2:-}"
@@ -75,7 +70,7 @@ get_presets_depending_on() {
 
     local required_deps_raw
     if ! required_deps_raw=$(read_yaml_array "$preset_file" ".required[]?"); then
-      continue # No required dependencies or error reading YAML
+      continue
     fi
 
     local required_deps=()
@@ -108,7 +103,7 @@ get_presets_depending_on() {
             if [[ "$comp_dep" = "$target_component" ]]; then
               presets+=("$preset_name")
               found_direct=true
-              break 2 # Break from both inner and outer loops
+              break 2
             fi
           done
         fi
@@ -116,39 +111,35 @@ get_presets_depending_on() {
     fi
 
     if [[ "$found_direct" = "true" ]]; then
-      break # A preset can only be added once if it depends on the target
+      break
     fi
   done
 
   printf '%s\n' "${presets[@]}"
 }
 
-# Get a component's direct dependencies.
-# Prints dependency names to stdout, one per line.
 get_component_dependencies() {
   local component="$1"
   local component_file="${MEOW_COMPONENTS_DIR}/${component}/component.yaml"
 
   if [[ ! -f "$component_file" ]]; then
-    return 1 # Component file not found
+    return 1
   fi
 
   local depends_on_raw
   if ! depends_on_raw=$(read_yaml_array "$component_file" ".depends_on[]?"); then
-    return 0 # No dependencies or error reading YAML, treat as empty
+    return 0
   fi
 
   while IFS= read -r dep; do
     if [[ -n "$dep" && "$dep" != "null" ]]; then
-      printf '%s\n' "${dep#components/}" # Remove "components/" prefix if present
+      printf '%s\n' "${dep#components/}"
     fi
   done < <(printf '%s\n' "$depends_on_raw")
 
   return 0
 }
 
-# Recursively collect all dependencies of a component for installation.
-# Prints all encountered dependencies (may contain duplicates) to stdout, one per line.
 collect_dependencies_recursively_for_installation_stdout() {
   local component="$1"
   local dependencies_raw
@@ -161,31 +152,27 @@ collect_dependencies_recursively_for_installation_stdout() {
 
   for dep in "${dependencies[@]}"; do
     if [[ -n "$dep" ]]; then
-      printf '%s\n' "$dep"                                            # Print this dependency
-      collect_dependencies_recursively_for_installation_stdout "$dep" # Recurse
+      printf '%s\n' "$dep"
+      collect_dependencies_recursively_for_installation_stdout "$dep"
     fi
   done
 }
 
-# Collect all dependencies starting from a component in topological order for installation.
-# Populates the array named by $2 with the sorted unique dependencies.
 collect_all_dependencies_for_installation() {
   local component="$1"
-  local _result_array_name="$2" # Name of the array in the caller's scope
+  local _result_array_name="$2"
 
   local all_deps_raw_with_duplicates
   all_deps_raw_with_duplicates=$(collect_dependencies_recursively_for_installation_stdout "$component")
 
   local all_components_unsorted_and_unique=()
-  # Add the initial component first
   all_components_unsorted_and_unique+=("$component")
 
-  # Add all unique recursive dependencies, filtering duplicates
   local unique_deps_raw
   unique_deps_raw=$(printf '%s\n' "$all_deps_raw_with_duplicates" | sort -u)
 
   while IFS= read -r dep_item; do
-    if [[ -n "$dep_item" && "$dep_item" != "$component" ]]; then # Only add if not the original component (already added)
+    if [[ -n "$dep_item" && "$dep_item" != "$component" ]]; then
       all_components_unsorted_and_unique+=("$dep_item")
     fi
   done < <(printf '%s\n' "$unique_deps_raw")
@@ -193,19 +180,15 @@ collect_all_dependencies_for_installation() {
   local sorted_deps_raw
   sorted_deps_raw=$(topological_sort_for_installation_stdout "${all_components_unsorted_and_unique[@]}")
 
-  # Clear and populate the caller's array using eval.
-  # This is needed to modify an array in the caller's scope in Bash 3.2.
   eval "${_result_array_name}=()"
   while IFS= read -r item; do
     eval "${_result_array_name}+=(\"$item\")"
   done < <(printf '%s\n' "$sorted_deps_raw")
 }
 
-# Topological sort for installation (dependencies before dependents).
-# Takes components as arguments, prints sorted components to stdout, one per line.
 topological_sort_for_installation_stdout() {
-  local remaining_components=("$@") # Input array received as arguments
-  local sorted_components=()        # Result array
+  local remaining_components=("$@")
+  local sorted_components=()
 
   while [[ ${#remaining_components[@]} -gt 0 ]]; do
     local found_installable=false
@@ -250,7 +233,7 @@ topological_sort_for_installation_stdout() {
 
     if [[ "$found_installable" = "false" && ${#remaining_components[@]} -gt 0 ]]; then
       ui_warning "$(_f "Circular dependencies detected among: %s" "$(printf '%s ' "${remaining_components[@]}")")"
-      sorted_components+=("${remaining_components[@]}") # Add remaining to avoid infinite loop
+      sorted_components+=("${remaining_components[@]}")
       break
     fi
   done
@@ -258,8 +241,6 @@ topological_sort_for_installation_stdout() {
   printf '%s\n' "${sorted_components[@]}"
 }
 
-# Filter dependencies with context of all components being removed.
-# Populates the array named by $3 with removable dependencies.
 filter_removable_dependencies_with_context() {
   local _deps_to_check_name="$1"
   local _all_removing_name="$2"
@@ -270,7 +251,6 @@ filter_removable_dependencies_with_context() {
   local -a candidates=()
   local -a all_removing=()
 
-  # Populate local arrays from the names passed as arguments using eval.
   eval "candidates=(\"\${${_deps_to_check_name}[@]}\")"
   eval "all_removing=(\"\${${_all_removing_name}[@]}\")"
 
@@ -285,7 +265,7 @@ filter_removable_dependencies_with_context() {
 
       if [[ -n "$dep" ]]; then
         if is_component_manually_installed "$dep"; then
-          should_keep=false # Manually installed components should be kept
+          should_keep=false
         fi
 
         if [[ "$should_keep" = "true" ]]; then
@@ -308,7 +288,7 @@ filter_removable_dependencies_with_context() {
               done
 
               if [[ "$in_removal_list" = "false" ]]; then
-                should_keep=false # Keep dep if another non-removing component depends on it
+                should_keep=false
                 break
               fi
             fi
@@ -326,7 +306,7 @@ filter_removable_dependencies_with_context() {
 
           for current_preset in "${preset_dependents[@]}"; do
             if [[ -n "$current_preset" ]]; then
-              should_keep=false # Keep dep if any preset depends on it
+              should_keep=false
               break
             fi
           done
@@ -335,7 +315,7 @@ filter_removable_dependencies_with_context() {
         if [[ "$should_keep" = "true" ]]; then
           new_candidates+=("$dep")
         else
-          changed=true # A component was removed from candidates, so re-evaluate
+          changed=true
         fi
       fi
     done
@@ -343,25 +323,22 @@ filter_removable_dependencies_with_context() {
     candidates=("${new_candidates[@]}")
   done
 
-  # Clear and populate the caller's _removable_name array using eval.
   eval "${_removable_name}=()"
   for item in "${candidates[@]}"; do
     eval "${_removable_name}+=(\"$item\")"
   done
 }
 
-# Check if a dependency component should be removed.
-# Returns 0 if should be removed, 1 otherwise.
 should_remove_dependency() {
   local dep_component="$1"
   local exclude_preset="${2:-}"
 
   if ! is_component_installed "$dep_component"; then
-    return 1 # Not installed, cannot be removed
+    return 1
   fi
 
   if is_component_manually_installed "$dep_component"; then
-    return 1 # Manually installed, should not be removed automatically
+    return 1
   fi
 
   local other_dependents_raw
@@ -373,7 +350,7 @@ should_remove_dependency() {
   done < <(printf '%s\n' "$other_dependents_raw")
 
   if [[ ${#other_dependents[@]} -gt 0 ]]; then
-    return 1 # Other components depend on it
+    return 1
   fi
 
   local preset_dependents_raw
@@ -385,20 +362,16 @@ should_remove_dependency() {
   done < <(printf '%s\n' "$preset_dependents_raw")
 
   if [[ ${#preset_dependents[@]} -gt 0 ]]; then
-    return 1 # Presets depend on it
+    return 1
   fi
 
-  return 0 # Safe to remove
+  return 0
 }
 
-# Collect all dependencies that can be safely removed recursively.
-# Populates the array named by $2 with removable dependencies.
 collect_removable_dependencies_recursively() {
   local component="$1"
-  local _result_array_name="$2" # Name of the array in the caller's scope
+  local _result_array_name="$2"
 
-  # Read current state of the result array to check for already_added.
-  # This is needed to prevent redundant processing and potential infinite loops in recursion.
   local current_result_array=()
   eval "current_result_array=(\"\${${_result_array_name}[@]}\")"
 
@@ -421,12 +394,9 @@ collect_removable_dependencies_recursively() {
       done
 
       if [[ "$already_added" = "false" ]]; then
-        # Add to the caller's array using eval.
         eval "${_result_array_name}+=(\"$dep\")"
-        # Also update our local copy for subsequent checks within this function call.
         current_result_array+=("$dep")
 
-        # Recurse.
         collect_removable_dependencies_recursively "$dep" "$_result_array_name"
       fi
     fi

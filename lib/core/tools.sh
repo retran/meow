@@ -8,16 +8,13 @@ _LIB_CORE_TOOLS_SOURCED=1
 source "${MEOW}/lib/core/ui.sh"
 source "${MEOW}/lib/core/dry_run.sh"
 
-# Default yq version, can be overridden by environment variable
 YQ_VERSION="${YQ_VERSION:-v4.47.1}"
 
 ensure_yq() {
   if command -v yq >/dev/null 2>&1; then
     local actual_version
-    # Extract version string from yq --version output. Works for both GNU and BSD awk.
     actual_version=$(yq --version 2>/dev/null | awk '{print $4}')
 
-    # Check for exact version match. '=' in [[ ]] is a literal string comparison in Bash 3.2.
     if [[ "$actual_version" = "$YQ_VERSION" ]]; then
       ui_verbose_info "$(_f "⇒ yq %s is already installed and matches the required version." "$YQ_VERSION")"
       return 0
@@ -33,13 +30,13 @@ ensure_yq() {
     case "$(uname -s)" in
       Linux) dry_run_os="linux" ;;
       Darwin) dry_run_os="darwin" ;;
-      *) dry_run_os="unknown_os" ;; # Fallback for dry-run if OS is unexpectedly unsupported
+      *) dry_run_os="unknown_os" ;;
     esac
 
     case "$(uname -m)" in
       x86_64) dry_run_arch="amd64" ;;
       aarch64 | arm64) dry_run_arch="arm64" ;;
-      *) dry_run_arch="unknown_arch" ;; # Fallback for dry-run if arch is unexpectedly unsupported
+      *) dry_run_arch="unknown_arch" ;;
     esac
 
     local dry_run_bin_name="yq_${dry_run_os}_${dry_run_arch}"
@@ -56,7 +53,6 @@ ensure_yq() {
 
   local OS ARCH BIN_NAME URL DEST TMPBIN
 
-  # Determine OS type
   case "$(uname -s)" in
     Linux) OS="linux" ;;
     Darwin) OS="darwin" ;;
@@ -66,7 +62,6 @@ ensure_yq() {
       ;;
   esac
 
-  # Determine architecture type and map to yq binary name
   case "$(uname -m)" in
     x86_64) ARCH="amd64" ;;
     aarch64 | arm64) ARCH="arm64" ;;
@@ -79,15 +74,12 @@ ensure_yq() {
   BIN_NAME="yq_${OS}_${ARCH}"
   URL="https://github.com/mikefarah/yq/releases/download/v${YQ_VERSION}/${BIN_NAME}"
   DEST="/usr/local/bin/yq"
-  # Use a more unique temporary file name to prevent conflicts
   TMPBIN="/tmp/yq_${OS}_${ARCH}_${YQ_VERSION}.tmp"
 
   ui_verbose_info "$(_f "Attempting to download yq from: %s" "$URL")"
 
-  # Download the yq binary
   if curl -fsSL "$URL" -o "$TMPBIN"; then
     ui_verbose_info "$(_f "Downloaded yq to temporary location: %s" "$TMPBIN")"
-    # Move the binary to the destination and make it executable
     if sudo mv "$TMPBIN" "$DEST"; then
       if sudo chmod +x "$DEST"; then
         ui_action_success "$(_f "yq v%s successfully installed to %s." "$YQ_VERSION" "$DEST")"

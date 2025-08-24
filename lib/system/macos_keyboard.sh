@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 
-# Inlined source for MEOW/lib/core/ui.sh (if MEOW is set and this script is not the main one)
-# This conditional sourcing ensures that ui.sh is available without
-# assuming its path if the script is run in a standalone fashion or sourced.
 if [[ -n "${MEOW:-}" ]] && [[ -f "${MEOW}/lib/core/ui.sh" ]]; then
   source "${MEOW}/lib/core/ui.sh"
 fi
@@ -17,12 +14,6 @@ MEOW="${MEOW:-$HOME/.meow}"
 source "${MEOW}/lib/core/defs.sh"
 source "${MEOW}/lib/core/ui.sh"
 
-# Configures macOS keyboard layouts.
-# Enables "ABC" (U.S.) and a specified Russian layout.
-# Preserves the currently selected Russian layout if it was active.
-#
-# Usage: set_macos_keyboard_layouts LAYOUT_TYPE
-#   LAYOUT_TYPE: "das" for Das Keyboard or "mbp" for MacBook Pro.
 set_macos_keyboard_layouts() {
   local layout_type="$1"
 

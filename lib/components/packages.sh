@@ -1,23 +1,14 @@
 #!/usr/bin/env bash
-
-# Source ui.sh first for _f function and initial error handling
 source "${MEOW}/lib/core/ui.sh"
 
-# Exit immediately if a command exits with a non-zero status.
-# Treat unset variables as an error.
-# The return value of a pipeline is the value of the last command to exit with a non-zero status, or zero if all commands in the pipeline exit successfully.
-
-# Guard to prevent multiple sourcing of this file
 if [[ -n "${_LIB_COMPONENTS_PACKAGES_SOURCED:-}" ]]; then
   return 0
 fi
 _LIB_COMPONENTS_PACKAGES_SOURCED=1
 
-# Source core libraries
 source "${MEOW}/lib/core/defs.sh"
 source "${MEOW}/lib/core/platform.sh"
 
-# Source package manager specific libraries
 source "${MEOW}/lib/package/common.sh"
 source "${MEOW}/lib/package/homebrew.sh"
 source "${MEOW}/lib/package/mas.sh"
@@ -30,7 +21,6 @@ source "${MEOW}/lib/package/go.sh"
 source "${MEOW}/lib/package/cargo.sh"
 source "${MEOW}/lib/package/vscode.sh"
 
-# Install all packages defined for a component across applicable package managers
 install_component_packages() {
   local component="$1"
   local component_dir="${MEOW_COMPONENTS_DIR}/${component}"
@@ -45,16 +35,16 @@ install_component_packages() {
     return 0
   fi
 
-  if [[ "$MEOW_VERBOSE" == "true" ]]; then
+  if [[ "$MEOW_VERBOSE" = "true" ]]; then
     ui_step_header "$(_f "Installing packages for component '%s'" "$component")"
-  elif [[ "$MEOW_DRY_RUN" == "true" ]]; then
+  elif [[ "$MEOW_DRY_RUN" = "true" ]]; then
     ui_step_header "$(_f "Dry run: Would install packages for component '%s'" "$component")"
   fi
 
   local has_packages=false
   local package_errors=0
 
-  if [[ "$IS_MACOS" == "true" ]]; then
+  if [[ "$IS_MACOS" = "true" ]]; then
     if [[ -f "${packages_dir}/homebrew.list" ]]; then
       if _install_packages_for_component_manager "$component" "homebrew"; then
         has_packages=true
@@ -69,7 +59,7 @@ install_component_packages() {
         ((package_errors++))
       fi
     fi
-  elif [[ "$IS_DEBIAN_BASED" == "true" ]]; then
+  elif [[ "$IS_DEBIAN_BASED" = "true" ]]; then
     if [[ -f "${packages_dir}/apt.list" ]]; then
       if _install_packages_for_component_manager "$component" "apt"; then
         has_packages=true
@@ -77,7 +67,7 @@ install_component_packages() {
         ((package_errors++))
       fi
     fi
-  elif [[ "$IS_ALPINE" == "true" ]]; then
+  elif [[ "$IS_ALPINE" = "true" ]]; then
     if [[ -f "${packages_dir}/apk.list" ]]; then
       if _install_packages_for_component_manager "$component" "apk"; then
         has_packages=true
@@ -85,7 +75,7 @@ install_component_packages() {
         ((package_errors++))
       fi
     fi
-  elif [[ "$IS_ARCH" == "true" ]]; then
+  elif [[ "$IS_ARCH" = "true" ]]; then
     if [[ -f "${packages_dir}/pacman.list" ]]; then
       if _install_packages_for_component_manager "$component" "pacman"; then
         has_packages=true
@@ -105,7 +95,7 @@ install_component_packages() {
     fi
   done
 
-  if [[ "$has_packages" == "true" && "$MEOW_VERBOSE" != "true" ]]; then
+  if [[ "$has_packages" = "true" && "$MEOW_VERBOSE" != "true" ]]; then
     if [[ "$package_errors" -gt 0 ]]; then
       ui_indent "$(_f "Packages for '%s': ✗ %d errors occurred" "$component" "$package_errors")"
     elif [[ "$MEOW_DRY_RUN" != "true" ]]; then
@@ -120,7 +110,6 @@ install_component_packages() {
   fi
 }
 
-# Uninstall all packages defined for a component across applicable package managers
 uninstall_component_packages() {
   local component="$1"
   local component_dir="${MEOW_COMPONENTS_DIR}/${component}"
@@ -135,20 +124,20 @@ uninstall_component_packages() {
     return 0
   fi
 
-  if [[ "$MEOW_VERBOSE" == "true" ]]; then
+  if [[ "$MEOW_VERBOSE" = "true" ]]; then
     ui_step_header "$(_f "Uninstalling packages for component '%s'" "$component")"
-  elif [[ "$MEOW_DRY_RUN" == "true" ]]; then
+  elif [[ "$MEOW_DRY_RUN" = "true" ]]; then
     ui_step_header "$(_f "Dry run: Would uninstall packages for component '%s'" "$component")"
   fi
 
-  if [[ "$IS_MACOS" == "true" ]]; then
+  if [[ "$IS_MACOS" = "true" ]]; then
     _uninstall_packages_for_component_manager "$component" "homebrew"
     _uninstall_packages_for_component_manager "$component" "mas"
-  elif [[ "$IS_DEBIAN_BASED" == "true" ]]; then
+  elif [[ "$IS_DEBIAN_BASED" = "true" ]]; then
     _uninstall_packages_for_component_manager "$component" "apt"
-  elif [[ "$IS_ALPINE" == "true" ]]; then
+  elif [[ "$IS_ALPINE" = "true" ]]; then
     _uninstall_packages_for_component_manager "$component" "apk"
-  elif [[ "$IS_ARCH" == "true" ]]; then
+  elif [[ "$IS_ARCH" = "true" ]]; then
     _uninstall_packages_for_component_manager "$component" "pacman"
   fi
 
@@ -165,44 +154,36 @@ uninstall_component_packages() {
   return 0
 }
 
-# Helper: uninstall packages for a specific package manager
 _uninstall_packages_for_component_manager() {
   local component="$1"
   local mgr="$2"
   local fn="uninstall_${mgr}_packages"
   local packages_file="${MEOW_COMPONENTS_DIR}/${component}/packages/${mgr}.list"
 
-  # Check if the uninstall function exists
   declare -F "$fn" >/dev/null || return 0
 
-  # Check if the package list file exists
   [[ -f "$packages_file" ]] || return 0
 
   "$fn" "$component"
 }
 
-# Helper: install packages for a specific package manager
 _install_packages_for_component_manager() {
   local component="$1"
   local mgr="$2"
   local fn="install_${mgr}_packages"
   local packages_file="${MEOW_COMPONENTS_DIR}/${component}/packages/${mgr}.list"
 
-  # Check if the install function exists
   declare -F "$fn" >/dev/null || return 0
 
-  # Check if the package list file exists
   [[ -f "$packages_file" ]] || return 0
 
   "$fn" "$component"
   return $?
 }
 
-# Helper: Get normalized path to component file
 _get_component_file_path() {
   local component="$1"
-  # Check if component name already includes 'components/' prefix
-  if [[ "$component" == components/* ]]; then
+  if [[ "$component" = components/* ]]; then
     local component_name="${component#components/}"
     echo "${MEOW_COMPONENTS_DIR}/${component_name}/component.yaml"
   else
@@ -210,7 +191,6 @@ _get_component_file_path() {
   fi
 }
 
-# Update packages for a specific package manager within a component
 _update_package_manager() {
   local manager_name="$1"
   local cli_command="$2"
@@ -234,7 +214,6 @@ _update_package_manager() {
   "$update_function_name" "$component"
 }
 
-# Update all packages for a component across all applicable package managers
 update_component_packages() {
   local component="$1"
   local component_dir="${MEOW_COMPONENTS_DIR}/${component}"
@@ -244,16 +223,16 @@ update_component_packages() {
     return 1
   fi
 
-  if [[ "$MEOW_VERBOSE" == "true" ]]; then
+  if [[ "$MEOW_VERBOSE" = "true" ]]; then
     ui_step_header "$(_f "Updating packages for component '%s'" "$component")"
-  elif [[ "$MEOW_DRY_RUN" == "true" ]]; then
+  elif [[ "$MEOW_DRY_RUN" = "true" ]]; then
     ui_step_header "$(_f "Dry run: Would update packages for component '%s'" "$component")"
   fi
 
   local package_errors=0
   local has_packages=false
 
-  if [[ "$IS_MACOS" == "true" ]]; then
+  if [[ "$IS_MACOS" = "true" ]]; then
     if _update_package_manager "homebrew" "brew" "$component"; then
       has_packages=true
     else
@@ -264,19 +243,19 @@ update_component_packages() {
     else
       ((package_errors++))
     fi
-  elif [[ "$IS_DEBIAN_BASED" == "true" ]]; then
+  elif [[ "$IS_DEBIAN_BASED" = "true" ]]; then
     if _update_package_manager "apt" "apt" "$component"; then
       has_packages=true
     else
       ((package_errors++))
     fi
-  elif [[ "$IS_ALPINE" == "true" ]]; then
+  elif [[ "$IS_ALPINE" = "true" ]]; then
     if _update_package_manager "apk" "apk" "$component"; then
       has_packages=true
     else
       ((package_errors++))
     fi
-  elif [[ "$IS_ARCH" == "true" ]]; then
+  elif [[ "$IS_ARCH" = "true" ]]; then
     if _update_package_manager "pacman" "pacman" "$component"; then
       has_packages=true
     else
@@ -292,7 +271,7 @@ update_component_packages() {
     fi
   done
 
-  if [[ "$has_packages" == "true" && "$MEOW_VERBOSE" != "true" ]]; then
+  if [[ "$has_packages" = "true" && "$MEOW_VERBOSE" != "true" ]]; then
     if [[ "$package_errors" -gt 0 ]]; then
       ui_indent "$(_f "Package updates for '%s': ✗ %d errors occurred" "$component" "$package_errors")"
     elif [[ "$MEOW_DRY_RUN" != "true" ]]; then

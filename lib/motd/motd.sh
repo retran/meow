@@ -5,13 +5,13 @@ if [[ -n "${_LIB_MOTD_SOURCED:-}" ]]; then
 fi
 _LIB_MOTD_SOURCED=1
 
-source "${MEOW}/lib/core/colors.sh"
-source "${MEOW}/lib/core/ui.sh"
-
 if [[ -z "$MEOW" ]]; then
   echo "Error: MEOW environment variable is not set. Please set it to the root of your Meow repository." >&2
   return 1
 fi
+
+source "${MEOW}/lib/core/colors.sh"
+source "${MEOW}/lib/core/ui.sh"
 
 readonly MEOW_MOTD_ASSETS_DIR="${MEOW}/assets"
 readonly MEOW_MOTD_CACHE_DIR="${HOME}/.cache/meow-motd"
@@ -22,7 +22,6 @@ mkdir -p "${MEOW_MOTD_CACHE_DIR}" || {
   return 1
 }
 
-# Loads comments from a YAML file using yq
 load_yaml_comments() {
   local category="$1"
   local section="$2"
@@ -42,9 +41,8 @@ load_yaml_comments() {
   fi
 }
 
-# Gets a random comment from a collection specified by category-section pairs
 get_comment_collection() {
-  local -a result
+  local result
   local line
 
   while [[ $# -ge 2 ]]; do
@@ -74,7 +72,6 @@ get_comment_collection() {
   echo "$selected_comment"
 }
 
-# Gathers system information
 get_system_info() {
   local cache_dir="$1"
 
@@ -105,7 +102,7 @@ get_system_info() {
       file_mod_time_s=$(stat -c %Y "$brew_cache_file" 2>/dev/null)
     fi
 
-    if [[ -f "$brew_cache_file" ]] && [[ $((current_time_s - file_mod_time_s)) -lt 600 ]]; then
+    if [[ -f "$brew_cache_file" ]] && [ "$((current_time_s - file_mod_time_s))" -lt 600 ]; then
       outdated_packages=$(cat "$brew_cache_file")
     else
       outdated_packages=$(brew outdated | wc -l | tr -d ' ')
@@ -127,7 +124,6 @@ hour_num=${hour_num}
 EOF
 }
 
-# Loads ASCII art from a file
 load_art() {
   local art_file="$1"
 
@@ -141,22 +137,21 @@ load_art() {
   done <"$art_file"
 }
 
-# Constructs the greeting message based on time of day
 build_greeting() {
   local hour_num="$1"
   local date_full="$2"
   local time_current="$3"
 
   local greeting="Meowvelous day"
-  local time_collection_key="night" # Default to night
+  local time_collection_key="night"
 
-  if ((hour_num >= 5 && hour_num < 12)); then
+  if [ "$hour_num" -ge 5 ] && [ "$hour_num" -lt 12 ]; then
     time_collection_key="morning"
     greeting="Good morning"
-  elif ((hour_num >= 12 && hour_num < 18)); then
+  elif [ "$hour_num" -ge 12 ] && [ "$hour_num" -lt 18 ]; then
     time_collection_key="afternoon"
     greeting="Good afternoon"
-  elif ((hour_num >= 18 && hour_num < 22)); then
+  elif [ "$hour_num" -ge 18 ] && [ "$hour_num" -lt 22 ]; then
     time_collection_key="evening"
     greeting="Good evening"
   fi
@@ -176,7 +171,6 @@ build_greeting() {
   echo ""
 }
 
-# Constructs the system statistics block
 build_system_stats() {
   local system_info="$1"
 
@@ -209,7 +203,8 @@ build_system_stats() {
   echo -e "  ${BULLET}❯${RESET} ${SECONDARY}System:${RESET}     ${DATA}${os_info}${RESET}"
   echo -e "  ${BULLET}❯${RESET} ${SECONDARY}Shell:${RESET}      ${DATA}${SHELL}${RESET}"
 
-  local -a uptime_collections=("uptime" "base")
+  local uptime_collections
+  uptime_collections=("uptime" "base")
   [[ -z "$uptime_info" ]] && uptime_collections+=("uptime" "fallback")
   local random_uptime_comment
   random_uptime_comment=$(get_comment_collection "${uptime_collections[@]}")
@@ -219,7 +214,8 @@ build_system_stats() {
   echo -e "  ${BULLET}❯${RESET} ${SECONDARY}Uptime:${RESET}     ${DATA}${uptime_info:-"Unknown"}${RESET}"
   echo -e "                ${SUCCESS}(${random_uptime_comment})${RESET}"
 
-  local -a disk_collections=("disk" "base")
+  local disk_collections
+  disk_collections=("disk" "base")
   [[ -z "$home_disk_space" ]] && disk_collections+=("disk" "fallback")
   local random_disk_comment
   random_disk_comment=$(get_comment_collection "${disk_collections[@]}")
@@ -229,7 +225,8 @@ build_system_stats() {
   echo -e "  ${BULLET}❯${RESET} ${SECONDARY}Disk:${RESET}       ${DATA}${home_disk_space:-"Unable to determine"}${RESET}"
   echo -e "                ${SUCCESS}(${random_disk_comment})${RESET}"
 
-  local -a ram_collections=("ram" "base")
+  local ram_collections
+  ram_collections=("ram" "base")
   [[ -z "$ram_stats" ]] && ram_collections+=("ram" "fallback")
   local random_ram_comment
   random_ram_comment=$(get_comment_collection "${ram_collections[@]}")
@@ -239,7 +236,7 @@ build_system_stats() {
   echo -e "  ${BULLET}❯${RESET} ${SECONDARY}RAM:${RESET}        ${DATA}${ram_stats:-"Unknown"}${RESET}"
   echo -e "                ${SUCCESS}(${random_ram_comment})${RESET}"
 
-  if [[ "$outdated_packages" -gt 0 ]]; then
+  if [ "$outdated_packages" -gt 0 ]; then
     local random_package_comment="Time for some updates!"
     echo -e "  ${BULLET}❯${RESET} ${SECONDARY}Updates:${RESET}    ${WARNING}${outdated_packages} packages need updating${RESET}"
     echo -e "                ${SUCCESS}(${random_package_comment})${RESET}"
@@ -248,13 +245,12 @@ build_system_stats() {
   echo ""
 }
 
-# Displays ASCII art and system stats side-by-side
 display_art_and_stats() {
   local art_content="$1"
   local stats_content="$2"
 
-  local -a art_array
-  local -a stats_array
+  local art_array
+  local stats_array
 
   while IFS= read -r line || [[ -n "$line" ]]; do art_array+=("$line"); done < <(printf '%s\n' "$art_content")
   while IFS= read -r line || [[ -n "$line" ]]; do stats_array+=("$line"); done < <(printf '%s\n' "$stats_content")
@@ -264,25 +260,26 @@ display_art_and_stats() {
   local num_stats_lines=${#stats_array[@]}
 
   local max_total_lines
-  if ((num_art_lines > num_stats_lines)); then
+  if [ "$num_art_lines" -gt "$num_stats_lines" ]; then
     max_total_lines=$num_art_lines
   else
     max_total_lines=$num_stats_lines
   fi
 
-  local column_gap="    " # 4 spaces between columns
+  local column_gap="    "
   local ESC=$(printf '\x1b')
 
-  # Calculate max width of art lines without escape codes for alignment
-  for art_line in "${art_array[@]}"; do
-    local stripped_line="${art_line//${ESC}\[[0-9;]*m/}" # Remove SGR codes
-    stripped_line="${stripped_line//${ESC}\[?25[hl]/}"   # Remove cursor codes
-    if ((${#stripped_line} > max_art_width)); then
+  local art_line_val
+  for art_line_val in "${art_array[@]}"; do
+    local stripped_line="${art_line_val//${ESC}\[[0-9;]*m/}"
+    stripped_line="${stripped_line//${ESC}\[?25[hl]/}"
+    if [ "${#stripped_line}" -gt "$max_art_width" ]; then
       max_art_width=${#stripped_line}
     fi
   done
 
-  for ((i = 0; i < max_total_lines; i++)); do
+  local i=0
+  while [ "$i" -lt "$max_total_lines" ]; do
     local art_line="${art_array[i]:-}"
     local stats_line="${stats_array[i]:-}"
 
@@ -292,13 +289,14 @@ display_art_and_stats() {
 
     printf "%s%s" "$column_gap" "$art_line"
 
-    # Add padding spaces to align the second column
     local padding_spaces=$((max_art_width - current_plain_art_len))
-    if ((padding_spaces > 0)); then
+    if [ "$padding_spaces" -gt 0 ]; then
       printf "%*s" "$padding_spaces" ""
     fi
 
     printf "%s%s\n" "$column_gap" "$stats_line"
+
+    i=$((i+1))
   done
 }
 
@@ -313,5 +311,5 @@ show_motd() {
   stats_content=$(build_system_stats "$system_info")
 
   display_art_and_stats "$art_content" "$stats_content"
-  tput cnorm # Ensure cursor is visible
+  tput cnorm
 }

@@ -417,7 +417,8 @@ process_single_file() {
     fi
 
     # Exit if no issues found
-    if [ "$has_issues" = "false" ] && [ "$iteration" != "1" ]; then
+    # if [ "$has_issues" = "false" ] && [ "$iteration" != "1" ]; then
+    if [ "$has_issues" = "false" ]; then
       ui_success "All checks passed!"
       # Clean up backup if not verbose
       if [ "$VERBOSE" != "true" ]; then

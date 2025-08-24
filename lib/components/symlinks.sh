@@ -1,28 +1,19 @@
 #!/usr/bin/env bash
 
-# Source UI utilities
 source "${MEOW}/lib/core/ui.sh"
 
-# Ensure the script is sourced only once
 if [[ -n "${_LIB_COMPONENTS_SYMLINKS_SOURCED:-}" ]]; then
   return 0
 fi
 _LIB_COMPONENTS_SYMLINKS_SOURCED=1
 
-# Source core definitions and symlinks utilities
 source "${MEOW}/lib/core/defs.sh"
 source "${MEOW}/lib/symlinks/symlinks.sh"
 
-# Sets up symlinks for a given component by processing its YAML configuration files.
-#
-# Arguments:
-#   $1 - The name of the component.
 setup_component_symlinks() {
-
   local component="$1"
   local symlinks_dir="${MEOW_COMPONENTS_DIR}/${component}/symlinks"
 
-  # Exit early if the symlinks directory does not exist
   if [[ ! -d "$symlinks_dir" ]]; then
     return 0
   fi
@@ -30,8 +21,6 @@ setup_component_symlinks() {
   local yaml_files=()
   local find_cmd_output
 
-  # Use a while loop to correctly handle null-separated output from find.
-  # This ensures compatibility with Bash 3.2 and handles filenames with special characters.
   if find_cmd_output=$(find "$symlinks_dir" -name "*.yaml" -print0 2>/dev/null); then
     local item
     while IFS= read -r -d '' item; do
@@ -39,7 +28,6 @@ setup_component_symlinks() {
     done <<<"$find_cmd_output"
   fi
 
-  # Exit early if no YAML files are found
   if [[ ${#yaml_files[@]} -eq 0 ]]; then
     return 0
   fi
@@ -75,7 +63,7 @@ setup_component_symlinks() {
         local error_plural=$([ "$error_count" -gt 1 ] && echo "s" || echo "")
         ui_indent "$(_f "Symlinks: ✕ %d error%s, %d successful" "$error_count" "$error_plural" "$success_count")"
       fi
-    else # MEOW_VERBOSE is "true"
+    else
       local total_processed=$((success_count + error_count))
       local error_plural_verbose=$([ "$error_count" -gt 1 ] && echo "s" || echo "")
       if [[ "$error_count" -eq 0 ]]; then
@@ -87,16 +75,10 @@ setup_component_symlinks() {
   fi
 }
 
-# Removes symlinks for a given component by processing its YAML configuration files.
-#
-# Arguments:
-#   $1 - The name of the component.
 remove_component_symlinks() {
-
   local component="$1"
   local symlinks_dir="${MEOW_COMPONENTS_DIR}/${component}/symlinks"
 
-  # Exit early if the symlinks directory does not exist
   if [[ ! -d "$symlinks_dir" ]]; then
     return 0
   fi
@@ -104,8 +86,6 @@ remove_component_symlinks() {
   local yaml_files=()
   local find_cmd_output
 
-  # Use a while loop to correctly handle null-separated output from find.
-  # This ensures compatibility with Bash 3.2 and handles filenames with special characters.
   if find_cmd_output=$(find "$symlinks_dir" -name "*.yaml" -print0 2>/dev/null); then
     local item
     while IFS= read -r -d '' item; do
@@ -113,7 +93,6 @@ remove_component_symlinks() {
     done <<<"$find_cmd_output"
   fi
 
-  # Exit early if no YAML files are found
   if [[ ${#yaml_files[@]} -eq 0 ]]; then
     return 0
   fi
@@ -146,19 +125,12 @@ remove_component_symlinks() {
     if [[ "$error_count" -eq 0 ]]; then
       ui_action_success "$(_f "All %d component symlink files processed successfully." "$total_processed")"
     else
-      ui_warning "$(_f "Processed %d component symlink files with %d error%s (%d successful)." "$total_processed" "$error_count" "$error_plural" "$success_count")"
+      ui_warning "$(_f "Processed %d component symlink files with %d error%s (%d successful)." "$total_processed" "$error_count" "$error_plural")"
     fi
   fi
 }
 
-# Removes symlinks defined in a specific YAML file for a component.
-# If a backup exists, it attempts to restore it.
-#
-# Arguments:
-#   $1 - The name of the component.
-#   $2 - The base name of the symlink YAML file (e.g., 'git' for 'git.yaml').
 remove_component_symlinks_from_file() {
-
   local component="$1"
   local symlink_name="$2"
   local symlinks_file="${MEOW_COMPONENTS_DIR}/${component}/symlinks/${symlink_name}.yaml"
@@ -168,7 +140,6 @@ remove_component_symlinks_from_file() {
       local num_symlinks
       num_symlinks=$(yq 'length' "$symlinks_file" 2>/dev/null || echo "0")
 
-      # Check if num_symlinks is a valid non-negative integer
       if case "$num_symlinks" in [1-9][0-9]* | 0) true ;; *) false ;; esac && [[ "$num_symlinks" -gt 0 ]]; then
         local i=0
         while [[ "$i" -lt "$num_symlinks" ]]; do
@@ -216,7 +187,6 @@ remove_component_symlinks_from_file() {
   local num_symlinks
   num_symlinks=$(yq 'length' "$symlinks_file" || echo "0")
 
-  # Check if num_symlinks is a valid non-negative integer or zero
   if ! case "$num_symlinks" in [1-9][0-9]* | 0) true ;; *) false ;; esac || [[ "$num_symlinks" -eq 0 ]]; then
     ui_warning "$(_f "No symlinks defined or invalid content in %s." "$symlinks_file")"
     return 0
@@ -237,16 +207,12 @@ remove_component_symlinks_from_file() {
     local expanded_target
     expanded_target=$(expand_path "$target_path")
 
-    debug "$(_f "Attempting to remove symlink: %s" "$expanded_target")"
     ((processed_count++))
 
     if [[ -L "$expanded_target" ]]; then
       if rm "$expanded_target"; then
-        debug "$(_f "Successfully removed symlink: %s" "$expanded_target")"
-
         local backup_pattern="${expanded_target}.backup.*"
         local latest_backup
-        # Use LC_ALL=C with ls -t for predictable sorting, addressing SC2012 info
         latest_backup=$(LC_ALL=C ls -t "$backup_pattern" 2>/dev/null | head -n 1)
 
         if [[ -n "$latest_backup" ]]; then

@@ -15,19 +15,16 @@ source "${MEOW}/lib/core/platform.sh"
 source "${MEOW}/lib/core/session.sh"
 source "${MEOW}/lib/core/tools.sh"
 
-# Check if a component is currently installed
 is_component_installed() {
   local component="$1"
   [[ -L "${MEOW_INSTALLED_COMPONENTS_DIR}/${component}" ]]
 }
 
-# Check if a component was manually installed (vs. auto-installed as dependency)
 is_component_manually_installed() {
   local component="$1"
   [[ -L "${MEOW_MANUALLY_INSTALLED_COMPONENTS_DIR}/${component}" ]]
 }
 
-# Create symlink to mark component as installed
 install_component_symlink() {
   local component="$1"
   local component_path="${MEOW_COMPONENTS_DIR}/${component}/component.yaml"
@@ -60,7 +57,6 @@ install_component_symlink() {
   fi
 }
 
-# Remove symlinks to mark component as uninstalled
 remove_component_symlink() {
   local component="$1"
 
@@ -79,7 +75,6 @@ remove_component_symlink() {
   }
 }
 
-# Check if a component is available on the current platform and has satisfied dependencies
 is_component_available() {
   local component="$1"
   local component_file="${MEOW_COMPONENTS_DIR}/${component}/component.yaml"
@@ -118,7 +113,6 @@ is_component_available() {
   return 0
 }
 
-# List all available components with their installation status
 list_components() {
   local show_installed_only="${1:-false}"
   local show_verbose="${2:-true}"
@@ -128,7 +122,8 @@ list_components() {
     return 1
   fi
 
-  local components_array=()
+  local components_array
+  components_array=()
   local i=0
   while IFS= read -r comp_name; do
     if [ -n "$comp_name" ]; then
@@ -179,7 +174,6 @@ list_components() {
   done
 }
 
-# Execute component setup script
 setup_component() {
   local component="$1"
   local component_source_dir="${MEOW_COMPONENTS_DIR}/${component}"
@@ -212,7 +206,6 @@ setup_component() {
   fi
 }
 
-# Execute component cleanup script
 cleanup_component() {
   local component="$1"
   local component_source_dir="${MEOW_COMPONENTS_DIR}/${component}"

@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-# Sourcing guard to prevent multiple executions if sourced multiple times.
 if [[ -n "${_LIB_SYSTEM_ZSH_SOURCED:-}" ]]; then
   return 0
 fi
@@ -19,7 +18,7 @@ setup_ohmyzsh() {
     ui_spinner "Updating Oh My Zsh..." \
       --success "Oh My Zsh updated successfully." \
       --fail "Failed to update Oh My Zsh." \
-      sh -c 'OHMYZSH_DIR="$1"; ZSH="$OHMYZSH_DIR" zsh -i "$OHMYZSH_DIR/tools/upgrade.sh"' _ "$ohmyzsh_path"
+      ZSH="$ohmyzsh_path" sh -c 'zsh -i "$1/tools/upgrade.sh"' _ "$ohmyzsh_path"
 
     return $?
   fi

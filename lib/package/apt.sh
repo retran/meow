@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-# Guard to prevent multiple sourcing of this file.
 if [ -n "${_LIB_PACKAGE_APT_SOURCED:-}" ]; then
   return 0
 fi
@@ -9,20 +8,15 @@ _LIB_PACKAGE_APT_SOURCED=1
 source "${MEOW}/lib/package/common.sh"
 source "${MEOW}/lib/core/dry_run.sh"
 
-# Caches the list of installed APT packages using dpkg-query.
 _cache_installed_apt_packages() {
   cache_package_list "apt" "dpkg-query -f='\${binary:Package}\\n' -W 2>/dev/null"
 }
 
-# Checks if a specific APT package is installed.
-# Arguments:
-#   $1 - The name of the package to check.
 is_apt_package_installed() {
   _cache_installed_apt_packages
   is_package_installed "apt" "$1"
 }
 
-# Sets up the APT package manager (e.g., updates package index).
 setup_apt() {
   if [ "$MEOW_VERBOSE" = "true" ]; then
     ui_package_manager_setup "APT"
@@ -58,29 +52,19 @@ setup_apt() {
   fi
 }
 
-# Installs APT packages.
-# Arguments:
-#   $1 - A space-separated string of package names to install.
 install_apt_packages() {
   install_packages_generic "$1" "apt" "sudo apt-get install -y" "is_apt_package_installed"
 }
 
-# Updates APT packages.
-# Arguments:
-#   $1 - A space-separated string of package names to update.
 update_apt_packages() {
   update_packages_generic "$1" "apt" "sudo apt-get install --only-upgrade -y" \
     "is_apt_package_installed" "(is already the newest version|not upgraded)"
 }
 
-# Uninstalls APT packages.
-# Arguments:
-#   $1 - A space-separated string of package names to uninstall.
 uninstall_apt_packages() {
   uninstall_packages_generic "$1" "apt" "sudo apt-get remove -y" "is_apt_package_installed"
 }
 
-# Cleans up the APT environment (e.g., removes unused packages, clears cache).
 cleanup_apt() {
   if is_dry_run; then
     dry_run_ui_info "APT: Would remove orphaned packages and clear the download cache."

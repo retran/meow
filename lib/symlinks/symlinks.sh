@@ -115,14 +115,22 @@ setup_component_symlinks_from_file() {
   fi
 
   local num_symlinks
-  num_symlinks=$(yq 'length' "$symlinks_file")
+  num_symlinks=$(yq 'length' "$symlinks_file" 2>/dev/null) # Redirect stderr in case of yq error
 
-  if ! [[ "$num_symlinks" =~ ^[0-9]+$ ]] || [[ "$num_symlinks" -eq 0 ]]; then
+  local is_numeric=true
+  case "$num_symlinks" in
+    "" | *[!0-9]* ) # Check for empty string or non-numeric characters
+      is_numeric=false
+      ;;
+  esac
+
+  if [ "$is_numeric" = "false" ] || [ "$num_symlinks" -eq 0 ]; then
     ui_info "$(_f "No symlinks defined in %s." "$symlinks_file")"
     return 0
   fi
 
-  for ((i = 0; i < num_symlinks; i++)); do
+  local i
+  for i in $(seq 0 $((num_symlinks - 1))); do
     local source target os
     source=$(yq -r ".[$i].source" "$symlinks_file")
     target=$(yq -r ".[$i].target" "$symlinks_file")
@@ -189,9 +197,6 @@ list_backups() {
   else
     ui_info "$(_f "Listing backups for pattern: %s" "$target_pattern")"
     local found=false
-    # Use shopt -s nullglob for robustness if no matches, but for Bash 3.2, simpler to just check if -f
-    # This loop might execute with the literal pattern if no matches, if "$HOME"/*"${target_pattern}"*.backup.*" doesn't expand
-    # The -f check handles this
     for backup_file in "$HOME"/*"${target_pattern}"*.backup.*; do
       if [[ -f "$backup_file" ]]; then
         local original_file="${backup_file%.backup.*}"
@@ -209,7 +214,6 @@ list_backups() {
 restore_backup() {
   local backup_file="$1"
 
-  # If backup_file is not an absolute path, assume it's relative to HOME
   if [[ ! -f "$backup_file" && ! "$backup_file" = /* ]]; then
     backup_file="$HOME/$backup_file"
   fi

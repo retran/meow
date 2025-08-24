@@ -19,10 +19,6 @@ source "${MEOW}/lib/components/repository.sh"
 source "${MEOW}/lib/components/dependencies.sh"
 source "${MEOW}/lib/components/symlinks.sh"
 
-# Collect all components and dependencies for multiple component installation in topological order.
-# Arguments:
-#   $@: List of components to consider.
-# Outputs: Components, one per line, in topological order for installation.
 collect_multiple_components_for_installation() {
   local components_array=("$@")
   local collected_components=()
@@ -61,13 +57,9 @@ collect_multiple_components_for_installation() {
   echo "$sorted_components_str"
 }
 
-# Public wrapper for installing components - handles session management.
-# Arguments:
-#   [--manual | --auto]: Sets installation mode for requested components. Defaults to --manual.
-#   $@: List of components to install.
 install_component() {
   local components=()
-  local is_manual="true" # Default to manual installation
+  local is_manual="true"
 
   while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -188,7 +180,7 @@ install_component() {
     return 1
   }
 
-  MEOW_INSTALLING_COMPONENTS=() # Reset global array for this session
+  MEOW_INSTALLING_COMPONENTS=()
 
   local install_success="true"
   for component in "${multiple_installation_order[@]}"; do
@@ -205,7 +197,7 @@ install_component() {
 
     if [[ "$is_requested_component" = "false" ]]; then
       comp_is_dependency="true"
-      comp_is_manual="false" # Dependencies are always auto-installed
+      comp_is_manual="false"
     fi
 
     if ! _install_single_component "$component" "$comp_is_manual" "$comp_is_dependency"; then
@@ -216,7 +208,7 @@ install_component() {
   done
 
   _finalize_session
-  MEOW_INSTALLING_COMPONENTS=() # Clear global array after session
+  MEOW_INSTALLING_COMPONENTS=()
 
   if [[ "$install_success" != "true" ]]; then
     return 1
@@ -225,11 +217,6 @@ install_component() {
   return 0
 }
 
-# Install a single component without dependencies.
-# Arguments:
-#   $1: Component name.
-#   $2: "true" if manually installed, "false" if auto-installed (default: "true").
-#   $3: "true" if a dependency, "false" otherwise (default: "false").
 _install_single_component() {
   local component="$1"
   local is_manual="${2:-true}"
@@ -316,10 +303,6 @@ _install_single_component() {
   return 0
 }
 
-# Collect all components and dependencies for multiple component update in topological order.
-# Arguments:
-#   $@: List of components to consider.
-# Outputs: Components, one per line, in topological order for update.
 collect_multiple_components_for_update() {
   local components_array=("$@")
   local collected_components=()
@@ -358,9 +341,6 @@ collect_multiple_components_for_update() {
   echo "$sorted_components_str"
 }
 
-# Public wrapper for updating components - handles session management.
-# Arguments:
-#   $@: List of components to update.
 update_component() {
   local components=("$@")
 
@@ -449,9 +429,8 @@ update_component() {
     return 1
   }
 
-  MEOW_UPDATED_COMPONENTS=() # Reset global array for this session
+  MEOW_UPDATED_COMPONENTS=()
 
-  # Original code continued even if a component failed to update. This preserves that behavior.
   for component in "${multiple_update_order[@]}"; do
     local comp_is_dependency="false"
 
@@ -473,15 +452,11 @@ update_component() {
   done
 
   _finalize_session
-  MEOW_UPDATED_COMPONENTS=() # Clear global array after session
+  MEOW_UPDATED_COMPONENTS=()
 
   return 0
 }
 
-# Internal function: Collect all installed dependencies for update in topological order.
-# Arguments:
-#   $1: The component for which to collect dependencies.
-# Outputs: Dependencies, one per line, in topological order.
 collect_installed_dependencies_for_update() {
   local component="$1"
   local all_components_str
@@ -496,7 +471,6 @@ collect_installed_dependencies_for_update() {
     all_components+=("$comp")
   done <<<"$all_components_str"
 
-  # Ensure the component itself is included in the list for update
   local already_added="false"
   for existing in "${all_components[@]}"; do
     if [[ "$existing" = "$component" ]]; then
@@ -516,10 +490,6 @@ collect_installed_dependencies_for_update() {
   echo "$sorted_deps_str"
 }
 
-# Recursively collect all installed dependencies of a component for update.
-# Arguments:
-#   $1: The component from which to start collecting dependencies.
-# Outputs: Dependencies, one per line.
 collect_installed_dependencies_recursively() {
   local component="$1"
   local all_deps_output=()
@@ -531,7 +501,7 @@ collect_installed_dependencies_recursively() {
     local dep_str
     dep_str="$(get_component_dependencies "$comp")" || {
       ui_warning "$(_f "Failed to get dependencies for '%s', some dependencies might be missed." "$comp")"
-      return 0 # Continue processing
+      return 0
     }
 
     while IFS= read -r dep; do
@@ -550,7 +520,7 @@ collect_installed_dependencies_recursively() {
 
         if [[ "$already_added" = "false" ]]; then
           all_deps_output+=("$dep")
-          _collect_installed_deps_rec "$dep" # Recursive call
+          _collect_installed_deps_rec "$dep"
         fi
       fi
     done
@@ -563,10 +533,6 @@ collect_installed_dependencies_recursively() {
   done
 }
 
-# Update a single component without dependencies.
-# Arguments:
-#   $1: Component name.
-#   $2: "true" if a dependency, "false" otherwise (default: "false").
 _update_single_component() {
   local component="$1"
   local is_dependency="${2:-false}"
@@ -636,13 +602,6 @@ _update_single_component() {
   return 0
 }
 
-# Collect all components for multiple component uninstall in topological order.
-# Arguments:
-#   $@: List of components to consider, optionally followed by flags:
-#       --filter-source: Filters the initial set of components based on removability.
-#       --skip-preset-checks: Skips checking if components are required by presets.
-#       --exclude-preset=<name>: Excludes a specific preset from dependency checks.
-# Outputs: Components, one per line, in reverse topological order for uninstallation.
 collect_multiple_components_for_uninstall() {
   local all_args=("$@")
   local filter_source_components="false"
@@ -654,7 +613,6 @@ collect_multiple_components_for_uninstall() {
   local num_args=${#all_args[@]}
   local components_start_index=0
 
-  # Iterate from the end to find flags
   for ((i = num_args - 1; i >= 0; i--)); do
     local current_arg="${all_args[$i]}"
     case "$current_arg" in
@@ -668,28 +626,24 @@ collect_multiple_components_for_uninstall() {
         exclude_preset="${current_arg#--exclude-preset=}"
         ;;
       *)
-        # Not a flag, so all arguments before this index are components.
-        # If no flags are found, components_start_index will remain 0 and all_args will be components.
         components_start_index=$((i + 1))
         break
         ;;
     esac
-    if [[ $i -eq 0 ]]; then # Handle case where all args are flags
+    if [[ $i -eq 0 ]]; then
       components_start_index=0
     fi
   done
 
-  # Populate the 'components_array' with arguments *before* the flags
   for ((i = 0; i < components_start_index; i++)); do
     components_array+=("${all_args[$i]}")
   done
 
   local collected_components=()
 
-  # Add initial components, with optional filtering
   if [[ "$filter_source_components" = "true" ]]; then
     local source_components_to_filter=("${components_array[@]}")
-    local all_components_for_context=("${components_array[@]}") # Context for filtering
+    local all_components_for_context=("${components_array[@]}")
     local filtered_source_components_str
 
     filtered_source_components_str="$(filter_removable_dependencies_with_context "${source_components_to_filter[@]}" "${all_components_for_context[@]}" "$skip_preset_checks" "$exclude_preset")" || {
@@ -701,7 +655,6 @@ collect_multiple_components_for_uninstall() {
       collected_components+=("$comp")
     done <<<"$filtered_source_components_str"
   else
-    # Add source components without filtering (original behavior)
     for component in "${components_array[@]}"; do
       collected_components+=("$component")
     done
@@ -710,7 +663,6 @@ collect_multiple_components_for_uninstall() {
   local previous_count=0
   local current_count=${#collected_components[@]}
 
-  # Iteratively collect dependencies that also become removable
   while [[ "$current_count" -gt "$previous_count" ]]; do
     previous_count="$current_count"
     local new_dependencies_to_check=()
@@ -730,14 +682,12 @@ collect_multiple_components_for_uninstall() {
       for dep in "${dependencies[@]}"; do
         if [[ -n "$dep" ]] && is_component_installed "$dep"; then
           local already_added="false"
-          # Check against new_dependencies_to_check to avoid duplicates within this iteration
           for existing in "${new_dependencies_to_check[@]}"; do
             if [[ "$existing" = "$dep" ]]; then
               already_added="true"
               break
             fi
           done
-          # Check against collected_components to ensure it's not already marked for uninstall
           if [[ "$already_added" = "false" ]]; then
             for existing in "${collected_components[@]}"; do
               if [[ "$existing" = "$dep" ]]; then
@@ -797,7 +747,6 @@ collect_multiple_components_for_uninstall() {
     return 1
   }
 
-  # Reverse the order for uninstallation
   local sorted_components=()
   while IFS= read -r comp; do
     sorted_components+=("$comp")
@@ -808,12 +757,6 @@ collect_multiple_components_for_uninstall() {
   done
 }
 
-# Public wrapper for uninstalling components - handles session management.
-# Arguments:
-#   $@: List of components to uninstall, optionally followed by flags:
-#       --force: Skips dependency and preset checks.
-#       --skip-preset-checks: Skips checking if components are required by presets.
-#       --exclude-preset=<name>: Excludes a specific preset from dependency checks.
 uninstall_component() {
   local all_args=("$@")
   local components=()
@@ -825,7 +768,6 @@ uninstall_component() {
   local num_args=${#all_args[@]}
   local components_start_index=0
 
-  # Iterate from the end to find flags
   for ((i = num_args - 1; i >= 0; i--)); do
     local current_arg="${all_args[$i]}"
     case "$current_arg" in
@@ -839,18 +781,15 @@ uninstall_component() {
         exclude_preset="${current_arg#--exclude-preset=}"
         ;;
       *)
-        # Not a flag, so all arguments before this index are components.
-        # If no flags are found, components_start_index will remain 0 and all_args will be components.
         components_start_index=$((i + 1))
         break
         ;;
     esac
-    if [[ $i -eq 0 ]]; then # Handle case where all args are flags
+    if [[ $i -eq 0 ]]; then
       components_start_index=0
     fi
   done
 
-  # Populate the 'components' array with arguments *before* the flags
   for ((i = 0; i < components_start_index; i++)); do
     components+=("${all_args[$i]}")
   done
@@ -1013,7 +952,7 @@ uninstall_component() {
         else
           deps_list="$deps_list, $comp"
         fi
-      fi # CLOSES 'if [[ "$is_requested_component" = "true" ]]'
+      fi
     done
 
     if [[ -n "$requested_comp_list" ]]; then
@@ -1057,10 +996,6 @@ uninstall_component() {
   fi
 }
 
-# Uninstall a single component - internal function called during batch uninstall.
-# Arguments:
-#   $1: Component name.
-#   $2: "true" if it was a requested component, "false" if an unused dependency (default: "true").
 _uninstall_single_component() {
   local component="$1"
   local is_requested_component="${2:-true}"

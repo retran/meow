@@ -6,12 +6,12 @@ MEOW="$2"
 source "${MEOW}/lib/core/platform.sh"
 source "${MEOW}/lib/core/ui.sh"
 
-if [[ "$OSTYPE" != "darwin"* ]]; then
+if [ "${OSTYPE#darwin}" = "${OSTYPE}" ]; then
   ui_warning "This component is designed exclusively for macOS."
   exit 0
 fi
 
-if ! [[ -d "/Applications/Hammerspoon.app" ]] && ! command -v hs >/dev/null 2>&1; then
+if ! [ -d "/Applications/Hammerspoon.app" ] && ! command -v hs >/dev/null 2>&1; then
   ui_warning "Hammerspoon is required but not found. Please install Hammerspoon or ensure the 'hs' command is in your PATH."
   exit 0
 fi

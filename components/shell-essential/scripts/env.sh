@@ -5,6 +5,13 @@ if [[ -n "${_COMPONENT_SHELL_ESSENTIAL_ENV_SOURCED:-}" ]]; then
 fi
 _COMPONENT_SHELL_ESSENTIAL_ENV_SOURCED=1
 
-if [[ ! "$PATH" == */opt/homebrew/opt/fzf/bin* ]] && [[ -d "/opt/homebrew/opt/fzf/bin" ]]; then
+path_contains_fzf_bin=0
+case "$PATH" in
+  */opt/homebrew/opt/fzf/bin*)
+    path_contains_fzf_bin=1
+    ;;
+esac
+
+if [ "$path_contains_fzf_bin" -eq 0 ] && [ -d "/opt/homebrew/opt/fzf/bin" ]; then
   export PATH="${PATH:+${PATH}:}/opt/homebrew/opt/fzf/bin"
 fi

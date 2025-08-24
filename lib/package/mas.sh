@@ -1,10 +1,8 @@
 #!/usr/bin/env bash
-#
 # This script manages macOS App Store (mas) packages.
 
 source "${MEOW}/lib/core/ui.sh"
 
-# Ensure the script is sourced only once.
 if [[ -n "${_LIB_PACKAGE_MAS_SOURCED:-}" ]]; then
   return 0
 fi
@@ -13,18 +11,15 @@ _LIB_PACKAGE_MAS_SOURCED=1
 source "${MEOW}/lib/package/common.sh"
 source "${MEOW}/lib/core/dry_run.sh"
 
-# Caches the list of currently installed mas packages.
 _cache_installed_mas_packages() {
   cache_package_list "mas" "mas list | awk -F'[()]' '{print \$2}'"
 }
 
-# Checks if a given mas package (by ID) is installed.
 is_mas_package_installed() {
   _cache_installed_mas_packages
   is_package_installed "mas" "$1"
 }
 
-# Sets up the mas CLI.
 setup_mas() {
   ui_step_header "Setting up mas CLI"
 
@@ -44,18 +39,14 @@ setup_mas() {
   ui_action_success "mas CLI available."
 }
 
-# Installs mas packages listed in a component's package file.
 install_mas_packages() {
   install_packages_generic "$1" "mas" "mas install" "is_mas_package_installed"
 }
 
-# Updates mas packages listed in a component's package file.
 update_mas_packages() {
   update_packages_generic "$1" "mas" "mas upgrade" "is_mas_package_installed"
 }
 
-# Handles uninstallation of mas packages.
-# Note: mas CLI does not support automatic uninstallation.
 uninstall_mas_packages() {
   local component_name="$1"
   local package_file="${MEOW_COMPONENTS_DIR}/${component_name}/packages/mas.list"
@@ -102,7 +93,6 @@ uninstall_mas_packages() {
   return 0
 }
 
-# Cleans up mas-managed packages.
 cleanup_mas() {
   if is_dry_run; then
     dry_run_ui_info "App Store cleanup would be skipped (no cleanup needed)."
