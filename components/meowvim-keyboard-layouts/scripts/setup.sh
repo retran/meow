@@ -18,11 +18,6 @@ if ! [[ -d "/Applications/Hammerspoon.app" ]] && ! command -v hs >/dev/null 2>&1
   exit 0
 fi
 
-if ! command -v nvim >/dev/null 2>&1; then
-  ui_warning "TODO: write message - meowvim_keyboard_neovim_required"
-  exit 0
-fi
-
 ui_action_start "TODO: write message - meowvim_keyboard_configuring"
 
 ui_info "TODO: write message - meowvim_keyboard_restarting_hammerspoon"
