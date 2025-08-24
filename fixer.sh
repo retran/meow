@@ -266,18 +266,7 @@ You are a shell script expert. Fix the following Bash script to ensure:
    - No ${var@A} expansions
    - Avoid newer Bash features
 
-2. **Security & Best Practices**:
-   - All variables properly quoted
-   - Use
-   - Proper error handling
-   - Clear function and variable names
-
-3. **Messaging**:
-    - Resolve TODOs
-    - parse_spinner_messages is deleted, replace it with proper messages
-    - Revise messages for --verbose and --dry-run modes
-
-4. Keep things as simple as possible but do not change original logic.
+2. Keep things as simple as possible but do not change original logic.
     - you must preserve the original intent and functionality of the script
     - you must not remove any existing functionality
     - you must not add any new functionality
@@ -285,19 +274,20 @@ You are a shell script expert. Fix the following Bash script to ensure:
     - you must not modify the overall structure or flow of the script
     - you must not introduce new dependencies or external calls
     - you must not use any Bash 4+ features
+    - you must not enable any strict modes (e.g., set -euo pipefail)
 
-5. **Portability**: Works on both Linux (Bash 4+/GNU) and macOS (Bash 3.2/BSD)
+3. **Portability**: Works on both Linux (Bash 4+/GNU) and macOS (Bash 3.2/BSD)
 
-6. **Code Quality**:
+4. **Code Quality**:
    - Proper indentation and formatting
    - Descriptive names
    - Handle edge cases gracefully
    - Remove dead code and unused variables
    - Consistent coding style
 
-7. **Keep only necessary comments, remove all others**.
+5. Remove all comments except for shebang and essential ones.
 
-8. **Do not include any debugging or development artifacts (e.g., test code, console logs) in the final script.**
+6. **Do not include any debugging or development artifacts (e.g., test code, console logs) in the final script.**
 
 **IMPORTANT**: Return the COMPLETE fixed script with ALL content included. Do not truncate, abbreviate, or skip any parts. The output must be the full, working script that can be directly saved to a file.
 
