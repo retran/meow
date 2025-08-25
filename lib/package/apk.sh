@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-if [[ -n "${_LIB_PACKAGE_APK_SOURCED:-}" ]]; then
+if [ -n "${_LIB_PACKAGE_APK_SOURCED:-}" ]; then
   return 0
 fi
 _LIB_PACKAGE_APK_SOURCED=1
@@ -17,7 +17,7 @@ is_apk_package_installed() {
 }
 
 setup_apk() {
-  if [[ "$MEOW_VERBOSE" = "true" ]]; then
+  if [ "$MEOW_VERBOSE" = "true" ]; then
     ui_step_header "Setting up apk"
   fi
 
@@ -32,12 +32,12 @@ setup_apk() {
     return 0
   fi
 
-  command -v apk >/dev/null 2>&1 || {
+  if ! command -v apk >/dev/null 2>&1; then
     ui_error "apk not found. Please ensure apk is installed and in your PATH."
     return 1
-  }
+  fi
 
-  if [[ "$MEOW_VERBOSE" = "true" ]]; then
+  if [ "$MEOW_VERBOSE" = "true" ]; then
     ui_spinner "Updating apk package index..." \
       sudo apk update || {
       ui_error "Failed to update apk package index."
@@ -50,7 +50,7 @@ setup_apk() {
     }
   fi
 
-  if [[ "$MEOW_VERBOSE" = "true" ]]; then
+  if [ "$MEOW_VERBOSE" = "true" ]; then
     ui_action_success "apk available and package index updated."
   fi
 }
@@ -74,7 +74,7 @@ cleanup_apk() {
     return 0
   fi
 
-  if [[ "$MEOW_VERBOSE" = "true" ]]; then
+  if [ "$MEOW_VERBOSE" = "true" ]; then
     ui_step_header "Cleaning apk"
   fi
   ui_action_success "apk cleanup completed (no cache to clean)."

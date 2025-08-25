@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
-if [[ -n "${_LIB_CORE_UI_SOURCED:-}" ]]; then
+if [ -n "${_LIB_CORE_UI_SOURCED:-}" ]; then
   return 0
 fi
 _LIB_CORE_UI_SOURCED=1
 
-if [[ -z "${MEOW:-}" ]]; then
+if [ -z "${MEOW:-}" ]; then
   echo "Error: MEOW environment variable is not set. Cannot source core UI dependencies (e.g., colors.sh)." >&2
   exit 1
 fi
@@ -23,7 +23,7 @@ MEOW_WARNINGS=()
 _f() {
   local template="$1"
   shift
-  printf -- "$template" "$@"
+  printf "$template" "$@"
 }
 
 _base_msg() {
@@ -50,25 +50,25 @@ ui_error() {
 }
 
 ui_warning() {
-  _base_msg "${WARNING}" "$@"
+  _base_msg "${WARNING}" "$@" >&2
   MEOW_WARNING_COUNT=$((MEOW_WARNING_COUNT + 1))
   MEOW_WARNINGS+=("$*")
 }
 
 ui_verbose() {
-  if [[ "$MEOW_VERBOSE" = "true" ]]; then
+  if [ "$MEOW_VERBOSE" = "true" ]; then
     ui_message "$@"
   fi
 }
 
 ui_verbose_message() {
-  if [[ "$MEOW_VERBOSE" = "true" ]]; then
+  if [ "$MEOW_VERBOSE" = "true" ]; then
     ui_message "$@"
   fi
 }
 
 ui_verbose_info() {
-  if [[ "$MEOW_VERBOSE" = "true" ]]; then
+  if [ "$MEOW_VERBOSE" = "true" ]; then
     ui_info "$@"
   fi
 }
@@ -82,7 +82,7 @@ ui_step_header() {
   local step_count="${2:-}"
   local total_steps="${3:-}"
 
-  if [[ -n "$step_count" ]] && [[ -n "$total_steps" ]]; then
+  if [ -n "$step_count" ] && [ -n "$total_steps" ]; then
     ui_title "$(printf "%s (%s/%s)" "$step_name" "$step_count" "$total_steps")"
   else
     ui_title "$step_name"
@@ -111,12 +111,12 @@ ui_emphasis() { _icon_msg_core "${BOLD}" "$@"; }
 ui_indent() { _icon_msg_core "${NORMAL}  ↳ " "$@"; }
 
 ui_verbose_action_start() {
-  if [[ "$MEOW_VERBOSE" = "true" ]]; then
+  if [ "$MEOW_VERBOSE" = "true" ]; then
     ui_action_start "$@"
   fi
 }
 ui_verbose_action_success() {
-  if [[ "$MEOW_VERBOSE" = "true" ]]; then
+  if [ "$MEOW_VERBOSE" = "true" ]; then
     ui_action_success "$@"
   fi
 }
@@ -169,7 +169,7 @@ ui_confirm() {
     printf "%b" "${INFO}❓ ${RESET}${NORMAL}${message} ${prompt_suffix} ${RESET}"
     read -r response </dev/tty
 
-    if [[ -z "$response" ]]; then
+    if [ -z "$response" ]; then
       response="$default_response"
     fi
 
@@ -274,7 +274,7 @@ ui_spinner() {
 
   printf "%b%s%b %b%s%b" "${spinner_color}" "${spinstr:0:1}" "${RESET}" "${NORMAL}" "$msg" "${RESET}"
 
-  if [[ "$MEOW_DRY_RUN" = "true" ]]; then
+  if [ "$MEOW_DRY_RUN" = "true" ]; then
     ui_info_detail "$(printf "Dry run: Skipping execution of '%s'" "${cmd_and_args[*]}")"
     cmd_exit_status=0
     printf "" >"$temp_output_file" # Ensure file exists but is empty for dry run
@@ -303,7 +303,7 @@ ui_spinner() {
 
   local return_status=$cmd_exit_status
   if [ "$cmd_exit_status" -eq 0 ]; then
-    if [[ -n "$unchanged_pattern" ]] && [ -s "$temp_output_file" ] && grep -qE -- "$unchanged_pattern" "$temp_output_file"; then
+    if [ -n "$unchanged_pattern" ] && [ -s "$temp_output_file" ] && grep -qE -- "$unchanged_pattern" "$temp_output_file"; then
       ui_action_success "$final_unchanged_msg"
       return_status=100
     else
@@ -313,7 +313,7 @@ ui_spinner() {
     ui_action_error "$final_fail_msg"
 
     if [ -s "$temp_output_file" ]; then
-      if [[ "$MEOW_VERBOSE" = "true" ]]; then
+      if [ "$MEOW_VERBOSE" = "true" ]; then
         ui_error "Command output:"
         while IFS= read -r line; do
           ui_content "$line"
@@ -349,7 +349,7 @@ run_package_operation() {
   shift 6
 
   local pattern_arg=()
-  if [[ "$1" = "--pattern" ]]; then
+  if [ "$1" = "--pattern" ]; then
     pattern_arg=("$1" "$2")
     shift 2
   fi
@@ -369,21 +369,21 @@ show_final_summary() {
   local start_time="${4:-}"
 
   local duration_text=""
-  if [[ -n "$start_time" ]]; then
+  if [ -n "$start_time" ]; then
     local end_time
     end_time=$(date "+%s")
     local duration=$((end_time - start_time))
     duration_text=" (completed in ${duration}s)"
   fi
 
-  if [[ "$success" = "true" ]] && [ "$MEOW_ERROR_COUNT" -eq 0 ]; then
-    if [[ -n "$target" ]]; then
+  if [ "$success" = "true" ] && [ "$MEOW_ERROR_COUNT" -eq 0 ]; then
+    if [ -n "$target" ]; then
       ui_action_success "$(printf "%s '%s' completed successfully%s" "$operation" "$target" "$duration_text")"
     else
       ui_action_success "$(printf "%s completed successfully%s" "$operation" "$duration_text")"
     fi
   else
-    if [[ -n "$target" ]]; then
+    if [ -n "$target" ]; then
       ui_action_error "$(printf "%s '%s' finished with errors%s" "$operation" "$target" "$duration_text")"
     else
       ui_action_error "$(printf "%s finished with errors%s" "$operation" "$duration_text")"
@@ -399,8 +399,8 @@ show_final_summary() {
   fi
 
   if [ "${#summary_parts[@]}" -gt 0 ]; then
-    local summary_text_builder=""
     local i=0
+    local summary_text_builder=""
     for part in "${summary_parts[@]}"; do
       if [ "$i" -gt 0 ]; then
         summary_text_builder="${summary_text_builder}, "
@@ -416,7 +416,7 @@ show_final_summary() {
       ui_warning "Summary: $summary_text"
     fi
 
-    if [[ "$MEOW_VERBOSE" = "true" ]] || [ "$MEOW_ERROR_COUNT" -gt 0 ]; then
+    if [ "$MEOW_VERBOSE" = "true" ] || [ "$MEOW_ERROR_COUNT" -gt 0 ]; then
       if [ "${#MEOW_ERRORS[@]}" -gt 0 ]; then
         ui_error "Errors encountered:"
         for err_msg in "${MEOW_ERRORS[@]}"; do
@@ -424,7 +424,7 @@ show_final_summary() {
         done
       fi
 
-      if [[ "$MEOW_VERBOSE" = "true" ]] && [ "${#MEOW_WARNINGS[@]}" -gt 0 ]; then
+      if [ "$MEOW_VERBOSE" = "true" ] && [ "${#MEOW_WARNINGS[@]}" -gt 0 ]; then
         ui_warning "Warnings encountered (verbose mode):"
         for warn_msg in "${MEOW_WARNINGS[@]}"; do
           ui_list_item "$warn_msg"

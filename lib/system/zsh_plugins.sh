@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-if [[ -n "${_LIB_SYSTEM_ZSH_PLUGINS_SOURCED:-}" ]]; then
+if [ -n "${_LIB_SYSTEM_ZSH_PLUGINS_SOURCED:-}" ]; then
   return 0
 fi
 _LIB_SYSTEM_ZSH_PLUGINS_SOURCED=1
@@ -9,7 +9,7 @@ source "${MEOW}/lib/core/ui.sh"
 source "${MEOW}/lib/core/platform.sh"
 
 install_zsh_plugins() {
-  if [[ "$IS_DEBIAN_BASED" == "true" || "$IS_ALPINE" == "true" ]]; then
+  if [ "$IS_DEBIAN_BASED" = "true" ] || [ "$IS_ALPINE" = "true" ]; then
     local zsh_custom_dir="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
     local plugins_installed_count=0
     local plugins_skipped_count=0
@@ -18,8 +18,8 @@ install_zsh_plugins() {
 
     ui_action_start "$(_f "Checking Zsh plugins in '%s'" "$zsh_custom_dir")"
 
-    if [[ -d "$zsh_custom_dir" ]]; then
-      if [[ ! -d "${zsh_custom_dir}/plugins/zsh-autosuggestions" ]]; then
+    if [ -d "$zsh_custom_dir" ]; then
+      if [ ! -d "${zsh_custom_dir}/plugins/zsh-autosuggestions" ]; then
         ui_action_start "$(_f "Cloning zsh-autosuggestions to '%s/plugins'" "$zsh_custom_dir")"
         if git clone --depth 1 https://github.com/zsh-users/zsh-autosuggestions \
           "${zsh_custom_dir}/plugins/zsh-autosuggestions" >/dev/null 2>&1; then
@@ -35,7 +35,7 @@ install_zsh_plugins() {
         plugins_skipped_count=$((plugins_skipped_count + 1))
       fi
 
-      if [[ ! -d "${zsh_custom_dir}/plugins/zsh-syntax-highlighting" ]]; then
+      if [ ! -d "${zsh_custom_dir}/plugins/zsh-syntax-highlighting" ]; then
         ui_action_start "$(_f "Cloning zsh-syntax-highlighting to '%s/plugins'" "$zsh_custom_dir")"
         if git clone --depth 1 https://github.com/zsh-users/zsh-syntax-highlighting.git \
           "${zsh_custom_dir}/plugins/zsh-syntax-highlighting" >/dev/null 2>&1; then
@@ -51,9 +51,9 @@ install_zsh_plugins() {
         plugins_skipped_count=$((plugins_skipped_count + 1))
       fi
 
-      if [[ "$plugins_failed_count" -gt 0 ]]; then
+      if [ "$plugins_failed_count" -gt 0 ]; then
         ui_action_fail "$(_f "Zsh plugin check completed with %d failures, %d installed, %d skipped." "$plugins_failed_count" "$plugins_installed_count" "$plugins_skipped_count")"
-      elif [[ "$plugins_installed_count" -gt 0 ]]; then
+      elif [ "$plugins_installed_count" -gt 0 ]; then
         ui_action_success "$(_f "Zsh plugin check completed: %d installed, %d skipped." "$plugins_installed_count" "$plugins_skipped_count")"
       else
         ui_action_success "All required Zsh plugins are already installed."

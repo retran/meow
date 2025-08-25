@@ -162,8 +162,8 @@ install_packages_generic() {
     fi
   done <"$package_file"
 
-  if ((failed_count == 0)); then
-    if ((installed_count > 0)); then
+  if [ "$failed_count" -eq 0 ]; then
+    if [ "$installed_count" -gt 0 ]; then
       ui_indent "$(_f "%s: ✓ %d installed, %d already present" "$(capitalize "$manager_name")" "$installed_count" "$already_installed_count")"
     else
       ui_indent "$(_f "%s: ✓ All %d packages already present" "$(capitalize "$manager_name")" "$already_installed_count")"
@@ -290,8 +290,8 @@ update_packages_generic() {
     fi
   done <"$package_file"
 
-  if ((failed_count == 0)); then
-    if ((updated_count > 0)); then
+  if [ "$failed_count" -eq 0 ]; then
+    if [ "$updated_count" -gt 0 ]; then
       ui_indent "$(_f "%s: ✓ %d updated, %d up-to-date" "$(capitalize "$manager_name")" "$updated_count" "$up_to_date_count")"
       return 0
     else
@@ -371,8 +371,8 @@ uninstall_packages_generic() {
     fi
   done <"$package_file"
 
-  if ((failed_count == 0)); then
-    if ((uninstalled_count > 0)); then
+  if [ "$failed_count" -eq 0 ]; then
+    if [ "$uninstalled_count" -gt 0 ]; then
       ui_indent "$(_f "%s: ✓ %d uninstalled, %d not installed" "$(capitalize "$manager_name")" "$uninstalled_count" "$not_installed_count")"
     else
       ui_indent "$(_f "%s: ✓ All %d packages already not installed" "$(capitalize "$manager_name")" "$not_installed_count")"

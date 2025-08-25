@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-if [[ -n "${_LIB_COMPONENTS_DEPENDENCIES_SOURCED:-}" ]]; then
+if [ -n "${_LIB_COMPONENTS_DEPENDENCIES_SOURCED:-}" ]; then
   return 0
 fi
 _LIB_COMPONENTS_DEPENDENCIES_SOURCED=1
@@ -12,10 +12,10 @@ source "${MEOW}/lib/components/core.sh"
 
 get_components_depending_on() {
   local target_component="$1"
-  local components=()
+  local components=""
 
   for component_symlink in "${MEOW_INSTALLED_COMPONENTS_DIR}"/*; do
-    if [[ ! -L "$component_symlink" ]]; then
+    if [ ! -L "$component_symlink" ]; then
       continue
     fi
 
@@ -23,7 +23,7 @@ get_components_depending_on() {
     component_name=$(basename "$component_symlink")
 
     local component_file="${component_symlink}/component.yaml"
-    if [[ ! -f "$component_file" ]]; then
+    if [ ! -f "$component_file" ]; then
       continue
     fi
 
@@ -32,39 +32,40 @@ get_components_depending_on() {
       continue
     fi
 
+    local dep
     while IFS= read -r dep; do
-      if [[ -n "$dep" && "$dep" != "null" ]]; then
+      if [ -n "$dep" ] && [ "$dep" != "null" ]; then
         dep="${dep#components/}"
-        if [[ "$dep" = "$target_component" ]]; then
-          components+=("$component_name")
-          break
+        if [ "$dep" = "$target_component" ]; then
+          components="$components$component_name"$'\n'
+          return 0
         fi
       fi
-    done < <(printf '%s\n' "$deps_raw")
+    done <<<"$deps_raw"
   done
 
-  printf '%s\n' "${components[@]}"
+  printf '%s\n' "$components"
 }
 
 get_presets_depending_on() {
   local target_component="$1"
   local exclude_preset="${2:-}"
-  local presets=()
+  local presets=""
 
   for preset_symlink in "${MEOW_INSTALLED_PRESETS_DIR}"/*; do
-    if [[ ! -L "$preset_symlink" ]]; then
+    if [ ! -L "$preset_symlink" ]; then
       continue
     fi
 
     local preset_name
     preset_name=$(basename "$preset_symlink")
 
-    if [[ "$preset_name" = "$exclude_preset" ]]; then
+    if [ "$preset_name" = "$exclude_preset" ]; then
       continue
     fi
 
     local preset_file="${preset_symlink}/preset.yaml"
-    if [[ ! -f "$preset_file" ]]; then
+    if [ ! -f "$preset_file" ]; then
       continue
     fi
 
@@ -73,69 +74,87 @@ get_presets_depending_on() {
       continue
     fi
 
-    local required_deps=()
+    local required_deps=""
+    local dep_item
     while IFS= read -r dep_item; do
-      required_deps+=("$dep_item")
-    done < <(printf '%s\n' "$required_deps_raw")
+      if [ -n "$dep_item" ] && [ "$dep_item" != "null" ]; then
+        required_deps="$required_deps$dep_item"$'\n'
+      fi
+    done <<<"$required_deps_raw"
 
     local found_direct=false
-    for dep in "${required_deps[@]}"; do
-      if [[ -n "$dep" && "$dep" != "null" ]]; then
-        if [[ "$dep" = "$target_component" ]]; then
-          presets+=("$preset_name")
+    local dep
+    while IFS= read -r dep; do
+      if [ -n "$dep" ] && [ "$dep" != "null" ]; then
+        if [ "$dep" = "$target_component" ]; then
+          presets="$presets$preset_name"$'\n'
           found_direct=true
           break
         fi
       fi
-    done
+    done <<<"$required_deps"
 
-    if [[ "$found_direct" = "false" ]]; then
-      for dep in "${required_deps[@]}"; do
-        if [[ -n "$dep" && "$dep" != "null" ]]; then
-          local component_deps=()
+    if [ "$found_direct" = "false" ]; then
+      local dep
+      while IFS= read -r dep; do
+        if [ -n "$dep" ] && [ "$dep" != "null" ]; then
+          local component_deps=""
           local comp_deps_raw
           comp_deps_raw=$(get_component_dependencies "$dep")
+          local comp_dep_item
           while IFS= read -r comp_dep_item; do
-            component_deps+=("$comp_dep_item")
-          done < <(printf '%s\n' "$comp_deps_raw")
+            if [ -n "$comp_dep_item" ] && [ "$comp_dep_item" != "null" ]; then
+              component_deps="$component_deps$comp_dep_item"$'\n'
+            fi
+          done <<<"$comp_deps_raw"
 
-          for comp_dep in "${component_deps[@]}"; do
-            if [[ "$comp_dep" = "$target_component" ]]; then
-              presets+=("$preset_name")
+          local comp_dep
+          while IFS= read -r comp_dep; do
+            if [ "$comp_dep" = "$target_component" ]; then
+              presets="$presets$preset_name"$'\n'
               found_direct=true
               break 2
             fi
-          done
+          done <<<"$component_deps"
         fi
-      done
+      done <<<"$required_deps"
     fi
 
-    if [[ "$found_direct" = "true" ]]; then
+    if [ "$found_direct" = "true" ]; then
       break
     fi
   done
 
-  printf '%s\n' "${presets[@]}"
+  printf '%s\n' "$presets"
 }
 
 get_component_dependencies() {
   local component="$1"
   local component_file="${MEOW_COMPONENTS_DIR}/${component}/component.yaml"
 
-  if [[ ! -f "$component_file" ]]; then
+  if [ ! -f "$component_file" ]; then
+    ui_error "$(_f "Component file not found: %s" "$component_file")"
     return 1
+  fi
+
+  # Check if the component has dependencies at all
+  if ! yaml_path_exists "$component_file" ".depends_on"; then
+    # No dependencies section - this is normal, not an error
+    return 0
   fi
 
   local depends_on_raw
   if ! depends_on_raw=$(read_yaml_array "$component_file" ".depends_on[]?"); then
+    ui_warning "$(_f "Failed to read dependencies for component %s" "$component")"
     return 0
   fi
 
+  local dep
   while IFS= read -r dep; do
-    if [[ -n "$dep" && "$dep" != "null" ]]; then
+    if [ -n "$dep" ] && [ "$dep" != "null" ]; then
       printf '%s\n' "${dep#components/}"
     fi
-  done < <(printf '%s\n' "$depends_on_raw")
+  done <<<"$depends_on_raw"
 
   return 0
 }
@@ -145,71 +164,93 @@ collect_dependencies_recursively_for_installation_stdout() {
   local dependencies_raw
   dependencies_raw=$(get_component_dependencies "$component")
 
-  local dependencies=()
+  local dependencies=""
+  local dep_item
   while IFS= read -r dep_item; do
-    dependencies+=("$dep_item")
-  done < <(printf '%s\n' "$dependencies_raw")
+    if [ -n "$dep_item" ]; then
+      dependencies="$dependencies$dep_item"$'\n'
+    fi
+  done <<<"$dependencies_raw"
 
-  for dep in "${dependencies[@]}"; do
-    if [[ -n "$dep" ]]; then
+  local dep
+  while IFS= read -r dep; do
+    if [ -n "$dep" ]; then
       printf '%s\n' "$dep"
       collect_dependencies_recursively_for_installation_stdout "$dep"
     fi
-  done
+  done <<<"$dependencies"
 }
 
 topological_sort_for_installation() {
-  local remaining_components=("$@")
-  local sorted_components=()
-  local new_remaining
+  local remaining_components=""
+  for arg in "$@"; do
+    remaining_components="$remaining_components$arg"$'\n'
+  done
 
-  while [[ ${#remaining_components[@]} -gt 0 ]]; do
+  local sorted_components=""
+  local new_remaining=""
+
+  while [ -n "$remaining_components" ]; do
     local found_installable=false
-    new_remaining=()
+    new_remaining=""
 
-    for component in "${remaining_components[@]}"; do
+    local component
+    while IFS= read -r component; do
+      if [ -z "$component" ]; then
+        continue
+      fi
+
       local all_deps_satisfied=true
       local component_deps_raw
       component_deps_raw=$(get_component_dependencies "$component")
 
-      if [[ -n "$component_deps_raw" ]]; then
-        local component_deps=()
-        while IFS= read -r dep_item; do component_deps+=("$dep_item"); done < <(printf '%s\n' "$component_deps_raw")
+      if [ -n "$component_deps_raw" ]; then
+        local component_deps=""
+        local dep_item
+        while IFS= read -r dep_item; do
+          if [ -n "$dep_item" ]; then
+            component_deps="$component_deps$dep_item"$'\n'
+          fi
+        done <<<"$component_deps_raw"
 
-        for dep in "${component_deps[@]}"; do
-          if [[ -n "$dep" ]]; then
+        local dep
+        while IFS= read -r dep; do
+          if [ -n "$dep" ]; then
             local dep_in_remaining=false
-            for remaining_comp in "${remaining_components[@]}"; do
-              if [[ "$remaining_comp" = "$dep" ]]; then
+            local remaining_comp
+            while IFS= read -r remaining_comp; do
+              if [ "$remaining_comp" = "$dep" ]; then
                 dep_in_remaining=true
                 break
               fi
-            done
-            if [[ "$dep_in_remaining" = "true" ]]; then
+            done <<<"$remaining_components"
+
+            if [ "$dep_in_remaining" = "true" ]; then
               all_deps_satisfied=false
               break
             fi
           fi
-        done
+        done <<<"$component_deps"
       fi
 
-      if [[ "$all_deps_satisfied" = "true" ]]; then
-        sorted_components+=("$component")
+      if [ "$all_deps_satisfied" = "true" ]; then
+        sorted_components="$sorted_components$component"$'\n'
         found_installable=true
       else
-        new_remaining+=("$component")
+        new_remaining="$new_remaining$component"$'\n'
       fi
-    done
+    done <<<"$remaining_components"
 
-    remaining_components=("${new_remaining[@]}")
+    remaining_components="$new_remaining"
 
-    if [[ "$found_installable" = "false" && ${#remaining_components[@]} -gt 0 ]]; then
-      ui_warning "$(_f "Circular dependencies detected among: %s" "$(printf '%s ' "${remaining_components[@]}")")"
-      sorted_components+=("${remaining_components[@]}")
+    if [ "$found_installable" = "false" ] && [ -n "$remaining_components" ]; then
+      ui_warning "$(_f "Circular dependencies detected among: %s" "$(printf '%s ' "$remaining_components")")"
+      sorted_components="$sorted_components$remaining_components"
       break
     fi
   done
-  printf '%s\n' "${sorted_components[@]}"
+
+  printf '%s\n' "$sorted_components"
 }
 
 collect_all_dependencies_for_installation() {
@@ -218,27 +259,30 @@ collect_all_dependencies_for_installation() {
   local all_deps_raw_with_duplicates
   all_deps_raw_with_duplicates=$(collect_dependencies_recursively_for_installation_stdout "$component")
 
-  local all_components_unsorted_and_unique=()
-  all_components_unsorted_and_unique+=("$component")
+  local all_components_unsorted_and_unique="$component"$'\n'
 
   local unique_deps_raw
   unique_deps_raw=$(printf '%s\n' "$all_deps_raw_with_duplicates" | sort -u)
 
+  local dep_item
   while IFS= read -r dep_item; do
-    if [[ -n "$dep_item" && "$dep_item" != "$component" ]]; then
-      all_components_unsorted_and_unique+=("$dep_item")
+    if [ -n "$dep_item" ] && [ "$dep_item" != "$component" ]; then
+      all_components_unsorted_and_unique="$all_components_unsorted_and_unique$dep_item"$'\n'
     fi
-  done < <(printf '%s\n' "$unique_deps_raw")
+  done <<<"$unique_deps_raw"
 
   local sorted_deps_raw
-  sorted_deps_raw=$(topological_sort_for_installation "${all_components_unsorted_and_unique[@]}")
+  sorted_deps_raw=$(topological_sort_for_installation "$(printf '%s\n' "$all_components_unsorted_and_unique")")
 
-  local result=()
+  local result=""
+  local item
   while IFS= read -r item; do
-    result+=("$item")
-  done < <(printf '%s\n' "$sorted_deps_raw")
+    if [ -n "$item" ]; then
+      result="$result$item"$'\n'
+    fi
+  done <<<"$sorted_deps_raw"
 
-  printf '%s\n' "${result[@]}"
+  printf '%s\n' "$result"
 }
 
 filter_removable_dependencies_with_context() {
@@ -248,85 +292,98 @@ filter_removable_dependencies_with_context() {
   local skip_preset_checks="${4:-false}"
   local exclude_preset="${5:-}"
 
-  local -a candidates=()
-  local -a all_removing=()
+  local candidates=""
+  local all_removing=""
 
-  eval "candidates=(\"\${${_deps_to_check_name}[@]}\")"
-  eval "all_removing=(\"\${${_all_removing_name}[@]}\")"
+  eval "candidates=\"\${${_deps_to_check_name}[@]}\""
+  eval "all_removing=\"\${${_all_removing_name}[@]}\""
 
   local changed=true
 
-  while [[ "$changed" = "true" ]]; do
+  while [ "$changed" = "true" ]; do
     changed=false
-    local new_candidates=()
+    local new_candidates=""
 
-    for dep in "${candidates[@]}"; do
+    local dep
+    while IFS= read -r dep; do
       local should_keep=true
 
-      if [[ -n "$dep" ]]; then
+      if [ -n "$dep" ]; then
         if is_component_manually_installed "$dep"; then
           should_keep=false
         fi
 
-        if [[ "$should_keep" = "true" ]]; then
+        if [ "$should_keep" = "true" ]; then
           local other_dependents_raw
           other_dependents_raw=$(get_components_depending_on "$dep")
 
-          local other_dependents=()
+          local other_dependents=""
+          local item
           while IFS= read -r item; do
-            other_dependents+=("$item")
-          done < <(printf '%s\n' "$other_dependents_raw")
+            if [ -n "$item" ]; then
+              other_dependents="$other_dependents$item"$'\n'
+            fi
+          done <<<"$other_dependents_raw"
 
-          for dependent in "${other_dependents[@]}"; do
-            if [[ -n "$dependent" ]]; then
+          local dependent
+          while IFS= read -r dependent; do
+            if [ -n "$dependent" ]; then
               local in_removal_list=false
-              for removing_component in "${all_removing[@]}"; do
-                if [[ "$dependent" = "$removing_component" ]]; then
+              local removing_component
+              while IFS= read -r removing_component; do
+                if [ "$dependent" = "$removing_component" ]; then
                   in_removal_list=true
                   break
                 fi
-              done
+              done <<<"$all_removing"
 
-              if [[ "$in_removal_list" = "false" ]]; then
+              if [ "$in_removal_list" = "false" ]; then
                 should_keep=false
                 break
               fi
             fi
-          done
+          done <<<"$other_dependents"
         fi
 
-        if [[ "$should_keep" = "true" && "$skip_preset_checks" = "false" ]]; then
+        if [ "$should_keep" = "true" ] && [ "$skip_preset_checks" = "false" ]; then
           local preset_dependents_raw
           preset_dependents_raw=$(get_presets_depending_on "$dep" "$exclude_preset")
 
-          local preset_dependents=()
+          local preset_dependents=""
+          local current_preset
           while IFS= read -r current_preset; do
-            preset_dependents+=("$current_preset")
-          done < <(printf '%s\n' "$preset_dependents_raw")
+            if [ -n "$current_preset" ]; then
+              preset_dependents="$preset_dependents$current_preset"$'\n'
+            fi
+          done <<<"$preset_dependents_raw"
 
-          for current_preset in "${preset_dependents[@]}"; do
-            if [[ -n "$current_preset" ]]; then
+          local current_preset
+          while IFS= read -r current_preset; do
+            if [ -n "$current_preset" ]; then
               should_keep=false
               break
             fi
-          done
+          done <<<"$preset_dependents"
         fi
 
-        if [[ "$should_keep" = "true" ]]; then
-          new_candidates+=("$dep")
+        if [ "$should_keep" = "true" ]; then
+          new_candidates="$new_candidates$dep"$'\n'
         else
           changed=true
         fi
       fi
-    done
+    done <<<"$candidates"
 
-    candidates=("${new_candidates[@]}")
+    candidates="$new_candidates"
   done
 
-  eval "${_removable_name}=()"
-  for item in "${candidates[@]}"; do
-    eval "${_removable_name}+=(\"$item\")"
-  done
+  eval "${_removable_name}=\"\""
+  local item
+  while IFS= read -r item; do
+    if [ -n "$item" ]; then
+      eval "${_removable_name}+=\"$item \""
+    fi
+  done <<<"$candidates"
 }
 
 should_remove_dependency() {
@@ -344,24 +401,30 @@ should_remove_dependency() {
   local other_dependents_raw
   other_dependents_raw=$(get_components_depending_on "$dep_component")
 
-  local other_dependents=()
+  local other_dependents=""
+  local dep
   while IFS= read -r dep; do
-    other_dependents+=("$dep")
-  done < <(printf '%s\n' "$other_dependents_raw")
+    if [ -n "$dep" ]; then
+      other_dependents="$other_dependents$dep"$'\n'
+    fi
+  done <<<"$other_dependents_raw"
 
-  if [[ ${#other_dependents[@]} -gt 0 ]]; then
+  if [ -n "$other_dependents" ]; then
     return 1
   fi
 
   local preset_dependents_raw
   preset_dependents_raw=$(get_presets_depending_on "$dep_component" "$exclude_preset")
 
-  local preset_dependents=()
+  local preset_dependents=""
+  local current_preset
   while IFS= read -r current_preset; do
-    preset_dependents+=("$current_preset")
-  done < <(printf '%s\n' "$preset_dependents_raw")
+    if [ -n "$current_preset" ]; then
+      preset_dependents="$preset_dependents$current_preset"$'\n'
+    fi
+  done <<<"$preset_dependents_raw"
 
-  if [[ ${#preset_dependents[@]} -gt 0 ]]; then
+  if [ -n "$preset_dependents" ]; then
     return 1
   fi
 
@@ -372,33 +435,38 @@ collect_removable_dependencies_recursively() {
   local component="$1"
   local _result_array_name="$2"
 
-  local current_result_array=()
-  eval "current_result_array=(\"\${${_result_array_name}[@]}\")"
+  local current_result_array=""
+  eval "current_result_array=\"\${${_result_array_name}[@]}\""
 
   local dependencies_raw
   dependencies_raw=$(get_component_dependencies "$component")
 
-  local dependencies=()
+  local dependencies=""
+  local dep_item
   while IFS= read -r dep_item; do
-    dependencies+=("$dep_item")
-  done < <(printf '%s\n' "$dependencies_raw")
+    if [ -n "$dep_item" ]; then
+      dependencies="$dependencies$dep_item"$'\n'
+    fi
+  done <<<"$dependencies_raw"
 
-  for dep in "${dependencies[@]}"; do
-    if [[ -n "$dep" ]] && should_remove_dependency "$dep"; then
+  local dep
+  while IFS= read -r dep; do
+    if [ -n "$dep" ] && should_remove_dependency "$dep"; then
       local already_added=false
-      for existing in "${current_result_array[@]}"; do
-        if [[ "$existing" = "$dep" ]]; then
+      local existing
+      while IFS= read -r existing; do
+        if [ "$existing" = "$dep" ]; then
           already_added=true
           break
         fi
-      done
+      done <<<"$current_result_array"
 
-      if [[ "$already_added" = "false" ]]; then
-        eval "${_result_array_name}+=(\"$dep\")"
-        current_result_array+=("$dep")
+      if [ "$already_added" = "false" ]; then
+        eval "${_result_array_name}+=\"$dep \""
+        current_result_array="$current_result_array$dep"$'\n'
 
         collect_removable_dependencies_recursively "$dep" "$_result_array_name"
       fi
     fi
-  done
+  done <<<"$dependencies"
 }

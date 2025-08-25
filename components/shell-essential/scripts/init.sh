@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-if [[ -n "${_COMPONENT_SHELL_ESSENTIAL_INIT_SOURCED:-}" ]]; then
+if [ -n "${_COMPONENT_SHELL_ESSENTIAL_INIT_SOURCED:-}" ]; then
   return 0
 fi
 _COMPONENT_SHELL_ESSENTIAL_INIT_SOURCED=1
@@ -19,39 +19,106 @@ base_plugins=(
   encode64
 )
 
-command -v gh &>/dev/null && conditional_plugins+=(github gh)
-command -v ssh &>/dev/null && conditional_plugins+=(ssh)
-command -v docker &>/dev/null && conditional_plugins+=(docker docker-compose)
-command -v code &>/dev/null && conditional_plugins+=(vscode)
-command -v http &>/dev/null && conditional_plugins+=(httpie)
-command -v go &>/dev/null && conditional_plugins+=(golang)
-command -v node &>/dev/null && conditional_plugins+=(node npm)
-command -v eza &>/dev/null && conditional_plugins+=(eza)
-command -v tmux &>/dev/null && conditional_plugins+=(tmux)
-command -v brew &>/dev/null && conditional_plugins+=(brew)
-
-os_plugins=()
-if [[ "$OSTYPE" == "darwin"* ]]; then
-  os_plugins+=(macos)
+conditional_plugins=()
+if command -v gh >/dev/null 2>&1; then
+  conditional_plugins+=("github" "gh")
 fi
 
-export plugins=("${base_plugins[@]}" "${conditional_plugins[@]}" "${os_plugins[@]}")
+if command -v ssh >/dev/null 2>&1; then
+  conditional_plugins+=("ssh")
+fi
 
-if [[ -n "$ALACRITTY_LOG" ]]; then
+if command -v docker >/dev/null 2>&1; then
+  conditional_plugins+=("docker" "docker-compose")
+fi
+
+if command -v code >/dev/null 2>&1; then
+  conditional_plugins+=("vscode")
+fi
+
+if command -v http >/dev/null 2>&1; then
+  conditional_plugins+=("httpie")
+fi
+
+if command -v go >/dev/null 2>&1; then
+  conditional_plugins+=("golang")
+fi
+
+if command -v node >/dev/null 2>&1; then
+  conditional_plugins+=("node" "npm")
+fi
+
+if command -v eza >/dev/null 2>&1; then
+  conditional_plugins+=("eza")
+fi
+
+if command -v tmux >/dev/null 2>&1; then
+  conditional_plugins+=("tmux")
+fi
+
+if command -v brew >/dev/null 2>&1; then
+  conditional_plugins+=("brew")
+fi
+
+os_plugins=()
+if [ "${OSTYPE#darwin}" != "$OSTYPE" ]; then
+  os_plugins+=("macos")
+fi
+
+plugins=("${base_plugins[@]}" "${conditional_plugins[@]}" "${os_plugins[@]}")
+export plugins
+
+if [ -n "$ALACRITTY_LOG" ]; then
   export ZSH_TMUX_AUTOSTART=true
 else
   export ZSH_TMUX_AUTOSTART=false
 fi
 
-if [[ -f "$HOME/.oh-my-zsh/oh-my-zsh.sh" ]]; then
-  source "$HOME/.oh-my-zsh/oh-my-zsh.sh"
+if [ -f "$HOME/.oh-my-zsh/oh-my-zsh.sh" ]; then
+  if [ "${MEOW_DRY_RUN:-false}" = "true" ]; then
+    echo "DRY-RUN: sourcing $HOME/.oh-my-zsh/oh-my-zsh.sh"
+  else
+    source "$HOME/.oh-my-zsh/oh-my-zsh.sh"
+  fi
 fi
 
-command -v nvim >/dev/null 2>&1 && {
+if command -v nvim >/dev/null 2>&1; then
+  if [ "${MEOW_VERBOSE:-false}" = "true" ]; then
+    echo "INFO: setting vim and vi aliases to nvim"
+  fi
   alias vim='nvim'
   alias vi='nvim'
-}
+fi
 
-command -v fzf &>/dev/null && source <(fzf --zsh)
-command -v zoxide &>/dev/null && eval "$(zoxide init zsh --cmd cd)"
-command -v starship &>/dev/null && eval "$(starship init zsh)"
+if command -v fzf >/dev/null 2>&1; then
+  if [ "${MEOW_VERBOSE:-false}" = "true" ]; then
+    echo "INFO: sourcing fzf zsh completion"
+  fi
+  if [ "${MEOW_DRY_RUN:-false}" = "true" ]; then
+    echo "DRY-RUN: sourcing fzf completion"
+  else
+    source <(fzf --zsh)
+  fi
+fi
+
+if command -v zoxide >/dev/null 2>&1; then
+  if [ "${MEOW_VERBOSE:-false}" = "true" ]; then
+    echo "INFO: initializing zoxide"
+  fi
+  if [ "${MEOW_DRY_RUN:-false}" = "true" ]; then
+    echo "DRY-RUN: evaluating zoxide init command"
+  else
+    eval "$(zoxide init zsh --cmd cd)"
+  fi
+fi
+
+if command -v starship >/dev/null 2>&1; then
+  if [ "${MEOW_VERBOSE:-false}" = "true" ]; then
+    echo "INFO: initializing starship"
+  fi
+  if [ "${MEOW_DRY_RUN:-false}" = "true" ]; then
+    echo "DRY-RUN: evaluating starship init command"
+  else
+    eval "$(starship init zsh)"
+  fi
+fi

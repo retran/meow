@@ -763,11 +763,9 @@ uninstall_component() {
   local skip_preset_checks="false"
   local exclude_preset=""
 
-  local i
-  local num_args=${#all_args[@]}
-  local components_start_index=0
-
-  for ((i = num_args - 1; i >= 0; i--)); do
+  # Parse arguments left to right
+  local i=0
+  while [[ $i -lt ${#all_args[@]} ]]; do
     local current_arg="${all_args[$i]}"
     case "$current_arg" in
       "--force")
@@ -780,17 +778,11 @@ uninstall_component() {
         exclude_preset="${current_arg#--exclude-preset=}"
         ;;
       *)
-        components_start_index=$((i + 1))
-        break
+        # This is a component name
+        components+=("$current_arg")
         ;;
     esac
-    if [[ $i -eq 0 ]]; then
-      components_start_index=0
-    fi
-  done
-
-  for ((i = 0; i < components_start_index; i++)); do
-    components+=("${all_args[$i]}")
+    ((i++))
   done
 
   if [[ ${#components[@]} -eq 0 ]]; then

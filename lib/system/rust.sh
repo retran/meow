@@ -22,6 +22,7 @@ setup_rustup() {
     --success "Rust toolchain installed successfully." \
     --fail "Failed to install Rust toolchain." \
     rustup default stable; then
+    ui_error "Failed to install Rust toolchain."
     return 1
   fi
 
@@ -46,15 +47,19 @@ setup_rustup() {
 install_rust_components() {
   ui_step_header "Installing Rust components"
 
-  ui_spinner "Installing clippy component" \
+  if ! ui_spinner "Installing clippy component" \
     --success "clippy installed successfully." \
     --fail "Failed to install clippy component." \
-    rustup component add clippy || true
+    rustup component add clippy; then
+    ui_error "Failed to install clippy component."
+  fi
 
-  ui_spinner "Installing rust-analyzer component" \
+  if ! ui_spinner "Installing rust-analyzer component" \
     --success "rust-analyzer installed successfully." \
     --fail "Failed to install rust-analyzer component." \
-    rustup component add rust-analyzer || true
+    rustup component add rust-analyzer; then
+    ui_error "Failed to install rust-analyzer component."
+  fi
 
   if command -v rustfmt >/dev/null 2>&1; then
     ui_action_success "rustfmt available."

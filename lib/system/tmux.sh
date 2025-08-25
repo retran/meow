@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
-# Sourcing guard: prevents multiple executions if sourced, and ensures it's run only once.
-if [[ -n "${_LIB_SYSTEM_TMUX_SOURCED:-}" ]]; then
+if [ -n "${_LIB_SYSTEM_TMUX_SOURCED:-}" ]; then
   return 0
 fi
 _LIB_SYSTEM_TMUX_SOURCED=1
@@ -16,8 +15,13 @@ setup_tmux_plugin_manager() {
 
   ui_step_header "Setting up tmux Plugin Manager"
 
-  if [[ -d "$HOME/.tmux/plugins/tpm" ]]; then
+  if [ -d "$HOME/.tmux/plugins/tpm" ]; then
     ui_action_success "tmux Plugin Manager is already installed."
+
+    if [ "${MEOW_DRY_RUN:-}" = "true" ]; then
+      ui_info "(dry-run) Would update tmux Plugin Manager"
+      return 0
+    fi
 
     ui_spinner "Updating tmux Plugin Manager..." \
       --success "tmux Plugin Manager updated." \
@@ -25,6 +29,11 @@ setup_tmux_plugin_manager() {
       git -C "$HOME/.tmux/plugins/tpm" pull
 
     return $?
+  fi
+
+  if [ "${MEOW_DRY_RUN:-}" = "true" ]; then
+    ui_info "(dry-run) Would create directory and install tmux Plugin Manager"
+    return 0
   fi
 
   mkdir -p "$HOME/.tmux/plugins"

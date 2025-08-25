@@ -1,8 +1,7 @@
 ---
 generate:
-  defaultProvider: "gemini"
-  defaultModel: "gemini-2.5-flash"
-  defaultTimeout: "5m"
+  defaultProvider: "llama"
+  defaultLlamaBaseURL: "http://127.0.0.1:8080"
   defaultSystemPrompt: >-
     You are an expert DevOps engineer and shell scripter specializing in
     cross-platform compatibility. All scripts MUST be compatible with Bash 3.2,
@@ -12,8 +11,6 @@ generate:
 
   tasks:
     review:
-      provider: "gemini"
-      model: "gemini-2.5-pro"
       userPrompt: >-
         Perform a thorough code review of the following shell script.
 
@@ -34,8 +31,6 @@ generate:
           3) Quick wins — checklist of small fixes.
 
     commit:
-      provider: "gemini"
-      model: "gemini-2.5-pro"
       userPrompt: >-
         Generate a Conventional Commit message for the provided changes to shell
         scripts or dotfiles.
@@ -52,8 +47,6 @@ generate:
           - Optional footers
 
     doc:
-      provider: "gemini"
-      model: "gemini-2.5-flash"
       userPrompt: >-
         Write a complete header comment block for the following shell script.
         Requirements:
@@ -66,8 +59,6 @@ generate:
         Do NOT include the script's code; only the comment block.
 
     refactor:
-      provider: "gemini"
-      model: "gemini-2.5-pro"
       userPrompt: >-
         Refactor the following shell script to be strictly compatible with Bash
         3.2 while improving readability, security, and portability. Preserve its
@@ -81,16 +72,12 @@ generate:
         Prefer idiomatic patterns compatible with older Bash versions.
 
     explain:
-      provider: "gemini"
-      model: "gemini-2.5-flash"
       userPrompt: >-
         Provide a detailed, step-by-step explanation of what the following shell
         script or one-liner does. Break down complex pipelines and explain the
         purpose of each command and its specific flags.
 
     port:
-      provider: "gemini"
-      model: "gemini-2.5-pro"
       userPrompt: >-
         Analyze the given shell script for portability issues. The primary goal
         is ensuring it runs on Bash 3.2 (macOS) and modern Bash (Linux). Suggest
@@ -106,8 +93,6 @@ generate:
             often using 'uname' to detect the OS.
 
     pr:
-      provider: "gemini"
-      model: "gemini-2.5-pro"
       userPrompt: >-
         Create a clear and actionable Pull Request description from the provided
         diff for a dotfiles project. Produce Markdown in a standard PR template

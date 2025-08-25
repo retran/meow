@@ -27,7 +27,7 @@ setup_cargo() {
 
   if is_dry_run; then
     if ! command -v cargo >/dev/null 2>&1; then
-      dry_run_ui_info "Cargo not found - would fail setup."
+      dry_run_ui_info "Cargo not found - setup would fail."
     else
       dry_run_ui_info "Cargo already available, ready for package installation."
     fi
@@ -38,7 +38,7 @@ setup_cargo() {
     ui_action_error "Cargo not found. Please install Rust and Cargo."
     return 1
   fi
-  ui_action_success "Cargo available"
+  ui_action_success "Cargo is available"
 }
 
 install_cargo_packages() {

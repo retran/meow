@@ -33,10 +33,10 @@ setup_apt() {
     return 0
   fi
 
-  command -v apt-get >/dev/null 2>&1 || {
+  if ! command -v apt-get >/dev/null 2>&1; then
     ui_error "APT: 'apt-get' command not found. Cannot set up APT."
     return 1
-  }
+  fi
 
   if [ "$MEOW_VERBOSE" = "true" ]; then
     ui_spinner "APT: Updating package index" \

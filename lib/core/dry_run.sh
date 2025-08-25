@@ -3,13 +3,13 @@
 source "${MEOW}/lib/core/ui.sh"
 source "${MEOW}/lib/core/colors.sh"
 
-if [[ -n "${_LIB_CORE_DRY_RUN_SOURCED:-}" ]]; then
+if [ -n "${_LIB_CORE_DRY_RUN_SOURCED:-}" ]; then
   return 0
 fi
 _LIB_CORE_DRY_RUN_SOURCED=1
 
 is_dry_run() {
-  [[ "${MEOW_DRY_RUN:-}" = "true" ]]
+  [ "${MEOW_DRY_RUN:-}" = "true" ]
 }
 
 dry_run_command() {
@@ -41,7 +41,7 @@ dry_run_command_info() {
 dry_run_file_operation() {
   local operation="$1"
   local target="$2"
-  local source_path="${3:-}" # Renamed 'source' to 'source_path' to avoid conflict with 'source' keyword
+  local source_path="${3:-}"
 
   if is_dry_run; then
     case "$operation" in
@@ -108,7 +108,7 @@ dry_run_git_operation() {
     case "$operation" in
       "clone")
         dry_run_ui_info "$(_f "Would clone repository to: %s" "$repo_path")"
-        if [[ -n "$details" ]]; then
+        if [ -n "$details" ]; then
           dry_run_ui_info "  $(_f "Repository URL: %s" "$details")"
         fi
         ;;

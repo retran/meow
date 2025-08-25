@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-if [[ -n "${_LIB_COMPONENTS_REPOSITORY_SOURCED:-}" ]]; then
+if [ -n "${_LIB_COMPONENTS_REPOSITORY_SOURCED:-}" ]; then
   return 0
 fi
 _LIB_COMPONENTS_REPOSITORY_SOURCED=1
@@ -14,7 +14,9 @@ has_component_repository_config() {
   local component="$1"
   local component_file="${MEOW_COMPONENTS_DIR}/${component}/component.yaml"
 
-  [[ -f "$component_file" ]] || return 1
+  if [ ! -f "$component_file" ]; then
+    return 1
+  fi
   yaml_path_exists "$component_file" ".repository.url"
 }
 
@@ -33,9 +35,9 @@ get_component_repository_branch() {
   branch=$(read_yaml_value "$component_file" ".repository.branch")
   tag=$(read_yaml_value "$component_file" ".repository.tag")
 
-  if [[ -n "$tag" && "$tag" != "null" ]]; then
+  if [ -n "$tag" ] && [ "$tag" != "null" ]; then
     echo "$tag"
-  elif [[ -n "$branch" && "$branch" != "null" ]]; then
+  elif [ -n "$branch" ] && [ "$branch" != "null" ]; then
     echo "$branch"
   else
     echo "main"
@@ -43,7 +45,6 @@ get_component_repository_branch() {
 }
 
 clone_component_repository() {
-
   local component="$1"
   local installed_dir="${MEOW_DOWNLOADS_DIR}/${component}"
 
@@ -55,7 +56,7 @@ clone_component_repository() {
     return 0
   fi
 
-  if [[ -d "$installed_dir" ]]; then
+  if [ -d "$installed_dir" ]; then
     ui_step_header "$(_f "Removing existing repository for component: %s" "$component")"
     rm -rf "$installed_dir" || {
       ui_error "$(_f "Failed to remove existing repository directory: %s" "$installed_dir")"
@@ -63,7 +64,7 @@ clone_component_repository() {
     }
   fi
 
-  if [[ "$MEOW_VERBOSE" = "true" ]]; then
+  if [ "$MEOW_VERBOSE" = "true" ]; then
     ui_step_header "$(_f "Cloning repository to .downloads/%s" "$component")"
   fi
 
@@ -80,7 +81,6 @@ clone_component_repository() {
 }
 
 update_component_repository() {
-
   local component="$1"
   local installed_dir="${MEOW_DOWNLOADS_DIR}/${component}"
 
@@ -88,13 +88,13 @@ update_component_repository() {
     return 0
   fi
 
-  if [[ ! -d "$installed_dir" ]]; then
+  if [ ! -d "$installed_dir" ]; then
     ui_warning "$(_f "Repository for '%s' not found. Cloning to .downloads/%s instead." "$component" "$component")"
     clone_component_repository "$component"
     return $?
   fi
 
-  if [[ "$MEOW_VERBOSE" = "true" ]]; then
+  if [ "$MEOW_VERBOSE" = "true" ]; then
     ui_step_header "$(_f "Updating repository for component: %s" "$component")"
   fi
 
@@ -124,7 +124,9 @@ cleanup_component_repository() {
   local component="$1"
   local component_file="${MEOW_COMPONENTS_DIR}/${component}/component.yaml"
 
-  [[ -f "$component_file" ]] || return 0
+  if [ ! -f "$component_file" ]; then
+    return 0
+  fi
 
   if ! yaml_path_exists "$component_file" ".repository"; then
     return 0
@@ -133,7 +135,7 @@ cleanup_component_repository() {
   local repo_dir="${MEOW_DOWNLOADS_DIR}/${component}"
   local cleanup_successful_status=0
 
-  if [[ -d "${repo_dir}/.git" ]]; then
+  if [ -d "${repo_dir}/.git" ]; then
     ui_step_header "$(_f "Cleaning up repository for '%s'" "$component")"
 
     if is_dry_run; then

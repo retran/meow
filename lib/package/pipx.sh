@@ -22,7 +22,7 @@ setup_pipx() {
 
   if is_dry_run; then
     if ! command -v pipx >/dev/null 2>&1; then
-      dry_run_ui_info "pipx not found. Would fail setup."
+      dry_run_ui_info "pipx not found. Setup would fail."
     else
       dry_run_ui_info "pipx already available. No setup needed."
     fi

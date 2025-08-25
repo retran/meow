@@ -14,7 +14,7 @@ case "$OSTYPE" in
     ;;
 esac
 
-if ! [[ -d "/Applications/Hammerspoon.app" ]] && ! command -v hs >/dev/null 2>&1; then
+if ! [ -d "/Applications/Hammerspoon.app" ] && ! command -v hs >/dev/null 2>&1; then
   ui_warning "Hammerspoon is required for ${COMPONENT_NAME}. Please install it (e.g., via Homebrew) and ensure it's in /Applications or its 'hs' command is in your PATH. Exiting."
   exit 0
 fi

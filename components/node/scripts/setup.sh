@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-# COMPONENT_NAME is the first argument, but it's unused in this script.
-# It is kept to preserve the original argument parsing structure.
 COMPONENT_NAME="$1"
 MEOW="$2"
 
@@ -26,7 +24,6 @@ source "${MEOW}/lib/core/ui.sh"
 
 if ! command -v npm >/dev/null 2>&1; then
   ui_warning "npm command not found. Skipping Node.js configuration."
-  # Return 0 to indicate a non-fatal skip, consistent with the original script's behavior.
   return 0
 fi
 
@@ -34,14 +31,26 @@ ui_action_start "Configuring npm for global packages without sudo."
 
 npm_global_path="${NPM_CONFIG_PREFIX:-${HOME}/.npm-global}"
 
-mkdir -p "$npm_global_path" || {
-  echo "Error: Failed to create npm global installation directory: '$npm_global_path'." >&2
-  return 1
-}
+if [ "$MEOW_VERBOSE" = "true" ]; then
+  echo "Verbose: Creating npm global directory: '$npm_global_path'" >&2
+fi
 
-npm config set prefix "$npm_global_path" || {
-  echo "Error: Failed to set npm prefix to '$npm_global_path'." >&2
-  return 1
-}
+if [ "$MEOW_DRY_RUN" != "true" ]; then
+  mkdir -p "$npm_global_path" || {
+    echo "Error: Failed to create npm global installation directory: '$npm_global_path'." >&2
+    return 1
+  }
+fi
+
+if [ "$MEOW_VERBOSE" = "true" ]; then
+  echo "Verbose: Setting npm prefix to: '$npm_global_path'" >&2
+fi
+
+if [ "$MEOW_DRY_RUN" != "true" ]; then
+  npm config set prefix "$npm_global_path" || {
+    echo "Error: Failed to set npm prefix to '$npm_global_path'." >&2
+    return 1
+  }
+fi
 
 ui_action_success "NPM configured successfully."

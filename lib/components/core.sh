@@ -2,7 +2,7 @@
 
 source "${MEOW}/lib/core/ui.sh"
 
-if [[ -n "${_LIB_COMPONENTS_CORE_SOURCED:-}" ]]; then
+if [ -n "${_LIB_COMPONENTS_CORE_SOURCED:-}" ]; then
   return 0
 fi
 _LIB_COMPONENTS_CORE_SOURCED=1
@@ -17,39 +17,45 @@ source "${MEOW}/lib/core/tools.sh"
 
 is_component_installed() {
   local component="$1"
-  [[ -L "${MEOW_INSTALLED_COMPONENTS_DIR}/${component}" ]]
+  [ -L "${MEOW_INSTALLED_COMPONENTS_DIR}/${component}" ]
 }
 
 is_component_manually_installed() {
   local component="$1"
-  [[ -L "${MEOW_MANUALLY_INSTALLED_COMPONENTS_DIR}/${component}" ]]
+  [ -L "${MEOW_MANUALLY_INSTALLED_COMPONENTS_DIR}/${component}" ]
 }
 
 install_component_symlink() {
   local component="$1"
   local component_path="${MEOW_COMPONENTS_DIR}/${component}/component.yaml"
 
-  if [[ ! -f "$component_path" ]]; then
+  if [ ! -f "$component_path" ]; then
     ui_error "$(_f "Component file not found: %s" "$component_path")"
     return 1
   fi
 
   if is_dry_run; then
     dry_run_ui_info "$(_f "Would create symlink for component '%s': %s -> %s" "$component" "${MEOW_INSTALLED_COMPONENTS_DIR}/${component}" "${MEOW_COMPONENTS_DIR}/${component}")"
-    if [[ "${MEOW_COMPONENT_MANUAL_INSTALL:-}" = "true" ]]; then
+    if [ "${MEOW_COMPONENT_MANUAL_INSTALL:-}" = "true" ]; then
       dry_run_ui_info "$(_f "Would mark component '%s' as manually installed: %s -> %s" "$component" "${MEOW_MANUALLY_INSTALLED_COMPONENTS_DIR}/${component}" "${MEOW_COMPONENTS_DIR}/${component}")"
     fi
     return 0
   fi
 
-  mkdir -p "$MEOW_INSTALLED_COMPONENTS_DIR"
+  mkdir -p "$MEOW_INSTALLED_COMPONENTS_DIR" || {
+    ui_error "$(_f "Failed to create installed components directory.")"
+    return 1
+  }
   ln -s "${MEOW_COMPONENTS_DIR}/${component}" "${MEOW_INSTALLED_COMPONENTS_DIR}/${component}" || {
     ui_error "$(_f "Failed to create symlink for component '%s'." "$component")"
     return 1
   }
 
-  if [[ "${MEOW_COMPONENT_MANUAL_INSTALL:-}" = "true" ]]; then
-    mkdir -p "$MEOW_MANUALLY_INSTALLED_COMPONENTS_DIR"
+  if [ "${MEOW_COMPONENT_MANUAL_INSTALL:-}" = "true" ]; then
+    mkdir -p "$MEOW_MANUALLY_INSTALLED_COMPONENTS_DIR" || {
+      ui_error "$(_f "Failed to create manually installed components directory.")"
+      return 1
+    }
     ln -s "${MEOW_COMPONENTS_DIR}/${component}" "${MEOW_MANUALLY_INSTALLED_COMPONENTS_DIR}/${component}" || {
       ui_error "$(_f "Failed to mark component '%s' as manually installed." "$component")"
       return 1
@@ -79,7 +85,7 @@ is_component_available() {
   local component="$1"
   local component_file="${MEOW_COMPONENTS_DIR}/${component}/component.yaml"
 
-  [[ -f "$component_file" ]] || return 1
+  [ -f "$component_file" ] || return 1
 
   if yaml_path_exists "$component_file" ".platforms"; then
     local current_platform
@@ -89,13 +95,13 @@ is_component_available() {
 
     while IFS= read -r platform_name; do
       platform_name=$(echo "$platform_name" | tr -d '"')
-      if [[ -n "$platform_name" && "$platform_name" = "$current_platform" ]]; then
+      if [ -n "$platform_name" ] && [ "$platform_name" = "$current_platform" ]; then
         platform_supported=true
         break
       fi
     done < <(read_yaml_array "$component_file" ".platforms[]" 2>/dev/null)
 
-    if [[ "$platform_supported" = "false" ]]; then
+    if [ "$platform_supported" = "false" ]; then
       return 1
     fi
   fi
@@ -104,7 +110,7 @@ is_component_available() {
     local dependency_name
     while IFS= read -r dependency_name; do
       dependency_name=$(echo "$dependency_name" | tr -d '"')
-      if [[ -n "$dependency_name" ]] && ! is_component_available "$dependency_name"; then
+      if [ -n "$dependency_name" ] && ! is_component_available "$dependency_name"; then
         return 1
       fi
     done < <(read_yaml_array "$component_file" ".depends_on[]" 2>/dev/null)
@@ -117,7 +123,7 @@ list_components() {
   local show_installed_only="${1:-false}"
   local show_verbose="${2:-true}"
 
-  if [[ ! -d "$MEOW_COMPONENTS_DIR" ]]; then
+  if [ ! -d "$MEOW_COMPONENTS_DIR" ]; then
     ui_error "$(_f "Components directory not found: %s" "$MEOW_COMPONENTS_DIR")"
     return 1
   fi
@@ -136,7 +142,7 @@ list_components() {
   MEOW_COMPONENTS_DIR_BASENAME="$(basename "$MEOW_COMPONENTS_DIR")"
 
   for component in "${components_array[@]}"; do
-    if [[ "$component" = "." || "$component" = "$MEOW_COMPONENTS_DIR_BASENAME" ]]; then
+    if [ "$component" = "." ] || [ "$component" = "$MEOW_COMPONENTS_DIR_BASENAME" ]; then
       continue
     fi
 
@@ -152,7 +158,7 @@ list_components() {
       status_symbol="✓"
     fi
 
-    if [[ "$show_installed_only" = "true" && "$installed" = "false" ]]; then
+    if [ "$show_installed_only" = "true" ] && [ "$installed" = "false" ]; then
       continue
     fi
 
@@ -162,8 +168,8 @@ list_components() {
       status_symbol="✗"
     fi
 
-    if [[ "$show_verbose" = "true" ]]; then
-      if [[ "$installed" = "true" ]] && is_component_manually_installed "$component"; then
+    if [ "$show_verbose" = "true" ]; then
+      if [ "$installed" = "true" ] && is_component_manually_installed "$component"; then
         status="installed (manual)"
       fi
 
@@ -179,14 +185,14 @@ setup_component() {
   local component_source_dir="${MEOW_COMPONENTS_DIR}/${component}"
   local init_script="${component_source_dir}/scripts/setup.sh"
 
-  if [[ -f "$init_script" ]]; then
+  if [ -f "$init_script" ]; then
     _icon_msg_core "${BLUE}➤ " "$(_f "Setting up component: %s" "$component")"
 
     if dry_run_script_execution "$init_script" "setup script for $component"; then
       return 0
     fi
 
-    if [[ ! -x "$init_script" ]]; then
+    if [ ! -x "$init_script" ]; then
       chmod +x "$init_script" || {
         ui_error "$(_f "Failed to make setup script executable for '%s'." "$component")"
         return 1
@@ -200,7 +206,7 @@ setup_component() {
       return 1
     fi
   else
-    if [[ "$MEOW_VERBOSE" = "true" ]]; then
+    if [ "$MEOW_VERBOSE" = "true" ]; then
       ui_verbose_info "$(_f "No setup script found for component '%s'." "$component")"
     fi
   fi
@@ -211,8 +217,8 @@ cleanup_component() {
   local component_source_dir="${MEOW_COMPONENTS_DIR}/${component}"
   local cleanup_script="${component_source_dir}/scripts/cleanup.sh"
 
-  if [[ -f "$cleanup_script" ]]; then
-    if [[ "$MEOW_VERBOSE" = "true" ]]; then
+  if [ -f "$cleanup_script" ]; then
+    if [ "$MEOW_VERBOSE" = "true" ]; then
       _icon_msg_core "${YELLOW}➤ " "$(_f "Cleaning component: %s" "$component")"
     fi
 
@@ -220,7 +226,7 @@ cleanup_component() {
       return 0
     fi
 
-    if [[ ! -x "$cleanup_script" ]]; then
+    if [ ! -x "$cleanup_script" ]; then
       chmod +x "$cleanup_script" || {
         ui_warning "$(_f "Failed to make cleanup script executable for '%s'." "$component")"
         return 1
@@ -234,7 +240,7 @@ cleanup_component() {
       return 1
     fi
   else
-    if [[ "$MEOW_VERBOSE" = "true" ]]; then
+    if [ "$MEOW_VERBOSE" = "true" ]; then
       ui_verbose_info "$(_f "No cleanup script found for component '%s'." "$component")"
     fi
   fi

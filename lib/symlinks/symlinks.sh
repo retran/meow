@@ -7,7 +7,7 @@ source "${MEOW}/lib/core/dry_run.sh"
 source "${MEOW}/lib/package/homebrew.sh"
 source "${MEOW}/lib/package/apt.sh"
 
-if [[ -n "${_LIB_PACKAGE_SYMLINKS_SOURCED:-}" ]]; then
+if [ -n "${_LIB_PACKAGE_SYMLINKS_SOURCED:-}" ]; then
   return 0
 fi
 _LIB_PACKAGE_SYMLINKS_SOURCED=1
@@ -28,7 +28,7 @@ create_symlink() {
 
   debug "Attempting to create symlink: $expanded_target -> $expanded_source"
 
-  if [[ ! -e "$expanded_source" ]]; then
+  if [ ! -e "$expanded_source" ]; then
     if is_dry_run; then
       dry_run_ui_info "$(_f "Would skip symlink (source does not exist): %s -> %s" "$expanded_target" "$expanded_source")"
       return 0
@@ -37,7 +37,7 @@ create_symlink() {
     return 0
   fi
 
-  if [[ -L "$expanded_target" && "$(readlink "$expanded_target")" == "$expanded_source" ]]; then
+  if [ -L "$expanded_target" ] && [ "$(readlink "$expanded_target")" = "$expanded_source" ]; then
     if is_dry_run; then
       dry_run_ui_info "$(_f "Symlink already correct: %s -> %s" "$expanded_target" "$expanded_source")"
     else
@@ -47,9 +47,9 @@ create_symlink() {
   fi
 
   if is_dry_run; then
-    if [[ -L "$expanded_target" ]]; then
+    if [ -L "$expanded_target" ]; then
       dry_run_ui_info "$(_f "Would update existing symlink: %s -> %s (current target: %s)" "$expanded_target" "$expanded_source" "$(readlink "$expanded_target")")"
-    elif [[ -e "$expanded_target" ]]; then
+    elif [ -e "$expanded_target" ]; then
       dry_run_ui_info "$(_f "Would backup existing file and create symlink: %s -> %s" "$expanded_target" "$expanded_source")"
     else
       dry_run_ui_info "$(_f "Would create new symlink: %s -> %s" "$expanded_target" "$expanded_source")"
@@ -63,8 +63,8 @@ create_symlink() {
   fi
   debug "Parent directory for $expanded_target ensured."
 
-  if [[ -e "$expanded_target" || -L "$expanded_target" ]]; then
-    if [[ -L "$expanded_target" ]]; then
+  if [ -e "$expanded_target" ] || [ -L "$expanded_target" ]; then
+    if [ -L "$expanded_target" ]; then
       debug "Replacing existing symlink at $expanded_target"
       if rm "$expanded_target"; then
         debug "Removed existing symlink at $expanded_target"
@@ -109,17 +109,17 @@ setup_component_symlinks_from_file() {
     return 1
   fi
 
-  if [[ ! -f "$symlinks_file" ]]; then
+  if [ ! -f "$symlinks_file" ]; then
     ui_warning "$(_f "No symlinks file found for '%s' at %s" "$symlink_name" "$symlinks_file")"
     return 0
   fi
 
   local num_symlinks
-  num_symlinks=$(yq 'length' "$symlinks_file" 2>/dev/null) # Redirect stderr in case of yq error
+  num_symlinks=$(yq 'length' "$symlinks_file" 2>/dev/null)
 
   local is_numeric=true
   case "$num_symlinks" in
-    "" | *[!0-9]*) # Check for empty string or non-numeric characters
+    "" | *[!0-9]*)
       is_numeric=false
       ;;
   esac
@@ -137,15 +137,15 @@ setup_component_symlinks_from_file() {
     os=$(yq -r ".[$i].os // \"any\"" "$symlinks_file")
 
     local should_create=false
-    if [[ "$os" == "any" ]]; then
+    if [ "$os" = "any" ]; then
       should_create=true
-    elif [[ "$os" == "macos" && "$IS_MACOS" == "true" ]]; then
+    elif [ "$os" = "macos" ] && [ "$IS_MACOS" = "true" ]; then
       should_create=true
-    elif [[ "$os" == "linux" && "$IS_DEBIAN_BASED" == "true" ]]; then
+    elif [ "$os" = "linux" ] && [ "$IS_DEBIAN_BASED" = "true" ]; then
       should_create=true
     fi
 
-    if [[ "$should_create" == "true" ]]; then
+    if [ "$should_create" = "true" ]; then
       processed_count=$((processed_count + 1))
       if ! create_symlink "$source" "$target"; then
         failed_count=$((failed_count + 1))
@@ -155,14 +155,14 @@ setup_component_symlinks_from_file() {
     fi
   done
 
-  if [[ $processed_count -gt 0 && "$MEOW_VERBOSE" == "true" ]]; then
+  if [ "$processed_count" -gt 0 ] && [ "$MEOW_VERBOSE" = "true" ]; then
     ui_verbose_info "$(_f "(%d symlinks processed for this OS)" "$processed_count")"
   fi
 
   end_time=$(date +%s)
   duration=$((end_time - start_time))
 
-  if [[ $failed_count -eq 0 ]]; then
+  if [ "$failed_count" -eq 0 ]; then
     ui_verbose_action_success "$(_f "Symlinks for '%s' completed (%ss)" "$symlink_name" "$duration")"
     return 0
   else
@@ -180,32 +180,32 @@ debug() {
 list_backups() {
   local target_pattern="${1:-}"
 
-  if [[ -z "$target_pattern" ]]; then
+  if [ -z "$target_pattern" ]; then
     ui_info "Listing all symlink backups:"
     local found=false
     for backup_file in "$HOME"/.*.backup.*; do
-      if [[ -f "$backup_file" ]]; then
+      if [ -f "$backup_file" ]; then
         local original_file="${backup_file%.backup.*}"
         local backup_timestamp="${backup_file##*.backup.}"
         ui_info "$(_f "  %s -> %s (backed up at: %s)" "$(basename "$original_file")" "$(basename "$backup_file")" "$backup_timestamp")"
         found=true
       fi
     done
-    if [[ "$found" == "false" ]]; then
+    if [ "$found" = "false" ]; then
       ui_info "  No symlink backups found."
     fi
   else
     ui_info "$(_f "Listing backups for pattern: %s" "$target_pattern")"
     local found=false
     for backup_file in "$HOME"/*"${target_pattern}"*.backup.*; do
-      if [[ -f "$backup_file" ]]; then
+      if [ -f "$backup_file" ]; then
         local original_file="${backup_file%.backup.*}"
         local backup_timestamp="${backup_file##*.backup.}"
         ui_info "$(_f "  %s -> %s (backed up at: %s)" "$(basename "$original_file")" "$(basename "$backup_file")" "$backup_timestamp")"
         found=true
       fi
     done
-    if [[ "$found" == "false" ]]; then
+    if [ "$found" = "false" ]; then
       ui_info "$(_f "  No backups found for pattern: %s" "$target_pattern")"
     fi
   fi
@@ -214,11 +214,11 @@ list_backups() {
 restore_backup() {
   local backup_file="$1"
 
-  if [[ ! -f "$backup_file" && ! "$backup_file" = /* ]]; then
+  if [ ! -f "$backup_file" ] && [ ! "${backup_file#/}" = "$backup_file" ]; then
     backup_file="$HOME/$backup_file"
   fi
 
-  if [[ ! -f "$backup_file" ]]; then
+  if [ ! -f "$backup_file" ]; then
     ui_action_error "$(_f "Backup file not found: %s" "$backup_file")"
     return 1
   fi
@@ -231,7 +231,7 @@ restore_backup() {
     return 0
   fi
 
-  if [[ -e "$original_file" || -L "$original_file" ]]; then
+  if [ -e "$original_file" ] || [ -L "$original_file" ]; then
     ui_info "  Target location already exists, creating backup of current state."
     local current_backup
     current_backup="${original_file}.backup.$(date +%Y%m%d_%H%M%S).current"

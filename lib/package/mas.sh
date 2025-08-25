@@ -3,7 +3,7 @@
 
 source "${MEOW}/lib/core/ui.sh"
 
-if [[ -n "${_LIB_PACKAGE_MAS_SOURCED:-}" ]]; then
+if [ -n "${_LIB_PACKAGE_MAS_SOURCED:-}" ]; then
   return 0
 fi
 _LIB_PACKAGE_MAS_SOURCED=1
@@ -59,13 +59,13 @@ uninstall_mas_packages() {
 
   if is_dry_run; then
     dry_run_ui_info "Processing App Store apps for uninstallation from component '${component_name}' (dry run)."
-    if [[ -f "$package_file" ]]; then
+    if [ -f "$package_file" ]; then
       dry_run_ui_info "  App Store apps cannot be automatically uninstalled via mas CLI."
       dry_run_ui_info "  The following apps would need manual uninstallation:"
       while IFS= read -r line; do
         local package_name
         package_name=$(parse_package_line "$line")
-        if [[ -n "$package_name" ]]; then
+        if [ -n "$package_name" ]; then
           dry_run_ui_info "    - ${package_name}"
         fi
       done <"$package_file"
@@ -75,24 +75,24 @@ uninstall_mas_packages() {
     return 0
   fi
 
-  if [[ "${MEOW_VERBOSE:-}" = "true" ]]; then
+  if [ "${MEOW_VERBOSE:-}" = "true" ]; then
     ui_step_header "Uninstalling App Store apps for component '${component_name}'"
   fi
 
-  if [[ -f "$package_file" ]]; then
+  if [ -f "$package_file" ]; then
     ui_warning "App Store apps cannot be automatically uninstalled via mas CLI."
-    if [[ "${MEOW_VERBOSE:-}" = "true" ]]; then
+    if [ "${MEOW_VERBOSE:-}" = "true" ]; then
       ui_info "Please manually uninstall the following apps through Launchpad or the Applications folder:"
       while IFS= read -r line; do
         local package_name
         package_name=$(parse_package_line "$line")
-        if [[ -n "$package_name" ]]; then
+        if [ -n "$package_name" ]; then
           ui_info "  - ${package_name}"
         fi
       done <"$package_file"
     fi
   else
-    if [[ "${MEOW_VERBOSE:-}" = "true" ]]; then
+    if [ "${MEOW_VERBOSE:-}" = "true" ]; then
       ui_info "No App Store apps file found for component '${component_name}'. Nothing to uninstall."
     fi
   fi
@@ -106,7 +106,7 @@ cleanup_mas() {
     return 0
   fi
 
-  if [[ "${MEOW_VERBOSE:-}" = "true" ]]; then
+  if [ "${MEOW_VERBOSE:-}" = "true" ]; then
     ui_step_header "Cleaning App Store (no-op)"
   fi
   ui_action_success "App Store cleanup skipped (managed automatically)."

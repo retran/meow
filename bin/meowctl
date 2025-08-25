@@ -2,7 +2,7 @@
 
 MEOW="${MEOW:-$HOME/.meow}"
 
-if [[ -f "./config/env/env.sh" && -d "./presets" ]]; then
+if [ -f "./config/env/env.sh" ] && [ -d "./presets" ]; then
   MEOW="$(pwd)"
 fi
 
@@ -159,7 +159,7 @@ show_backup_help() {
 }
 
 parse_global_options() {
-  while [[ $# -gt 0 ]]; do
+  while [ $# -gt 0 ]; do
     case "$1" in
       --verbose | -v)
         export MEOW_VERBOSE="true"
@@ -188,18 +188,18 @@ parse_global_options() {
 validate_preset_name() {
   local preset="$1"
 
-  if [[ -z "$preset" ]]; then
+  if [ -z "$preset" ]; then
     ui_error "Preset name cannot be empty"
     return 1
   fi
 
-  if [[ ! "$preset" =~ ^[a-zA-Z0-9_-]+$ ]]; then
+  if ! echo "$preset" | grep -qE '^[a-zA-Z0-9_-]+$'; then
     ui_error "Invalid preset name '$preset'. Use only alphanumeric characters, underscores, and dashes."
     return 1
   fi
 
   local preset_file="${MEOW}/presets/${preset}/preset.yaml"
-  if [[ ! -f "$preset_file" ]]; then
+  if [ ! -f "$preset_file" ]; then
     ui_error "Preset '$preset' not found"
     return 1
   fi
@@ -210,12 +210,12 @@ validate_preset_name() {
 validate_component_name() {
   local component="$1"
 
-  if [[ -z "$component" ]]; then
+  if [ -z "$component" ]; then
     ui_error "Component name cannot be empty"
     return 1
   fi
 
-  if [[ ! "$component" =~ ^[a-zA-Z0-9_-]+$ ]]; then
+  if ! echo "$component" | grep -qE '^[a-zA-Z0-9_-]+$'; then
     ui_error "Invalid component name '$component'. Use only alphanumeric characters, underscores, and dashes."
     return 1
   fi
@@ -256,7 +256,7 @@ cmd_component() {
   case "$subcommand" in
     list)
       local show_simple="false"
-      while [[ $# -gt 0 ]]; do
+      while [ $# -gt 0 ]; do
         case "$1" in
           --names-only)
             show_simple="true"
@@ -273,16 +273,15 @@ cmd_component() {
         esac
       done
 
-      if [[ "$show_simple" == "true" ]]; then
+      if [ "$show_simple" = "true" ]; then
         list_components false false # show_installed_only=false, show_verbose=false
       else
         list_components false true # show_installed_only=false, show_verbose=true
       fi
       ;;
     install)
-      # Parse verbose flag if it appears after subcommand
       local install_args=()
-      while [[ $# -gt 0 ]]; do
+      while [ $# -gt 0 ]; do
         case "$1" in
           --verbose | -v)
             export MEOW_VERBOSE="true"
@@ -299,7 +298,7 @@ cmd_component() {
         esac
       done
 
-      if [[ ${#install_args[@]} -eq 0 ]]; then
+      if [ ${#install_args[@]} -eq 0 ]; then
         ui_error "No components specified for install command"
         exit 1
       fi
@@ -319,7 +318,7 @@ cmd_component() {
       local install_result=0
       install_component --manual "${install_args[@]}" || install_result=$?
 
-      if [[ $install_result -eq 0 ]]; then
+      if [ "$install_result" -eq 0 ]; then
         show_final_summary "Component installation" "${install_args[*]}" "true" "$start_time"
         exit 0
       else
@@ -331,8 +330,7 @@ cmd_component() {
       local force_flag=""
       local component=""
 
-      # Parse arguments
-      while [[ $# -gt 0 ]]; do
+      while [ $# -gt 0 ]; do
         case "$1" in
           --verbose | -v)
             export MEOW_VERBOSE="true"
@@ -347,7 +345,7 @@ cmd_component() {
             shift
             ;;
           *)
-            if [[ -z "$component" ]]; then
+            if [ -z "$component" ]; then
               component="$1"
             else
               ui_error "Too many arguments for component uninstall command"
@@ -358,7 +356,7 @@ cmd_component() {
         esac
       done
 
-      if [[ -z "$component" ]]; then
+      if [ -z "$component" ]; then
         ui_error "No component specified for uninstall command"
         exit 1
       fi
@@ -372,18 +370,27 @@ cmd_component() {
       local start_time
       start_time=$(date +%s)
 
-      if uninstall_component "$component" $force_flag; then
-        show_final_summary "Component uninstall" "$component" "true" "$start_time"
-        exit 0
+      if [ -n "$force_flag" ]; then
+        if uninstall_component "$component" "$force_flag"; then
+          show_final_summary "Component uninstall" "$component" "true" "$start_time"
+          exit 0
+        else
+          show_final_summary "Component uninstall" "$component" "false" "$start_time"
+          exit 1
+        fi
       else
-        show_final_summary "Component uninstall" "$component" "false" "$start_time"
-        exit 1
+        if uninstall_component "$component"; then
+          show_final_summary "Component uninstall" "$component" "true" "$start_time"
+          exit 0
+        else
+          show_final_summary "Component uninstall" "$component" "false" "$start_time"
+          exit 1
+        fi
       fi
       ;;
     update)
-      # Parse verbose flag if it appears after subcommand
       local update_args=()
-      while [[ $# -gt 0 ]]; do
+      while [ $# -gt 0 ]; do
         case "$1" in
           --verbose | -v)
             export MEOW_VERBOSE="true"
@@ -400,7 +407,7 @@ cmd_component() {
         esac
       done
 
-      if [[ ${#update_args[@]} -eq 0 ]]; then
+      if [ ${#update_args[@]} -eq 0 ]; then
         ui_error "No components specified for update command"
         exit 1
       fi
@@ -436,7 +443,7 @@ cmd_component() {
 cmd_install() {
   local preset=""
 
-  while [[ $# -gt 0 ]]; do
+  while [ $# -gt 0 ]; do
     case "$1" in
       --verbose | -v)
         export MEOW_VERBOSE="true"
@@ -455,7 +462,7 @@ cmd_install() {
         exit 1
         ;;
       *)
-        if [[ -z "$preset" ]]; then
+        if [ -z "$preset" ]; then
           preset="$1"
         else
           ui_error "Too many arguments for install command"
@@ -466,7 +473,7 @@ cmd_install() {
     esac
   done
 
-  if [[ -z "$preset" ]]; then
+  if [ -z "$preset" ]; then
     ui_error "No preset specified"
     show_install_help
     exit 1
@@ -491,7 +498,7 @@ cmd_uninstall() {
   local preset=""
   local force_flag=""
 
-  while [[ $# -gt 0 ]]; do
+  while [ $# -gt 0 ]; do
     case "$1" in
       --verbose | -v)
         export MEOW_VERBOSE="true"
@@ -514,7 +521,7 @@ cmd_uninstall() {
         exit 1
         ;;
       *)
-        if [[ -z "$preset" ]]; then
+        if [ -z "$preset" ]; then
           preset="$1"
         else
           ui_error "Too many arguments for uninstall command"
@@ -525,7 +532,7 @@ cmd_uninstall() {
     esac
   done
 
-  if [[ -z "$preset" ]]; then
+  if [ -z "$preset" ]; then
     ui_error "No preset specified"
     show_uninstall_help
     exit 1
@@ -538,7 +545,7 @@ cmd_uninstall() {
   start_time=$(date +%s)
 
   local uninstall_success=true
-  if [[ "$preset" == "all" ]]; then
+  if [ "$preset" = "all" ]; then
     if ! uninstall_all; then
       uninstall_success=false
     fi
@@ -549,7 +556,11 @@ cmd_uninstall() {
   fi
 
   show_final_summary "Uninstall" "$preset" "$uninstall_success" "$start_time"
-  [[ "$uninstall_success" == "true" ]] && exit 0 || exit 1
+  if [ "$uninstall_success" = "true" ]; then
+    exit 0
+  else
+    exit 1
+  fi
 }
 
 cmd_list() {
@@ -562,9 +573,7 @@ cmd_list() {
       ui_error "Unknown list option: $1"
       exit 1
       ;;
-    "")
-      # No arguments, list presets
-      ;;
+    "") ;;
     *)
       ui_error "Too many arguments for list command"
       exit 1
@@ -580,7 +589,7 @@ cmd_update() {
   local pull=false
   local extra_args=()
 
-  while [[ $# -gt 0 ]]; do
+  while [ $# -gt 0 ]; do
     case "$1" in
       --verbose | -v)
         export MEOW_VERBOSE="true"
@@ -595,7 +604,7 @@ cmd_update() {
         exit 0
         ;;
       --pull)
-        if [[ "$pull" == true ]]; then
+        if [ "$pull" = true ]; then
           ui_warning "Multiple --pull flags specified, ignoring duplicates"
         fi
         pull=true
@@ -606,7 +615,7 @@ cmd_update() {
         exit 1
         ;;
       *)
-        if [[ -z "$preset" ]]; then
+        if [ -z "$preset" ]; then
           preset="$1"
         else
           extra_args+=("$1")
@@ -616,18 +625,18 @@ cmd_update() {
     esac
   done
 
-  if [[ ${#extra_args[@]} -gt 0 ]]; then
+  if [ ${#extra_args[@]} -gt 0 ]; then
     ui_error "Too many arguments for update command: ${extra_args[*]}"
     exit 1
   fi
 
-  if [[ -n "$preset" && "$preset" != "all" ]] && ! validate_preset_name "$preset"; then
+  if [ -n "$preset" ] && [ "$preset" != "all" ] && ! validate_preset_name "$preset"; then
     exit 1
   fi
 
   reset_summary_counters
 
-  if [[ "$pull" == true ]]; then
+  if [ "$pull" = true ]; then
     step_header "Updating meow repository"
 
     if ! git -C "$MEOW" rev-parse --git-dir >/dev/null 2>&1; then
@@ -641,9 +650,7 @@ cmd_update() {
       ui_warning "Consider committing or stashing them before updating"
     fi
 
-    # Handle dry-run mode for git pull
     if dry_run_git_operation "pull" "$MEOW"; then
-      # In dry-run mode, just continue
       :
     else
       ui_spinner "Updating meow repository" \
@@ -651,7 +658,7 @@ cmd_update() {
         --fail "Failed to update repository" \
         git -C "$MEOW" pull
 
-      if [[ $? -ne 0 ]]; then
+      if [ $? -ne 0 ]; then
         ui_error "You may need to resolve merge conflicts manually"
         show_final_summary "Update" "$preset" "false"
         exit 1
@@ -662,11 +669,11 @@ cmd_update() {
   source "${MEOW}/lib/presets/presets.sh"
 
   local update_success=true
-  if [[ -n "$preset" && "$preset" != "all" ]]; then
+  if [ -n "$preset" ] && [ "$preset" != "all" ]; then
     if ! update_preset "$preset"; then
       update_success=false
     fi
-  elif [[ "$preset" == "all" ]]; then
+  elif [ "$preset" = "all" ]; then
     if ! update_all_installed_components; then
       update_success=false
     fi
@@ -677,7 +684,11 @@ cmd_update() {
   fi
 
   show_final_summary "Update" "$preset" "$update_success"
-  [[ "$update_success" == "true" ]] && exit 0 || exit 1
+  if [ "$update_success" = "true" ]; then
+    exit 0
+  else
+    exit 1
+  fi
 }
 
 cmd_backup() {
@@ -712,9 +723,8 @@ cmd_backup() {
 
   case "$subcommand" in
     list)
-      # Parse verbose flag if it appears after subcommand
       local list_args=()
-      while [[ $# -gt 0 ]]; do
+      while [ $# -gt 0 ]; do
         case "$1" in
           --verbose | -v)
             export MEOW_VERBOSE="true"
@@ -731,7 +741,7 @@ cmd_backup() {
         esac
       done
 
-      if [[ ${#list_args[@]} -gt 1 ]]; then
+      if [ ${#list_args[@]} -gt 1 ]; then
         ui_error "Too many arguments for backup list command"
         exit 1
       fi
@@ -740,9 +750,8 @@ cmd_backup() {
       list_backups "$pattern"
       ;;
     restore)
-      # Parse verbose flag if it appears after subcommand
       local restore_args=()
-      while [[ $# -gt 0 ]]; do
+      while [ $# -gt 0 ]; do
         case "$1" in
           --verbose | -v)
             export MEOW_VERBOSE="true"
@@ -759,11 +768,11 @@ cmd_backup() {
         esac
       done
 
-      if [[ ${#restore_args[@]} -eq 0 ]]; then
+      if [ ${#restore_args[@]} -eq 0 ]; then
         ui_error "No backup file specified for restore command"
         exit 1
       fi
-      if [[ ${#restore_args[@]} -gt 1 ]]; then
+      if [ ${#restore_args[@]} -gt 1 ]; then
         ui_error "Too many arguments for backup restore command"
         exit 1
       fi
@@ -818,29 +827,41 @@ cmd_help() {
 main() {
   warn_bash_compatibility 0
 
-  local remaining_args
-  remaining_args=$(parse_global_options "$@")
-
-  if [[ "$remaining_args" == "help" ]]; then
-    show_main_help
-    exit 0
-  fi
-
-  set -- $remaining_args
+  # Handle global options and shift them away
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      --verbose | -v)
+        export MEOW_VERBOSE="true"
+        shift
+        ;;
+      --dry-run)
+        export MEOW_DRY_RUN="true"
+        ui_warning "DRY-RUN MODE: No actual changes will be made"
+        shift
+        ;;
+      --help | -h)
+        show_main_help
+        exit 0
+        ;;
+      --*)
+        ui_error "Unknown global option: $1"
+        exit 1
+        ;;
+      *)
+        # Stop parsing global options and break the loop
+        break
+        ;;
+    esac
+  done
 
   local command="${1:-}"
 
-  if [[ -z "$command" ]]; then
+  if [ -z "$command" ]; then
     show_main_help
     exit 0
   fi
 
-  # Show dry-run notice if enabled
-  if [[ "${MEOW_DRY_RUN:-}" == "true" ]]; then
-    ui_warning "DRY-RUN MODE: No actual changes will be made"
-  fi
-
-  shift
+  shift # Shift the command itself
 
   case "$command" in
     install)

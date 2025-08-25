@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-if [[ -n "${_MEOW_CORE_ENV_SOURCED:-}" ]]; then
+if [ -n "${_MEOW_CORE_ENV_SOURCED:-}" ]; then
   return 0
 fi
 _MEOW_CORE_ENV_SOURCED=1
@@ -19,7 +19,7 @@ _meow_set_if_command_exists() {
 
 export MEOW="${MEOW:-${HOME}/.meow}"
 
-if [[ -f "./config/env/env.sh" && -d "./presets" ]]; then
+if [ -f "./config/env/env.sh" ] && [ -d "./presets" ]; then
   MEOW="$(pwd)"
   export MEOW
 fi
@@ -33,7 +33,7 @@ export LANG="en_US.UTF-8"
 export LC_ALL="en_US.UTF-8"
 
 _meow_set_if_command_exists "EDITOR" "nvim" "vim" "nano"
-if [[ -n "${EDITOR:-}" ]]; then
+if [ -n "${EDITOR:-}" ]; then
   export VISUAL="$EDITOR"
 fi
 
@@ -41,28 +41,33 @@ _meow_set_if_command_exists "PAGER" "less" "more"
 
 export PATH="$HOME/.local/bin:$PATH"
 
-if [[ "$(uname -s)" == "Darwin" ]]; then
+if [ "$(uname -s)" = "Darwin" ]; then
   export HOMEBREW_PREFIX="/opt/homebrew"
   export HOMEBREW_NO_ANALYTICS=1
   export HOMEBREW_NO_AUTO_UPDATE=1
   export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
 fi
 
-if [[ -f "$HOME/.secrets" ]]; then
+if [ -f "$HOME/.secrets" ]; then
   # shellcheck source=/dev/null
   source "$HOME/.secrets"
 fi
 
 _meow_source_component_env_scripts() {
-  if [[ -d "${MEOW}/.installed/components" ]]; then
+  if [ -d "${MEOW}/.installed/components" ]; then
+    local component_link
+    local component_name
+    local env_script
+
     for component_link in "${MEOW}/.installed/components"/*; do
-      [[ -L "$component_link" ]] || continue
+      if [ ! -L "$component_link" ]; then
+        continue
+      fi
 
-      # shellcheck disable=SC2155
-      local component_name=$(basename "$component_link")
+      component_name=$(basename "$component_link")
 
-      local env_script="${MEOW}/components/${component_name}/scripts/env.sh"
-      if [[ -f "$env_script" ]]; then
+      env_script="${MEOW}/components/${component_name}/scripts/env.sh"
+      if [ -f "$env_script" ]; then
         # shellcheck source=/dev/null
         source "$env_script"
       fi

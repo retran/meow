@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-if [[ -n "${_LIB_PACKAGE_NPM_SOURCED:-}" ]]; then
+if [ -n "${_LIB_PACKAGE_NPM_SOURCED:-}" ]; then
   return 0
 fi
 _LIB_PACKAGE_NPM_SOURCED=1

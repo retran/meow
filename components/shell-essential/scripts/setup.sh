@@ -11,14 +11,22 @@ source "${MEOW}/lib/system/zsh.sh"
 source "${MEOW}/lib/system/zsh_plugins.sh"
 source "${MEOW}/lib/core/ui.sh"
 
+if [ "$MEOW_VERBOSE" = "true" ]; then
+  ui_info "Installing zsh plugins"
+fi
+
 install_zsh_plugins
 
 if command -v tmux >/dev/null 2>&1; then
-  ui_info "Configuring tmux"
+  if [ "$MEOW_VERBOSE" = "true" ]; then
+    ui_info "Configuring tmux"
+  fi
   configure_tmux || true
 fi
 
 if command -v zsh >/dev/null 2>&1; then
-  ui_info "Configuring zsh"
+  if [ "$MEOW_VERBOSE" = "true" ]; then
+    ui_info "Configuring zsh"
+  fi
   configure_zsh || true
 fi

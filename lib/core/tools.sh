@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-if [[ -n "${_LIB_CORE_TOOLS_SOURCED:-}" ]]; then
+if [ -n "${_LIB_CORE_TOOLS_SOURCED:-}" ]; then
   return 0
 fi
 _LIB_CORE_TOOLS_SOURCED=1
@@ -15,7 +15,7 @@ ensure_yq() {
     local actual_version
     actual_version=$(yq --version 2>/dev/null | awk '{print $4}')
 
-    if [[ "$actual_version" = "$YQ_VERSION" ]]; then
+    if [ "$actual_version" = "$YQ_VERSION" ]; then
       ui_verbose_info "$(_f "⇒ yq %s is already installed and matches the required version." "$YQ_VERSION")"
       return 0
     fi

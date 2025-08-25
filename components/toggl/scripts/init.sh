@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-if [[ -n "${_COMPONENT_TOGGL_INIT_SOURCED:-}" ]]; then
-  return 0
+if [ -n "${_COMPONENT_TOGGL_INIT_SOURCED:-}" ]; then
+  exit 0
 fi
 _COMPONENT_TOGGL_INIT_SOURCED=1
 

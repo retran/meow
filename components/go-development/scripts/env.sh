@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-if [[ -n "${_COMPONENT_GO_DEVELOPMENT_ENV_SOURCED:-}" ]]; then
+if [ -n "${_COMPONENT_GO_DEVELOPMENT_ENV_SOURCED:-}" ]; then
   return 0
 fi
 _COMPONENT_GO_DEVELOPMENT_ENV_SOURCED=1

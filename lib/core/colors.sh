@@ -5,7 +5,9 @@ if [ -n "${_LIB_CORE_COLORS_SOURCED:-}" ]; then
 fi
 _LIB_CORE_COLORS_SOURCED=1
 
+# Check if stdout is a terminal
 if [ -t 1 ]; then
+  # Determine color support
   if [ "${COLORTERM:-}" = "truecolor" ] || [ "${COLORTERM:-}" = "24bit" ]; then
     NORMAL="\033[38;2;192;202;245m"
     RED="\033[38;2;247;118;142m"
@@ -26,10 +28,12 @@ if [ -t 1 ]; then
     ORANGE="$(tput setaf 215)"
   fi
 
+  # Bold variants
   WHITE_BOLD="$(tput bold)${NORMAL}"
   MAGENTA_BOLD="$(tput bold)${MAGENTA}"
   CYAN_BOLD="$(tput bold)${CYAN}"
 
+  # Semantic colors
   PRIMARY="${BLUE}"
   SECONDARY="${CYAN}"
   ACCENT="${ORANGE}"
@@ -48,9 +52,11 @@ if [ -t 1 ]; then
   BULLET="${YELLOW}"
   ART="${WHITE_BOLD}"
 
+  # Formatting
   BOLD="$(tput bold)"
   RESET="$(tput sgr0)"
 else
+  # Non-color environment
   NORMAL=""
   RED=""
   GREEN=""

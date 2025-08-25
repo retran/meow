@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-if [[ -n "${_COMPONENT_CORE_DEVELOPMENT_INIT_SOURCED:-}" ]]; then
-  return 0
+if [ -n "${_COMPONENT_CORE_DEVELOPMENT_INIT_SOURCED:-}" ]; then
+  exit 0
 fi
 _COMPONENT_CORE_DEVELOPMENT_INIT_SOURCED=1
 

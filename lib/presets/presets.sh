@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-if [[ -n "${_LIB_PACKAGE_PRESET_SYSTEM_SOURCED:-}" ]]; then
+if [ -n "${_LIB_PACKAGE_PRESET_SYSTEM_SOURCED:-}" ]; then
   return 0
 fi
 _LIB_PACKAGE_PRESET_SYSTEM_SOURCED=1
@@ -15,7 +15,7 @@ source "${MEOW}/lib/components/components.sh"
 
 is_preset_installed() {
   local preset="$1"
-  [[ -L "${MEOW_INSTALLED_PRESETS_DIR}/${preset}" ]]
+  [ -L "${MEOW_INSTALLED_PRESETS_DIR}/${preset}" ]
 }
 
 is_preset_available() {
@@ -23,34 +23,34 @@ is_preset_available() {
   local preset_file
   preset_file=$(get_preset_file "$preset")
 
-  [[ -f "$preset_file" ]] || return 1
+  [ -f "$preset_file" ] || return 1
 
   local platforms_str
   platforms_str=$(yq eval '.platforms[]?' "$preset_file" 2>/dev/null)
 
-  if [[ -n "$platforms_str" && "$platforms_str" != "null" ]]; then
+  if [ -n "$platforms_str" ] && [ "$platforms_str" != "null" ]; then
     local current_platform=""
-    if [[ "$IS_MACOS" = "true" ]]; then
+    if [ "$IS_MACOS" = "true" ]; then
       current_platform="macos"
-    elif [[ "$IS_DEBIAN_BASED" = "true" ]]; then
+    elif [ "$IS_DEBIAN_BASED" = "true" ]; then
       current_platform="linux"
-    elif [[ "$IS_ALPINE" = "true" ]]; then
+    elif [ "$IS_ALPINE" = "true" ]; then
       current_platform="linux"
-    elif [[ "$IS_ARCH" = "true" ]]; then
+    elif [ "$IS_ARCH" = "true" ]; then
       current_platform="linux"
     fi
 
-    if [[ -n "$current_platform" ]]; then
+    if [ -n "$current_platform" ]; then
       local platform_supported=false
       while IFS= read -r platform; do
-        [[ -n "$platform" && "$platform" != "null" ]] || continue
-        if [[ "$platform" = "$current_platform" ]]; then
+        [ -n "$platform" ] && [ "$platform" != "null" ] || continue
+        if [ "$platform" = "$current_platform" ]; then
           platform_supported=true
           break
         fi
       done < <(printf '%s\n' "$platforms_str")
 
-      [[ "$platform_supported" = "true" ]] || return 1
+      [ "$platform_supported" = "true" ] || return 1
     fi
   fi
 
@@ -67,7 +67,7 @@ get_preset_required_components() {
   local preset_file
   preset_file=$(get_preset_file "$preset")
 
-  if [[ ! -f "$preset_file" ]]; then
+  if [ ! -f "$preset_file" ]; then
     return 1
   fi
 
@@ -81,9 +81,9 @@ collect_preset_components_for_installation() {
   all_preset_components_str=$(get_preset_required_components "$preset")
 
   local preset_required_array=()
-  if [[ -n "$all_preset_components_str" ]]; then
+  if [ -n "$all_preset_components_str" ]; then
     while IFS= read -r component; do
-      [[ -z "$component" ]] && continue
+      [ -z "$component" ] && continue
       preset_required_array+=("$component")
     done <<<"$all_preset_components_str"
   fi
@@ -93,24 +93,24 @@ collect_preset_components_for_installation() {
 
   for component_name in "${preset_required_array[@]}"; do
     deps_output=$(collect_all_dependencies_for_installation "$component_name")
-    if [[ -n "$deps_output" ]]; then
+    if [ -n "$deps_output" ]; then
       while IFS= read -r dep_comp; do
-        [[ -z "$dep_comp" ]] && continue
+        [ -z "$dep_comp" ] && continue
         local already_in_list=false
         for existing_comp in "${collected_unique_components[@]}"; do
-          if [[ "$existing_comp" = "$dep_comp" ]]; then
+          if [ "$existing_comp" = "$dep_comp" ]; then
             already_in_list=true
             break
           fi
         done
-        if [[ "$already_in_list" = "false" ]]; then
+        if [ "$already_in_list" = "false" ]; then
           collected_unique_components+=("$dep_comp")
         fi
       done <<<"$deps_output"
     fi
   done
 
-  if [[ ${#collected_unique_components[@]} -gt 0 ]]; then
+  if [ ${#collected_unique_components[@]} -gt 0 ]; then
     topological_sort_for_installation "${collected_unique_components[@]}"
   fi
 }
@@ -121,7 +121,7 @@ install_preset() {
   local preset_file
   preset_file=$(get_preset_file "$preset")
 
-  if [[ ! -f "$preset_file" ]]; then
+  if [ ! -f "$preset_file" ]; then
     ui_error "$(_f "Preset '%s' not found." "$preset")"
     return 1
   fi
@@ -142,22 +142,22 @@ install_preset() {
   installation_order_str=$(collect_preset_components_for_installation "$preset")
 
   local installation_order=()
-  if [[ -n "$installation_order_str" ]]; then
+  if [ -n "$installation_order_str" ]; then
     while IFS= read -r comp; do
       installation_order+=("$comp")
     done <<<"$installation_order_str"
   fi
 
-  if [[ ${#installation_order[@]} -eq 0 ]]; then
+  if [ ${#installation_order[@]} -eq 0 ]; then
     ui_info "No components to install for this preset."
   else
     local preset_components_str
     preset_components_str=$(get_preset_required_components "$preset")
     local preset_components_array=()
 
-    if [[ -n "$preset_components_str" ]]; then
+    if [ -n "$preset_components_str" ]; then
       while IFS= read -r component; do
-        [[ -z "$component" ]] && continue
+        [ -z "$component" ] && continue
         preset_components_array+=("$component")
       done <<<"$preset_components_str"
     fi
@@ -170,10 +170,10 @@ install_preset() {
     done
 
     ui_action_start "$(_f "Preparing to install %d preset components with dependencies." "${#preset_components_array[@]}")"
-    if [[ ${#components_to_install[@]} -gt 0 ]]; then
+    if [ ${#components_to_install[@]} -gt 0 ]; then
       ui_indent "$(_f "Total components to install: %d" "${#components_to_install[@]}")"
 
-      if [[ "$MEOW_VERBOSE" = "true" ]]; then
+      if [ "$MEOW_VERBOSE" = "true" ]; then
         ui_step_header "Installation order:"
         for comp in "${installation_order[@]}"; do
           local status=""
@@ -183,13 +183,13 @@ install_preset() {
 
           local is_preset_component=false
           for preset_comp in "${preset_components_array[@]}"; do
-            if [[ "$preset_comp" = "$comp" ]]; then
+            if [ "$preset_comp" = "$comp" ]; then
               is_preset_component=true
               break
             fi
           done
 
-          if [[ "$is_preset_component" = "true" ]]; then
+          if [ "$is_preset_component" = "true" ]; then
             ui_verbose_info "  ➤ %s (preset component)%s" "$comp" "$status"
           else
             ui_verbose_info "  ↪ %s (dependency)%s" "$comp" "$status"
@@ -201,20 +201,20 @@ install_preset() {
         for comp in "${components_to_install[@]}"; do
           local is_preset_component=false
           for preset_comp in "${preset_components_array[@]}"; do
-            if [[ "$preset_comp" = "$comp" ]]; then
+            if [ "$preset_comp" = "$comp" ]; then
               is_preset_component=true
               break
             fi
           done
 
-          if [[ "$is_preset_component" = "true" ]]; then
-            if [[ -z "$preset_comp_list" ]]; then
+          if [ "$is_preset_component" = "true" ]; then
+            if [ -z "$preset_comp_list" ]; then
               preset_comp_list="$comp"
             else
               preset_comp_list="$preset_comp_list, $comp"
             fi
           else
-            if [[ -z "$deps_list" ]]; then
+            if [ -z "$deps_list" ]; then
               deps_list="$comp"
             else
               deps_list="$deps_list, $comp"
@@ -222,10 +222,10 @@ install_preset() {
           fi
         done
 
-        if [[ -n "$preset_comp_list" ]]; then
+        if [ -n "$preset_comp_list" ]; then
           ui_indent "$(_f "Preset components: %s" "$preset_comp_list")"
         fi
-        if [[ -n "$deps_list" ]]; then
+        if [ -n "$deps_list" ]; then
           ui_indent "$(_f "Dependencies: %s" "$deps_list")"
         fi
       fi
@@ -252,7 +252,7 @@ install_preset() {
     _finalize_session
     unset MEOW_INSTALLING_COMPONENTS
 
-    if [[ "$install_success" != "true" ]]; then
+    if [ "$install_success" != "true" ]; then
       ui_error "$(_f "Failed to install all required components for preset '%s'." "$preset")"
       return 1
     fi
@@ -284,10 +284,10 @@ update_preset() {
   local required_components_str
   required_components_str=$(get_preset_required_components "$preset")
 
-  if [[ -n "$required_components_str" ]]; then
+  if [ -n "$required_components_str" ]; then
     local components_to_update=()
     while IFS= read -r component; do
-      [[ -z "$component" ]] && continue
+      [ -z "$component" ] && continue
       if is_component_installed "$component"; then
         components_to_update+=("$component")
       else
@@ -295,7 +295,7 @@ update_preset() {
       fi
     done <<<"$required_components_str"
 
-    if [[ ${#components_to_update[@]} -gt 0 ]]; then
+    if [ ${#components_to_update[@]} -gt 0 ]; then
       ui_info "$(_f "Updating %d installed components: %s" "${#components_to_update[@]}" "$(printf '%s ' "${components_to_update[@]}")")"
       update_component "${components_to_update[@]}"
     else
@@ -312,12 +312,12 @@ update_preset() {
 get_all_installed_components() {
   local components_dir="${MEOW_INSTALLED_COMPONENTS_DIR}"
 
-  if [[ ! -d "$components_dir" ]]; then
+  if [ ! -d "$components_dir" ]; then
     return 0
   fi
 
   for component_symlink in "$components_dir"/*; do
-    [[ -L "$component_symlink" ]] || continue
+    [ -L "$component_symlink" ] || continue
     basename "$component_symlink"
   done
 }
@@ -327,13 +327,13 @@ update_all_installed_components() {
   components_str=$(get_all_installed_components)
 
   local components=()
-  if [[ -n "$components_str" ]]; then
+  if [ -n "$components_str" ]; then
     while IFS= read -r comp; do
       components+=("$comp")
     done <<<"$components_str"
   fi
 
-  if [[ ${#components[@]} -eq 0 ]]; then
+  if [ ${#components[@]} -eq 0 ]; then
     ui_info "No components are currently installed."
     return 0
   fi
@@ -350,13 +350,13 @@ list_presets() {
   ui_header "Available Presets"
 
   for preset_dir in "${MEOW_PRESETS_DIR}"/*; do
-    [[ ! -d "$preset_dir" ]] && continue
+    [ ! -d "$preset_dir" ] && continue
 
     local preset_name
     preset_name=$(basename "$preset_dir")
     local preset_file="${preset_dir}/preset.yaml"
 
-    if [[ -f "$preset_file" ]]; then
+    if [ -f "$preset_file" ]; then
       local description
       description=$(yq eval '.description // ""' "$preset_file" 2>/dev/null)
 
@@ -389,7 +389,7 @@ uninstall_preset() {
   local preset_file
   preset_file=$(get_preset_file "$preset")
 
-  if [[ ! -f "$preset_file" ]]; then
+  if [ ! -f "$preset_file" ]; then
     ui_error "$(_f "Preset '%s' not found." "$preset")"
     return 1
   fi
@@ -400,16 +400,16 @@ uninstall_preset() {
   preset_components_str=$(get_preset_required_components "$preset")
   local preset_components_array=()
 
-  if [[ -n "$preset_components_str" ]]; then
+  if [ -n "$preset_components_str" ]; then
     while IFS= read -r component; do
-      [[ -z "$component" ]] && continue
+      [ -z "$component" ] && continue
       if is_component_installed "$component"; then
         preset_components_array+=("$component")
       fi
     done <<<"$preset_components_str"
   fi
 
-  if [[ ${#preset_components_array[@]} -eq 0 ]]; then
+  if [ ${#preset_components_array[@]} -eq 0 ]; then
     ui_info "$(_f "No installed components to uninstall for preset '%s'." "$preset")"
   else
     local preset_name="$preset"
@@ -418,15 +418,15 @@ uninstall_preset() {
     multiple_uninstall_order_str=$(collect_multiple_components_for_uninstall "${preset_components_array[@]}" --filter-source --exclude-preset="$preset_name")
 
     local multiple_uninstall_order=()
-    if [[ -n "$multiple_uninstall_order_str" ]]; then
+    if [ -n "$multiple_uninstall_order_str" ]; then
       while IFS= read -r comp; do
         multiple_uninstall_order+=("$comp")
       done <<<"$multiple_uninstall_order_str"
     fi
 
-    if [[ ${#multiple_uninstall_order[@]} -gt 0 ]]; then
+    if [ ${#multiple_uninstall_order[@]} -gt 0 ]; then
       local args=("${multiple_uninstall_order[@]}")
-      if [[ "$force_flag" = "--force" ]]; then
+      if [ "$force_flag" = "--force" ]; then
         args+=("--force")
       fi
       args+=("--exclude-preset=$preset_name")
@@ -461,13 +461,13 @@ uninstall_all() {
   components_str=$(get_all_installed_components)
 
   local components=()
-  if [[ -n "$components_str" ]]; then
+  if [ -n "$components_str" ]; then
     while IFS= read -r comp; do
       components+=("$comp")
     done <<<"$components_str"
   fi
 
-  if [[ ${#components[@]} -eq 0 ]]; then
+  if [ ${#components[@]} -eq 0 ]; then
     ui_info "No components are currently installed."
   else
     ui_header "Uninstalling all installed components."
@@ -484,17 +484,17 @@ uninstall_all() {
     dry_run_file_operation "remove_directory" "${MEOW_MANUALLY_INSTALLED_COMPONENTS_DIR}"
     ui_success "All components would be uninstalled and installation tracking cleaned (dry run)."
   else
-    if [[ -d "${MEOW_INSTALLED_COMPONENTS_DIR}" ]]; then
+    if [ -d "${MEOW_INSTALLED_COMPONENTS_DIR}" ]; then
       rm -rf "${MEOW_INSTALLED_COMPONENTS_DIR:?}"
       ui_verbose_info "Removed components tracking directory: %s" "${MEOW_INSTALLED_COMPONENTS_DIR}"
     fi
 
-    if [[ -d "${MEOW_INSTALLED_PRESETS_DIR}" ]]; then
+    if [ -d "${MEOW_INSTALLED_PRESETS_DIR}" ]; then
       rm -rf "${MEOW_INSTALLED_PRESETS_DIR:?}"
       ui_verbose_info "Removed presets tracking directory: %s" "${MEOW_INSTALLED_PRESETS_DIR}"
     fi
 
-    if [[ -d "${MEOW_MANUALLY_INSTALLED_COMPONENTS_DIR}" ]]; then
+    if [ -d "${MEOW_MANUALLY_INSTALLED_COMPONENTS_DIR}" ]; then
       rm -rf "${MEOW_MANUALLY_INSTALLED_COMPONENTS_DIR:?}"
       ui_verbose_info "Removed manual installation tracking directory: %s" "${MEOW_MANUALLY_INSTALLED_COMPONENTS_DIR}"
     fi

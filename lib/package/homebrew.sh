@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-# Include guard to prevent multiple sourcing.
 if [ -n "${_LIB_PACKAGE_HOMEBREW_SOURCED:-}" ]; then
   return 0
 fi
@@ -21,24 +20,24 @@ is_homebrew_package_installed() {
 }
 
 setup_homebrew() {
-  if [ "$MEOW_VERBOSE" = "true" ]; then
+  if [ "${MEOW_VERBOSE:-}" = "true" ]; then
     ui_package_manager_setup "Homebrew"
   fi
 
   if is_dry_run; then
     if ! command -v brew >/dev/null 2>&1; then
-      dry_run_ui_info "Homebrew is not installed. Would install Homebrew using its official script."
+      dry_run_ui_info "Homebrew not installed. Would install using official script."
       dry_run_ui_info "  Script URL: https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh"
       dry_run_ui_info "  Would configure shell environment after installation."
     else
-      dry_run_ui_info "Homebrew is already installed. No setup needed."
+      dry_run_ui_info "Homebrew already installed. No setup needed."
     fi
     return 0
   fi
 
   if ! command -v brew >/dev/null 2>&1; then
-    if [ "$MEOW_VERBOSE" = "true" ]; then
-      ui_warning "Homebrew not found. Starting installation..."
+    if [ "${MEOW_VERBOSE:-}" = "true" ]; then
+      ui_warning "Homebrew not found. Installing..."
       if ! ui_spinner "Installing Homebrew..." \
         --success "Homebrew installed successfully." \
         --fail "Homebrew installation failed." \
@@ -53,7 +52,7 @@ setup_homebrew() {
     eval "$("$(brew --prefix)"/bin/brew shellenv)" 2>/dev/null
   fi
 
-  if [ "$MEOW_VERBOSE" = "true" ]; then
+  if [ "${MEOW_VERBOSE:-}" = "true" ]; then
     ui_package_manager_ready "Homebrew"
   fi
 }
@@ -75,7 +74,7 @@ cleanup_homebrew() {
   if is_dry_run; then
     dry_run_ui_info "Would perform Homebrew cleanup (cache and unused packages)."
     dry_run_ui_info "  Command: brew cleanup --prune=all"
-    dry_run_ui_info "  This command removes outdated downloads and old package versions."
+    dry_run_ui_info "  This removes outdated downloads and old package versions."
     return 0
   fi
 
