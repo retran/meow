@@ -55,11 +55,18 @@ ui_warning() {
   MEOW_WARNINGS+=("$*")
 }
 
+ui_verbose() {
+  if [[ "$MEOW_VERBOSE" = "true" ]]; then
+    ui_message "$@"
+  fi
+}
+
 ui_verbose_message() {
   if [[ "$MEOW_VERBOSE" = "true" ]]; then
     ui_message "$@"
   fi
 }
+
 ui_verbose_info() {
   if [[ "$MEOW_VERBOSE" = "true" ]]; then
     ui_info "$@"
