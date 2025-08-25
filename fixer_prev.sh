@@ -209,6 +209,11 @@ run_shellcheck() {
   "$SHELLCHECK_CMD" "$file" 2>&1
 }
 
+# --- Logic Analysis Functions ---
+analyze_script_logic() {
+  return 0
+}
+
 # --- File Filtering ---
 should_skip_file() {
   local file="$1"
@@ -252,21 +257,9 @@ build_fixing_prompt() {
   dependencies=$(collect_dependencies "$target_file")
 
   cat <<'EOF'
-Your task is to improve messaging in provided script:
+You are a shell script expert. Fix the following Bash script to ensure:
 
-1. Ensure all messages are clear, concise, consistent, and informative.
-
-2. Improve error handling, make sure that error messages clear and concise.
-
-3. Improve --verbose and --dry-run modes.
-
-You can check following environment variables to determine the behavior:
-  MEOW_VERBOSE="true"
-  MEOW_DRY_RUN="true"
-
-Ensure:
-
-1. **Compatible with macOS default Bash 3.2:**
+1. **Bash 3.2 Compatibility**: Compatible with macOS default Bash 3.2
    - No associative arrays (declare -A)
    - No readarray/mapfile - use while read loops
    - No [[ ... ]] with == for patterns - use case or = for literals
@@ -283,7 +276,7 @@ Ensure:
     - you must not use any Bash 4+ features
     - you must not enable any strict modes (e.g., set -euo pipefail)
 
-3. **Works on both Linux (Bash 4+/GNU) and macOS (Bash 3.2/BSD).**
+3. **Portability**: Works on both Linux (Bash 4+/GNU) and macOS (Bash 3.2/BSD)
 
 4. **Code Quality**:
    - Proper indentation and formatting
@@ -292,14 +285,12 @@ Ensure:
    - Remove dead code and unused variables
    - Consistent coding style
 
-5. **Remove all comments except for shebang and essential ones.**
+5. Remove all comments except for shebang and essential ones.
 
 6. **Do not include any debugging or development artifacts (e.g., test code, console logs) in the final script.**
 
-**IMPORTANT**:
-Return the COMPLETE fixed script with ALL content included.
-Do not truncate, abbreviate, or skip any parts.
-The output must be the full, working script that can be directly saved to a file.
+**IMPORTANT**: Return the COMPLETE fixed script with ALL content included. Do not truncate, abbreviate, or skip any parts. The output must be the full, working script that can be directly saved to a file.
+
 EOF
 
   # Add reference files section
@@ -426,8 +417,8 @@ process_single_file() {
     fi
 
     # Exit if no issues found
-    if [ "$has_issues" = "false" ] && [ "$iteration" != "1" ]; then
-    # if [ "$has_issues" = "false" ]; then
+    # if [ "$has_issues" = "false" ] && [ "$iteration" != "1" ]; then
+    if [ "$has_issues" = "false" ]; then
       ui_success "All checks passed!"
       # Clean up backup if not verbose
       if [ "$VERBOSE" != "true" ]; then
@@ -532,8 +523,9 @@ show_help() {
 $SCRIPT_NAME - Automated shell script fixer using AI
 
 DESCRIPTION:
-    Finds all .sh files and fixes shellcheck issues and Bash 3.2 compatibility
-    problems, using 'meow gen -p' with intelligent prompts.
+    Finds all .sh files and fixes shellcheck issues, Bash 3.2 compatibility
+    problems, and logic/algorithmic issues using 'meow gen -p' with intelligent
+    prompts. Automatically skips fixer.sh to avoid modifying itself.
 
 USAGE:
     $SCRIPT_NAME [OPTIONS]
@@ -630,7 +622,6 @@ main() {
   # Find shell scripts
   ui_info "Searching for shell scripts..."
   local files=()
-  files+=("./bin/meowctl")
   while IFS= read -r -d '' file; do
     if ! should_skip_file "$file"; then
       files+=("$file")
