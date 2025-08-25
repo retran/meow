@@ -171,11 +171,11 @@ topological_sort_for_installation() {
       local all_deps_satisfied=true
       local component_deps_raw
       component_deps_raw=$(get_component_dependencies "$component")
-      
+
       if [[ -n "$component_deps_raw" ]]; then
         local component_deps=()
         while IFS= read -r dep_item; do component_deps+=("$dep_item"); done < <(printf '%s\n' "$component_deps_raw")
-        
+
         for dep in "${component_deps[@]}"; do
           if [[ -n "$dep" ]]; then
             local dep_in_remaining=false
@@ -200,7 +200,7 @@ topological_sort_for_installation() {
         new_remaining+=("$component")
       fi
     done
-    
+
     remaining_components=("${new_remaining[@]}")
 
     if [[ "$found_installable" = "false" && ${#remaining_components[@]} -gt 0 ]]; then

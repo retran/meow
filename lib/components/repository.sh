@@ -43,7 +43,7 @@ get_component_repository_branch() {
 }
 
 clone_component_repository() {
-  set -eu
+
   local component="$1"
   local installed_dir="${MEOW_DOWNLOADS_DIR}/${component}"
 
@@ -80,7 +80,7 @@ clone_component_repository() {
 }
 
 update_component_repository() {
-  set -eu
+
   local component="$1"
   local installed_dir="${MEOW_DOWNLOADS_DIR}/${component}"
 
@@ -102,7 +102,7 @@ update_component_repository() {
 
   ui_spinner "$update_message" \
     sh -c "
-      set -eu
+
       cd '$installed_dir' || exit 1
       git fetch || exit 1
       GIT_BRANCH_NAME=\$(git rev-parse --abbrev-ref HEAD || exit 1)

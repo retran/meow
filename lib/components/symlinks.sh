@@ -224,7 +224,7 @@ remove_component_symlinks_from_file() {
         local backup_item
 
         while IFS= read -r -d '' backup_item; do
-            potential_backups_list+=("$backup_item")
+          potential_backups_list+=("$backup_item")
         done < <(find "$backup_dir" -maxdepth 1 -type f -name "$backup_pattern_base" -print0 2>/dev/null)
 
         local backup_file

@@ -3,6 +3,7 @@
 [ ] check cleanup scripts
     [ ] shell-essentials
     [ ] move from lib?
+
 [ ] split toggle to shell-only and desktop
 
 [ ] what is homerow keys?
@@ -21,7 +22,6 @@
 [ ] test in container
 [ ] reduce duplication and redundant code after refactoring
 
-[ ] fix shellcheck issues
 [ ] fix compatibility
 
 [ ] taps

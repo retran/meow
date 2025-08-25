@@ -6,7 +6,6 @@ if [ -n "${_LIB_PACKAGE_HOMEBREW_SOURCED:-}" ]; then
 fi
 _LIB_PACKAGE_HOMEBREW_SOURCED=1
 
-set -eu
 set -o pipefail 2>/dev/null || :
 
 source "${MEOW}/lib/package/common.sh"

@@ -293,9 +293,9 @@ _install_single_component() {
     fi
   fi
 
-  setup_component_symlinks "$component"
-
   setup_component "$component"
+
+  setup_component_symlinks "$component"
 
   _icon_msg_core "${GREEN}✓ " "$(_f "Component installed: %s" "$component")"
   unset MEOW_COMPONENT_MANUAL_INSTALL
