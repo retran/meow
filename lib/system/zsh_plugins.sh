@@ -31,7 +31,7 @@ install_zsh_plugins() {
           return_status=1
         fi
       else
-        ui_action_info "$(_f "zsh-autosuggestions already installed in '%s/plugins'." "$zsh_custom_dir")"
+        ui_info "$(_f "zsh-autosuggestions already installed in '%s/plugins'." "$zsh_custom_dir")"
         plugins_skipped_count=$((plugins_skipped_count + 1))
       fi
 
@@ -47,7 +47,7 @@ install_zsh_plugins() {
           return_status=1
         fi
       else
-        ui_action_info "$(_f "zsh-syntax-highlighting already installed in '%s/plugins'." "$zsh_custom_dir")"
+        ui_info "$(_f "zsh-syntax-highlighting already installed in '%s/plugins'." "$zsh_custom_dir")"
         plugins_skipped_count=$((plugins_skipped_count + 1))
       fi
 
@@ -65,7 +65,7 @@ install_zsh_plugins() {
     fi
     return "$return_status"
   else
-    ui_action_info "Zsh plugin installation is only for Debian-based or Alpine systems. Skipping."
+    ui_info "Zsh plugin installation is only for Debian-based or Alpine systems. Skipping."
     return 0
   fi
 }

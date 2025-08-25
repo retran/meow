@@ -158,6 +158,60 @@ collect_dependencies_recursively_for_installation_stdout() {
   done
 }
 
+topological_sort_for_installation() {
+  local remaining_components=("$@")
+  local sorted_components=()
+  local new_remaining
+
+  while [[ ${#remaining_components[@]} -gt 0 ]]; do
+    local found_installable=false
+    new_remaining=()
+
+    for component in "${remaining_components[@]}"; do
+      local all_deps_satisfied=true
+      local component_deps_raw
+      component_deps_raw=$(get_component_dependencies "$component")
+      
+      if [[ -n "$component_deps_raw" ]]; then
+        local component_deps=()
+        while IFS= read -r dep_item; do component_deps+=("$dep_item"); done < <(printf '%s\n' "$component_deps_raw")
+        
+        for dep in "${component_deps[@]}"; do
+          if [[ -n "$dep" ]]; then
+            local dep_in_remaining=false
+            for remaining_comp in "${remaining_components[@]}"; do
+              if [[ "$remaining_comp" = "$dep" ]]; then
+                dep_in_remaining=true
+                break
+              fi
+            done
+            if [[ "$dep_in_remaining" = "true" ]]; then
+              all_deps_satisfied=false
+              break
+            fi
+          fi
+        done
+      fi
+
+      if [[ "$all_deps_satisfied" = "true" ]]; then
+        sorted_components+=("$component")
+        found_installable=true
+      else
+        new_remaining+=("$component")
+      fi
+    done
+    
+    remaining_components=("${new_remaining[@]}")
+
+    if [[ "$found_installable" = "false" && ${#remaining_components[@]} -gt 0 ]]; then
+      ui_warning "$(_f "Circular dependencies detected among: %s" "$(printf '%s ' "${remaining_components[@]}")")"
+      sorted_components+=("${remaining_components[@]}")
+      break
+    fi
+  done
+  printf '%s\n' "${sorted_components[@]}"
+}
+
 collect_all_dependencies_for_installation() {
   local component="$1"
 
@@ -183,61 +237,8 @@ collect_all_dependencies_for_installation() {
   while IFS= read -r item; do
     result+=("$item")
   done < <(printf '%s\n' "$sorted_deps_raw")
-}
 
-topological_sort_for_installation() {
-  local remaining_components=("$@")
-  local sorted_components=()
-
-  while [[ ${#remaining_components[@]} -gt 0 ]]; do
-    local found_installable=false
-    local new_remaining=()
-
-    for component in "${remaining_components[@]}"; do
-      local all_deps_satisfied=true
-
-      local component_deps=()
-      local comp_deps_raw
-      comp_deps_raw=$(get_component_dependencies "$component")
-      while IFS= read -r dep_item; do
-        component_deps+=("$dep_item")
-      done < <(printf '%s\n' "$comp_deps_raw")
-
-      for dep in "${component_deps[@]}"; do
-        if [[ -n "$dep" ]]; then
-          local dep_in_remaining=false
-          for remaining_comp in "${remaining_components[@]}"; do
-            if [[ "$remaining_comp" = "$dep" ]]; then
-              dep_in_remaining=true
-              break
-            fi
-          done
-
-          if [[ "$dep_in_remaining" = "true" ]]; then
-            all_deps_satisfied=false
-            break
-          fi
-        fi
-      done
-
-      if [[ "$all_deps_satisfied" = "true" ]]; then
-        sorted_components+=("$component")
-        found_installable=true
-      else
-        new_remaining+=("$component")
-      fi
-    done
-
-    remaining_components=("${new_remaining[@]}")
-
-    if [[ "$found_installable" = "false" && ${#remaining_components[@]} -gt 0 ]]; then
-      ui_warning "$(_f "Circular dependencies detected among: %s" "$(printf '%s ' "${remaining_components[@]}")")"
-      sorted_components+=("${remaining_components[@]}")
-      break
-    fi
-  done
-
-  printf '%s\n' "${sorted_components[@]}"
+  printf '%s\n' "${result[@]}"
 }
 
 filter_removable_dependencies_with_context() {

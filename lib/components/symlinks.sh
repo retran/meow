@@ -19,14 +19,11 @@ setup_component_symlinks() {
   fi
 
   local yaml_files=()
-  local find_cmd_output
+  local item
 
-  if find_cmd_output=$(find "$symlinks_dir" -name "*.yaml" -print0 2>/dev/null); then
-    local item
-    while IFS= read -r -d '' item; do
-      yaml_files=("${yaml_files[@]}" "$item")
-    done <<<"$find_cmd_output"
-  fi
+  while IFS= read -r -d '' item; do
+    yaml_files+=("$item")
+  done < <(find "$symlinks_dir" -name "*.yaml" -print0 2>/dev/null)
 
   if [[ ${#yaml_files[@]} -eq 0 ]]; then
     return 0
@@ -85,14 +82,11 @@ remove_component_symlinks() {
   fi
 
   local yaml_files=()
-  local find_cmd_output
+  local item
 
-  if find_cmd_output=$(find "$symlinks_dir" -name "*.yaml" -print0 2>/dev/null); then
-    local item
-    while IFS= read -r -d '' item; do
-      yaml_files=("${yaml_files[@]}" "$item")
-    done <<<"$find_cmd_output"
-  fi
+  while IFS= read -r -d '' item; do
+    yaml_files+=("$item")
+  done < <(find "$symlinks_dir" -name "*.yaml" -print0 2>/dev/null)
 
   if [[ ${#yaml_files[@]} -eq 0 ]]; then
     return 0
@@ -227,13 +221,11 @@ remove_component_symlinks_from_file() {
         fi
 
         local potential_backups_list=()
-        local find_backup_output
-        if find_backup_output=$(find "$backup_dir" -maxdepth 1 -type f -name "$backup_pattern_base" -print0 2>/dev/null); then
-          local backup_item
-          while IFS= read -r -d '' backup_item; do
-            potential_backups_list=("${potential_backups_list[@]}" "$backup_item")
-          done <<<"$find_backup_output"
-        fi
+        local backup_item
+
+        while IFS= read -r -d '' backup_item; do
+            potential_backups_list+=("$backup_item")
+        done < <(find "$backup_dir" -maxdepth 1 -type f -name "$backup_pattern_base" -print0 2>/dev/null)
 
         local backup_file
         for backup_file in "${potential_backups_list[@]}"; do

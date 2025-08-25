@@ -43,9 +43,8 @@ else
   export ZSH_TMUX_AUTOSTART=false
 fi
 
-export ZSH="$HOME/.oh-my-zsh"
-if [[ -f "$ZSH/oh-my-zsh.sh" ]]; then
-  source "$ZSH/oh-my-zsh.sh"
+if [[ -f "$HOME/.oh-my-zsh/oh-my-zsh.sh" ]]; then
+  source "$HOME/.oh-my-zsh/oh-my-zsh.sh"
 fi
 
 command -v nvim >/dev/null 2>&1 && {

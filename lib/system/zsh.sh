@@ -18,7 +18,7 @@ setup_ohmyzsh() {
     ui_spinner "Updating Oh My Zsh..." \
       --success "Oh My Zsh updated successfully." \
       --fail "Failed to update Oh My Zsh." \
-      ZSH="$ohmyzsh_path" sh -c "zsh -i \"${ohmyzsh_path}/tools/upgrade.sh\""
+      sh -c "ZSH=\"\$1\" zsh -c \"source \\\"\$ZSH/oh-my-zsh.sh\\\" && omz update\"" _ "$ohmyzsh_path"
 
     return $?
   fi
@@ -26,7 +26,7 @@ setup_ohmyzsh() {
   ui_spinner "Installing Oh My Zsh..." \
     --success "Oh My Zsh installed successfully." \
     --fail "Failed to install Oh My Zsh." \
-    RUNZSH=no CHSH=no KEEP_ZSHRC=yes sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+    sh -c 'RUNZSH=no CHSH=no KEEP_ZSHRC=yes curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh | sh'
 
   return $?
 }

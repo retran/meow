@@ -12,7 +12,7 @@ source "${MEOW}/lib/package/common.sh"
 source "${MEOW}/lib/core/dry_run.sh"
 
 _cache_installed_mas_packages() {
-  cache_package_list "mas" "mas list | awk -F'[()]' '{print \$2}'"
+  cache_package_list "mas" "mas list | awk '{print \$1}'"
 }
 
 is_mas_package_installed() {
@@ -39,8 +39,14 @@ setup_mas() {
   ui_action_success "mas CLI available."
 }
 
+_install_mas_package_helper() {
+  local package_id
+  package_id=$(echo "$1" | awk '{print $1}')
+  mas install "$package_id"
+}
+
 install_mas_packages() {
-  install_packages_generic "$1" "mas" "mas install" "is_mas_package_installed"
+  install_packages_generic "$1" "mas" "_install_mas_package_helper" "is_mas_package_installed"
 }
 
 update_mas_packages() {

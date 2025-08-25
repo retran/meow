@@ -93,7 +93,6 @@ collect_preset_components_for_installation() {
 
   for component_name in "${preset_required_array[@]}"; do
     deps_output=$(collect_all_dependencies_for_installation "$component_name")
-
     if [[ -n "$deps_output" ]]; then
       while IFS= read -r dep_comp; do
         [[ -z "$dep_comp" ]] && continue

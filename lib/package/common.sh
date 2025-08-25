@@ -29,7 +29,7 @@ run_package_operation() {
     ui_verbose_action_success "$success_msg"
     return 0
   else
-    ui_verbose_action_error "$failure_msg"
+    ui_action_error "$failure_msg"
     return 1
   fi
 }

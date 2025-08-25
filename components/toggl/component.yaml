@@ -2,3 +2,6 @@ description: "Time tracking CLI and desktop applications"
 
 platforms:
   - macos
+
+depends_on:
+  - desktop-essential
