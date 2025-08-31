@@ -5,7 +5,10 @@ if [ -n "${_COMPONENT_SHELL_ESSENTIAL_INIT_SOURCED:-}" ]; then
 fi
 _COMPONENT_SHELL_ESSENTIAL_INIT_SOURCED=1
 
-export ZSH_THEME="robbyrussell"
+# Only set ZSH_THEME if starship is not available
+if ! command -v starship >/dev/null 2>&1; then
+  export ZSH_THEME="robbyrussell"
+fi
 
 base_plugins=(
   safe-paste
@@ -21,7 +24,7 @@ base_plugins=(
 
 conditional_plugins=()
 if command -v gh >/dev/null 2>&1; then
-  conditional_plugins+=("github" "gh")
+  conditional_plugins+=("github")
 fi
 
 if command -v ssh >/dev/null 2>&1; then
@@ -68,7 +71,8 @@ fi
 plugins=("${base_plugins[@]}" "${conditional_plugins[@]}" "${os_plugins[@]}")
 export plugins
 
-if [ -n "$ALACRITTY_LOG" ]; then
+# Set tmux autostart based on terminal detection
+if [ -n "$ALACRITTY_LOG" ] || [ "$TERM_PROGRAM" = "Alacritty" ] || [ -n "$ALACRITTY_WINDOW_ID" ]; then
   export ZSH_TMUX_AUTOSTART=true
 else
   export ZSH_TMUX_AUTOSTART=false
@@ -97,6 +101,7 @@ if command -v fzf >/dev/null 2>&1; then
   if [ "${MEOW_DRY_RUN:-false}" = "true" ]; then
     echo "DRY-RUN: sourcing fzf completion"
   else
+    # shellcheck disable=SC1090
     source <(fzf --zsh)
   fi
 fi
