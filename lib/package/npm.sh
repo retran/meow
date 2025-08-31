@@ -9,7 +9,7 @@ source "${MEOW}/lib/package/common.sh"
 source "${MEOW}/lib/core/dry_run.sh"
 
 _cache_installed_npm_packages() {
-  cache_package_list "npm" "npm list -g --depth=0 --parseable 2>/dev/null | sed 's|.*/||;s/@.*//'"
+  cache_package_list "npm" "npm list -g --depth=0 --parseable 2>/dev/null | grep 'node_modules/' | sed 's|.*/node_modules/||'"
 }
 
 is_npm_package_installed() {
