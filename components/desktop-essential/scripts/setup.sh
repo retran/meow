@@ -1,16 +1,19 @@
 #!/usr/bin/env bash
 
+# Component parameters
+COMPONENT_NAME="$1"
+MEOW="$2"
+
+source "${MEOW}/lib/core/platform.sh"
 source "${MEOW}/lib/core/ui.sh"
 
-# Include guard to prevent re-sourcing this script if it's already been sourced.
-if [ "${BASH_SOURCE[0]}" != "${0}" ] && [ -n "${_LIB_SYSTEM_MACOS_SOURCED:-}" ]; then
-  return 0
+if [ "${OSTYPE#darwin}" = "${OSTYPE}" ]; then
+  ui_warning "This component is designed exclusively for macOS."
+  exit 0
 fi
-_LIB_SYSTEM_MACOS_SOURCED=1
 
 # Global array to collect summary messages from sub-functions.
-# It is cleared at the beginning of the configure_macos function to ensure a fresh state.
-summary_msgs=
+summary_msgs=""
 
 is_macos() {
   [ "$(uname -s)" = "Darwin" ]
@@ -214,62 +217,44 @@ configure_macos_apps() {
   return 0
 }
 
-configure_macos() {
-  # Clear the global summary_msgs variable for a fresh run.
-  summary_msgs=""
+# Execute the configuration functions
+ui_step_header "Desktop Essential (${COMPONENT_NAME}) macOS Configuration"
 
-  if ! is_macos; then
-    ui_info "Not running on macOS. Skipping all macOS configuration steps."
-    return 0
-  fi
-
-  ui_step_header "macOS Configuration"
-
-  ui_info "This script will configure various macOS settings to enhance your experience."
-  if ! ui_confirm "Do you want to apply these macOS configurations?"; then
-    ui_warning "macOS configuration cancelled by user."
-    return 0
-  fi
-
-  if configure_macos_defaults; then
-    :
-  else
-    summary_msgs="$summary_msgs
+if configure_macos_defaults; then
+  :
+else
+  summary_msgs="$summary_msgs
 ✗ macOS defaults: failed"
-  fi
+fi
 
-  if configure_macos_finder; then
-    :
-  else
-    summary_msgs="$summary_msgs
+if configure_macos_finder; then
+  :
+else
+  summary_msgs="$summary_msgs
 ✗ Finder: failed"
-  fi
+fi
 
-  if configure_macos_dock; then
-    :
-  else
-    summary_msgs="$summary_msgs
+if configure_macos_dock; then
+  :
+else
+  summary_msgs="$summary_msgs
 ✗ Dock: failed"
-  fi
+fi
 
-  if configure_macos_apps; then
-    :
-  else
-    summary_msgs="$summary_msgs
+if configure_macos_apps; then
+  :
+else
+  summary_msgs="$summary_msgs
 ✗ Apps: failed"
-  fi
+fi
 
-  if [ -n "$summary_msgs" ]; then
-    ui_info "--- Configuration Summary ---"
-    echo "$summary_msgs" | while read -r msg; do
-      if [ -n "$msg" ]; then
-        ui_info "$msg"
-      fi
-    done
-    ui_warning "Some macOS configurations failed or encountered issues."
-  fi
+if [ -n "$summary_msgs" ]; then
+  ui_info "--- Configuration Summary ---"
+  echo "$summary_msgs" | while read -r msg; do
+    if [ -n "$msg" ]; then
+      ui_info "$msg"
+    fi
+  done
+fi
 
-  ui_action_success "macOS configuration process completed."
-  ui_info "Please note: Some changes may require a logout or restart to take effect."
-  return 0
-}
+ui_action_success "Desktop Essential (${COMPONENT_NAME}) macOS configuration completed."

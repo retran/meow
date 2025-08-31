@@ -1,33 +1,17 @@
 # To Do
 
-[ ] check cleanup scripts
+[ ] check setup, env, init and cleanup scripts for all components
     [ ] shell-essentials
-    [ ] move from lib?
-
 [ ] split toggle to shell-only and desktop
-
-[ ] what is homerow keys?
-
-[ ] logs
-    [ ] colored messages
-    [ ] --dry-run
-    [ ] verbose
-    [ ] preset operations
-    [ ] backup operations
-    [ ] errors
-    [ ] git operations
-
 [ ] checking mermaidjs
-
 [ ] test in container
-[ ] reduce duplication and redundant code after refactoring
-
 [ ] fix compatibility
-
-[ ] taps
-
 [ ] review
-
 [ ] finish README.md and customization sections
-[ ] proper examples of scripting
-[ ] document new plugin repository system
+  [ ] proper examples of scripts
+  [ ] document new component repository system
+
+Later:
+[ ] what is homerow keys?
+[ ] better errors
+[ ] taps
