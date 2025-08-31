@@ -5,4 +5,5 @@ platforms:
 
 depends_on:
   - desktop-essential
-  - toggl
+  - toggl-desktop
+  - toggl-cli

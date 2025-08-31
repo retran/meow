@@ -2,7 +2,6 @@
 
 [ ] check setup, env, init and cleanup scripts for all components
     [ ] shell-essentials
-[ ] split toggle to shell-only and desktop
 [ ] checking mermaidjs
 [ ] test in container
 [ ] fix compatibility

@@ -1,0 +1,2 @@
+- source: "$MEOW/.installed/components/toggl-cli/config/toggl/.togglrc"
+  target: "$HOME/.togglrc"
