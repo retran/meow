@@ -2,7 +2,6 @@ bash
 curl
 wget
 direnv
-watch
 htop
 eza
 git
@@ -15,5 +14,3 @@ starship
 neovim
 httpie
 bat
-tmux
-glow
