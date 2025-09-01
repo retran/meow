@@ -5,14 +5,106 @@ if [ -n "${_LIB_YAML_SOURCED:-}" ]; then
 fi
 _LIB_YAML_SOURCED=1
 
-read_yaml_value() {
+# Common YAML parsing with comprehensive fallback logic
+_parse_yaml_with_fallbacks() {
   local yaml_file="$1"
   local yaml_path="$2"
+  local is_array="$3"  # "true" for array parsing, "false" for value parsing
 
   if [ ! -f "$yaml_file" ]; then
     return 1
   fi
-  yq eval "$yaml_path" "$yaml_file" 2>/dev/null
+
+  local result=""
+
+  # Method 1: yq eval
+  if [ -z "$result" ]; then
+    result=$(yq eval "$yaml_path" "$yaml_file" 2>/dev/null || true)
+    if [ "$MEOW_VERBOSE" = "true" ]; then
+      ui_verbose_info "Debug: yq eval '$yaml_path' result: '$result'" >&2
+    fi
+  fi
+
+  # Method 2: yq without eval
+  if [ -z "$result" ] || [ "$result" = "null" ]; then
+    result=$(yq "$yaml_path" "$yaml_file" 2>/dev/null || true)
+    if [ "$MEOW_VERBOSE" = "true" ]; then
+      ui_verbose_info "Debug: yq '$yaml_path' result: '$result'" >&2
+    fi
+  fi
+
+  # Method 3: yq with alternative path syntax
+  if [ -z "$result" ] || [ "$result" = "null" ]; then
+    local alt_path="$yaml_path"
+    alt_path="${alt_path#.}"  # Remove leading dot
+    alt_path="${alt_path//\[\]/[*]}"  # Convert [] to [*]
+    alt_path="${alt_path//\[\?\]/[*]}"  # Convert [?] to [*]
+    result=$(yq r "$yaml_file" "$alt_path" 2>/dev/null || true)
+    if [ "$MEOW_VERBOSE" = "true" ]; then
+      ui_verbose_info "Debug: yq r '$alt_path' result: '$result'" >&2
+    fi
+  fi
+
+  # Method 4: Manual parsing
+  if [ -z "$result" ] || [ "$result" = "null" ]; then
+    if [ "$MEOW_VERBOSE" = "true" ]; then
+      ui_verbose_info "Debug: yq failed, trying manual YAML parsing" >&2
+    fi
+
+    if [ "$is_array" = "true" ]; then
+      # Array parsing
+      case "$yaml_path" in
+        ".depends_on[]" | ".depends_on[]?" | "depends_on[]" | "depends_on[]?" | ".depends_on" | "depends_on")
+          result=$(grep -A 20 '^depends_on:' "$yaml_file" 2>/dev/null | grep '^  - ' | sed 's/^  - //' || true)
+          ;;
+        ".required[]" | ".required[]?" | "required[]" | "required[]?" | ".required" | "required")
+          result=$(grep -A 20 '^required:' "$yaml_file" 2>/dev/null | grep '^  - ' | sed 's/^  - //' || true)
+          ;;
+        ".platforms[]" | ".platforms[]?" | "platforms[]" | "platforms[]?" | ".platforms" | "platforms")
+          result=$(grep -A 20 '^platforms:' "$yaml_file" 2>/dev/null | grep '^  - ' | sed 's/^  - //' || true)
+          ;;
+        *)
+          # Generic array extraction
+          local key_path="${yaml_path%\[\]*}"  # Remove []* suffix
+          key_path="${key_path#.}"  # Remove leading dot
+          result=$(grep -A 20 "^${key_path}:" "$yaml_file" 2>/dev/null | grep '^  - ' | sed 's/^  - //' || true)
+          ;;
+      esac
+    else
+      # Value parsing
+      case "$yaml_path" in
+        ".depends_on" | "depends_on")
+          # For depends_on as value, return space-separated list
+          result=$(grep -A 10 '^depends_on:' "$yaml_file" 2>/dev/null | grep '^  - ' | sed 's/^  - //' | tr '\n' ' ' | sed 's/ $//' || true)
+          ;;
+        ".description" | "description")
+          result=$(grep '^description:' "$yaml_file" 2>/dev/null | sed 's/^description: *//' || true)
+          ;;
+        ".platforms" | "platforms")
+          # For platforms as value, return space-separated list
+          result=$(grep -A 10 '^platforms:' "$yaml_file" 2>/dev/null | grep '^  - ' | sed 's/^  - //' | tr '\n' ' ' | sed 's/ $//' || true)
+          ;;
+        *)
+          # Generic value extraction
+          local key="${yaml_path#.}"
+          result=$(grep "^${key}:" "$yaml_file" 2>/dev/null | sed "s/^${key}: *//" || true)
+          ;;
+      esac
+    fi
+
+    if [ "$MEOW_VERBOSE" = "true" ]; then
+      ui_verbose_info "Debug: manual parsing result: '$result'" >&2
+    fi
+  fi
+
+  printf '%s' "$result"
+}
+
+read_yaml_value() {
+  local yaml_file="$1"
+  local yaml_path="$2"
+
+  _parse_yaml_with_fallbacks "$yaml_file" "$yaml_path" "false"
 }
 
 read_yaml_array() {
@@ -22,12 +114,14 @@ read_yaml_array() {
   if [ ! -f "$yaml_file" ]; then
     return 1
   fi
+
   local result
-  result=$(yq eval "$yaml_path" "$yaml_file" 2>/dev/null) || return 1
+  result=$(_parse_yaml_with_fallbacks "$yaml_file" "$yaml_path" "true")
 
   if [ -z "$result" ] || [ "$result" = "null" ]; then
     return 1
   fi
+
   printf '%s\n' "$result"
 }
 

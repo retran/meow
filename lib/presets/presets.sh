@@ -11,6 +11,7 @@ source "${MEOW}/lib/core/colors.sh"
 source "${MEOW}/lib/core/ui.sh"
 source "${MEOW}/lib/core/session.sh"
 source "${MEOW}/lib/core/dry_run.sh"
+source "${MEOW}/lib/core/yaml.sh"
 source "${MEOW}/lib/components/components.sh"
 
 is_preset_installed() {
@@ -26,7 +27,7 @@ is_preset_available() {
   [ -f "$preset_file" ] || return 1
 
   local platforms_str
-  platforms_str=$(yq eval '.platforms[]?' "$preset_file" 2>/dev/null)
+  platforms_str=$(read_yaml_array "$preset_file" ".platforms[]?")
 
   if [ -n "$platforms_str" ] && [ "$platforms_str" != "null" ]; then
     local current_platform=""
@@ -81,77 +82,9 @@ get_preset_required_components() {
     ui_verbose_info "$(_f "Debug: Preset file content: %s" "$file_content")" >&2
   fi
 
+  # Use the shared YAML parsing logic with array parsing
   local yq_result
-
-  # Test if yq is working with a simple command first
-  if [ "$MEOW_VERBOSE" = "true" ]; then
-    local yq_version_test
-    yq_version_test=$(yq --version 2>/dev/null || echo "yq version failed")
-    ui_verbose_info "$(_f "Debug: yq version test: '%s'" "$yq_version_test")" >&2
-
-    local yq_simple_test
-    yq_simple_test=$(echo "test: value" | yq eval '.test' 2>/dev/null || echo "yq simple test failed")
-    ui_verbose_info "$(_f "Debug: yq simple test result: '%s'" "$yq_simple_test")" >&2
-  fi
-
-  # Try primary yq syntax
-  yq_result=$(yq eval '.required[]' "$preset_file" 2>/dev/null | grep -v "^null$" || true)
-
-  if [ "$MEOW_VERBOSE" = "true" ]; then
-    ui_verbose_info "$(_f "Debug: yq eval '.required[]' result: '%s'" "$yq_result")" >&2
-  fi
-
-  # If empty, try alternative syntaxes
-  if [ -z "$yq_result" ]; then
-    yq_result=$(yq '.required[]' "$preset_file" 2>/dev/null | grep -v "^null$" || true)
-    if [ "$MEOW_VERBOSE" = "true" ]; then
-      ui_verbose_info "$(_f "Debug: yq '.required[]' result: '%s'" "$yq_result")" >&2
-    fi
-  fi
-
-  if [ -z "$yq_result" ]; then
-    yq_result=$(yq eval '.required | .[]' "$preset_file" 2>/dev/null | grep -v "^null$" || true)
-    if [ "$MEOW_VERBOSE" = "true" ]; then
-      ui_verbose_info "$(_f "Debug: yq eval '.required | .[]' result: '%s'" "$yq_result")" >&2
-    fi
-  fi
-
-  # Try legacy v3 syntax
-  if [ -z "$yq_result" ]; then
-    yq_result=$(yq r "$preset_file" 'required[*]' 2>/dev/null | grep -v "^null$" || true)
-    if [ "$MEOW_VERBOSE" = "true" ]; then
-      ui_verbose_info "$(_f "Debug: yq r 'required[*]' result: '%s'" "$yq_result")" >&2
-    fi
-  fi
-
-  # Last resort: manual parsing with grep/sed
-  if [ -z "$yq_result" ]; then
-    ui_verbose_info "Debug: yq failed, trying manual YAML parsing" >&2
-    local in_required_section=false
-    local manual_result=""
-
-    while IFS= read -r line; do
-      if [[ "$line" =~ ^required: ]]; then
-        in_required_section=true
-        continue
-      elif [[ "$line" =~ ^[a-zA-Z] ]] && [ "$in_required_section" = true ]; then
-        # Hit a new top-level key, exit required section
-        break
-      elif [ "$in_required_section" = true ] && [[ "$line" =~ ^[[:space:]]*-[[:space:]]*(.+)$ ]]; then
-        # Extract component name from "  - component-name"
-        local component="${BASH_REMATCH[1]}"
-        component=$(echo "$component" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
-        if [ -n "$component" ]; then
-          manual_result="$manual_result$component"$'\n'
-        fi
-      fi
-    done < "$preset_file"
-
-    yq_result=$(echo "$manual_result" | grep -v '^$' || true)
-    if [ "$MEOW_VERBOSE" = "true" ]; then
-      ui_verbose_info "$(_f "Debug: manual parsing result: '%s'" "$yq_result")" >&2
-    fi
-  fi
+  yq_result=$(read_yaml_array "$preset_file" ".required[]")
 
   if [ "$MEOW_VERBOSE" = "true" ]; then
     ui_verbose_info "$(_f "Debug: final yq result for required components: '%s'" "$yq_result")" >&2
