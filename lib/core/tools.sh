@@ -11,31 +11,50 @@ source "${MEOW}/lib/core/dry_run.sh"
 YQ_VERSION="${YQ_VERSION:-v4.47.1}"
 
 ensure_yq() {
+  local force_install=false
+
+  # Check if yq exists and can parse basic YAML
   if command -v yq >/dev/null 2>&1; then
-    local actual_version version_output
-    version_output=$(yq --version 2>/dev/null || echo "")
+    # Test if yq can actually parse YAML correctly
+    local test_yaml="/tmp/yq_test_$$.yaml"
+    cat > "$test_yaml" << 'EOF'
+test:
+  - item1
+  - item2
+required:
+  - shell-essential
+  - core-development
+EOF
 
-    # Try multiple parsing strategies for different yq version output formats
-    actual_version=$(echo "$version_output" | grep -oE 'v?[0-9]+\.[0-9]+\.[0-9]+' | head -1)
+    local test_result
+    test_result=$(yq eval '.required[]' "$test_yaml" 2>/dev/null || echo "")
+    rm -f "$test_yaml"
 
-    # If still empty, try extracting from different fields
-    if [ -z "$actual_version" ]; then
-      actual_version=$(echo "$version_output" | awk '{for(i=1;i<=NF;i++) if($i ~ /^v?[0-9]+\.[0-9]+\.[0-9]+$/) print $i}' | head -1)
+    if [ -z "$test_result" ] || [ "$test_result" = "null" ]; then
+      ui_action_warning "Found yq, but it cannot parse YAML correctly. Forcing reinstall from GitHub."
+      force_install=true
+    else
+      local version_lines
+      version_lines=$(echo "$test_result" | wc -l)
+      if [ "$version_lines" -lt 2 ]; then
+        ui_action_warning "Found yq, but it doesn't parse arrays correctly. Forcing reinstall from GitHub."
+        force_install=true
+      else
+        ui_verbose_info "⇒ yq is working correctly."
+        return 0
+      fi
     fi
-
-    # Normalize version format (ensure it starts with 'v')
-    if [ -n "$actual_version" ] && [[ ! "$actual_version" =~ ^v ]]; then
-      actual_version="v$actual_version"
-    fi
-
-    if [ "$actual_version" = "$YQ_VERSION" ]; then
-      ui_verbose_info "$(_f "⇒ yq %s is already installed and matches the required version." "$YQ_VERSION")"
-      return 0
-    fi
-
-    ui_action_warning "$(_f "Found yq, but version mismatch or parse error (expected: '%s', found: '%s', raw: '%s'). Attempting to install required version." "$YQ_VERSION" "$actual_version" "$version_output")"
+  else
+    ui_action_warning "yq not found. Installing from GitHub."
+    force_install=true
   fi
 
+  if [ "$force_install" = "true" ]; then
+    _install_yq_from_github
+  fi
+}
+
+_install_yq_from_github() {
   if is_dry_run; then
     dry_run_ui_info "Would install yq v${YQ_VERSION}."
 
@@ -48,12 +67,14 @@ ensure_yq() {
 
     case "$(uname -m)" in
       x86_64) dry_run_arch="amd64" ;;
-      aarch64 | arm64) dry_run_arch="arm64" ;;
+      aarch64) dry_run_arch="arm64" ;;
+      arm64) dry_run_arch="arm64" ;;
+      armv7l) dry_run_arch="arm" ;;
       *) dry_run_arch="unknown_arch" ;;
     esac
 
     local dry_run_bin_name="yq_${dry_run_os}_${dry_run_arch}"
-    local dry_run_url="https://github.com/mikefarah/yq/releases/download/v${YQ_VERSION}/${dry_run_bin_name}"
+    local dry_run_url="https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/${dry_run_bin_name}"
     local dry_run_tmpbin="/tmp/yq_${dry_run_os}_${dry_run_arch}_${YQ_VERSION}.tmp"
     local dry_run_dest="/usr/local/bin/yq"
 
@@ -62,7 +83,17 @@ ensure_yq() {
     return 0
   fi
 
-  ui_action_start "$(_f "Installing yq v%s..." "$YQ_VERSION")"
+  ui_action_start "$(_f "Installing yq v%s from GitHub..." "$YQ_VERSION")"
+
+  # Remove any existing yq installations to avoid conflicts
+  if [ -f "/usr/local/bin/yq" ]; then
+    ui_verbose_info "Removing existing yq installation"
+    sudo rm -f "/usr/local/bin/yq" 2>/dev/null || true
+  fi
+
+  # Also try to remove from other common locations
+  sudo rm -f "/usr/bin/yq" 2>/dev/null || true
+  sudo rm -f "/bin/yq" 2>/dev/null || true
 
   local OS ARCH BIN_NAME URL DEST TMPBIN
 
@@ -77,7 +108,9 @@ ensure_yq() {
 
   case "$(uname -m)" in
     x86_64) ARCH="amd64" ;;
-    aarch64 | arm64) ARCH="arm64" ;;
+    aarch64) ARCH="arm64" ;;
+    arm64) ARCH="arm64" ;;
+    armv7l) ARCH="arm" ;;
     *)
       ui_action_error "$(_f "Unsupported architecture: %s. Cannot install yq." "$(uname -m)")"
       return 1
@@ -85,7 +118,7 @@ ensure_yq() {
   esac
 
   BIN_NAME="yq_${OS}_${ARCH}"
-  URL="https://github.com/mikefarah/yq/releases/download/v${YQ_VERSION}/${BIN_NAME}"
+  URL="https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/${BIN_NAME}"
   DEST="/usr/local/bin/yq"
   TMPBIN="/tmp/yq_${OS}_${ARCH}_${YQ_VERSION}.tmp"
 
@@ -96,6 +129,25 @@ ensure_yq() {
     if sudo mv "$TMPBIN" "$DEST"; then
       if sudo chmod +x "$DEST"; then
         ui_action_success "$(_f "yq v%s successfully installed to %s." "$YQ_VERSION" "$DEST")"
+
+        # Verify the installation works
+        local test_yaml="/tmp/yq_verify_$$.yaml"
+        cat > "$test_yaml" << 'EOF'
+test:
+  - item1
+  - item2
+EOF
+
+        local verify_result
+        verify_result=$("$DEST" eval '.test[]' "$test_yaml" 2>/dev/null || echo "")
+        rm -f "$test_yaml"
+
+        if [ -z "$verify_result" ]; then
+          ui_action_error "yq installation verification failed - cannot parse YAML"
+          return 1
+        fi
+
+        ui_verbose_info "yq installation verified successfully"
         return 0
       else
         ui_action_error "$(_f "Failed to make yq executable at %s." "$DEST")"
