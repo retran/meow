@@ -150,6 +150,25 @@ install_preset() {
 
   if [ ${#installation_order[@]} -eq 0 ]; then
     ui_info "No components to install for this preset."
+
+    # Debug output to help diagnose the issue
+    if [ "$MEOW_VERBOSE" = "true" ]; then
+      local preset_components_debug
+      preset_components_debug=$(get_preset_required_components "$preset")
+      ui_verbose_info "$(_f "Debug: Required components from preset YAML: %s" "$preset_components_debug")"
+
+      if [ -n "$preset_components_debug" ]; then
+        ui_verbose_info "Debug: Checking individual component installation status:"
+        while IFS= read -r comp_debug; do
+          [ -z "$comp_debug" ] && continue
+          if is_component_installed "$comp_debug"; then
+            ui_verbose_info "$(_f "  - %s: already installed" "$comp_debug")"
+          else
+            ui_verbose_info "$(_f "  - %s: NOT installed" "$comp_debug")"
+          fi
+        done <<<"$preset_components_debug"
+      fi
+    fi
   else
     local preset_components_str
     preset_components_str=$(get_preset_required_components "$preset")
