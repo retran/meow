@@ -27,7 +27,12 @@ required:
 EOF
 
     local test_result
-    test_result=$(yq eval '.required[]' "$test_yaml" 2>/dev/null || echo "")
+    # Use the installed yq if available, otherwise fall back to PATH version
+    local yq_cmd="/usr/local/bin/yq"
+    if [ ! -x "$yq_cmd" ]; then
+      yq_cmd="yq"
+    fi
+    test_result=$("$yq_cmd" eval '.required[]' "$test_yaml" 2>/dev/null || echo "")
     rm -f "$test_yaml"
 
     if [ -z "$test_result" ] || [ "$test_result" = "null" ]; then

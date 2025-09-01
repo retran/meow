@@ -83,14 +83,14 @@ get_preset_required_components() {
   fi
 
   # Use the shared YAML parsing logic with array parsing
-  local yq_result
-  yq_result=$(read_yaml_array "$preset_file" ".required[]")
+  local required_components
+  required_components=$(read_yaml_array "$preset_file" ".required[]")
 
   if [ "$MEOW_VERBOSE" = "true" ]; then
-    ui_verbose_info "$(_f "Debug: final yq result for required components: '%s'" "$yq_result")" >&2
+    ui_verbose_info "$(_f "Debug: final required components result: '%s'" "$required_components")" >&2
   fi
 
-  echo "$yq_result"
+  echo "$required_components"
 }
 
 collect_preset_components_for_installation() {
@@ -418,7 +418,7 @@ list_presets() {
 
     if [ -f "$preset_file" ]; then
       local description
-      description=$(yq eval '.description // ""' "$preset_file" 2>/dev/null)
+      description=$(read_yaml_value "$preset_file" ".description")
 
       local status="  "
       if is_preset_installed "$preset_name"; then

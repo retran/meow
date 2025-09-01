@@ -12,6 +12,7 @@ fi
 
 source "${MEOW}/lib/core/colors.sh"
 source "${MEOW}/lib/core/ui.sh"
+source "${MEOW}/lib/core/yaml.sh"
 
 readonly MEOW_MOTD_ASSETS_DIR="${MEOW}/assets"
 readonly MEOW_MOTD_CACHE_DIR="${HOME}/.cache/meow-motd"
@@ -31,14 +32,7 @@ load_yaml_comments() {
     return 1
   fi
 
-  if command -v yq >/dev/null 2>&1; then
-    (
-      set -o pipefail
-      yq -r ".${category}.${section}[]" "$yaml_file" 2>/dev/null || return 1
-    )
-  else
-    return 1
-  fi
+  yaml_nested_array "$yaml_file" "$category" "$section"
 }
 
 get_comment_collection() {
@@ -301,10 +295,6 @@ display_art_and_stats() {
 }
 
 show_motd() {
-  if ! command -v yq >/dev/null 2>&1; then
-    echo "Warning: 'yq' is not installed. Cannot display random comments." >&2
-  fi
-
   local system_info art_content stats_content
   system_info=$(get_system_info "$MEOW_MOTD_CACHE_DIR")
   art_content=$(load_art "$MEOW_MOTD_ASCII_ART_FILE")

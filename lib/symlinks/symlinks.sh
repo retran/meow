@@ -3,6 +3,7 @@
 source "${MEOW}/lib/core/ui.sh"
 source "${MEOW}/lib/core/defs.sh"
 source "${MEOW}/lib/core/dry_run.sh"
+source "${MEOW}/lib/core/yaml.sh"
 
 source "${MEOW}/lib/package/homebrew.sh"
 source "${MEOW}/lib/package/apt.sh"
@@ -104,18 +105,13 @@ setup_component_symlinks_from_file() {
 
   start_time=$(date +%s)
 
-  if ! command -v yq >/dev/null 2>&1; then
-    ui_action_error "yq is required to parse symlink configuration. Please install yq."
-    return 1
-  fi
-
   if [ ! -f "$symlinks_file" ]; then
     ui_warning "$(_f "No symlinks file found for '%s' at %s" "$symlink_name" "$symlinks_file")"
     return 0
   fi
 
   local num_symlinks
-  num_symlinks=$(yq 'length' "$symlinks_file" 2>/dev/null)
+  num_symlinks=$(yaml_array_length "$symlinks_file")
 
   local is_numeric=true
   case "$num_symlinks" in
@@ -132,9 +128,11 @@ setup_component_symlinks_from_file() {
   local i
   for i in $(seq 0 $((num_symlinks - 1))); do
     local source target os
-    source=$(yq -r ".[$i].source" "$symlinks_file")
-    target=$(yq -r ".[$i].target" "$symlinks_file")
-    os=$(yq -r ".[$i].os // \"any\"" "$symlinks_file")
+    source=$(yaml_array_item "$symlinks_file" "$i" "source")
+    target=$(yaml_array_item "$symlinks_file" "$i" "target")
+    os=$(yaml_array_item "$symlinks_file" "$i" "os")
+    # Default to "any" if os is not specified
+    [ -z "$os" ] && os="any"
 
     local should_create=false
     if [ "$os" = "any" ]; then

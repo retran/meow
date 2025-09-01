@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 source "${MEOW}/lib/core/ui.sh"
+source "${MEOW}/lib/core/yaml.sh"
 
 if [ -n "${_LIB_COMPONENTS_SYMLINKS_SOURCED:-}" ]; then
   return 0
@@ -138,13 +139,13 @@ remove_component_symlinks_from_file() {
   if is_dry_run; then
     if [ -f "$symlinks_file" ]; then
       local num_symlinks
-      num_symlinks=$(yq 'length' "$symlinks_file" 2>/dev/null || echo "0")
+      num_symlinks=$(yaml_array_length "$symlinks_file")
 
       if case "$num_symlinks" in [1-9][0-9]* | 0) true ;; *) false ;; esac && [ "$num_symlinks" -gt 0 ]; then
         local i=0
         while [ "$i" -lt "$num_symlinks" ]; do
           local target_path
-          target_path=$(yq ".[$i].target" "$symlinks_file" 2>/dev/null)
+          target_path=$(yaml_array_item "$symlinks_file" "$i" "target")
 
           if [ "$target_path" != "null" ] && [ -n "$target_path" ]; then
             local expanded_target
@@ -174,18 +175,13 @@ remove_component_symlinks_from_file() {
   local processed_count=0
   local restored_count=0
 
-  if ! command -v yq >/dev/null 2>&1; then
-    ui_action_error "yq is required to parse symlink configuration. Please install yq."
-    return 1
-  fi
-
   if [ ! -f "$symlinks_file" ]; then
     ui_warning "$(_f "No symlinks configuration file found for '%s' at %s." "$symlink_name" "$symlinks_file")"
     return 0
   fi
 
   local num_symlinks
-  num_symlinks=$(yq 'length' "$symlinks_file" || echo "0")
+  num_symlinks=$(yaml_array_length "$symlinks_file")
 
   if ! case "$num_symlinks" in [1-9][0-9]* | 0) true ;; *) false ;; esac || [ "$num_symlinks" -eq 0 ]; then
     ui_warning "$(_f "No symlinks defined or invalid content in %s." "$symlinks_file")"
@@ -195,7 +191,7 @@ remove_component_symlinks_from_file() {
   local i=0
   while [ "$i" -lt "$num_symlinks" ]; do
     local target_path
-    target_path=$(yq ".[$i].target" "$symlinks_file")
+    target_path=$(yaml_array_item "$symlinks_file" "$i" "target")
 
     if [ "$target_path" = "null" ] || [ -z "$target_path" ]; then
       ui_warning "$(_f "Missing or empty 'target' key in symlink entry %d of %s. Skipping." "$i" "$symlinks_file")"
