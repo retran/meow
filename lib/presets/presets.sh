@@ -69,23 +69,23 @@ get_preset_required_components() {
 
   if [ ! -f "$preset_file" ]; then
     if [ "$MEOW_VERBOSE" = "true" ]; then
-      ui_verbose_info "$(_f "Debug: Preset file not found: %s" "$preset_file")"
+      ui_verbose_info "$(_f "Debug: Preset file not found: %s" "$preset_file")" >&2
     fi
     return 1
   fi
 
   if [ "$MEOW_VERBOSE" = "true" ]; then
-    ui_verbose_info "$(_f "Debug: Reading preset file: %s" "$preset_file")"
+    ui_verbose_info "$(_f "Debug: Reading preset file: %s" "$preset_file")" >&2
     local file_content
     file_content=$(cat "$preset_file" 2>/dev/null || echo "Failed to read file")
-    ui_verbose_info "$(_f "Debug: Preset file content: %s" "$file_content")"
+    ui_verbose_info "$(_f "Debug: Preset file content: %s" "$file_content")" >&2
   fi
 
   local yq_result
   yq_result=$(yq eval '.required[]?' "$preset_file" 2>/dev/null | grep -v "^null$" || true)
 
   if [ "$MEOW_VERBOSE" = "true" ]; then
-    ui_verbose_info "$(_f "Debug: yq result for required components: '%s'" "$yq_result")"
+    ui_verbose_info "$(_f "Debug: yq result for required components: '%s'" "$yq_result")" >&2
   fi
 
   echo "$yq_result"
@@ -98,7 +98,7 @@ collect_preset_components_for_installation() {
   all_preset_components_str=$(get_preset_required_components "$preset")
 
   if [ "$MEOW_VERBOSE" = "true" ]; then
-    ui_verbose_info "$(_f "Debug: Raw preset components string: '%s'" "$all_preset_components_str")"
+    ui_verbose_info "$(_f "Debug: Raw preset components string: '%s'" "$all_preset_components_str")" >&2
   fi
 
   local preset_required_array=()
@@ -110,7 +110,7 @@ collect_preset_components_for_installation() {
   fi
 
   if [ "$MEOW_VERBOSE" = "true" ]; then
-    ui_verbose_info "$(_f "Debug: Preset required array contains %d components: %s" "${#preset_required_array[@]}" "$(printf '%s ' "${preset_required_array[@]}")")"
+    ui_verbose_info "$(_f "Debug: Preset required array contains %d components: %s" "${#preset_required_array[@]}" "$(printf '%s ' "${preset_required_array[@]}")")" >&2
   fi
 
   local collected_unique_components=()
@@ -118,13 +118,13 @@ collect_preset_components_for_installation() {
 
   for component_name in "${preset_required_array[@]}"; do
     if [ "$MEOW_VERBOSE" = "true" ]; then
-      ui_verbose_info "$(_f "Debug: Processing component '%s'" "$component_name")"
+      ui_verbose_info "$(_f "Debug: Processing component '%s'" "$component_name")" >&2
     fi
 
     deps_output=$(collect_all_dependencies_for_installation "$component_name")
 
     if [ "$MEOW_VERBOSE" = "true" ]; then
-      ui_verbose_info "$(_f "Debug: Dependencies for '%s': '%s'" "$component_name" "$deps_output")"
+      ui_verbose_info "$(_f "Debug: Dependencies for '%s': '%s'" "$component_name" "$deps_output")" >&2
     fi
 
     if [ -n "$deps_output" ]; then
@@ -145,7 +145,7 @@ collect_preset_components_for_installation() {
   done
 
   if [ "$MEOW_VERBOSE" = "true" ]; then
-    ui_verbose_info "$(_f "Debug: Collected unique components array contains %d components: %s" "${#collected_unique_components[@]}" "$(printf '%s ' "${collected_unique_components[@]}")")"
+    ui_verbose_info "$(_f "Debug: Collected unique components array contains %d components: %s" "${#collected_unique_components[@]}" "$(printf '%s ' "${collected_unique_components[@]}")")" >&2
   fi
 
   if [ ${#collected_unique_components[@]} -gt 0 ]; then
