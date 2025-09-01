@@ -132,6 +132,11 @@ get_component_dependencies() {
   local component="$1"
   local component_file="${MEOW_COMPONENTS_DIR}/${component}/component.yaml"
 
+  if [ "$MEOW_VERBOSE" = "true" ]; then
+    ui_verbose_info "$(_f "Debug: get_component_dependencies called for component '%s'" "$component")"
+    ui_verbose_info "$(_f "Debug: Component file path: '%s'" "$component_file")"
+  fi
+
   if [ ! -f "$component_file" ]; then
     ui_error "$(_f "Component file not found: %s" "$component_file")"
     return 1
@@ -140,6 +145,9 @@ get_component_dependencies() {
   # Check if the component has dependencies at all
   if ! yaml_path_exists "$component_file" ".depends_on"; then
     # No dependencies section - this is normal, not an error
+    if [ "$MEOW_VERBOSE" = "true" ]; then
+      ui_verbose_info "$(_f "Debug: Component '%s' has no dependencies section" "$component")"
+    fi
     return 0
   fi
 
@@ -149,12 +157,23 @@ get_component_dependencies() {
     return 0
   fi
 
+  if [ "$MEOW_VERBOSE" = "true" ]; then
+    ui_verbose_info "$(_f "Debug: Raw dependencies for '%s': '%s'" "$component" "$depends_on_raw")"
+  fi
+
   local dep
+  local result_deps=""
   while IFS= read -r dep; do
     if [ -n "$dep" ] && [ "$dep" != "null" ]; then
-      printf '%s\n' "${dep#components/}"
+      local clean_dep="${dep#components/}"
+      result_deps="$result_deps$clean_dep"$'\n'
+      printf '%s\n' "$clean_dep"
     fi
   done <<<"$depends_on_raw"
+
+  if [ "$MEOW_VERBOSE" = "true" ]; then
+    ui_verbose_info "$(_f "Debug: Processed dependencies for '%s': '%s'" "$component" "$result_deps")"
+  fi
 
   return 0
 }
@@ -256,13 +275,25 @@ topological_sort_for_installation() {
 collect_all_dependencies_for_installation() {
   local component="$1"
 
+  if [ "$MEOW_VERBOSE" = "true" ]; then
+    ui_verbose_info "$(_f "Debug: collect_all_dependencies_for_installation called for component '%s'" "$component")"
+  fi
+
   local all_deps_raw_with_duplicates
   all_deps_raw_with_duplicates=$(collect_dependencies_recursively_for_installation_stdout "$component")
+
+  if [ "$MEOW_VERBOSE" = "true" ]; then
+    ui_verbose_info "$(_f "Debug: Raw dependencies for '%s': '%s'" "$component" "$all_deps_raw_with_duplicates")"
+  fi
 
   local all_components_unsorted_and_unique="$component"$'\n'
 
   local unique_deps_raw
   unique_deps_raw=$(printf '%s\n' "$all_deps_raw_with_duplicates" | sort -u)
+
+  if [ "$MEOW_VERBOSE" = "true" ]; then
+    ui_verbose_info "$(_f "Debug: Unique dependencies for '%s': '%s'" "$component" "$unique_deps_raw")"
+  fi
 
   local dep_item
   while IFS= read -r dep_item; do
@@ -271,8 +302,16 @@ collect_all_dependencies_for_installation() {
     fi
   done <<<"$unique_deps_raw"
 
+  if [ "$MEOW_VERBOSE" = "true" ]; then
+    ui_verbose_info "$(_f "Debug: All components (unsorted/unique) for '%s': '%s'" "$component" "$all_components_unsorted_and_unique")"
+  fi
+
   local sorted_deps_raw
   sorted_deps_raw=$(topological_sort_for_installation "$(printf '%s\n' "$all_components_unsorted_and_unique")")
+
+  if [ "$MEOW_VERBOSE" = "true" ]; then
+    ui_verbose_info "$(_f "Debug: Topologically sorted dependencies for '%s': '%s'" "$component" "$sorted_deps_raw")"
+  fi
 
   local result=""
   local item
@@ -281,6 +320,10 @@ collect_all_dependencies_for_installation() {
       result="$result$item"$'\n'
     fi
   done <<<"$sorted_deps_raw"
+
+  if [ "$MEOW_VERBOSE" = "true" ]; then
+    ui_verbose_info "$(_f "Debug: Final result for '%s': '%s'" "$component" "$result")"
+  fi
 
   printf '%s\n' "$result"
 }

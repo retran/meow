@@ -68,10 +68,27 @@ get_preset_required_components() {
   preset_file=$(get_preset_file "$preset")
 
   if [ ! -f "$preset_file" ]; then
+    if [ "$MEOW_VERBOSE" = "true" ]; then
+      ui_verbose_info "$(_f "Debug: Preset file not found: %s" "$preset_file")"
+    fi
     return 1
   fi
 
-  yq eval '.required[]?' "$preset_file" 2>/dev/null | grep -v "^null$" || true
+  if [ "$MEOW_VERBOSE" = "true" ]; then
+    ui_verbose_info "$(_f "Debug: Reading preset file: %s" "$preset_file")"
+    local file_content
+    file_content=$(cat "$preset_file" 2>/dev/null || echo "Failed to read file")
+    ui_verbose_info "$(_f "Debug: Preset file content: %s" "$file_content")"
+  fi
+
+  local yq_result
+  yq_result=$(yq eval '.required[]?' "$preset_file" 2>/dev/null | grep -v "^null$" || true)
+
+  if [ "$MEOW_VERBOSE" = "true" ]; then
+    ui_verbose_info "$(_f "Debug: yq result for required components: '%s'" "$yq_result")"
+  fi
+
+  echo "$yq_result"
 }
 
 collect_preset_components_for_installation() {
@@ -79,6 +96,10 @@ collect_preset_components_for_installation() {
 
   local all_preset_components_str
   all_preset_components_str=$(get_preset_required_components "$preset")
+
+  if [ "$MEOW_VERBOSE" = "true" ]; then
+    ui_verbose_info "$(_f "Debug: Raw preset components string: '%s'" "$all_preset_components_str")"
+  fi
 
   local preset_required_array=()
   if [ -n "$all_preset_components_str" ]; then
@@ -88,11 +109,24 @@ collect_preset_components_for_installation() {
     done <<<"$all_preset_components_str"
   fi
 
+  if [ "$MEOW_VERBOSE" = "true" ]; then
+    ui_verbose_info "$(_f "Debug: Preset required array contains %d components: %s" "${#preset_required_array[@]}" "$(printf '%s ' "${preset_required_array[@]}")")"
+  fi
+
   local collected_unique_components=()
   local deps_output
 
   for component_name in "${preset_required_array[@]}"; do
+    if [ "$MEOW_VERBOSE" = "true" ]; then
+      ui_verbose_info "$(_f "Debug: Processing component '%s'" "$component_name")"
+    fi
+
     deps_output=$(collect_all_dependencies_for_installation "$component_name")
+
+    if [ "$MEOW_VERBOSE" = "true" ]; then
+      ui_verbose_info "$(_f "Debug: Dependencies for '%s': '%s'" "$component_name" "$deps_output")"
+    fi
+
     if [ -n "$deps_output" ]; then
       while IFS= read -r dep_comp; do
         [ -z "$dep_comp" ] && continue
@@ -110,6 +144,10 @@ collect_preset_components_for_installation() {
     fi
   done
 
+  if [ "$MEOW_VERBOSE" = "true" ]; then
+    ui_verbose_info "$(_f "Debug: Collected unique components array contains %d components: %s" "${#collected_unique_components[@]}" "$(printf '%s ' "${collected_unique_components[@]}")")"
+  fi
+
   if [ ${#collected_unique_components[@]} -gt 0 ]; then
     topological_sort_for_installation "${collected_unique_components[@]}"
   fi
@@ -117,6 +155,7 @@ collect_preset_components_for_installation() {
 
 install_preset() {
   local preset="$1"
+  local force_flag="${2:-}"
 
   local preset_file
   preset_file=$(get_preset_file "$preset")
@@ -183,7 +222,7 @@ install_preset() {
 
     local components_to_install=()
     for comp in "${installation_order[@]}"; do
-      if ! is_component_installed "$comp"; then
+      if [ "$force_flag" = "--force" ] || ! is_component_installed "$comp"; then
         components_to_install+=("$comp")
       fi
     done

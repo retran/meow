@@ -46,12 +46,18 @@ show_install_help() {
   ui_title "meowctl install"
   ui_message "Install a meow preset."
   ui_message ""
-  ui_message "Usage: $0 install <preset>"
+  ui_message "Usage: $0 install <preset> [options]"
   ui_message ""
   ui_message "Available presets:"
   ui_message "  personal                 Complete development setup with all packages"
   ui_message "  corporate                Work-focused development environment"
   ui_message "  litterbox-*              Container-optimized environments"
+  ui_message ""
+  ui_message "Options:"
+  ui_message "  --force                  Force reinstall even if components are already installed"
+  ui_message "  --verbose, -v            Show detailed output"
+  ui_message "  --dry-run                Show what would be done without making changes"
+  ui_message "  --help, -h               Show help"
   ui_message ""
   ui_message "Examples:"
   ui_message "  $0 install personal"
@@ -442,6 +448,7 @@ cmd_component() {
 
 cmd_install() {
   local preset=""
+  local force_flag=""
 
   while [ $# -gt 0 ]; do
     case "$1" in
@@ -451,6 +458,10 @@ cmd_install() {
         ;;
       --dry-run)
         export MEOW_DRY_RUN="true"
+        shift
+        ;;
+      --force)
+        force_flag="--force"
         shift
         ;;
       --help | -h)
@@ -485,7 +496,7 @@ cmd_install() {
   local start_time
   start_time=$(date +%s)
 
-  if install_preset "$preset"; then
+  if install_preset "$preset" "$force_flag"; then
     show_final_summary "Installation" "$preset" "true" "$start_time"
     exit 0
   else
