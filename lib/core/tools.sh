@@ -12,15 +12,28 @@ YQ_VERSION="${YQ_VERSION:-v4.47.1}"
 
 ensure_yq() {
   if command -v yq >/dev/null 2>&1; then
-    local actual_version
-    actual_version=$(yq --version 2>/dev/null | awk '{print $4}')
+    local actual_version version_output
+    version_output=$(yq --version 2>/dev/null || echo "")
+
+    # Try multiple parsing strategies for different yq version output formats
+    actual_version=$(echo "$version_output" | grep -oE 'v?[0-9]+\.[0-9]+\.[0-9]+' | head -1)
+
+    # If still empty, try extracting from different fields
+    if [ -z "$actual_version" ]; then
+      actual_version=$(echo "$version_output" | awk '{for(i=1;i<=NF;i++) if($i ~ /^v?[0-9]+\.[0-9]+\.[0-9]+$/) print $i}' | head -1)
+    fi
+
+    # Normalize version format (ensure it starts with 'v')
+    if [ -n "$actual_version" ] && [[ ! "$actual_version" =~ ^v ]]; then
+      actual_version="v$actual_version"
+    fi
 
     if [ "$actual_version" = "$YQ_VERSION" ]; then
       ui_verbose_info "$(_f "⇒ yq %s is already installed and matches the required version." "$YQ_VERSION")"
       return 0
     fi
 
-    ui_action_warning "$(_f "Found yq, but version mismatch (expected: '%s', found: '%s'). Attempting to install required version." "$YQ_VERSION" "$actual_version")"
+    ui_action_warning "$(_f "Found yq, but version mismatch or parse error (expected: '%s', found: '%s', raw: '%s'). Attempting to install required version." "$YQ_VERSION" "$actual_version" "$version_output")"
   fi
 
   if is_dry_run; then
