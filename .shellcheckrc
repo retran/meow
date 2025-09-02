@@ -1,0 +1,32 @@
+# Configuration Reference: https://github.com/koalaman/shellcheck/wiki/Ignore
+shell=bash
+
+# SC1090: Can't follow non-constant source. Use a directive to specify location.
+# SC1091: Not following sourced files that are not specified
+# - These are disabled because we have complex sourcing patterns and dynamic paths
+disable=SC1090,SC1091
+
+# SC2034: Variable appears unused. Verify use (or export if used externally).
+# - Disabled because we have many environment variables that are used in sourced contexts
+disable=SC2034
+
+# SC2155: Declare and assign separately to avoid masking return values.
+# - Disabled because readonly local declarations are common and acceptable in this codebase
+disable=SC2155
+
+# SC2164: Use 'cd ... || exit' or 'cd ... || return' in case cd fails.
+# - We use 'set -e' extensively, so this is handled automatically
+disable=SC2164
+
+# Source path for includes (helps with SC1091 when we do want to follow sources)
+source-path=.
+source-path=./lib/core
+source-path=./lib/motd
+source-path=./lib/package
+source-path=./lib/system
+source-path=./config/env
+
+format=gcc
+check-sourced=true
+external-sources=true
+extended-analysis=false

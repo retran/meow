@@ -1,0 +1,8 @@
+description: "Core desktop applications, system utilities, and GUI tools for macOS"
+
+platforms:
+  - macos
+
+depends_on:
+  - shell-essential
+  - fonts

@@ -1,0 +1,2 @@
+- source: "$MEOW/private/git/.gitconfig"
+  target: "$HOME/.gitconfig"

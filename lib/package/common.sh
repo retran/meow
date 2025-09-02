@@ -1,22 +1,73 @@
 #!/usr/bin/env bash
 
-# lib/package/common.sh - Common package manager functions
-
-if [[ -n "${_LIB_PACKAGE_COMMON_SOURCED:-}" ]]; then
+if [ -n "${_LIB_PACKAGE_COMMON_SOURCED:-}" ]; then
   return 0
 fi
 _LIB_PACKAGE_COMMON_SOURCED=1
 
 source "${MEOW}/lib/core/ui.sh"
 source "${MEOW}/lib/core/platform.sh"
+source "${MEOW}/lib/core/dry_run.sh"
+
+dry_run_package_operation() {
+  local manager_display_name="$1"
+  local operation="$2"
+  local package_name="$3"
+  dry_run_log "$(_f "Would %s %s package %s" "$operation" "$manager_display_name" "$package_name")"
+}
+
+run_package_operation() {
+  local start_msg="$1"
+  local success_msg="$2"
+  local failure_msg="$3"
+  shift 3
+  local cmd_and_args=("$@")
+
+  ui_verbose_action_start "$start_msg"
+
+  if "${cmd_and_args[@]}"; then
+    ui_verbose_action_success "$success_msg"
+    return 0
+  else
+    ui_action_error "$failure_msg"
+    return 1
+  fi
+}
+
+cache_package_list() {
+  local manager="$1"
+  local list_command="$2"
+
+  local cache_var="_$(echo "$manager" | tr '[:lower:]' '[:upper:]')_INSTALLED_PACKAGES"
+
+  if [ -z "${!cache_var:-}" ]; then
+    ui_verbose_action_start "$(_f "Caching installed %s packages..." "$manager")"
+    local output
+    output="$($list_command)"
+    eval "$cache_var=\"\$output\""
+    ui_verbose_action_success "$(_f "Successfully cached %s packages." "$manager")"
+  fi
+}
+
+is_package_installed() {
+  local manager="$1"
+  local package="$2"
+
+  local cache_var="_$(echo "$manager" | tr '[:lower:]' '[:upper:]')_INSTALLED_PACKAGES"
+
+  grep -qFx "$package" <<<"${!cache_var}"
+}
 
 parse_package_line() {
   local line="$1"
-  [[ $line == \#* ]] && return
-  [[ -z "${line// /}" ]] && return
 
-  line="${line%%#*}"
-  line="${line%%;*}"
+  case "$line" in
+    '#'*) return ;;
+  esac
+
+  if [ -z "$(echo "$line" | tr -d ' ')" ]; then
+    return
+  fi
 
   line="${line#"${line%%[![:space:]]*}"}"
   line="${line%"${line##*[![:space:]]}"}"
@@ -24,150 +75,311 @@ parse_package_line() {
   echo "$line"
 }
 
-run_package_operation() {
-  # $1 = indent, $2 = package name, $3 = action (install/update),
-  # $4 = start msg, $5 = success msg, $6 = fail msg, $7 = unchanged msg,
-  # remaining args = command + its arguments
-  local indent="$1"
-  local pkg="$2"
-  local action="$3"
-  local start_msg="$4"
-  local success_msg="$5"
-  local fail_msg="$6"
-  local unchanged_msg="$7"
-  shift 7
-  local cmd_args=("$@")
-
-  ui_spinner "$indent" "$start_msg" \
-    --success "$success_msg" \
-    --fail "$fail_msg" \
-    "${cmd_args[@]}"
+capitalize() {
+  local str="$1"
+  local first_char rest
+  first_char=$(echo "${str:0:1}" | tr '[:lower:]' '[:upper:]')
+  rest="${str:1}"
+  echo "${first_char}${rest}"
 }
 
 install_packages_generic() {
-  local category="$1"
-  local indent_level="${2:-1}"
-  local manager_name="$3"
-  local install_cmd="$4"
-  local check_cmd="$5"
+  local component="$1"
+  local manager_name="$2"
+  local install_cmd="$3"
+  local check_cmd="$4"
 
-  local package_dir_var="$(echo "$manager_name" | tr '[:lower:]' '[:upper:]')_PACKAGES_DIR"
-  local package_dir="${!package_dir_var}"
+  local manager_display_name
+  case "$manager_name" in
+    "homebrew") manager_display_name="Homebrew" ;;
+    "npm") manager_display_name="NPM" ;;
+    "pipx") manager_display_name="Pipx" ;;
+    "vscode") manager_display_name="VS Code" ;;
+    "mas") manager_display_name="App Store" ;;
+    "go") manager_display_name="Go" ;;
+    "apt") manager_display_name="APT" ;;
+    "pacman") manager_display_name="Pacman" ;;
+    "apk") manager_display_name="APK" ;;
+    *) manager_display_name="$(capitalize "$manager_name")" ;;
+  esac
 
-  step_header "$indent_level" "${manager_name^} Packages ($category)"
+  local package_file="${MEOW_COMPONENTS_DIR}/${component}/packages/${manager_name}.list"
+  if [ ! -f "$package_file" ]; then
+    return 0
+  fi
 
-  local package_file="${package_dir}/${category}.list"
-  [[ ! -f "$package_file" ]] && {
-    indented_error_msg "$indent_level" "Package list not found: $package_file"
-    return 1
-  }
+  local total_packages=0
+  while IFS= read -r line; do
+    local package_name
+    package_name=$(parse_package_line "$line")
+    if [ -n "$package_name" ]; then
+      ((total_packages++)) || true
+    fi
+  done <"$package_file"
 
-  local installed_count=0
-  local already_installed_count=0
-  local failed_count=0
-  local start_time
-  start_time=$(date +%s)
+  if [ "$total_packages" -eq 0 ]; then
+    return 0
+  fi
+
+  local installed_count=0 already_installed_count=0 failed_count=0
 
   while IFS= read -r line; do
     local package_name
     package_name=$(parse_package_line "$line")
-    [[ -z "$package_name" ]] && continue
+    if [ -z "$package_name" ]; then
+      continue
+    fi
 
-    if eval "$check_cmd \"$package_name\""; then
-      success_tick_msg "$((indent_level + 1))" "$package_name (already installed)"
-      ((already_installed_count++))
+    if "$check_cmd" "$package_name"; then
+      ui_verbose_action_success "$(_f "%s %s is already installed." "$manager_display_name" "$package_name")"
+      ((already_installed_count++)) || true
     else
-      run_package_operation "$((indent_level + 1))" "$package_name" "install" \
-        "Installing $package_name" \
-        "Successfully installed $package_name" \
-        "Failed to install $package_name" \
-        "" \
-        $install_cmd "$package_name"
-      if [[ $? -eq 0 ]]; then
-        ((installed_count++))
+      if is_dry_run; then
+        dry_run_package_operation "$manager_display_name" "install" "$package_name"
+        ((installed_count++)) || true
+        continue
+      fi
+
+      if [ "$MEOW_VERBOSE" = "true" ]; then
+        # shellcheck disable=SC2086 # Arguments are intentionally word-split by run_package_operation's design
+        if run_package_operation \
+          "$(_f "Installing %s %s..." "$manager_display_name" "$package_name")" \
+          "$(_f "Successfully installed %s %s." "$manager_display_name" "$package_name")" \
+          "$(_f "Failed to install %s %s!" "$manager_display_name" "$package_name")" \
+          $install_cmd "$package_name"; then
+          ((installed_count++)) || true
+        else
+          ((failed_count++)) || true
+        fi
       else
-        ((failed_count++))
+        # shellcheck disable=SC2086 # Arguments are intentionally word-split by ui_silent_spinner's design
+        if ui_silent_spinner "$(_f "Installing %s %s" "$manager_display_name" "$package_name")" $install_cmd "$package_name"; then
+          ((installed_count++)) || true
+        else
+          ((failed_count++)) || true
+          ui_action_error "$(_f "Failed to install %s %s!" "$manager_display_name" "$package_name")"
+        fi
       fi
     fi
   done <"$package_file"
 
-  local duration=$(($(date +%s) - start_time))
-  if ((failed_count == 0)); then
-    if ((installed_count > 0)); then
-      success_tick_msg "$indent_level" "Installed $installed_count packages ($already_installed_count already present) (${duration}s)"
+  if [ "$failed_count" -eq 0 ]; then
+    if [ "$installed_count" -gt 0 ]; then
+      ui_indent "$(_f "%s: ✓ %d installed, %d already present" "$(capitalize "$manager_name")" "$installed_count" "$already_installed_count")"
     else
-      success_tick_msg "$indent_level" "All packages already present ($already_installed_count) (${duration}s)"
+      ui_indent "$(_f "%s: ✓ All %d packages already present" "$(capitalize "$manager_name")" "$already_installed_count")"
     fi
     return 0
   else
-    indented_warning "$indent_level" "Completed with $failed_count error(s) (${duration}s)"
+    ui_indent "$(_f "%s: ✗ %d failed, %d installed, %d already present" "$(capitalize "$manager_name")" "$failed_count" "$installed_count" "$already_installed_count")"
     return 1
   fi
 }
 
 update_packages_generic() {
-  local category="$1"
-  local indent_level="${2:-1}"
-  local manager_name="$3"
-  local update_cmd="$4"
-  local check_cmd="$5"
-  local skip_pattern="${6:-}"
+  local component="$1"
+  local manager_name="$2"
+  local update_cmd="$3"
+  local check_cmd="$4"
+  local skip_pattern="${5:-}"
 
-  local package_dir_var="${manager_name^^}_PACKAGES_DIR"
-  local package_dir="${!package_dir_var}"
+  local manager_display_name
+  case "$manager_name" in
+    "homebrew") manager_display_name="Homebrew" ;;
+    "npm") manager_display_name="NPM" ;;
+    "pipx") manager_display_name="Pipx" ;;
+    "vscode") manager_display_name="VS Code" ;;
+    "mas") manager_display_name="App Store" ;;
+    "go") manager_display_name="Go" ;;
+    "apt") manager_display_name="APT" ;;
+    "pacman") manager_display_name="Pacman" ;;
+    "apk") manager_display_name="APK" ;;
+    *) manager_display_name="$(capitalize "$manager_name")" ;;
+  esac
 
-  step_header "$indent_level" "${manager_name^} Updates ($category)"
+  local package_file="${MEOW_COMPONENTS_DIR}/${component}/packages/${manager_name}.list"
+  if [ ! -f "$package_file" ]; then
+    return 0
+  fi
 
-  local package_file="${package_dir}/${category}.list"
-  [[ ! -f "$package_file" ]] && {
-    indented_error_msg "$indent_level" "Package list not found: $package_file"
-    return 1
-  }
+  local total_packages=0
+  while IFS= read -r line; do
+    local package_name
+    package_name=$(parse_package_line "$line")
+    if [ -z "$package_name" ]; then
+      continue
+    fi
+    if "$check_cmd" "$package_name"; then
+      ((total_packages++)) || true
+    fi
+  done <"$package_file"
 
-  local updated_count=0
-  local up_to_date_count=0
-  local failed_count=0
-  local start_time
-  start_time=$(date +%s)
+  if [ "$total_packages" -eq 0 ]; then
+    return 0
+  fi
+
+  local updated_count=0 up_to_date_count=0 failed_count=0
 
   while IFS= read -r line; do
     local package_name
     package_name=$(parse_package_line "$line")
-    [[ -z "$package_name" ]] && continue
+    if [ -z "$package_name" ]; then
+      continue
+    fi
 
-    if eval "$check_cmd \"$package_name\""; then
-      if [[ -n "$skip_pattern" ]] && eval "$update_cmd $package_name" 2>&1 | grep -Eq "$skip_pattern"; then
-        success_tick_msg "$((indent_level + 1))" "$package_name (up-to-date)"
-        ((up_to_date_count++))
-      else
-        run_package_operation "$((indent_level + 1))" "$package_name" "update" \
-          "Updating $package_name" \
-          "Successfully updated $package_name" \
-          "Failed to update $package_name" \
-          "" \
-          $update_cmd "$package_name"
-        if [[ $? -eq 0 ]]; then
-          ((updated_count++))
+    if "$check_cmd" "$package_name"; then
+      local is_up_to_date=false
+      if [ -n "$skip_pattern" ]; then
+        local test_output
+        if [ "$MEOW_VERBOSE" = "true" ]; then
+          ui_verbose_info "$(_f "Checking if %s %s is up-to-date..." "$manager_display_name" "$package_name")"
+          test_output=$($update_cmd "$package_name" 2>&1) || true
         else
-          ((failed_count++))
+          local temp_file
+          temp_file=$(mktemp) || {
+            ui_action_error "$(_f "Failed to create temporary file for update check.")"
+            return 1
+          }
+
+          if ui_silent_spinner "$(_f "Checking %s %s" "$manager_display_name" "$package_name")" "$update_cmd" "$package_name" >"$temp_file" 2>&1; then
+            test_output=$(cat "$temp_file")
+          else
+            test_output=$(cat "$temp_file")
+            ui_action_error "$(_f "Failed to check update status for %s %s. Output:\n%s" "$manager_display_name" "$package_name" "$test_output")"
+          fi
+          rm -f "$temp_file" || true
+        fi
+        if echo "$test_output" | grep -Eq "$skip_pattern"; then
+          is_up_to_date=true
+        fi
+      fi
+
+      if [ "$is_up_to_date" = "true" ]; then
+        ui_verbose_action_success "$(_f "%s %s is already up-to-date." "$manager_display_name" "$package_name")"
+        ((up_to_date_count++)) || true
+      else
+        if is_dry_run; then
+          dry_run_package_operation "$manager_display_name" "update" "$package_name"
+          ((updated_count++)) || true
+          continue
+        fi
+
+        if [ "$MEOW_VERBOSE" = "true" ]; then
+          # shellcheck disable=SC2086 # Arguments are intentionally word-split by run_package_operation's design
+          if run_package_operation \
+            "$(_f "Updating %s %s..." "$manager_display_name" "$package_name")" \
+            "$(_f "Successfully updated %s %s." "$manager_display_name" "$package_name")" \
+            "$(_f "Failed to update %s %s!" "$manager_display_name" "$package_name")" \
+            $update_cmd "$package_name"; then
+            ((updated_count++)) || true
+          else
+            ((failed_count++)) || true
+          fi
+        else
+          # shellcheck disable=SC2086 # Arguments are intentionally word-split by ui_silent_spinner's design
+          if ui_silent_spinner "$(_f "Updating %s %s" "$manager_display_name" "$package_name")" $update_cmd "$package_name"; then
+            ((updated_count++)) || true
+          else
+            ((failed_count++)) || true
+            ui_action_error "$(_f "Failed to update %s %s!" "$manager_display_name" "$package_name")"
+          fi
         fi
       fi
     else
-      indented_warning "$((indent_level + 1))" "$package_name (not installed, skipping)"
+      ui_action_warning "$(_f "Package %s %s not installed, skipping update." "$manager_display_name" "$package_name")"
     fi
   done <"$package_file"
 
-  local duration=$(($(date +%s) - start_time))
-  if ((failed_count == 0)); then
-    if ((updated_count > 0)); then
-      success_tick_msg "$indent_level" "Updated $updated_count packages ($up_to_date_count up-to-date) (${duration}s)"
+  if [ "$failed_count" -eq 0 ]; then
+    if [ "$updated_count" -gt 0 ]; then
+      ui_indent "$(_f "%s: ✓ %d updated, %d up-to-date" "$(capitalize "$manager_name")" "$updated_count" "$up_to_date_count")"
       return 0
     else
-      success_tick_msg "$indent_level" "All packages up-to-date ($up_to_date_count) (${duration}s)"
-      return 100
+      ui_indent "$(_f "%s: ✓ All %d packages up-to-date" "$(capitalize "$manager_name")" "$up_to_date_count")"
+      return 0
     fi
   else
-    indented_error_msg "$indent_level" "Failed to update $failed_count packages (${duration}s)"
+    ui_indent "$(_f "%s: ✗ %d failed, %d updated, %d up-to-date" "$(capitalize "$manager_name")" "$failed_count" "$updated_count" "$up_to_date_count")"
+    return 1
+  fi
+}
+
+uninstall_packages_generic() {
+  local component="$1"
+  local manager_name="$2"
+  local uninstall_cmd="$3"
+  local check_cmd="$4"
+
+  local manager_display_name
+  case "$manager_name" in
+    "homebrew") manager_display_name="Homebrew" ;;
+    "npm") manager_display_name="NPM" ;;
+    "pipx") manager_display_name="Pipx" ;;
+    "vscode") manager_display_name="VS Code" ;;
+    "mas") manager_display_name="App Store" ;;
+    "go") manager_display_name="Go" ;;
+    "apt") manager_display_name="APT" ;;
+    "pacman") manager_display_name="Pacman" ;;
+    "apk") manager_display_name="APK" ;;
+    *) manager_display_name="$(capitalize "$manager_name")" ;;
+  esac
+
+  local package_file="${MEOW_COMPONENTS_DIR}/${component}/packages/${manager_name}.list"
+  if [ ! -f "$package_file" ]; then
+    return 0
+  fi
+
+  local uninstalled_count=0 not_installed_count=0 failed_count=0
+
+  while IFS= read -r line; do
+    local package_name
+    package_name=$(parse_package_line "$line")
+    if [ -z "$package_name" ]; then
+      continue
+    fi
+
+    if "$check_cmd" "$package_name"; then
+      if is_dry_run; then
+        dry_run_package_operation "$manager_display_name" "remove" "$package_name"
+        ((uninstalled_count++)) || true
+        continue
+      fi
+
+      if [ "$MEOW_VERBOSE" = "true" ]; then
+        # shellcheck disable=SC2086 # Arguments are intentionally word-split by run_package_operation's design
+        if run_package_operation \
+          "$(_f "Uninstalling %s %s..." "$manager_display_name" "$package_name")" \
+          "$(_f "Successfully uninstalled %s %s." "$manager_display_name" "$package_name")" \
+          "$(_f "Failed to uninstall %s %s!" "$manager_display_name" "$package_name")" \
+          $uninstall_cmd "$package_name"; then
+          ((uninstalled_count++)) || true
+        else
+          ((failed_count++)) || true
+        fi
+      else
+        # shellcheck disable=SC2086 # Arguments are intentionally word-split by ui_silent_spinner's design
+        if ui_silent_spinner "$(_f "Uninstalling %s %s" "$manager_display_name" "$package_name")" $uninstall_cmd "$package_name"; then
+          ((uninstalled_count++)) || true
+        else
+          ((failed_count++)) || true
+          ui_action_error "$(_f "Failed to uninstall %s %s!" "$manager_display_name" "$package_name")"
+        fi
+      fi
+    else
+      ui_verbose_info "$(_f "Package %s %s not installed, skipping uninstallation." "$manager_display_name" "$package_name")"
+      ((not_installed_count++)) || true
+    fi
+  done <"$package_file"
+
+  if [ "$failed_count" -eq 0 ]; then
+    if [ "$uninstalled_count" -gt 0 ]; then
+      ui_indent "$(_f "%s: ✓ %d uninstalled, %d not installed" "$(capitalize "$manager_name")" "$uninstalled_count" "$not_installed_count")"
+    else
+      ui_indent "$(_f "%s: ✓ All %d packages already not installed" "$(capitalize "$manager_name")" "$not_installed_count")"
+    fi
+    return 0
+  else
+    ui_indent "$(_f "%s: ✗ %d failed, %d uninstalled, %d not installed" "$(capitalize "$manager_name")" "$failed_count" "$uninstalled_count" "$not_installed_count")"
     return 1
   fi
 }

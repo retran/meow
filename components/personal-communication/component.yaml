@@ -1,0 +1,7 @@
+description: "Personal messaging and social communication applications"
+
+platforms:
+  - macos
+
+depends_on:
+  - desktop-essential

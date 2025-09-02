@@ -1,61 +1,93 @@
 #!/usr/bin/env bash
 
-# lib/package/apt.sh - APT package management (Debian-based)
-
-if [[ -n "${_LIB_PACKAGE_APT_SOURCED:-}" ]]; then
+if [ -n "${_LIB_PACKAGE_APT_SOURCED:-}" ]; then
   return 0
 fi
 _LIB_PACKAGE_APT_SOURCED=1
 
 source "${MEOW}/lib/package/common.sh"
-
-APT_PACKAGES_DIR="${MEOW}/packages/apt"
+source "${MEOW}/lib/core/dry_run.sh"
 
 _cache_installed_apt_packages() {
-  if [[ -z "${_APT_INSTALLED_PACKAGES:-}" ]]; then
-    action_msg 0 "Caching APT package list..."
-    _APT_INSTALLED_PACKAGES="$(dpkg-query -f='${binary:Package}\n' -W 2>/dev/null)"
-  fi
+  cache_package_list "apt" "dpkg-query -f='\${binary:Package}\n' -W 2>/dev/null"
 }
 
 is_apt_package_installed() {
   _cache_installed_apt_packages
-  grep -qE "^$1$" <<<"$_APT_INSTALLED_PACKAGES"
+  is_package_installed "apt" "$1"
 }
 
 setup_apt() {
-  local indent="${1:-0}"
-  step_header "$indent" "Setting up APT"
+  if [ "$MEOW_VERBOSE" = "true" ]; then
+    ui_package_manager_setup "APT"
+  fi
 
-  command -v apt-get >/dev/null 2>&1 || {
-    indented_error_msg "$indent" "apt-get not found"
+  if is_dry_run; then
+    dry_run_ui_info "APT: Would check for 'apt-get' command."
+    if ! command -v apt-get >/dev/null 2>&1; then
+      dry_run_ui_info "APT: 'apt-get' command not found. APT setup would fail."
+    else
+      dry_run_ui_info "APT: Would update package index to refresh available package information."
+      dry_run_ui_info "  Command: sudo apt-get update"
+    fi
+    return 0
+  fi
+
+  if ! command -v apt-get >/dev/null 2>&1; then
+    ui_error "APT: 'apt-get' command not found. Cannot set up APT."
     return 1
-  }
+  fi
 
-  ui_spinner "$((indent + 1))" "Updating APT index" \
-    --success "APT index updated" \
-    --fail "Failed to update APT index" \
-    sudo apt-get update
+  if [ "$MEOW_VERBOSE" = "true" ]; then
+    ui_spinner "APT: Updating package index" \
+      --success "APT: Package index updated successfully." \
+      --fail "APT: Failed to update package index." \
+      sudo apt-get update
+  else
+    sudo apt-get update >/dev/null 2>&1
+  fi
+
+  if [ "$MEOW_VERBOSE" = "true" ]; then
+    ui_package_manager_ready "APT"
+  fi
 }
 
 install_apt_packages() {
-  install_packages_generic "$1" "$2" "apt" "sudo apt-get install -y" "is_apt_package_installed"
+  install_packages_generic "$1" "apt" "sudo apt-get install -y" "is_apt_package_installed"
 }
 
 update_apt_packages() {
-  update_packages_generic "$1" "$2" "apt" "sudo apt-get install --only-upgrade -y" \
+  update_packages_generic "$1" "apt" "sudo apt-get install --only-upgrade -y" \
     "is_apt_package_installed" "(is already the newest version|not upgraded)"
 }
 
+uninstall_apt_packages() {
+  uninstall_packages_generic "$1" "apt" "sudo apt-get remove -y" "is_apt_package_installed"
+}
+
 cleanup_apt() {
-  local indent="${1:-0}"
-  step_header "$indent" "Cleaning APT"
-  ui_spinner "$((indent + 1))" "Autoremove unused packages" \
-    --success "APT autoremove done" \
-    --fail "APT autoremove failed" \
-    sudo apt-get autoremove -y
-  ui_spinner "$((indent + 1))" "Cleaning APT cache" \
-    --success "APT cache cleaned" \
-    --fail "APT cache cleanup failed" \
-    sudo apt-get clean
+  if is_dry_run; then
+    dry_run_ui_info "APT: Would remove orphaned packages and clear the download cache."
+    dry_run_ui_info "  Commands: sudo apt-get autoremove -y && sudo apt-get clean"
+    return 0
+  fi
+
+  if [ "$MEOW_VERBOSE" = "true" ]; then
+    ui_package_manager_cleaning "APT"
+
+    ui_spinner "APT: Removing unused packages" \
+      --success "APT: Unused packages removed successfully." \
+      --fail "APT: Failed to remove unused packages." \
+      sudo apt-get autoremove -y
+
+    ui_spinner "APT: Cleaning package cache" \
+      --success "APT: Package cache cleaned successfully." \
+      --fail "APT: Failed to clean package cache." \
+      sudo apt-get clean
+  else
+    ui_spinner "APT: Cleaning environment" \
+      --success "APT: Environment cleaned successfully." \
+      --fail "APT: Failed to clean APT environment." \
+      bash -c "sudo apt-get autoremove -y && sudo apt-get clean"
+  fi
 }

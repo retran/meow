@@ -1,0 +1,179 @@
+# Taskfile for meow project maintenance
+# ====================================
+# https://taskfile.dev
+
+version: '3'
+
+vars:
+  PROJECT_NAME: meow
+
+tasks:
+  default:
+    desc: Show available tasks
+    cmds:
+      - task --list
+
+  lint:
+    desc: Run all linting checks
+    deps:
+      - lint:shell
+      - lint:yaml
+
+  lint:shell:
+    desc: Run shellcheck on all shell scripts
+    cmds:
+      - echo "Running shellcheck on shell scripts..."
+      - |
+        # Lint .sh files
+        find . -name "*.sh" -type f -print0 | xargs -0 shellcheck
+        # Lint executable files in bin/ that are shell scripts
+        for file in bin/*; do
+          if [[ -x "$file" ]] && file "$file" | grep -q -E "(shell|bash)"; then
+            shellcheck "$file"
+          fi
+        done
+      - echo "✓ Shell linting complete"
+
+  lint:yaml:
+    desc: Run yamllint on YAML files
+    cmds:
+      - echo "Running yamllint on YAML files..."
+      - |
+        if command -v yamllint >/dev/null 2>&1; then
+          find . -name "*.yaml" -o -name "*.yml" | xargs yamllint
+          echo "✓ YAML linting complete"
+        else
+          echo "⚠ yamllint not installed, skipping YAML linting"
+        fi
+
+  format:
+    desc: Format all code
+    deps:
+      - format:shell
+
+  format:shell:
+    desc: Format shell scripts with shfmt
+    cmds:
+      - echo "Formatting shell scripts with shfmt..."
+      - |
+        if command -v shfmt >/dev/null 2>&1; then
+          # Format .sh files
+          find . -name "*.sh" -type f -print0 | xargs -0 shfmt -w -i 2 -ci
+          # Format executable files in bin/ that are shell scripts
+          for file in bin/*; do
+            if [[ -x "$file" ]] && file "$file" | grep -q -E "(shell|bash)"; then
+              shfmt -w -i 2 -ci "$file"
+            fi
+          done
+          echo "✓ Shell formatting complete"
+        else
+          echo "⚠ shfmt not installed, skipping shell formatting"
+        fi
+
+  format:check:
+    desc: Check code formatting without making changes
+    cmds:
+      - echo "Checking shell script formatting..."
+      - |
+        if command -v shfmt >/dev/null 2>&1; then
+          # Check .sh files
+          if ! find . -name "*.sh" -type f -print0 | xargs -0 shfmt -d -i 2 -ci; then
+            echo "❌ Shell scripts are not properly formatted"
+            echo "Run 'task format:shell' to fix formatting issues"
+            exit 1
+          fi
+          # Check executable files in bin/ that are shell scripts
+          for file in bin/*; do
+            if [[ -x "$file" ]] && file "$file" | grep -q -E "(shell|bash)"; then
+              if ! shfmt -d -i 2 -ci "$file"; then
+                echo "❌ Executable script $file is not properly formatted"
+                echo "Run 'task format:shell' to fix formatting issues"
+                exit 1
+              fi
+            fi
+          done
+          echo "✅ All shell scripts are properly formatted"
+        else
+          echo "⚠ shfmt not installed, skipping format check"
+        fi
+
+  test:
+    desc: Run tests
+    cmds:
+      - echo "Running tests..."
+      - |
+        if [ -d "tests" ]; then
+          ./tests/run_tests.sh
+        else
+          echo "⚠ No tests directory found"
+        fi
+
+  test:syntax:
+    desc: Test shell script syntax
+    cmds:
+      - echo "Testing shell script syntax..."
+      - bash -n bin/meowctl
+      - |
+        for file in lib/core/*.sh; do
+          if [[ -f "$file" ]]; then
+            echo "Testing syntax of $file"
+            bash -n "$file"
+          fi
+        done
+      - echo "✓ All shell scripts have valid syntax"
+
+  clean:
+    desc: Clean up temporary files
+    cmds:
+      - echo "Cleaning up temporary files..."
+      - find . -name "*.tmp" -type f -delete
+      - find . -name "*.log" -type f -delete
+      - echo "✓ Cleanup complete"
+
+  install:dev-tools:
+    desc: Install development tools
+    cmds:
+      - echo "Installing development tools..."
+      - |
+        if command -v brew >/dev/null 2>&1; then
+          brew install shellcheck shfmt yamllint go-task
+        elif command -v apt >/dev/null 2>&1; then
+          sudo apt update && sudo apt install -y shellcheck yamllint
+          # Install go-task
+          sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
+          # Install shfmt
+          go install mvdan.cc/sh/v3/cmd/shfmt@latest
+        elif command -v pacman >/dev/null 2>&1; then
+          sudo pacman -S shellcheck shfmt yamllint go-task
+        else
+          echo "⚠ Please install shellcheck, shfmt, yamllint, and go-task manually"
+          echo "See: https://taskfile.dev/installation/"
+        fi
+      - echo "✓ Development tools installation complete"
+
+  check:tools:
+    desc: Check if all required tools are available
+    cmds:
+      - echo "Checking for required tools..."
+      - |
+        command -v shellcheck >/dev/null 2>&1 && echo "✓ shellcheck" || echo "✗ shellcheck (missing)"
+        command -v shfmt >/dev/null 2>&1 && echo "✓ shfmt" || echo "✗ shfmt (missing)"
+        command -v yamllint >/dev/null 2>&1 && echo "✓ yamllint" || echo "✗ yamllint (missing)"
+        command -v yq >/dev/null 2>&1 && echo "✓ yq" || echo "✗ yq (missing)"
+        command -v task >/dev/null 2>&1 && echo "✓ go-task" || echo "✗ go-task (missing)"
+
+  pre-commit:
+    desc: Run pre-commit checks
+    deps:
+      - lint
+      - format:check
+      - test:syntax
+
+  ci:
+    desc: Run all CI checks
+    deps:
+      - check:tools
+      - lint
+      - format:check
+      - test:syntax
+      - test

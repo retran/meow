@@ -1,0 +1,16 @@
+bash
+curl
+wget
+direnv
+htop
+eza
+git
+fd
+fzf
+ripgrep
+zoxide
+zsh
+starship
+neovim
+httpie
+bat

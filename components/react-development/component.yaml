@@ -1,0 +1,5 @@
+description: >-
+  React framework tools, testing utilities, and development scaffolding
+
+depends_on:
+  - js-development

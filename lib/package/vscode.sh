@@ -1,63 +1,89 @@
 #!/usr/bin/env bash
 
-# lib/package/vscode.sh - VS Code extension management
-
-if [[ -n "${_LIB_PACKAGE_VSCODE_SOURCED:-}" ]]; then
+if [ -n "${_LIB_PACKAGE_VSCODE_SOURCED:-}" ]; then
   return 0
 fi
 _LIB_PACKAGE_VSCODE_SOURCED=1
 
 source "${MEOW}/lib/package/common.sh"
-
-VSCODE_PACKAGES_DIR="${MEOW}/packages/vscode"
+source "${MEOW}/lib/core/dry_run.sh"
 
 _cache_installed_vscode_extensions() {
-  if [[ -z "${_VSCODE_INSTALLED_EXTENSIONS:-}" ]]; then
-    action_msg 0 "Caching VS Code extensions list..."
-    if command -v code >/dev/null 2>&1; then
-      _VSCODE_INSTALLED_EXTENSIONS="$(code --list-extensions 2>/dev/null)"
-    else
-      _VSCODE_INSTALLED_EXTENSIONS=""
-    fi
+  if command -v code >/dev/null 2>&1; then
+    cache_package_list "vscode" "code --list-extensions 2>/dev/null"
   fi
 }
 
 is_vscode_package_installed() {
   _cache_installed_vscode_extensions
-  grep -qE "^$1$" <<<"$_VSCODE_INSTALLED_EXTENSIONS"
+  is_package_installed "vscode" "$1"
 }
 
 setup_vscode() {
-  local indent="${1:-0}"
-  step_header "$indent" "Setting up VS Code CLI"
+  ui_step_header "Setting up VS Code CLI"
+
+  if is_dry_run; then
+    if ! command -v code >/dev/null 2>&1; then
+      dry_run_ui_info "VS Code CLI not found. If installed, ensure it's in your PATH."
+      dry_run_ui_info "Skipping VS Code extension management."
+    else
+      dry_run_ui_info "VS Code CLI is available, ready for extension installation."
+    fi
+    return 0
+  fi
+
   if ! command -v code >/dev/null 2>&1; then
-    indented_warning "$indent" "VS Code CLI not found, skipping extensions"
+    ui_warning "VS Code CLI not found. Please install it and ensure it's in your PATH to manage extensions."
+    ui_warning "Skipping VS Code extension management."
     return 1
   fi
-  success_tick_msg "$indent" "VS Code CLI available"
+  ui_action_success "VS Code CLI available."
   return 0
 }
 
 install_vscode_packages() {
-  local category="$1"
-  local indent_level="${2:-1}"
+  local component="$1"
 
   if ! command -v code >/dev/null 2>&1; then
-    indented_info "$indent_level" "VS Code CLI not found, skipping VS Code extension installation"
+    ui_info "VS Code CLI not found, skipping VS Code extension installation for component '$component'."
     return 0
   fi
 
-  install_packages_generic "$category" "$indent_level" "vscode" "code --install-extension" "is_vscode_package_installed"
+  install_packages_generic "$component" "vscode" "code --install-extension" "is_vscode_package_installed"
 }
 
 update_vscode_packages() {
-  local category="$1"
-  local indent_level="${2:-1}"
+  local component="$1"
 
   if ! command -v code >/dev/null 2>&1; then
-    indented_info "$indent_level" "VS Code CLI not found, skipping VS Code extension update"
+    ui_info "VS Code CLI not found, skipping VS Code extension update for component '$component'."
     return 0
   fi
 
-  update_packages_generic "$category" "$indent_level" "vscode" "code --install-extension" "is_vscode_package_installed"
+  update_packages_generic "$component" "vscode" "code --install-extension" "is_vscode_package_installed"
+}
+
+uninstall_vscode_packages() {
+  local component="$1"
+
+  if ! command -v code >/dev/null 2>&1; then
+    ui_info "VS Code CLI not found, skipping VS Code extension uninstallation for component '$component'."
+    return 0
+  fi
+
+  uninstall_packages_generic "$component" "vscode" "code --uninstall-extension" "is_vscode_package_installed"
+}
+
+cleanup_vscode() {
+  if is_dry_run; then
+    dry_run_ui_info "VS Code cleanup would be skipped (extensions are managed automatically by VS Code)."
+    return 0
+  fi
+
+  if [ "$MEOW_VERBOSE" = "true" ]; then
+    ui_step_header "Cleaning VS Code (no-op)"
+    ui_action_success "VS Code cleanup skipped (extensions are managed automatically by VS Code)."
+  else
+    ui_action_success "VS Code cleanup skipped."
+  fi
 }

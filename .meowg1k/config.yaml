@@ -1,41 +1,43 @@
 ---
 generate:
-  defaultProvider: "gemini"
-  defaultModel: "gemini-2.5-flash"
-  defaultTimeout: "5m"
+  defaultProvider: "llama"
+  defaultLlamaBaseURL: "http://127.0.0.1:8080"
   defaultSystemPrompt: >-
-    You are an expert DevOps engineer and shell scripter specializing in cross-platform compatibility.
-    All scripts MUST be compatible with Bash 3.2, the default on macOS.
-    Prioritize POSIX compliance and avoid modern Bash features (e.g., associative arrays, '==', 'regex' in [[...]]).
-    You are familiar with dotfiles management on macOS, Linux, and WSL.
+    You are an expert DevOps engineer and shell scripter specializing in
+    cross-platform compatibility. All scripts MUST be compatible with Bash 3.2,
+    the default on macOS. Prioritize POSIX compliance and avoid modern Bash
+    features (e.g., associative arrays, '==', 'regex' in [[...]]). You are
+    familiar with dotfiles management on macOS, Linux, and WSL.
 
   tasks:
-    sh:review:
-      provider: "gemini"
-      model: "gemini-2.5-pro"
+    review:
       userPrompt: >-
         Perform a thorough code review of the following shell script.
 
         Focus areas:
-          - Bash 3.2 Compatibility: Strictly ensure no features beyond Bash 3.2 are used.
-          - Security (unquoted variables, command injection risks, use of 'set -euf').
+          - Bash 3.2 Compatibility: Strictly ensure no features beyond Bash 3.2
+        are used.
+          - Security (unquoted variables, command injection risks, use of 'set
+        -euf').
           - Portability (macOS vs. Linux, GNU vs. BSD tool differences).
-          - Correctness (error handling, command existence checks, idempotent design).
-          - Readability and maintainability (variable names, comments, function structure).
+          - Correctness (error handling, command existence checks, idempotent
+        design).
+          - Readability and maintainability (variable names, comments, function
+        structure).
 
         Output format:
           1) Summary — 2–4 bullets.
           2) Findings — numbered list with short, actionable suggestions.
           3) Quick wins — checklist of small fixes.
 
-    sh:commit:
-      provider: "gemini"
-      model: "gemini-2.5-pro"
+    commit:
       userPrompt: >-
-        Generate a Conventional Commit message for the provided changes to shell scripts or dotfiles.
+        Generate a Conventional Commit message for the provided changes to shell
+        scripts or dotfiles.
 
         Rules:
-          - Use one of: feat, fix, refactor, style, docs, test, chore, build, ci.
+          - Use one of: feat, fix, refactor, style, docs, test, chore, build,
+        ci.
           - Subject: imperative, ≤72 chars, no trailing period.
           - Infer a scope like (zsh), (vim), (git), (install), (macos), etc.
 
@@ -44,58 +46,55 @@ generate:
           - Optional body explaining motivation
           - Optional footers
 
-    sh:doc:
-      provider: "gemini"
-      model: "gemini-2.5-flash"
+    doc:
       userPrompt: >-
         Write a complete header comment block for the following shell script.
         Requirements:
           - Include the shebang (e.g., #!/bin/bash).
           - A short, one-line description of the script's purpose.
           - A "Usage" section explaining how to run it and its arguments.
-          - A "Dependencies" section listing required tools (e.g., git, curl, jq).
+          - A "Dependencies" section listing required tools (e.g., git, curl,
+        jq).
 
         Do NOT include the script's code; only the comment block.
 
-    sh:refactor:
-      provider: "gemini"
-      model: "gemini-2.5-pro"
+    refactor:
       userPrompt: >-
-        Refactor the following shell script to be strictly compatible with Bash 3.2
-        while improving readability, security, and portability. Preserve its original behavior.
+        Refactor the following shell script to be strictly compatible with Bash
+        3.2 while improving readability, security, and portability. Preserve its
+        original behavior.
 
         Output:
           1) A single code block with the refactored script.
-          2) A short bullet list explaining key changes (e.g., replaced modern syntax, added functions, improved quoting).
+          2) A short bullet list explaining key changes (e.g., replaced modern
+        syntax, added functions, improved quoting).
 
         Prefer idiomatic patterns compatible with older Bash versions.
 
-    sh:explain:
-      provider: "gemini"
-      model: "gemini-2.5-flash"
+    explain:
       userPrompt: >-
-        Provide a detailed, step-by-step explanation of what the following shell script or one-liner does.
-        Break down complex pipelines and explain the purpose of each command and its specific flags.
+        Provide a detailed, step-by-step explanation of what the following shell
+        script or one-liner does. Break down complex pipelines and explain the
+        purpose of each command and its specific flags.
 
-    sh:port:
-      provider: "gemini"
-      model: "gemini-2.5-pro"
+    port:
       userPrompt: >-
-        Analyze the given shell script for portability issues. The primary goal is ensuring it runs on Bash 3.2 (macOS)
-        and modern Bash (Linux). Suggest changes to make it compatible with both.
+        Analyze the given shell script for portability issues. The primary goal
+        is ensuring it runs on Bash 3.2 (macOS) and modern Bash (Linux). Suggest
+        changes to make it compatible with both.
 
         Focus on common culprits:
           - Bash-version-specific syntax (associative arrays, etc.).
           - Incompatible tools (sed, grep, readlink, date) between GNU and BSD.
 
         Output:
-          - A list of portability problems. For each, provide the problematic line and a cross-platform solution,
+          - A list of portability problems. For each, provide the problematic
+        line and a cross-platform solution,
             often using 'uname' to detect the OS.
 
     pr:
-      provider: "gemini"
-      model: "gemini-2.5-pro"
       userPrompt: >-
-        Create a clear and actionable Pull Request description from the provided diff for a dotfiles project.
-        Produce Markdown in a standard PR template format.
-        Infer scope/labels (e.g., area/zsh, type/refactor, os/macos) where reasonable.
+        Create a clear and actionable Pull Request description from the provided
+        diff for a dotfiles project. Produce Markdown in a standard PR template
+        format. Infer scope/labels (e.g., area/zsh, type/refactor, os/macos)
+        where reasonable.

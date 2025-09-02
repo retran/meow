@@ -1,0 +1,7 @@
+description: "Business communication and collaboration tools"
+
+platforms:
+  - macos
+
+depends_on:
+  - desktop-essential

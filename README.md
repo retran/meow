@@ -1,6 +1,7 @@
 # 🐱 meow
 
-> The purr-fect dotfiles management system that sets up your development environment with a single meow.
+> The purr-fect dotfiles management system that sets up your development
+> environment with a single meow.
 
 <div align="center">
 
@@ -17,27 +18,19 @@
 <strong>meow - Purr-fect Development Environment</strong>
 </div>
 
+`meow` was born from the desire to eliminate the repetitive and time-consuming
+task of setting up a development environment from scratch. Instead of manually
+installing packages, cloning repositories, and symlinking configuration files
+for hours, **`meow` lets you do it all with a single command**.
 
-`meow` was born from the desire to eliminate the repetitive and time-consuming task of setting up a development environment from scratch. Instead of manually installing packages, cloning repositories, and symlinking configuration files for hours, **`meow` lets you do it all with a single command**.
-
-It uses a powerful **preset system** to deploy a complete, tailored environment, so you can get straight to coding. Whether you're setting up a new personal laptop, a corporate workstation, or a disposable development container, `meow` has a *purr-fect* setup for you.
-
-## 📋 Table of Contents
-- [🖼️ Screenshots](#screenshots)
-- [✨ Features](#features)
-- [📋 Prerequisites](#prerequisites)
-- [🚀 Getting Started](#getting-started)
-- [💡 Usage](#usage)
-- [🎨 Customization](#customization)
-- [🧩 Components](#components)
-- [🔧 Troubleshooting](#troubleshooting)
-- [🤝 Contributing](#contributing)
-- [📄 License](#license)
-- [🙏 Acknowledgments](#acknowledgments)
+It uses a powerful **preset system** to deploy a complete, tailored environment,
+so you can get straight to coding. Whether you're setting up a new personal
+laptop, a corporate workstation, or a disposable development container, `meow`
+has a _purr-fect_ setup for you.
 
 ---
 
-## 🖼️ Screenshots
+## Screenshots
 
 <div align="center">
 
@@ -49,221 +42,514 @@ It uses a powerful **preset system** to deploy a complete, tailored environment,
 
 ---
 
-## ✨ Features
+## Core Features
 
-`meow` provides a comprehensive development-environment setup with these key capabilities.
+### Component-Based Architecture
 
-### 🎯 Preset System
+**Components** are modular building blocks that define specific functionality:
+- Package installations for different operating systems
+- Configuration file management and symlinks
+- Dependency resolution between components
+- Lifecycle scripts for setup, environment configuration, and cleanup
 
-| Preset | Description | File |
-| ------ | ----------- | ---- |
-| **Personal** | Environment focused on development of pet projects and entertainment | `personal.yaml` |
-| **Corporate** | Work-focused Go development environment | `corporate.yaml` |
-| **Litterbox Essential** | Minimal base setup, ideal for containers | `litterbox-essential.yaml` |
-| **Litterbox Go** | Container-friendly Go environment | `litterbox-go.yaml` |
+**Presets** combine components into complete environment configurations:
+- Language-specific development setups
+- Platform-optimized configurations (desktop vs container)
+- Role-based environments (personal vs professional)
 
-### 🔧 Development Environments
+### Cross-Platform Package Management
 
-- **Go Development** – language server, debugger, and tooling
-- **JavaScript/TypeScript** – Node.js tool-chain, language servers, formatters
-- **Kotlin Development** – Kotlin compiler and tooling
-- **.NET Development** – .NET SDK and CLI tools
-- **React Development** – React-specific extensions to JS setup
-- **Web Development** – CSS frameworks, build tools, HTTP testing
-- **Game Development** – tooling and engines, including Godot
-- **Markdown** – technical-writing helpers, linters, presenters
+Automatically detects and uses appropriate package managers:
 
-### 🐾 User Experience
+| Platform           | Package Manager                          |
+| ------------------ | ---------------------------------------- |
+| **macOS**          | Homebrew, mas (Mac App Store)            |
+| **Ubuntu/Debian**  | apt                                      |
+| **Alpine Linux**   | apk                                      |
+| **Arch Linux**     | pacman                                   |
+| **Cross-platform** | npm, pipx, cargo, VS Code extensions    |
 
-- **Automatic Configuration** – dotfile linking and application setup
-- **One-Command Installation** – simple script-based deployment
-- **Modular Components** – mix-and-match to build a custom setup
-- **Dependency Resolution** – automatic component-dependency handling
+### Symlink Management
+
+- Backup existing configurations before creating symlinks
+- Restore functionality for rollback scenarios
+- Support for both simple files and directory structures
 
 ---
 
-## 📋 Prerequisites
+## Prerequisites
 
 ### Required
 
-| Requirement | Supported |
-| ----------- | ---------- |
-| **OS** | macOS · Alpine · Debian/Ubuntu · Arch |
-| **Shell** | Bash ≥ 3.2 |
-| **Internet** | Needed to download packages & tools |
-| **Git** | For cloning the repository and submodules |
+| Requirement  | Supported                                 |
+| ------------ | ----------------------------------------- |
+| **OS**       | macOS · Alpine · Debian/Ubuntu · Arch     |
+| **Shell**    | Bash ≥ 3.2                                |
+| **Internet** | Required for downloading packages         |
+| **Git**      | For repository management and updates     |
 
-> **Bash compatibility:** `meow` works with the default Bash 3.2 that ships with macOS, avoiding the chicken-and-egg problem of needing a newer shell to install a newer shell.
-
----
-
-## 🚀 Getting Started
-
-1. **Choose your preset** – e.g. `personal`, `corporate`.
-2. **Run the one-command setup** – copy/paste the snippet below.
-3. **Restart your shell** – open a new terminal window.
-
-### One-Command Setup — Personal
-
-```bash
-git clone --recursive https://github.com/retran/meow.git ~/.meow && cd ~/.meow && ./bin/install.sh personal
-```
-
-### One-Command Setup — Corporate
-
-```bash
-git clone --recursive https://github.com/retran/meow.git ~/.meow && cd ~/.meow && ./bin/install.sh corporate
-```
+> **Bash compatibility:** `meow` works with the default Bash 3.2 that ships with
+> macOS, avoiding the chicken-and-egg problem of needing a newer shell to
+> install a newer shell.
 
 ---
 
-## 💡 Usage
+## Getting Started
 
-Your environment is ready to use as soon as the installer finishes.
+### Quick Installation
 
-### Keeping It Updated
+**Option A: Using git (recommended)**
+
+```bash
+git clone https://github.com/retran/meow.git ~/.meow
+cd ~/.meow
+```
+
+**Option B: Using curl**
+
+```bash
+curl -L https://github.com/retran/meow/archive/refs/heads/dev.tar.gz | tar xz
+mv meow-dev ~/.meow
+cd ~/.meow
+```
+
+### Configure Personal Settings
+
+Before installation, configure your git and secrets:
+
+```bash
+# Configure git settings (required)
+cp private/git/.gitconfig.example private/git/.gitconfig
+# Edit private/git/.gitconfig with your name and email
+
+# Configure secrets (optional)
+cp private/secrets/.secrets.example private/secrets/.secrets
+# Edit private/secrets/.secrets with your API keys and tokens
+```
+
+These files are gitignored and contain your personal information.
+
+### Install a Preset
+
+```bash
+# Personal development environment
+./bin/meowctl install personal
+
+# Professional environment
+./bin/meowctl install professional
+
+# Minimal container setup
+./bin/meowctl install litterbox-essential
+
+# Language-specific container environments
+./bin/meowctl install litterbox-go
+./bin/meowctl install litterbox-rust
+./bin/meowctl install litterbox-python
+```
+
+### Install meowvim (optional)
+
+```bash
+# Install meowvim
+./bin/meowctl component install meowvim
+```
+
+### Keep Updated
 
 ```bash
 cd ~/.meow
-./bin/update.sh
-```
-
-The updater **pulls the latest changes** and reapplies the installation logic for your preset, keeping packages and dependencies fresh.
-
----
-
-## 🎨 Customization
-
-While `meow` ships with handy presets, its true power is modularity.
-
-### Creating a Custom Preset
-
-1. Create `presets/my-setup.yaml`.
-2. List your desired components.
-3. Install with:
-
-```bash
-cd ~/.meow
-./bin/install.sh my-setup
+./bin/meowctl update --pull
 ```
 
 ---
 
-## 🧩 Components
+## Available Presets
 
-`meow` uses a **layered component system**; each component can depend on others.
+### Personal
 
-### Foundation Components
+- **personal** - Complete development environment with entertainment, social, and gaming packages alongside development tools
 
-* **🐚 `shell-essential`** – Git, Tmux, Starship, Neovim, fzf, ripgrep, zoxide
-* **🔧 `shell-development`** – shellcheck, shfmt, bash-language-server, yamllint
-* **🎨 `fonts`** – JetBrains Mono, Nerd Fonts
-* **🖥️ `desktop-essential`** – GUI foundation (fonts, browser, terminal, VS Code)
-* **🛠️ `core-development`** – GitHub CLI, LSPs, formatters, go-task
-* **📦 `node`** – Node.js runtime & npm
-* **🐍 `pipx`** – Python app isolation & launch
+### Professional Development
+
+- **professional** - Business-focused environment with corporate communication tools (Slack, Zoom), excluding entertainment software
+
+### Container-Optimized
+
+- **litterbox-essential** - Minimal base with core shell utilities
+- **litterbox-go** - Go development environment
+- **litterbox-rust** - Rust development environment
+- **litterbox-python** - Python development environment
+- **litterbox-dotnet** - .NET development environment
+- **litterbox-fullstack** - Complete full-stack development environment
+
+---
+
+## Available Components
+
+### Core Infrastructure
+
+- **shell-essential** - Modern command-line tools (fzf, ripgrep, bat, eza, zoxide, tmux, starship)
+- **desktop-essential** - Desktop applications and system utilities for graphical environments
+- **core-development** - Essential development tools (git, editors, build tools)
+- **fonts** - Programming and development fonts (automatically included via desktop-essential)
 
 ### Development Environments
 
-* **🐳 `docker-cli`** – Docker CLI tooling
-* **🐋 `docker-desktop`** – Docker Desktop (macOS)
-* **🐹 `go-development`** – gopls, delve, staticcheck, air, templ, swag
-* **⚡ `js-development`** – JS/TS tool-chain
-* **⚛️ `react-development`** – React extensions to JS setup
-* **🌐 `web-development`** – advanced web stack (extends React)
-* **🦀 `rust-development`** – Rust compiler & tooling
-* **🗾 `kotlin-development`** – Kotlin tool-chain
-* **🦄 `dotnet-development`** – .NET SDK & tools
-* **🌙 `lua-development`** – Lua runtime & tools
-* **🐍 `python-development`** – Python dev-stack
-* **🎮 `game-development`** – development tools for Godot
-* **📝 `markdown`** – writing & presentation helpers
+- **go-development** - Go toolchain, debugger, and language servers
+- **rust-development** - Rust toolchain and cargo tools
+- **python-development** - Python, pip, poetry, and development utilities
+- **js-development** - Node.js, npm, and JavaScript tools (automatically included via web-development)
+- **react-development** - React-specific tools and VS Code extensions (automatically included via web-development)
+- **dotnet-development** - .NET SDK and development environment
+- **kotlin-development** - Kotlin compiler and tools (standalone, install separately)
+- **lua-development** - Lua interpreter and development tools (automatically included via core-development)
+- **shell-development** - Shell scripting tools, linting, and language server support (automatically included via core-development)
+- **web-development** - Web development stack with CSS frameworks and build tools
+- **markdown** - Markdown editing and preview tools
+- **game-development** - Game creation tools including 3D modeling and engine support
+
+### Platform & Infrastructure
+
+- **docker-cli** - Docker command-line interface
+- **docker-desktop** - OrbStack desktop application (macOS)
+- **node** - Node.js runtime and npm (automatically included via shell-essential)
+- **pipx** - Python application installer (automatically included via shell-essential)
 
 ### Communication & Productivity
 
-* **💼 `corporate-communication`** – professional comms tools
-* **👥 `personal-communication`** – personal messaging apps
-* **📋 `productivity`** – productivity & workflow helpers
+- **productivity** - Task management and productivity applications
+- **personal-communication** - Personal messaging and social apps
+- **corporate-communication** - Business tools (Slack, Teams, Zoom)
+- **media** - Media creation and consumption tools
+- **gaming** - Gaming platforms and entertainment
+- **toggl-cli** - Toggl CLI for time tracking (automatically included via productivity)
+- **toggl-desktop** - Toggl Track desktop application (automatically included via productivity)
 
-### Entertainment & Media
+### Optional Components
 
-* **🎮 `gaming`** – Steam, NVIDIA GeForce Now
-* **🎨 `media`** – OBS
+These components are not included in any preset and must be installed separately using `meowctl component install <component-name>`:
 
----
-
-## 🔧 Troubleshooting
-
-### Installation Fails
-
-```bash
-# Check if Git is installed
-git --version
-
-# Ensure submodules are initialised
-cd ~/.meow
-git submodule update --init --recursive
-
-# Retry installation
-./bin/install.sh <PRESET_NAME>
-```
-
-### Package-Manager Issues
-
-```bash
-# Homebrew (macOS)
-brew doctor
-
-# npm
-npm cache clean --force
-npm install -g npm@latest
-
-# pipx
-python3 -m pip install --user --upgrade pipx
-pipx ensurepath
-```
-
-### Getting Help
-
-1. Check the **[Issues](https://github.com/retran/meow/issues)** page.
-2. Review preset files in `presets/`.
-3. Examine component definitions in `presets/components/`.
+- **meowvim** - Advanced Neovim configuration managed as a separate git repository
+- **adaptive-keyboard-layouts** - Dynamic keyboard layout switching for different connected keyboards
+- **meowvim-keyboard-layouts** - Neovim mode-aware keyboard layout switching
+- **hammerspoon** - macOS automation and window management (automatically included when needed by other components)
 
 ---
 
-## 🤝 Contributing
+## Architecture
 
-Contributions are welcome to help improve `meow`! Here's how you can help:
+`meow` uses a three-layer architecture for maximum flexibility:
+
+### 1. Presets Layer
+
+High-level environment configurations that combine components:
+
+- Handle platform-specific variations
+- Define complete workflows and use cases
+- Manage component dependencies automatically
+
+### 2. Components Layer
+
+Modular building blocks with specific functionality:
+
+- Self-contained package and configuration definitions
+- Platform-agnostic with platform-specific implementations
+- Declare dependencies on other components
+- Include lifecycle scripts for setup and management
+
+### 3. Package Layer
+
+Platform-specific implementation details:
+
+- Package manager lists (Homebrew, apt, npm, etc.)
+- Configuration files and symlink definitions
+- VS Code extensions and language-specific tools
+
+### Dependency Resolution
+
+```plain
+User: ./bin/meowctl install personal
+    ↓
+Preset resolves components: shell-essential, core-development, go-development...
+    ↓
+Dependencies calculated: pipx → node → shell-essential → go-development
+    ↓
+Packages installed in order with platform detection
+    ↓
+Configurations symlinked and lifecycle scripts executed
+```
+
+---
+
+## Creating Custom Components
+
+### Component Structure
+
+```plain
+components/my-component/
+├── component.yaml          # Metadata and dependencies
+├── packages/               # Platform-specific package lists
+│   ├── homebrew.list      # macOS (Homebrew)
+│   ├── apt.list           # Debian/Ubuntu
+│   ├── apk.list           # Alpine Linux
+│   ├── pacman.list        # Arch Linux
+│   ├── npm.list           # Node.js packages
+│   ├── pipx.list          # Python applications
+│   └── vscode.list        # VS Code extensions
+├── config/                # Configuration file templates
+├── symlinks/              # Symlink configuration files
+└── scripts/               # Lifecycle scripts
+    ├── setup.sh          # One-time setup
+    ├── env.sh            # Environment variables
+    ├── init.sh           # Shell initialization
+    └── cleanup.sh        # Uninstall cleanup
+```
+
+### Component Definition
+
+```yaml
+# components/my-component/component.yaml
+description: "Brief description of functionality"
+
+# Optional platform restrictions
+platforms:
+  - macos
+  - linux
+
+# Component dependencies
+depends_on:
+  - shell-essential
+  - core-development
+
+# Optional: External git repository
+repository:
+  url: "https://github.com/username/repo"
+  branch: "main"
+```
+
+### Package Lists
+
+Create platform-specific package lists in the `packages/` directory:
+
+```bash
+# packages/homebrew.list
+my-development-tool
+another-utility
+
+# packages/apt.list
+my-development-tool
+another-utility
+
+# packages/vscode.list
+publisher.extension-name
+```
+
+### Symlink Configuration
+
+Define symlinks in YAML files within the `symlinks/` directory:
+
+```yaml
+# symlinks/config.yaml
+- source: "$MEOW/components/my-component/config/tool-config"
+  target: "$HOME/.config/my-tool"
+
+- source: "$MEOW/private/secrets/.env"
+  target: "$HOME/.env"
+```
+
+### Lifecycle Scripts
+
+Components support four types of lifecycle scripts:
+
+- **setup.sh** - Runs once during initial installation
+- **env.sh** - Exports environment variables (sourced by shell)
+- **init.sh** - Runs on every shell initialization
+- **cleanup.sh** - Runs during component uninstallation
+
+Example setup script:
+
+```bash
+#!/usr/bin/env bash
+COMPONENT_NAME="$1"
+MEOW="$2"
+
+source "${MEOW}/lib/core/ui.sh"
+
+ui_step_header "Setting up ${COMPONENT_NAME}"
+
+# Custom setup logic here
+```
+
+### Hammerspoon Plugin Support
+
+Components can provide Hammerspoon plugins by including a `config/init.lua` file. The main Hammerspoon configuration automatically loads plugins from installed components:
+
+```lua
+-- components/my-component/config/init.lua
+local plugin = {}
+
+function plugin.init()
+  -- Plugin initialization code
+  print("My plugin loaded")
+end
+
+function plugin.cleanup()
+  -- Plugin cleanup code
+end
+
+return plugin
+```
+
+---
+
+## Creating Custom Presets
+
+Presets combine components into complete environment configurations:
+
+```yaml
+# presets/my-preset/preset.yaml
+description: "Custom development environment"
+
+# Optional platform restrictions
+platforms:
+  - macos
+  - linux
+
+# Required components
+required:
+  - shell-essential
+  - core-development
+  - my-custom-component
+```
+
+Create the preset directory under `presets/` and the system handles dependency resolution automatically.
+
+---
+
+## Command Line Interface
+
+### Main Commands
+
+```bash
+# List available presets
+./bin/meowctl list
+
+# Install a preset
+./bin/meowctl install <PRESET_NAME>
+
+# Update all installed components
+./bin/meowctl update
+
+# Update with git pull first
+./bin/meowctl update --pull
+
+# Update specific preset
+./bin/meowctl update <PRESET_NAME>
+
+# Uninstall preset
+./bin/meowctl uninstall <PRESET_NAME>
+
+# Uninstall all presets
+./bin/meowctl uninstall all
+```
+
+### Component Management
+
+```bash
+# List all components
+./bin/meowctl component list
+
+# Install specific component
+./bin/meowctl component install <COMPONENT_NAME>
+
+# Update component
+./bin/meowctl component update <COMPONENT_NAME>
+
+# Uninstall component
+./bin/meowctl component uninstall <COMPONENT_NAME>
+```
+
+### Backup Management
+
+```bash
+# List available backups
+./bin/meowctl backup list
+
+# Restore from backup
+./bin/meowctl backup restore <BACKUP_FILE>
+```
+
+### Global Options
+
+- `--verbose, -v` - Show detailed output
+- `--dry-run` - Preview changes without making them
+- `--help, -h` - Show help
+
+---
+
+## Project Structure
+
+The `meow` codebase is organized into logical modules:
+
+### Core Libraries (`lib/`)
+
+- **`lib/core/`** - Fundamental utilities (bash helpers, UI functions, dry-run mode)
+- **`lib/env/`** - Environment detection and configuration
+- **`lib/package/`** - Package manager abstractions and platform detection
+- **`lib/components/`** - Component lifecycle management and dependency resolution
+- **`lib/presets/`** - Preset parsing and installation orchestration
+- **`lib/symlinks/`** - Dotfile symlinking with backup and restore capabilities
+- **`lib/motd/`** - Message of the day system for installation feedback
+
+### Command Interface
+
+- **`bin/meowctl`** - Unified command-line interface with subcommands for all operations
+
+### Configuration System
+
+- **`components/`** - Modular component definitions with platform-specific packages
+- **`presets/`** - Environment templates that combine components
+- **`private/`** - User-specific configuration (git settings, API keys)
+
+---
+
+## Contributing
+
+Contributions are welcome! Here's how you can help:
 
 ### Ways to Contribute
 
-* 🐛 Report bugs & issues
-* 💡 Suggest features or presets
-* 📝 Improve documentation
-* 🔧 Submit pull requests
-* 🎨 Enhance configurations
-* 📦 Add new package integrations
+- Report bugs and issues
+- Suggest new features or presets
+- Improve documentation
+- Submit pull requests
+- Add new components
+- Enhance platform support
+
+### Getting Help
+
+1. Check the [Issues](https://github.com/retran/meow/issues) page
+2. Review component definitions in `components/`
+3. Examine preset configurations in `presets/`
 
 ---
 
-## 📄 License
+## License
 
-Licensed under the **MIT License**. See [`LICENSE`](LICENSE) for details.
+Licensed under the MIT License. See [`LICENSE`](LICENSE) for details.
 
 ---
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
-`meow` builds on the excellent work of the open-source community. Huge thanks to:
+`meow` builds on excellent open-source projects including:
 
-* [Homebrew](https://brew.sh/) • [Git](https://git-scm.com/) • [GitHub CLI](https://cli.github.com/)
-* [tmux](https://github.com/tmux/tmux) • [Starship](https://starship.rs/) • [Neovim](https://neovim.io/)
-* [Visual Studio Code](https://code.visualstudio.com/) • [fzf](https://github.com/junegunn/fzf)
-* [ripgrep](https://github.com/BurntSushi/ripgrep) • [zoxide](https://github.com/ajeetdsouza/zoxide)
-* [Go](https://golang.org/) • [Node.js](https://nodejs.org/) • [Rust](https://www.rust-lang.org/)
-* [Raycast](https://raycast.com/) • [Hammerspoon](https://www.hammerspoon.org/)
-* [Nerd Fonts](https://www.nerdfonts.com/)
-* …and the many other projects that make development enjoyable.
+- [Homebrew](https://brew.sh/) • [Git](https://git-scm.com/) • [GitHub CLI](https://cli.github.com/)
+- [tmux](https://github.com/tmux/tmux) • [Starship](https://starship.rs/) • [Neovim](https://neovim.io/)
+- [Visual Studio Code](https://code.visualstudio.com/) • [fzf](https://github.com/junegunn/fzf)
+- [ripgrep](https://github.com/BurntSushi/ripgrep) • [zoxide](https://github.com/ajeetdsouza/zoxide)
+- [Go](https://golang.org/) • [Node.js](https://nodejs.org/) • [Rust](https://www.rust-lang.org/)
+- [Hammerspoon](https://www.hammerspoon.org/) • [Nerd Fonts](https://www.nerdfonts.com/)
 
 ---
 
@@ -279,6 +565,8 @@ Licensed under the **MIT License**. See [`LICENSE`](LICENSE) for details.
 
 Made with ❤️ by Andrew Vasilyev and feline assistants
 
-[Report Bug](https://github.com/retran/meow/issues) · [Request Feature](https://github.com/retran/meow/issues) · [Contribute](https://github.com/retran/meow/pulls)
+[Report Bug](https://github.com/retran/meow/issues) ·
+[Request Feature](https://github.com/retran/meow/issues) ·
+[Contribute](https://github.com/retran/meow/pulls)
 
 </div>

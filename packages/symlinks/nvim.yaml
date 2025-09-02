@@ -1,2 +1,0 @@
-- source: "$MEOW/config/nvim"
-  target: "$HOME/.config/nvim"

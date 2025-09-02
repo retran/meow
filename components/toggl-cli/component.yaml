@@ -1,0 +1,7 @@
+description: "Toggl CLI tools for time tracking from the command line"
+
+platforms:
+  - macos
+
+depends_on:
+  - shell-essential

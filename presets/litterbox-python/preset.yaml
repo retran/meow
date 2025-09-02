@@ -1,0 +1,12 @@
+description: >-
+  Python development litterbox setup with essential tools
+
+platforms:
+  - linux
+
+required:
+  - shell-essential
+  - core-development
+  - python-development
+  - markdown
+  - docker-cli

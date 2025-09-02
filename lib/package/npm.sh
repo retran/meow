@@ -1,46 +1,66 @@
 #!/usr/bin/env bash
 
-# lib/package/npm.sh - npm package management
-
-if [[ -n "${_LIB_PACKAGE_NPM_SOURCED:-}" ]]; then
+if [ -n "${_LIB_PACKAGE_NPM_SOURCED:-}" ]; then
   return 0
 fi
 _LIB_PACKAGE_NPM_SOURCED=1
 
 source "${MEOW}/lib/package/common.sh"
-
-NPM_PACKAGES_DIR="${MEOW}/packages/npm"
+source "${MEOW}/lib/core/dry_run.sh"
 
 _cache_installed_npm_packages() {
-  if [[ -z "${_NPM_INSTALLED_PACKAGES:-}" ]]; then
-    action_msg 0 "Caching npm package list..."
-    _NPM_INSTALLED_PACKAGES="$(
-      npm list -g --depth=0 --parseable 2>/dev/null |
-        sed 's|.*/||;s/@.*//'
-    )"
-  fi
+  local npm_list_cmd
+  npm_list_cmd="npm list -g --depth=0 --parseable 2>/dev/null"
+  npm_list_cmd="$npm_list_cmd | grep 'node_modules/'"
+  npm_list_cmd="$npm_list_cmd | sed 's|.*/node_modules/||'"
+  cache_package_list "npm" "$npm_list_cmd"
 }
 
 is_npm_package_installed() {
   _cache_installed_npm_packages
-  grep -qE "^$1$" <<<"$_NPM_INSTALLED_PACKAGES"
+  is_package_installed "npm" "$1"
 }
 
 setup_npm() {
-  local indent="${1:-0}"
-  step_header "$indent" "Setting up npm"
-  command -v npm >/dev/null 2>&1 || {
-    indented_error_msg "$indent" "npm not found"
+  ui_package_manager_setup "npm"
+
+  if is_dry_run; then
+    if ! command -v npm >/dev/null 2>&1; then
+      dry_run_ui_info "npm is not found. If this were a real run, npm setup would be skipped."
+    else
+      dry_run_ui_info "npm is already available. If this were a real run, no setup would be needed."
+    fi
+    return 0
+  fi
+
+  if ! command -v npm >/dev/null 2>&1; then
+    ui_action_error "npm command not found. Please install npm (e.g., via Node.js installer) to proceed."
     return 1
-  }
-  success_tick_msg "$indent" "npm available"
+  fi
+  ui_package_manager_ready "npm"
 }
 
 install_npm_packages() {
-  install_packages_generic "$1" "$2" "npm" "npm install -g" "is_npm_package_installed"
+  install_packages_generic "$1" "npm" "npm install -g" "is_npm_package_installed"
 }
 
 update_npm_packages() {
-  update_packages_generic "$1" "$2" "npm" "npm update -g" "is_npm_package_installed" \
+  update_packages_generic "$1" "npm" "npm update -g" "is_npm_package_installed" \
     "(up to date|already at the latest version)"
+}
+
+uninstall_npm_packages() {
+  uninstall_packages_generic "$1" "npm" "npm uninstall -g" "is_npm_package_installed"
+}
+
+cleanup_npm() {
+  if is_dry_run; then
+    dry_run_ui_info "Would clean npm cache."
+    return 0
+  fi
+
+  ui_spinner "Cleaning npm cache..." \
+    --success "npm cache cleaned successfully." \
+    --fail "Failed to clean npm cache." \
+    npm cache clean --force
 }

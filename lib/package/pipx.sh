@@ -1,42 +1,63 @@
 #!/usr/bin/env bash
 
-# lib/package/pipx.sh - pipx package management
-
-if [[ -n "${_LIB_PACKAGE_PIPX_SOURCED:-}" ]]; then
+if [ -n "${_LIB_PACKAGE_PIPX_SOURCED:-}" ]; then
   return 0
 fi
 _LIB_PACKAGE_PIPX_SOURCED=1
 
 source "${MEOW}/lib/package/common.sh"
-
-PIPX_PACKAGES_DIR="${MEOW}/packages/pipx"
+source "${MEOW}/lib/core/dry_run.sh"
 
 _cache_installed_pipx_packages() {
-  if [[ -z "${_PIPX_INSTALLED_PACKAGES:-}" ]]; then
-    action_msg 0 "Caching pipx package list..."
-    _PIPX_INSTALLED_PACKAGES="$(pipx list --short 2>/dev/null | awk '{print $1}')"
-  fi
+  cache_package_list "pipx" "pipx list --short 2>/dev/null | awk '{print \$1}'"
 }
 
 is_pipx_package_installed() {
   _cache_installed_pipx_packages
-  grep -qE "^$1$" <<<"$_PIPX_INSTALLED_PACKAGES"
+  is_package_installed "pipx" "$1"
 }
 
 setup_pipx() {
-  local indent="${1:-0}"
-  step_header "$indent" "Setting up pipx"
-  command -v pipx >/dev/null 2>&1 || {
-    indented_error_msg "$indent" "pipx not found"
+  ui_step_header "Setting up pipx"
+
+  if is_dry_run; then
+    if ! command -v pipx >/dev/null 2>&1; then
+      dry_run_ui_info "pipx not found. Setup would fail."
+    else
+      dry_run_ui_info "pipx already available. No setup needed."
+    fi
+    return 0
+  fi
+
+  if ! command -v pipx >/dev/null 2>&1; then
+    ui_action_error "pipx not found. Please install pipx."
     return 1
-  }
-  success_tick_msg "$indent" "pipx available"
+  fi
+  ui_action_success "pipx is available."
 }
 
 install_pipx_packages() {
-  install_packages_generic "$1" "$2" "pipx" "pipx install" "is_pipx_package_installed"
+  install_packages_generic "$1" "pipx" "pipx install" "is_pipx_package_installed"
 }
 
 update_pipx_packages() {
-  update_packages_generic "$1" "$2" "pipx" "pipx upgrade" "is_pipx_package_installed"
+  update_packages_generic "$1" "pipx" "pipx upgrade" "is_pipx_package_installed"
+}
+
+uninstall_pipx_packages() {
+  uninstall_packages_generic "$1" "pipx" "pipx uninstall" "is_pipx_package_installed"
+}
+
+cleanup_pipx() {
+  if is_dry_run; then
+    dry_run_ui_info "pipx cleanup would be skipped (no operation needed)."
+    return 0
+  fi
+
+  if [ "${MEOW_VERBOSE:-}" = "true" ]; then
+    ui_step_header "Cleaning pipx (no operation)"
+    ui_action_success "pipx cleanup skipped."
+  else
+    ui_action_success "pipx cleanup skipped."
+  fi
 }

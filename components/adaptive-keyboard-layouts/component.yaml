@@ -1,0 +1,9 @@
+description: "USB keyboard detection and automatic layout switching via Hammerspoon"
+
+type: hammerspoon
+
+platforms:
+  - macos
+
+depends_on:
+  - hammerspoon
