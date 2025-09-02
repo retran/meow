@@ -17,7 +17,7 @@ ensure_yq() {
   if command -v yq >/dev/null 2>&1; then
     # Test if yq can actually parse YAML correctly
     local test_yaml="/tmp/yq_test_$$.yaml"
-    cat > "$test_yaml" << 'EOF'
+    cat >"$test_yaml" <<'EOF'
 test:
   - item1
   - item2
@@ -137,7 +137,7 @@ _install_yq_from_github() {
 
         # Verify the installation works
         local test_yaml="/tmp/yq_verify_$$.yaml"
-        cat > "$test_yaml" << 'EOF'
+        cat >"$test_yaml" <<'EOF'
 test:
   - item1
   - item2

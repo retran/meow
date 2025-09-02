@@ -18,7 +18,7 @@ _ensure_yq_available() {
 _parse_yaml_with_fallbacks() {
   local yaml_file="$1"
   local yaml_path="$2"
-  local is_array="$3"  # "true" for array parsing, "false" for value parsing
+  local is_array="$3" # "true" for array parsing, "false" for value parsing
 
   if [ ! -f "$yaml_file" ]; then
     return 1
@@ -55,14 +55,14 @@ _parse_yaml_with_fallbacks() {
   # Method 3: yq with alternative path syntax
   if [ -z "$result" ] || [ "$result" = "null" ]; then
     local alt_path="$yaml_path"
-    alt_path="${alt_path#.}"  # Remove leading dot
-    alt_path="${alt_path//\[\]/[*]}"  # Convert [] to [*]
-    alt_path="${alt_path//\[\?\]/[*]}"  # Convert [?] to [*]
+    alt_path="${alt_path#.}"           # Remove leading dot
+    alt_path="${alt_path//\[\]/[*]}"   # Convert [] to [*]
+    alt_path="${alt_path//\[\?\]/[*]}" # Convert [?] to [*]
     result=$("$yq_cmd" r "$yaml_file" "$alt_path" 2>/dev/null || true)
     if [ "$MEOW_VERBOSE" = "true" ]; then
       ui_verbose_info "Debug: $yq_cmd r '$alt_path' result: '$result'" >&2
     fi
-  fi  # Method 4: Manual parsing
+  fi # Method 4: Manual parsing
   if [ -z "$result" ] || [ "$result" = "null" ]; then
     if [ "$MEOW_VERBOSE" = "true" ]; then
       ui_verbose_info "Debug: yq failed, trying manual YAML parsing" >&2
@@ -82,8 +82,8 @@ _parse_yaml_with_fallbacks() {
           ;;
         *)
           # Generic array extraction
-          local key_path="${yaml_path%\[\]*}"  # Remove []* suffix
-          key_path="${key_path#.}"  # Remove leading dot
+          local key_path="${yaml_path%\[\]*}" # Remove []* suffix
+          key_path="${key_path#.}"            # Remove leading dot
           result=$(grep -A 20 "^${key_path}:" "$yaml_file" 2>/dev/null | grep '^  - ' | sed 's/^  - //' || true)
           ;;
       esac
@@ -209,7 +209,7 @@ yaml_array_length() {
 
   # Validate that it's a number
   case "$length" in
-    ''|*[!0-9]*) echo "0" ;;
+    '' | *[!0-9]*) echo "0" ;;
     *) echo "$length" ;;
   esac
 }
