@@ -2,7 +2,7 @@ description: "Neovim configuration with git repository management and IDE-like f
 
 repository:
   url: "https://github.com/retran/meowvim"
-  branch: "retran/fixes-before-0.1"
+  branch: "dev"
 
 depends_on:
   - shell-essential
