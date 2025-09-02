@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-# Library guard to prevent multiple sourcing
 if [ -n "${_LIB_CORE_PLATFORM_SOURCED:-}" ]; then
   return 0
 fi

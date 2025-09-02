@@ -7,14 +7,12 @@ _LIB_YAML_SOURCED=1
 
 source "${MEOW}/lib/core/tools.sh"
 
-# Ensure yq is installed before using any YAML functions
 _ensure_yq_available() {
   if [ ! -x "/usr/local/bin/yq" ] && ! command -v yq >/dev/null 2>&1; then
     ensure_yq
   fi
 }
 
-# Common YAML parsing with comprehensive fallback logic
 _parse_yaml_with_fallbacks() {
   local yaml_file="$1"
   local yaml_path="$2"
@@ -24,13 +22,10 @@ _parse_yaml_with_fallbacks() {
     return 1
   fi
 
-  # Ensure yq is available before using it
   _ensure_yq_available
 
-  # Ensure we use the installed yq version
   local yq_cmd="/usr/local/bin/yq"
   if [ ! -x "$yq_cmd" ]; then
-    # Fallback to PATH version if installed version not found
     yq_cmd="yq"
   fi
 
@@ -186,7 +181,6 @@ yaml_path_exists() {
   fi
 }
 
-# Get the length/count of a YAML array
 yaml_array_length() {
   local yaml_file="$1"
 
@@ -214,7 +208,6 @@ yaml_array_length() {
   esac
 }
 
-# Get a specific array item by index
 yaml_array_item() {
   local yaml_file="$1"
   local index="$2"
@@ -251,7 +244,6 @@ yaml_array_item() {
   echo "$result"
 }
 
-# Get nested array values like .category.section[]
 yaml_nested_array() {
   local yaml_file="$1"
   local category="$2"

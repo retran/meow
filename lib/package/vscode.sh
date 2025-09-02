@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-# Source guard: Ensures the script is sourced only once.
 if [ -n "${_LIB_PACKAGE_VSCODE_SOURCED:-}" ]; then
   return 0
 fi
