@@ -5,11 +5,6 @@ if [ -n "${_LIB_PACKAGE_CARGO_SOURCED:-}" ]; then
 fi
 _LIB_PACKAGE_CARGO_SOURCED=1
 
-if [ -z "${MEOW:-}" ]; then
-  echo "Error: MEOW environment variable is not set. Please set it to the root of your project." >&2
-  exit 1
-fi
-
 source "${MEOW}/lib/package/common.sh"
 source "${MEOW}/lib/core/dry_run.sh"
 
