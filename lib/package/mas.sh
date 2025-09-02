@@ -11,7 +11,15 @@ source "${MEOW}/lib/package/common.sh"
 source "${MEOW}/lib/core/dry_run.sh"
 
 _cache_installed_mas_packages() {
-  cache_package_list "mas" "mas list | awk '{print \$1}'"
+  local cache_var="_MAS_INSTALLED_PACKAGES"
+
+  if [ -z "${!cache_var:-}" ]; then
+    ui_verbose_action_start "Caching installed mas packages..."
+    local output
+    output=$(mas list | awk '{print $1}' 2>/dev/null || true)
+    eval "$cache_var=\"\$output\""
+    ui_verbose_action_success "Successfully cached mas packages."
+  fi
 }
 
 is_mas_package_installed() {

@@ -11,7 +11,17 @@ source "${MEOW}/lib/package/common.sh"
 source "${MEOW}/lib/core/dry_run.sh"
 
 _cache_installed_brew_packages() {
-  cache_package_list "brew" "brew list --formula -1 2>/dev/null; brew list --cask -1 2>/dev/null"
+  local formula_list cask_list combined_list
+  formula_list=$(brew list --formula -1 2>/dev/null || true)
+  cask_list=$(brew list --cask -1 2>/dev/null || true)
+  combined_list="${formula_list}${formula_list:+$'\n'}${cask_list}"
+  
+  local cache_var="_BREW_INSTALLED_PACKAGES"
+  if [ -z "${!cache_var:-}" ]; then
+    ui_verbose_action_start "Caching installed brew packages..."
+    eval "$cache_var=\"\$combined_list\""
+    ui_verbose_action_success "Successfully cached brew packages."
+  fi
 }
 
 is_homebrew_package_installed() {

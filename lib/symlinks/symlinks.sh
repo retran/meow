@@ -15,7 +15,8 @@ _LIB_PACKAGE_SYMLINKS_SOURCED=1
 
 expand_path() {
   local path="$1"
-  echo "$path"
+  # Expand environment variables and tilde
+  eval echo "$path"
 }
 
 create_symlink() {

@@ -11,6 +11,8 @@ generate:
 
   tasks:
     review:
+      provider: "gemini"
+      model: "gemini-2.5-pro"
       userPrompt: >-
         Perform a thorough code review of the following shell script.
 
@@ -31,6 +33,8 @@ generate:
           3) Quick wins — checklist of small fixes.
 
     commit:
+      provider: "gemini"
+      model: "gemini-2.5-pro"
       userPrompt: >-
         Generate a Conventional Commit message for the provided changes to shell
         scripts or dotfiles.
@@ -93,6 +97,8 @@ generate:
             often using 'uname' to detect the OS.
 
     pr:
+      provider: "gemini"
+      model: "gemini-2.5-pro"
       userPrompt: >-
         Create a clear and actionable Pull Request description from the provided
         diff for a dotfiles project. Produce Markdown in a standard PR template

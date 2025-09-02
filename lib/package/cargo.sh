@@ -9,7 +9,15 @@ source "${MEOW}/lib/package/common.sh"
 source "${MEOW}/lib/core/dry_run.sh"
 
 _cache_installed_cargo_packages() {
-  cache_package_list "cargo" "cargo install --list 2>/dev/null | awk '/:/ {print \$1}'"
+  local cache_var="_CARGO_INSTALLED_PACKAGES"
+
+  if [ -z "${!cache_var:-}" ]; then
+    ui_verbose_action_start "Caching installed cargo packages..."
+    local output
+    output=$(cargo install --list 2>/dev/null | awk '/:/ {print $1}' || true)
+    eval "$cache_var=\"\$output\""
+    ui_verbose_action_success "Successfully cached cargo packages."
+  fi
 }
 
 is_cargo_package_installed() {

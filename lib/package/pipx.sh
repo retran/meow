@@ -9,7 +9,15 @@ source "${MEOW}/lib/package/common.sh"
 source "${MEOW}/lib/core/dry_run.sh"
 
 _cache_installed_pipx_packages() {
-  cache_package_list "pipx" "pipx list --short 2>/dev/null | awk '{print \$1}'"
+  local cache_var="_PIPX_INSTALLED_PACKAGES"
+
+  if [ -z "${!cache_var:-}" ]; then
+    ui_verbose_action_start "Caching installed pipx packages..."
+    local output
+    output=$(pipx list --short 2>/dev/null | awk '{print $1}' || true)
+    eval "$cache_var=\"\$output\""
+    ui_verbose_action_success "Successfully cached pipx packages."
+  fi
 }
 
 is_pipx_package_installed() {
