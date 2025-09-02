@@ -42,8 +42,9 @@ cache_package_list() {
 
   if [ -z "${!cache_var:-}" ]; then
     ui_verbose_action_start "$(_f "Caching installed %s packages..." "$manager")"
-    # shellcheck disable=SC2296 # indirect assignment with eval is necessary for Bash 3.2
-    eval "$cache_var=\"$(eval "$list_command")\""
+    local output
+    output="$($list_command)"
+    eval "$cache_var=\"\$output\""
     ui_verbose_action_success "$(_f "Successfully cached %s packages." "$manager")"
   fi
 }
@@ -54,7 +55,7 @@ is_package_installed() {
 
   local cache_var="_$(echo "$manager" | tr '[:lower:]' '[:upper:]')_INSTALLED_PACKAGES"
 
-  grep -qE "^$package$" <<<"${!cache_var}"
+  grep -qFx "$package" <<<"${!cache_var}"
 }
 
 parse_package_line() {
@@ -129,7 +130,7 @@ install_packages_generic() {
       continue
     fi
 
-    if eval "$check_cmd \"$package_name\""; then
+    if "$check_cmd" "$package_name"; then
       ui_verbose_action_success "$(_f "%s %s is already installed." "$manager_display_name" "$package_name")"
       ((already_installed_count++)) || true
     else
@@ -208,7 +209,7 @@ update_packages_generic() {
     if [ -z "$package_name" ]; then
       continue
     fi
-    if eval "$check_cmd \"$package_name\""; then
+    if "$check_cmd" "$package_name"; then
       ((total_packages++)) || true
     fi
   done <"$package_file"
@@ -226,13 +227,13 @@ update_packages_generic() {
       continue
     fi
 
-    if eval "$check_cmd \"$package_name\""; then
+    if "$check_cmd" "$package_name"; then
       local is_up_to_date=false
       if [ -n "$skip_pattern" ]; then
         local test_output
         if [ "$MEOW_VERBOSE" = "true" ]; then
           ui_verbose_info "$(_f "Checking if %s %s is up-to-date..." "$manager_display_name" "$package_name")"
-          test_output=$(eval "$update_cmd \"$package_name\"" 2>&1) || true
+          test_output=$($update_cmd "$package_name" 2>&1) || true
         else
           local temp_file
           temp_file=$(mktemp) || {
@@ -240,8 +241,7 @@ update_packages_generic() {
             return 1
           }
 
-          # shellcheck disable=SC2086 # Arguments are intentionally word-split by ui_silent_spinner's design
-          if ui_silent_spinner "$(_f "Checking %s %s" "$manager_display_name" "$package_name")" bash -c "eval \"$update_cmd \\\"$package_name\\\"\" >\"$temp_file\" 2>&1"; then
+          if ui_silent_spinner "$(_f "Checking %s %s" "$manager_display_name" "$package_name")" "$update_cmd" "$package_name" >"$temp_file" 2>&1; then
             test_output=$(cat "$temp_file")
           else
             test_output=$(cat "$temp_file")
@@ -338,7 +338,7 @@ uninstall_packages_generic() {
       continue
     fi
 
-    if eval "$check_cmd \"$package_name\""; then
+    if "$check_cmd" "$package_name"; then
       if is_dry_run; then
         dry_run_package_operation "$manager_display_name" "remove" "$package_name"
         ((uninstalled_count++)) || true

@@ -5,9 +5,7 @@ if [ -n "${_LIB_CORE_COLORS_SOURCED:-}" ]; then
 fi
 _LIB_CORE_COLORS_SOURCED=1
 
-# Check if stdout is a terminal
 if [ -t 1 ]; then
-  # Determine color support
   if [ "${COLORTERM:-}" = "truecolor" ] || [ "${COLORTERM:-}" = "24bit" ]; then
     NORMAL="\033[38;2;192;202;245m"
     RED="\033[38;2;247;118;142m"

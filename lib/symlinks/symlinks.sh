@@ -15,7 +15,7 @@ _LIB_PACKAGE_SYMLINKS_SOURCED=1
 
 expand_path() {
   local path="$1"
-  eval echo "$path"
+  echo "$path"
 }
 
 create_symlink() {

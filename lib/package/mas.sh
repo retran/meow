@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# This script manages macOS App Store (mas) packages.
 
 source "${MEOW}/lib/core/ui.sh"
 
@@ -41,7 +40,7 @@ setup_mas() {
 
 _install_mas_package_helper() {
   local package_id
-  package_id=$(echo "$1" | awk '{print $1}')
+  package_id=$(awk '{print $1}' <<<"$1")
   mas install "$package_id"
 }
 
