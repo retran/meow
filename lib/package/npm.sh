@@ -9,11 +9,15 @@ source "${MEOW}/lib/package/common.sh"
 source "${MEOW}/lib/core/dry_run.sh"
 
 _cache_installed_npm_packages() {
-  local npm_list_cmd
-  npm_list_cmd="npm list -g --depth=0 --parseable 2>/dev/null"
-  npm_list_cmd="$npm_list_cmd | grep 'node_modules/'"
-  npm_list_cmd="$npm_list_cmd | sed 's|.*/node_modules/||'"
-  cache_package_list "npm" "$npm_list_cmd"
+  local cache_var="_NPM_INSTALLED_PACKAGES"
+  
+  if [ -z "${!cache_var:-}" ]; then
+    ui_verbose_action_start "Caching installed npm packages..."
+    local output
+    output=$(npm list -g --depth=0 --parseable 2>/dev/null | grep 'node_modules/' | sed 's|.*/node_modules/||' || true)
+    eval "$cache_var=\"\$output\""
+    ui_verbose_action_success "Successfully cached npm packages."
+  fi
 }
 
 is_npm_package_installed() {
