@@ -50,7 +50,7 @@ show_install_help() {
   ui_message ""
   ui_message "Available presets:"
   ui_message "  personal                 Complete development setup with all packages"
-  ui_message "  corporate                Work-focused development environment"
+  ui_message "  professional             Work-focused development environment"
   ui_message "  litterbox-*              Container-optimized environments"
   ui_message ""
   ui_message "Options:"
@@ -61,7 +61,7 @@ show_install_help() {
   ui_message ""
   ui_message "Examples:"
   ui_message "  $0 install personal"
-  ui_message "  $0 install corporate"
+  ui_message "  $0 install professional"
   ui_message ""
 }
 
