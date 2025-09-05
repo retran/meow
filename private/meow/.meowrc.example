@@ -1,0 +1,2 @@
+export MEOW_ENABLE_COPILOT="false"
+export MEOW_ENABLE_MAS="true"
