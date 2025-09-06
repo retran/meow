@@ -8,6 +8,7 @@ required:
   - shell-essential
   - desktop-essential
   - core-development
+  - meowvim
   - game-development
   - markdown
   - docker-desktop

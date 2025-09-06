@@ -1,11 +1,11 @@
 bash
+bat
 curl
 wget
 direnv
 watch
 htop
 eza
-git
 fd-find
 fzf
 ripgrep
@@ -16,6 +16,3 @@ zsh-autosuggestions
 zsh-syntax-highlighting
 tmux
 starship
-neovim
-httpie
-bat
