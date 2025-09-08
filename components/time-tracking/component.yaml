@@ -1,10 +1,10 @@
 description: >-
-  Time tracking tools with both CLI and desktop interfaces.
-  Includes Toggl CLI and desktop application.
+  Time tracking desktop application.
+  Includes Toggl Track desktop app for macOS.
 
 platforms:
   - macos
 
 depends_on:
-  - shell-foundation
+  - time-tracking-cli
   - desktop-core
