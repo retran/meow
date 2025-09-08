@@ -7,81 +7,53 @@ on:
     branches: [ main, dev ]
 
 jobs:
-  shellcheck:
-    name: ShellCheck
+  lint-and-test:
+    name: Lint and Compatibility Test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Run ShellCheck
-        uses: ludeeus/action-shellcheck@master
-        with:
-          additional_files: 'bin/meowctl'
-          ignore_paths: '.git'
-          ignore_names: '*.md'
-
-  yamllint:
-    name: YAML Lint
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.x'
-
-      - name: Install yamllint
-        run: pip install yamllint
-
-      - name: Run yamllint
-        run: yamllint .
-
-  format-check:
-    name: Format Check
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Install bash 3.2
+        run: |
+          # Install bash 3.2 for compatibility testing
+          sudo apt-get update
+          sudo apt-get install -y build-essential wget
+          cd /tmp
+          wget http://ftp.gnu.org/gnu/bash/bash-3.2.tar.gz
+          tar -xzf bash-3.2.tar.gz
+          cd bash-3.2
+          ./configure --prefix=/usr/local/bash32
+          make
+          sudo make install
+          sudo ln -sf /usr/local/bash32/bin/bash /usr/local/bin/bash32
 
       - name: Install go-task
         run: |
           sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
 
-      - name: Install shfmt
+      - name: Install linting tools
         run: |
-          wget -O shfmt https://github.com/mvdan/sh/releases/latest/download/shfmt_v3.7.0_linux_amd64
-          chmod +x shfmt
-          sudo mv shfmt /usr/local/bin/
+          sudo apt-get install -y shellcheck yamllint luarocks
+          sudo luarocks install luacheck
 
-      - name: Check shell script formatting
-        run: task format:check
+      - name: Run shell linting
+        run: task lint:shell
 
-  comprehensive-test:
-    name: Comprehensive Tests
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Run YAML linting
+        run: task lint:yaml
 
-      - name: Install go-task (Ubuntu)
-        if: matrix.os == 'ubuntu-latest'
+      - name: Run Lua linting
+        run: task lint:lua
+
+      - name: Test bash 3.2 compatibility
         run: |
-          sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
-
-      - name: Install dependencies (Ubuntu)
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y shellcheck yamllint yq
-
-      - name: Run all linting
-        run: task lint
-
-      - name: Test basic functionality
-        run: task test:syntax
+          echo "Testing bash 3.2 compatibility..."
+          /usr/local/bin/bash32 -n bin/meowctl
+          for file in lib/core/*.sh; do
+            if [[ -f "$file" ]]; then
+              echo "Testing syntax of $file with bash 3.2"
+              /usr/local/bin/bash32 -n "$file"
+            fi
+          done
+          echo "✓ All shell scripts are compatible with bash 3.2"

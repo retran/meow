@@ -15,7 +15,7 @@ _cache_installed_brew_packages() {
   formula_list=$(brew list --formula -1 2>/dev/null || true)
   cask_list=$(brew list --cask -1 2>/dev/null || true)
   combined_list="${formula_list}${formula_list:+$'\n'}${cask_list}"
-  
+
   local cache_var="_BREW_INSTALLED_PACKAGES"
   if [ -z "${!cache_var:-}" ]; then
     ui_verbose_action_start "Caching installed brew packages..."
