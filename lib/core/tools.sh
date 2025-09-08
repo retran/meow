@@ -116,9 +116,9 @@ _install_yq_from_github() {
   TMPBIN="/tmp/yq_${OS}_${ARCH}_${YQ_VERSION}.tmp"
   
   # Determine if we need sudo based on install directory
-  use_sudo=false
+  use_sudo="false"
   if [ "$INSTALL_DIR" = "/usr/local/bin" ]; then
-    use_sudo=true
+    use_sudo="true"
   fi
 
   if is_dry_run; then
