@@ -11,9 +11,9 @@ Meow is a shell-based dotfiles management system that uses a component-based arc
 # Install go-task (required for all operations)
 sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
 
-# Install shell formatting and linting tools
-wget -O shfmt https://github.com/mvdan/sh/releases/download/v3.12.0/shfmt_v3.12.0_linux_amd64
-chmod +x shfmt && sudo mv shfmt /usr/local/bin/
+# Install linting tools
+sudo apt-get install -y shellcheck yamllint luarocks
+sudo luarocks install luacheck
 ```
 
 ### Environment Setup
@@ -28,17 +28,8 @@ task --list
 
 ### Build and Test Commands
 ```bash
-# Check all required tools are available - takes 1-2 seconds
-task check:tools
-
-# Run syntax validation - takes <1 second  
+# Run syntax validation with bash 3.2 compatibility - takes <1 second  
 task test:syntax
-
-# Format all shell scripts - takes <1 second, NEVER CANCEL
-task format:shell
-
-# Check formatting without changes - takes <1 second
-task format:check
 
 # Run shell linting - takes 60-90 seconds, NEVER CANCEL. Set timeout to 180+ seconds.
 task lint:shell
@@ -46,14 +37,11 @@ task lint:shell
 # Run YAML linting - takes 20-30 seconds, produces warnings about missing newlines (normal)
 task lint:yaml
 
+# Run Lua linting - takes <1 second
+task lint:lua
+
 # Run all linting - takes 90-120 seconds, NEVER CANCEL. Set timeout to 180+ seconds.  
 task lint
-
-# Run pre-commit checks - takes 2-3 minutes, NEVER CANCEL. Set timeout to 300+ seconds.
-task pre-commit
-
-# Run full CI pipeline - takes 3-5 minutes, NEVER CANCEL. Set timeout to 600+ seconds.
-task ci
 ```
 
 ### Application Commands and Usage
@@ -83,7 +71,7 @@ export MEOW=/path/to/meow/repo
 
 1. **Syntax and Format Validation**:
    ```bash
-   task test:syntax && task format:check
+   task test:syntax
    ```
 
 2. **Basic Tool Functionality**:
@@ -100,9 +88,9 @@ export MEOW=/path/to/meow/repo
    ./bin/meowctl component install pipx --dry-run
    ```
 
-4. **Pre-commit Validation**:
+4. **Linting Validation**:
    ```bash
-   task pre-commit  # Takes 3-5 minutes, set 600+ second timeout
+   task lint  # Takes 90-120 seconds, set 180+ second timeout
    ```
 
 ### Expected Limitations
@@ -117,11 +105,12 @@ export MEOW=/path/to/meow/repo
 
 - **Basic commands** (list, help): 30 seconds timeout
 - **Syntax tests**: 30 seconds timeout  
-- **Formatting**: 30 seconds timeout
 - **Shell linting**: 180+ seconds timeout, NEVER CANCEL
+- **YAML linting**: 60+ seconds timeout, NEVER CANCEL
+- **Lua linting**: 30 seconds timeout
+- **All linting**: 180+ seconds timeout, NEVER CANCEL
 - **Component installation**: 300+ seconds timeout, NEVER CANCEL
-- **Preset installation**: 600+ seconds timeout, NEVER CANCEL  
-- **Full CI pipeline**: 600+ seconds timeout, NEVER CANCEL
+- **Preset installation**: 600+ seconds timeout, NEVER CANCEL
 
 ## Architecture and Key Files
 
@@ -147,16 +136,16 @@ export MEOW=/path/to/meow/repo
 
 ### Build System
 - **Tool**: go-task (Taskfile.yml)
-- **Key tasks**: lint, format, test, ci, pre-commit
-- **Dependencies**: shellcheck, shfmt, yamllint, go-task
+- **Key tasks**: lint (shell, yaml, lua), test:syntax
+- **Dependencies**: shellcheck, yamllint, luacheck, go-task
 
 ## Common Tasks and Troubleshooting
 
 ### After Making Changes Always Run
 ```bash
-# Format and validate changes
-task format:shell
-task pre-commit
+# Validate changes
+task test:syntax
+task lint
 
 # Test basic functionality  
 export MEOW=$(pwd)
@@ -170,9 +159,8 @@ export MEOW=$(pwd)
 4. Test with: `./bin/meowctl component install <name> --dry-run`
 
 ### When Modifying Shell Scripts
-1. Always run: `task format:shell` after changes
-2. Validate with: `task test:syntax && task lint:shell`
-3. Check CI requirements: `task pre-commit`
+1. Always validate with: `task test:syntax && task lint:shell`
+2. Check CI requirements: `task lint`
 
 ### Platform Compatibility
 - **Linux**: Most components work, some packages may be unavailable
@@ -190,21 +178,17 @@ export MEOW=$(pwd)
 
 ### Critical Failures to Investigate
 - Syntax errors in shell scripts
-- Formatting failures
+- Linting failures
 - MEOW environment variable not set errors
 - Missing required tools (task, shellcheck, etc.)
 - Component dependency resolution errors
 
 ### Recovery Commands
 ```bash
-# Reset formatting
-task format:shell
-
 # Clean up failed installations
 ./bin/meowctl uninstall all
 
 # Verify environment setup
-task check:tools
 export MEOW=$(pwd)
 ./bin/meowctl --help
 ```
@@ -238,20 +222,21 @@ export MEOW=/full/path/to/meow/repo
 ## Repository Standards
 
 ### Code Style
-- Shell scripts: Use shellcheck, format with shfmt
+- Shell scripts: Use shellcheck for linting
 - YAML files: Use yamllint (warnings about newlines are acceptable)
+- Lua files: Use luacheck for linting
 - Indentation: 2 spaces for shell scripts
 
 ### Testing Requirements
-- All shell scripts must pass syntax validation
-- All changes must pass pre-commit checks
+- All shell scripts must pass syntax validation with bash 3.2 compatibility
+- All changes must pass linting checks
 - Component installations should be tested with dry-run
 - Manual validation of command functionality required
 
 ### CI Pipeline
-- Runs on: Ubuntu latest
-- Checks: shellcheck, yamllint, format validation, syntax tests
-- Required tools: task, shellcheck, shfmt, yamllint
-- Expected runtime: 3-5 minutes
+- Runs on: Ubuntu latest with bash 3.2 compatibility testing
+- Checks: shellcheck, yamllint, luacheck, syntax tests
+- Required tools: task, shellcheck, yamllint, luacheck
+- Expected runtime: 2-3 minutes
 
-Always run `task pre-commit` before finalizing changes to ensure they meet repository standards.
+Always run `task lint` before finalizing changes to ensure they meet repository standards.
