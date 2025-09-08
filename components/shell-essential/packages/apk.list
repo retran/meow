@@ -12,5 +12,9 @@ ripgrep
 zoxide
 glow
 zsh
+zsh-autosuggestions
+zsh-syntax-highlighting
 tmux
 starship
+
+bitwarden-cli
