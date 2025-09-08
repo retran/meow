@@ -9,8 +9,7 @@ if command -v go >/dev/null 2>&1; then
   export GOPATH="${GOPATH:-$(go env GOPATH)}"
 
   case ":${PATH}:" in
-    *:"${GOPATH}/bin":*)
-      ;;
+    *:"${GOPATH}/bin":*) ;;
     *)
       export PATH="${GOPATH}/bin:${PATH}"
       ;;
