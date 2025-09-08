@@ -1,5 +1,3 @@
 description: >-
   Foundation shell environment with version control, package managers, and core shell tools.
   Provides git, Node.js, pipx, and essential shell utilities.
-
-platforms: []  # cross-platform

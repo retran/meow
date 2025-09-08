@@ -1,7 +1,0 @@
-description: "OrbStack - lightweight Docker and Linux VMs for macOS"
-
-platforms:
-  - macos
-
-depends_on:
-  - desktop-essential

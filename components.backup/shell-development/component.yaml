@@ -1,5 +1,0 @@
-description: >-
-  Shell scripting tools including linting, formatting, and language server support
-
-depends_on:
-  - shell-essential

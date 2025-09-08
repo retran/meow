@@ -1,7 +1,0 @@
-description: "Docker CLI tools for remote container management from development environments"
-
-platforms:
-  - linux
-
-depends_on:
-  - shell-essential

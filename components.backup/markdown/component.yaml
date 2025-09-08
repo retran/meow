@@ -1,5 +1,0 @@
-description: >-
-  Technical writing and documentation tools with linting and static site generation
-
-depends_on:
-  - core-development

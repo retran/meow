@@ -1,4 +1,0 @@
-description: ".NET SDK, PowerShell, and development tooling"
-
-depends_on:
-  - core-development

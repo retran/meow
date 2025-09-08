@@ -1,4 +1,0 @@
-description: "Rust toolchain, cargo extensions, and debugging support"
-
-depends_on:
-  - core-development

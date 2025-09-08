@@ -1,9 +1,0 @@
-description: "Project management and workflow optimization tools"
-
-platforms:
-  - macos
-
-depends_on:
-  - desktop-essential
-  - toggl-desktop
-  - toggl-cli

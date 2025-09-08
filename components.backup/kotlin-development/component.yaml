@@ -1,4 +1,0 @@
-description: "JVM runtime, Kotlin compiler, and IDE integration"
-
-depends_on:
-  - core-development

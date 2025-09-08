@@ -1,7 +1,0 @@
-description: "Gaming platforms and entertainment applications"
-
-platforms:
-  - macos
-
-depends_on:
-  - desktop-essential

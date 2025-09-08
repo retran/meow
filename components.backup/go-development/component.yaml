@@ -1,4 +1,0 @@
-description: "Go compiler, language server, debugging tools, and development utilities"
-
-depends_on:
-  - core-development

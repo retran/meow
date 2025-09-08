@@ -1,6 +1,0 @@
-description: >-
-  Git, the essential distributed version control system
-
-depends_on:
-  - pipx
-  - node

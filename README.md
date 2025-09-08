@@ -211,15 +211,34 @@ Lightweight development containers optimized for specific use cases:
 
 ## Available Components
 
-### Core Infrastructure
+### 🏗️ Foundation Infrastructure
 
-- **shell-essential** - Modern command-line tools (fzf, ripgrep, bat, eza, zoxide, tmux, starship)
-- **desktop-essential** - Desktop applications and system utilities for graphical environments
-- **git** - Git version control system, GitHub CLI, git-lfs, and lazygit
-- **core-development** - Essential development tools (go-task, yamllint, httpie)
-- **fonts** - Programming and development fonts
+- **shell-foundation** - Core shell environment with git, Node.js, pipx, and essential utilities
+- **file-navigation** - Modern file operations (eza, fd, bat, fzf, ripgrep, zoxide, glow)
+- **terminal-enhancement** - Terminal multiplexer, prompt, and shell plugins (tmux, starship, zsh)
+- **system-monitoring** - System diagnostics and monitoring tools (htop, watch)
+- **core-development** - Cross-language development tools (go-task, yamllint, httpie)
 
-### Development Environments
+### 🖥️ Desktop Environment (macOS)
+
+- **desktop-core** - Core system utilities and desktop management (Raycast, mas, AppCleaner)
+- **browsers** - Web browsers and related tools (Google Chrome)
+- **terminal-apps** - Terminal emulator applications with configurations (Alacritty)
+- **fonts** - Programming and development fonts (JetBrains Mono, Nerd Fonts)
+
+### 🔐 Security & Communication
+
+- **password-management** - Password management (Bitwarden CLI + desktop app)
+- **communication** - Business and personal messaging (Slack, Zoom, Discord, Telegram, WhatsApp)
+
+### ⚒️ Development Tools
+
+- **text-editors** - Text editors and configurations (Neovim)
+- **ide** - Integrated development environment (Visual Studio Code with extensions)
+- **shell-development** - Shell scripting tools, linting, and language server support
+- **markdown** - Markdown editing and preview tools
+
+### 🚀 Language-Specific Development
 
 - **go-development** - Go toolchain, debugger, and language servers
 - **rust-development** - Rust toolchain and cargo tools
@@ -229,36 +248,32 @@ Lightweight development containers optimized for specific use cases:
 - **dotnet-development** - .NET SDK and development environment
 - **kotlin-development** - Kotlin compiler and tools (standalone, install separately)
 - **lua-development** - Lua interpreter and development tools
-- **shell-development** - Shell scripting tools, linting, and language server support
 - **web-development** - Web development stack with CSS frameworks and build tools
-- **markdown** - Markdown editing and preview tools
-- **game-development** - Game creation tools including 3D modeling and engine support
 
-### Platform & Infrastructure
+### 🎯 Productivity & Media
+
+- **productivity** - Task management and productivity applications
+- **media** - Media creation and content tools (OBS, Kap screen recorder)
+- **gaming** - Gaming platforms and entertainment (Steam, GeForce Now)
+- **time-tracking** - Time tracking tools (Toggl CLI + desktop application)
+
+### 🎮 Specialized Applications
+
+- **game-development** - Game creation tools including 3D modeling and engine support
+- **desktop-utilities** - System maintenance and file management (Keka, AppCleaner)
+
+### 🐳 Container-Specific
 
 - **docker-cli** - Docker command-line interface for Linux container environments
 - **docker-desktop** - OrbStack desktop application for lightweight Docker and Linux VMs (macOS)
-- **node** - Node.js runtime and npm
-- **pipx** - Python application installer
 
-### Communication & Productivity
+### 🔧 Optional Advanced Components
 
-- **productivity** - Task management and productivity applications
-- **personal-communication** - Personal messaging and social apps
-- **corporate-communication** - Business tools (Slack, Teams, Zoom)
-- **media** - Media creation and consumption tools
-- **gaming** - Gaming platforms and entertainment
-- **toggl-cli** - Toggl CLI for time tracking
-- **toggl-desktop** - Toggl Track desktop application
+These components provide specialized functionality and must be installed separately using `meowctl component install <component-name>`:
 
-### Optional Components
-
-These components are not included in any preset and must be installed separately using `meowctl component install <component-name>`:
-
-- **meowvim** - Advanced Neovim configuration managed as a separate git repository
 - **adaptive-keyboard-layouts** - Dynamic keyboard layout switching for different connected keyboards
 - **meowvim-keyboard-layouts** - Neovim mode-aware keyboard layout switching
-- **hammerspoon** - macOS automation and window management
+- **hammerspoon** - macOS automation and window management framework
 
 ---
 
@@ -297,9 +312,9 @@ Platform-specific implementation details:
 ```plain
 User: ./bin/meowctl install personal                    # Desktop environment
     ↓
-Preset resolves components: shell-essential, desktop-essential, core-development, meowvim...
+Preset resolves components: shell-foundation, file-navigation, terminal-enhancement, desktop-core...
     ↓
-Dependencies calculated: pipx → node → git → shell-essential → desktop-essential → meowvim
+Dependencies calculated: shell-foundation → file-navigation → terminal-enhancement → desktop-core → browsers...
     ↓
 Platform-specific packages installed with macOS optimizations
     ↓
@@ -307,9 +322,9 @@ GUI configurations symlinked and system preferences applied
 
 User: ./bin/meowctl install litterbox-go               # Container environment  
     ↓
-Preset resolves components: shell-essential, core-development, go-development, docker-cli
+Preset resolves components: shell-foundation, file-navigation, terminal-enhancement, core-development, go-development, docker-cli
     ↓  
-Dependencies calculated: pipx → node → git → shell-essential → core-development → go-development
+Dependencies calculated: shell-foundation → file-navigation → terminal-enhancement → core-development → go-development
     ↓
 Linux-specific packages installed with container optimizations
     ↓
@@ -355,7 +370,7 @@ platforms:
 
 # Component dependencies
 depends_on:
-  - shell-essential
+  - shell-foundation
   - core-development
 
 # Optional: External git repository
@@ -454,8 +469,8 @@ platforms:
 
 # Required components
 required:
-  - shell-essential
-  - git
+  - shell-foundation
+  - file-navigation  
   - core-development
   - my-custom-component
 ```

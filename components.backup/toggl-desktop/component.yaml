@@ -1,7 +1,0 @@
-description: "Toggl Track desktop application for time tracking"
-
-platforms:
-  - macos
-
-depends_on:
-  - desktop-essential
