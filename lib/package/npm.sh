@@ -10,7 +10,7 @@ source "${MEOW}/lib/core/dry_run.sh"
 
 _cache_installed_npm_packages() {
   local cache_var="_NPM_INSTALLED_PACKAGES"
-  
+
   if [ -z "${!cache_var:-}" ]; then
     ui_verbose_action_start "Caching installed npm packages..."
     local output
