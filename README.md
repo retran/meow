@@ -213,30 +213,32 @@ Lightweight development containers optimized for specific use cases:
 
 ### 🏗️ Foundation Infrastructure
 
-- **shell-foundation** - Core shell environment with git, Node.js, pipx, and essential utilities
-- **file-navigation** - Modern file operations (eza, fd, bat, fzf, ripgrep, zoxide, glow)
-- **terminal-enhancement** - Terminal multiplexer, prompt, and shell plugins (tmux, starship, zsh)
-- **system-monitoring** - System diagnostics and monitoring tools (htop, watch)
+- **shell-foundation** - Essential shell environment with git, Node.js, file navigation tools, system monitoring utilities, and terminal enhancement (zsh plugins, starship prompt)
+- **neovim** - Modern text editor with essential plugins and configurations
 - **core-development** - Cross-language development tools (go-task, yamllint, httpie)
 
 ### 🖥️ Desktop Environment (macOS)
 
 - **desktop-core** - Core system utilities and desktop management (Raycast, mas, AppCleaner)
+- **desktop-utilities** - File management and screen recording tools (Keka archiver, Kap screen recorder)
 - **browsers** - Web browsers and related tools (Google Chrome)
 - **terminal-apps** - Terminal emulator applications with configurations (Alacritty)
 - **fonts** - Programming and development fonts (JetBrains Mono, Nerd Fonts)
+- **tmux** - Terminal multiplexer for advanced session management (macOS only)
 
 ### 🔐 Security & Communication
 
-- **password-management** - Password management (Bitwarden CLI + desktop app)
-- **communication** - Business and personal messaging (Slack, Zoom, Discord, Telegram, WhatsApp)
+- **password-management** - Bitwarden desktop application (macOS only)
+- **password-management-cli** - Bitwarden command-line interface (cross-platform)
+- **business-communication** - Professional messaging tools (Slack, Zoom)
+- **personal-communication** - Personal messaging applications (Discord, Telegram, WhatsApp)
 
 ### ⚒️ Development Tools
 
-- **text-editors** - Text editors and configurations (Neovim)
-- **ide** - Integrated development environment (Visual Studio Code with extensions)
+- **visual-studio-code** - VS Code IDE with essential extensions (GitHub Copilot, themes, containers)
 - **shell-development** - Shell scripting tools, linting, and language server support
 - **markdown** - Markdown editing and preview tools
+- **meowvim** - Custom Neovim configuration from GitHub repository
 
 ### 🚀 Language-Specific Development
 
@@ -246,21 +248,22 @@ Lightweight development containers optimized for specific use cases:
 - **js-development** - Node.js, npm, and JavaScript tools
 - **react-development** - React-specific tools and VS Code extensions
 - **dotnet-development** - .NET SDK and development environment
-- **kotlin-development** - Kotlin compiler and tools (standalone, install separately)
+- **kotlin-development-cli** - Kotlin compiler and JVM tools (cross-platform, standardized temurin JVM)
+- **kotlin-development** - IntelliJ IDEA IDE for Kotlin development (macOS only)
 - **lua-development** - Lua interpreter and development tools
 - **web-development** - Web development stack with CSS frameworks and build tools
 
 ### 🎯 Productivity & Media
 
-- **productivity** - Task management and productivity applications
-- **media** - Media creation and content tools (OBS, Kap screen recorder)
+- **productivity** - Task management and productivity applications (Linear, Notion, DrawIO)
+- **media** - Media creation tools (OBS Studio)
 - **gaming** - Gaming platforms and entertainment (Steam, GeForce Now)
-- **time-tracking** - Time tracking tools (Toggl CLI + desktop application)
+- **time-tracking-cli** - Toggl CLI tools with configuration (cross-platform)
+- **time-tracking** - Toggl Track desktop application (macOS only)
 
 ### 🎮 Specialized Applications
 
 - **game-development** - Game creation tools including 3D modeling and engine support
-- **desktop-utilities** - System maintenance and file management (Keka, AppCleaner)
 
 ### 🐳 Container-Specific
 
@@ -312,9 +315,9 @@ Platform-specific implementation details:
 ```plain
 User: ./bin/meowctl install personal                    # Desktop environment
     ↓
-Preset resolves components: shell-foundation, file-navigation, terminal-enhancement, desktop-core...
+Preset resolves components: shell-foundation, neovim, desktop-core, visual-studio-code, business-communication...
     ↓
-Dependencies calculated: shell-foundation → file-navigation → terminal-enhancement → desktop-core → browsers...
+Dependencies calculated: shell-foundation → neovim → desktop-core → visual-studio-code → browsers...
     ↓
 Platform-specific packages installed with macOS optimizations
     ↓
@@ -322,9 +325,9 @@ GUI configurations symlinked and system preferences applied
 
 User: ./bin/meowctl install litterbox-go               # Container environment  
     ↓
-Preset resolves components: shell-foundation, file-navigation, terminal-enhancement, core-development, go-development, docker-cli
+Preset resolves components: shell-foundation, neovim, core-development, go-development, docker-cli
     ↓  
-Dependencies calculated: shell-foundation → file-navigation → terminal-enhancement → core-development → go-development
+Dependencies calculated: shell-foundation → neovim → core-development → go-development
     ↓
 Linux-specific packages installed with container optimizations
     ↓
