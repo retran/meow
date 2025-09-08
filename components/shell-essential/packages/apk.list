@@ -3,11 +3,14 @@ bat
 curl
 wget
 direnv
+watch
 htop
 eza
 fd
 fzf
 ripgrep
 zoxide
+glow
 zsh
+tmux
 starship
