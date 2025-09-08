@@ -1,0 +1,2 @@
+- source: "$MEOW/private/meow/.meowrc"
+  target: "$HOME/.meowrc"

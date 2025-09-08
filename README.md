@@ -115,16 +115,20 @@ cd ~/.meow
 
 ### Configure Personal Settings
 
-Before installation, configure your git and secrets:
+Before installation, configure your git, secrets, and meow settings:
 
 ```bash
-# Configure git settings (required)
+# Configure git settings
 cp private/git/.gitconfig.example private/git/.gitconfig
 # Edit private/git/.gitconfig with your name and email
 
-# Configure secrets (optional)
+# Configure secrets
 cp private/secrets/.secrets.example private/secrets/.secrets
 # Edit private/secrets/.secrets with your API keys and tokens
+
+# Configure meow settings
+cp private/meow/.meowrc.example private/meow/.meowrc
+# Edit private/meow/.meowrc with your preferences
 ```
 
 These files are gitignored and contain your personal information.
@@ -147,13 +151,6 @@ These files are gitignored and contain your personal information.
 ./bin/meowctl install litterbox-python
 ```
 
-### Install meowvim (optional)
-
-```bash
-# Install meowvim
-./bin/meowctl component install meowvim
-```
-
 ### Keep Updated
 
 ```bash
@@ -163,11 +160,32 @@ cd ~/.meow
 
 ---
 
+## Configuration
+
+### Meow Configuration (.meowrc)
+
+The `.meowrc` file allows you to customize meow's behavior:
+
+```bash
+# Enable/disable GitHub Copilot integration
+export MEOW_ENABLE_COPILOT="false"
+
+# Enable/disable Mac App Store (mas) package management
+export MEOW_ENABLE_MAS="true"
+```
+
+Configuration options:
+
+- **MEOW_ENABLE_COPILOT** - Controls GitHub Copilot integration in supported components
+- **MEOW_ENABLE_MAS** - Controls whether Mac App Store packages are installed/managed
+
+---
+
 ## Available Presets
 
 ### Personal
 
-- **personal** - Complete development environment with entertainment, social, and gaming packages alongside development tools
+- **personal** - Complete development environment with entertainment, social, gaming packages, and meowvim pre-installed
 
 ### Professional Development
 
@@ -190,20 +208,21 @@ cd ~/.meow
 
 - **shell-essential** - Modern command-line tools (fzf, ripgrep, bat, eza, zoxide, tmux, starship)
 - **desktop-essential** - Desktop applications and system utilities for graphical environments
-- **core-development** - Essential development tools (git, editors, build tools)
-- **fonts** - Programming and development fonts (automatically included via desktop-essential)
+- **git** - Git version control system, GitHub CLI, git-lfs, and lazygit
+- **core-development** - Essential development tools (go-task, yamllint, httpie)
+- **fonts** - Programming and development fonts
 
 ### Development Environments
 
 - **go-development** - Go toolchain, debugger, and language servers
 - **rust-development** - Rust toolchain and cargo tools
 - **python-development** - Python, pip, poetry, and development utilities
-- **js-development** - Node.js, npm, and JavaScript tools (automatically included via web-development)
-- **react-development** - React-specific tools and VS Code extensions (automatically included via web-development)
+- **js-development** - Node.js, npm, and JavaScript tools
+- **react-development** - React-specific tools and VS Code extensions
 - **dotnet-development** - .NET SDK and development environment
 - **kotlin-development** - Kotlin compiler and tools (standalone, install separately)
-- **lua-development** - Lua interpreter and development tools (automatically included via core-development)
-- **shell-development** - Shell scripting tools, linting, and language server support (automatically included via core-development)
+- **lua-development** - Lua interpreter and development tools
+- **shell-development** - Shell scripting tools, linting, and language server support
 - **web-development** - Web development stack with CSS frameworks and build tools
 - **markdown** - Markdown editing and preview tools
 - **game-development** - Game creation tools including 3D modeling and engine support
@@ -212,8 +231,8 @@ cd ~/.meow
 
 - **docker-cli** - Docker command-line interface
 - **docker-desktop** - OrbStack desktop application (macOS)
-- **node** - Node.js runtime and npm (automatically included via shell-essential)
-- **pipx** - Python application installer (automatically included via shell-essential)
+- **node** - Node.js runtime and npm
+- **pipx** - Python application installer
 
 ### Communication & Productivity
 
@@ -222,8 +241,8 @@ cd ~/.meow
 - **corporate-communication** - Business tools (Slack, Teams, Zoom)
 - **media** - Media creation and consumption tools
 - **gaming** - Gaming platforms and entertainment
-- **toggl-cli** - Toggl CLI for time tracking (automatically included via productivity)
-- **toggl-desktop** - Toggl Track desktop application (automatically included via productivity)
+- **toggl-cli** - Toggl CLI for time tracking
+- **toggl-desktop** - Toggl Track desktop application
 
 ### Optional Components
 
@@ -232,7 +251,7 @@ These components are not included in any preset and must be installed separately
 - **meowvim** - Advanced Neovim configuration managed as a separate git repository
 - **adaptive-keyboard-layouts** - Dynamic keyboard layout switching for different connected keyboards
 - **meowvim-keyboard-layouts** - Neovim mode-aware keyboard layout switching
-- **hammerspoon** - macOS automation and window management (automatically included when needed by other components)
+- **hammerspoon** - macOS automation and window management
 
 ---
 
@@ -270,9 +289,9 @@ Platform-specific implementation details:
 ```plain
 User: ./bin/meowctl install personal
     ↓
-Preset resolves components: shell-essential, core-development, go-development...
+Preset resolves components: shell-essential, git, core-development, meowvim...
     ↓
-Dependencies calculated: pipx → node → shell-essential → go-development
+Dependencies calculated: pipx → node → git → shell-essential → core-development → meowvim
     ↓
 Packages installed in order with platform detection
     ↓
@@ -418,6 +437,7 @@ platforms:
 # Required components
 required:
   - shell-essential
+  - git
   - core-development
   - my-custom-component
 ```
@@ -509,7 +529,7 @@ The `meow` codebase is organized into logical modules:
 
 - **`components/`** - Modular component definitions with platform-specific packages
 - **`presets/`** - Environment templates that combine components
-- **`private/`** - User-specific configuration (git settings, API keys)
+- **`private/`** - User-specific configuration (git settings, API keys, meow settings)
 
 ---
 

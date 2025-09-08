@@ -4,5 +4,6 @@ description: >-
   and text processing utilities.
 
 depends_on:
+  - git
   - pipx
   - node

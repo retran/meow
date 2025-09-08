@@ -1,4 +1,6 @@
 bash
+bat
+bat-extras
 coreutils
 curl
 wget
@@ -7,7 +9,6 @@ watch
 findutils
 htop
 eza
-git
 fd
 fzf
 ripgrep
@@ -19,9 +20,6 @@ zsh-syntax-highlighting
 tmux
 starship
 reattach-to-user-namespace
+
 bitwarden-cli
-httpie
-neovim
-bat
-bat-extras
-yamllint
+

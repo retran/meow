@@ -30,6 +30,11 @@ is_mas_package_installed() {
 setup_mas() {
   ui_step_header "Setting up mas CLI"
 
+  if [[ "$MEOW_ENABLE_MAS" != "true" ]]; then
+    ui_info "mas setup skipped (MEOW_ENABLE_MAS is not set to 'true')."
+    return 0
+  fi
+
   if is_dry_run; then
     if ! command -v mas >/dev/null 2>&1; then
       dry_run_ui_info "mas CLI not found. If this were a real run, setup would fail."
@@ -53,14 +58,29 @@ _install_mas_package_helper() {
 }
 
 install_mas_packages() {
+  if [[ "$MEOW_ENABLE_MAS" != "true" ]]; then
+    ui_info "mas package installation skipped (MEOW_ENABLE_MAS is not set to 'true')."
+    return 0
+  fi
+
   install_packages_generic "$1" "mas" "_install_mas_package_helper" "is_mas_package_installed"
 }
 
 update_mas_packages() {
+  if [[ "$MEOW_ENABLE_MAS" != "true" ]]; then
+    ui_info "mas package update skipped (MEOW_ENABLE_MAS is not set to 'true')."
+    return 0
+  fi
+
   update_packages_generic "$1" "mas" "mas upgrade" "is_mas_package_installed"
 }
 
 uninstall_mas_packages() {
+  if [[ "$MEOW_ENABLE_MAS" != "true" ]]; then
+    ui_info "mas package uninstallation skipped (MEOW_ENABLE_MAS is not set to 'true')."
+    return 0
+  fi
+
   local component_name="$1"
   local package_file="${MEOW_COMPONENTS_DIR}/${component_name}/packages/mas.list"
 
@@ -107,6 +127,11 @@ uninstall_mas_packages() {
 }
 
 cleanup_mas() {
+  if [[ "$MEOW_ENABLE_MAS" != "true" ]]; then
+    ui_info "mas cleanup skipped (MEOW_ENABLE_MAS is not set to 'true')."
+    return 0
+  fi
+
   if is_dry_run; then
     dry_run_ui_info "App Store cleanup would be skipped (no cleanup needed)."
     dry_run_ui_info "  App Store manages downloads and updates automatically."

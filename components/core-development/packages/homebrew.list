@@ -1,4 +1,3 @@
-gh
-git-lfs
-lazygit
 go-task
+yamllint
+httpie
