@@ -13,3 +13,17 @@ coreutils
 curl
 wget
 direnv
+bat
+bat-extras
+eza
+fd
+fzf
+ripgrep
+zoxide
+glow
+findutils
+watch
+htop
+zsh-autosuggestions
+zsh-syntax-highlighting
+starship

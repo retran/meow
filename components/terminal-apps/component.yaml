@@ -6,5 +6,6 @@ platforms:
   - macos
 
 depends_on:
-  - terminal-enhancement
+  - desktop-core
+  - shell-foundation
   - fonts

@@ -1,6 +1,0 @@
-description: >-
-  Text editors and IDE tools for development.
-  Includes Neovim installation without configurations.
-
-depends_on:
-  - shell-foundation

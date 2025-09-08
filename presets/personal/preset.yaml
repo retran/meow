@@ -6,20 +6,18 @@ platforms:
 
 required:
   - shell-foundation
-  - file-navigation
-  - terminal-enhancement
-  - system-monitoring
-  - text-editors
+  - neovim
   - desktop-core
   - browsers
   - terminal-apps
-  - ide
+  - visual-studio-code
   - password-management
   - core-development
   - game-development
   - markdown
   - docker-desktop
-  - communication
+  - business-communication
+  - personal-communication
   - productivity
   - media
   - gaming

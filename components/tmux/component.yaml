@@ -1,0 +1,9 @@
+description: >-
+  Terminal multiplexer for advanced terminal session management.
+  Provides tmux for session management and window splitting.
+
+platforms:
+  - macos
+
+depends_on:
+  - shell-foundation

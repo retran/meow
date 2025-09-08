@@ -6,9 +6,7 @@ platforms:
 
 required:
   - shell-foundation
-  - file-navigation
-  - terminal-enhancement
-  - text-editors
+  - neovim
   - core-development
   - python-development
   - docker-cli

@@ -4,5 +4,5 @@ platforms:
   - macos
 
 depends_on:
-  - ide
+  - visual-studio-code
   - kotlin-development-cli

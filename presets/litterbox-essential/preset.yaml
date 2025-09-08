@@ -6,10 +6,7 @@ platforms:
 
 required:
   - shell-foundation
-  - file-navigation
-  - terminal-enhancement
-  - system-monitoring
-  - text-editors
+  - neovim
   - core-development
   - password-management-cli
   - docker-cli
