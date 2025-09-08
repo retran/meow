@@ -1,0 +1,6 @@
+description: >-
+  System monitoring and process management tools.
+  Includes htop, watch, and system diagnostic utilities.
+
+depends_on:
+  - shell-foundation

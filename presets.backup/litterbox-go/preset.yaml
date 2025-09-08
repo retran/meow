@@ -1,0 +1,12 @@
+description: >-
+  Go development litterbox setup
+
+platforms:
+  - linux
+
+required:
+  - shell-essential
+  - core-development
+  - go-development
+  - markdown
+  - docker-cli

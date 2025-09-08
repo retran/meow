@@ -1,0 +1,10 @@
+description: >-
+  Integrated Development Environment applications and configurations.
+  Includes Visual Studio Code with development extensions.
+
+platforms:
+  - macos
+
+depends_on:
+  - desktop-core
+  - text-editors

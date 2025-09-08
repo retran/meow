@@ -5,7 +5,11 @@ platforms:
   - linux
 
 required:
-  - shell-essential
+  - shell-foundation
+  - file-navigation
+  - terminal-enhancement
+  - system-monitoring
+  - text-editors
   - core-development
   - go-development
   - docker-cli

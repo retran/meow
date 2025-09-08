@@ -1,12 +1,15 @@
 description: >-
-  Rust development litterbox setup with essential tools
+  Rust development litterbox setup with systems programming tools
 
 platforms:
   - linux
 
 required:
-  - shell-essential
+  - shell-foundation
+  - file-navigation
+  - terminal-enhancement
+  - text-editors
   - core-development
   - rust-development
-  - markdown
   - docker-cli
+  - markdown

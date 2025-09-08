@@ -5,14 +5,21 @@ platforms:
   - macos
 
 required:
-  - shell-essential
-  - desktop-essential
+  - shell-foundation
+  - file-navigation
+  - terminal-enhancement
+  - system-monitoring
+  - text-editors
+  - desktop-core
+  - browsers
+  - terminal-apps
+  - ide
+  - password-management
   - core-development
-  - meowvim
   - game-development
   - markdown
   - docker-desktop
-  - personal-communication
+  - communication
   - productivity
   - media
   - gaming

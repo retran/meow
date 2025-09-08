@@ -1,0 +1,6 @@
+description: >-
+  Modern file navigation and content viewing tools.
+  Includes enhanced ls, find, cat, and fuzzy finder utilities.
+
+depends_on:
+  - shell-foundation

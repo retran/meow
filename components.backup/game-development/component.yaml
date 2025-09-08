@@ -1,0 +1,8 @@
+description: "Game creation tools including 3D modeling and engine support"
+
+platforms:
+  - macos
+
+depends_on:
+  - core-development
+  - lua-development

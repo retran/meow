@@ -1,0 +1,5 @@
+description: >-
+  Web development stack with CSS frameworks, build tools, and deployment utilities
+
+depends_on:
+  - react-development

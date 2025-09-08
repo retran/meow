@@ -1,0 +1,15 @@
+git
+git-lfs
+gh
+lazygit
+
+node
+
+pipx
+
+bash
+zsh
+coreutils
+curl
+wget
+direnv

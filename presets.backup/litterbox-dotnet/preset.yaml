@@ -1,0 +1,12 @@
+description: >-
+  .NET development litterbox setup with essential tools
+
+platforms:
+  - linux
+
+required:
+  - shell-essential
+  - core-development
+  - dotnet-development
+  - markdown
+  - docker-cli

@@ -1,0 +1,9 @@
+description: >-
+  Communication and collaboration applications.
+  Includes business tools (Slack, Zoom) and personal messaging (Discord, Telegram, WhatsApp).
+
+platforms:
+  - macos
+
+depends_on:
+  - desktop-core

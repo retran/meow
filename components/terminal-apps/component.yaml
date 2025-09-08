@@ -1,0 +1,10 @@
+description: >-
+  Terminal emulator applications and configurations.
+  Includes Alacritty with custom configurations.
+
+platforms:
+  - macos
+
+depends_on:
+  - terminal-enhancement
+  - fonts

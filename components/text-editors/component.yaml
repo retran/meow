@@ -1,0 +1,6 @@
+description: >-
+  Text editors and IDE tools for development.
+  Includes Neovim with configurations and extensions.
+
+depends_on:
+  - shell-foundation

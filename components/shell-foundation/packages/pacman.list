@@ -1,0 +1,11 @@
+git
+git-lfs
+nodejs
+npm
+python-pip
+bash
+zsh
+coreutils
+curl
+wget
+direnv

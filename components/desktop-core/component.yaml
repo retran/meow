@@ -1,0 +1,10 @@
+description: >-
+  Core desktop system utilities and essential GUI applications.
+  Includes system management, app launcher, and basic desktop tools.
+
+platforms:
+  - macos
+
+depends_on:
+  - shell-foundation
+  - fonts

@@ -1,0 +1,7 @@
+description: "Desktop utility applications for system maintenance and file management"
+
+platforms:
+  - macos
+
+depends_on:
+  - desktop-essential

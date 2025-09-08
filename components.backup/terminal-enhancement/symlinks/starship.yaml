@@ -1,0 +1,2 @@
+- source: "$MEOW/.installed/components/shell-essential/config/starship/starship.toml"
+  target: "$HOME/.config/starship.toml"

@@ -1,0 +1,6 @@
+- source: "$MEOW/.installed/components/shell-essential/config/zsh/.zshrc"
+  target: "$HOME/.zshrc"
+- source: "$MEOW/.installed/components/shell-essential/config/zsh/.zprofile"
+  target: "$HOME/.zprofile"
+- source: "$MEOW/.installed/components/shell-essential/config/zsh/.zlogin"
+  target: "$HOME/.zlogin"

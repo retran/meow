@@ -1,0 +1,6 @@
+description: >-
+  Terminal multiplexer, prompt customization, and shell enhancements.
+  Includes tmux, starship prompt, and zsh plugins.
+
+depends_on:
+  - shell-foundation

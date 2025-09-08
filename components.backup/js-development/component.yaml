@@ -1,0 +1,6 @@
+description: >-
+  JavaScript/TypeScript runtime, language servers, and development tools
+
+depends_on:
+  - core-development
+  - node

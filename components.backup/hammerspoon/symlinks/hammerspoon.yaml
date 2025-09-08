@@ -1,0 +1,2 @@
+- source: "$MEOW/.installed/components/hammerspoon/config/hammerspoon"
+  target: "$HOME/.hammerspoon"

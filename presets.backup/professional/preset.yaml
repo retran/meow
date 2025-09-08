@@ -1,0 +1,14 @@
+description: >-
+  Professional laptop setup
+
+platforms:
+  - macos
+
+required:
+  - shell-essential
+  - desktop-essential
+  - core-development
+  - markdown
+  - docker-desktop
+  - corporate-communication
+  - productivity

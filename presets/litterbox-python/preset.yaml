@@ -1,12 +1,15 @@
 description: >-
-  Python development litterbox setup with essential tools
+  Python development litterbox setup with data science and web frameworks
 
 platforms:
   - linux
 
 required:
-  - shell-essential
+  - shell-foundation
+  - file-navigation
+  - terminal-enhancement
+  - text-editors
   - core-development
   - python-development
-  - markdown
   - docker-cli
+  - markdown
