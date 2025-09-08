@@ -80,7 +80,7 @@ EOF
     force_install=true
   fi
 
-  if [ "$force_install" = true ]; then
+  if [ "$force_install" = "true" ]; then
     _install_yq_from_github
   fi
 }
