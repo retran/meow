@@ -1,0 +1,4 @@
+description: "JVM runtime and Kotlin compiler for command-line development"
+
+depends_on:
+  - core-development

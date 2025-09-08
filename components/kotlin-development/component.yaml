@@ -1,4 +1,8 @@
-description: "JVM runtime, Kotlin compiler, and IDE integration"
+description: "IntelliJ IDEA IDE for Kotlin development"
+
+platforms:
+  - macos
 
 depends_on:
-  - core-development
+  - ide
+  - kotlin-development-cli

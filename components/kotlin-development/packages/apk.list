@@ -1,1 +1,2 @@
-openjdk21
+# IntelliJ IDEA not available in Alpine Linux
+# Use kotlin-development-cli component for CLI development
