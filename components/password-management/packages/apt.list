@@ -1,1 +1,2 @@
-bitwarden-cli
+# Desktop Bitwarden app not available in standard Ubuntu repos
+# Use password-management-cli component for CLI access

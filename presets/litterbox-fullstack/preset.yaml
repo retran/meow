@@ -11,6 +11,7 @@ required:
   - system-monitoring
   - text-editors
   - core-development
+  - password-management-cli
   - go-development
   - docker-cli
   - markdown

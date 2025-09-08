@@ -4,4 +4,4 @@ platforms:
   - linux
 
 depends_on:
-  - shell-essential
+  - shell-foundation

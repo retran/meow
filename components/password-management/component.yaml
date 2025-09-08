@@ -1,9 +1,10 @@
 description: >-
-  Password management with both CLI and desktop applications.
-  Includes Bitwarden CLI and desktop app.
-
-depends_on:
-  - shell-foundation
+  Desktop password management applications.
+  Includes Bitwarden desktop app for secure password management.
 
 platforms:
-  - macos  # Desktop app is macOS-only, but CLI works cross-platform
+  - macos
+
+depends_on:
+  - desktop-core
+  - password-management-cli

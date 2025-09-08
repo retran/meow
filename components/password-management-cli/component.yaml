@@ -1,0 +1,6 @@
+description: >-
+  Command-line password management tools.
+  Includes Bitwarden CLI for secure password access from terminal.
+
+depends_on:
+  - shell-foundation
