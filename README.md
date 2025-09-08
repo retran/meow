@@ -44,6 +44,13 @@ has a _purr-fect_ setup for you.
 
 ## Core Features
 
+### Dual-Purpose Architecture
+
+**meow** serves two distinct but complementary use cases:
+
+- **🖥️ Desktop Development Environments** (macOS): Complete personal or professional setups with GUI applications, system integrations, and productivity tools
+- **🐳 Container Development Environments** (Linux): Optimized development containers with essential CLI tools and language-specific toolchains
+
 ### Component-Based Architecture
 
 **Components** are modular building blocks that define specific functionality:
@@ -53,9 +60,10 @@ has a _purr-fect_ setup for you.
 - Lifecycle scripts for setup, environment configuration, and cleanup
 
 **Presets** combine components into complete environment configurations:
+- Desktop environments: `personal`, `professional` (macOS)
+- Container environments: `litterbox-*` series (Linux)
 - Language-specific development setups
-- Platform-optimized configurations (desktop vs container)
-- Role-based environments (personal vs professional)
+- Role-based configurations with appropriate platform targeting
 
 ### Cross-Platform Package Management
 
@@ -183,19 +191,18 @@ Configuration options:
 
 ## Available Presets
 
-### Personal
+### Desktop Environments (macOS)
 
 - **personal** - Complete development environment with entertainment, social, gaming packages, and meowvim pre-installed
-
-### Professional Development
-
 - **professional** - Business-focused environment with corporate communication tools (Slack, Zoom), excluding entertainment software
 
-### Container-Optimized
+### Container-Optimized Environments (Linux)
 
-- **litterbox-essential** - Minimal base with core shell utilities
+Lightweight development containers optimized for specific use cases:
+
+- **litterbox-essential** - Minimal base with core shell utilities and development tools
 - **litterbox-go** - Go development environment
-- **litterbox-rust** - Rust development environment
+- **litterbox-rust** - Rust development environment  
 - **litterbox-python** - Python development environment
 - **litterbox-dotnet** - .NET development environment
 - **litterbox-fullstack** - Complete full-stack development environment
@@ -229,8 +236,8 @@ Configuration options:
 
 ### Platform & Infrastructure
 
-- **docker-cli** - Docker command-line interface
-- **docker-desktop** - OrbStack desktop application (macOS)
+- **docker-cli** - Docker command-line interface for Linux container environments
+- **docker-desktop** - OrbStack desktop application for lightweight Docker and Linux VMs (macOS)
 - **node** - Node.js runtime and npm
 - **pipx** - Python application installer
 
@@ -257,45 +264,56 @@ These components are not included in any preset and must be installed separately
 
 ## Architecture
 
-`meow` uses a three-layer architecture for maximum flexibility:
+`meow` uses a three-layer architecture designed for both desktop and container environments:
 
 ### 1. Presets Layer
 
-High-level environment configurations that combine components:
+High-level environment configurations optimized for specific use cases:
 
-- Handle platform-specific variations
+- **Desktop presets** (macOS): Handle GUI applications, system integrations, and platform-specific tools
+- **Container presets** (Linux): Optimized for development containers with essential CLI tools
 - Define complete workflows and use cases
 - Manage component dependencies automatically
 
 ### 2. Components Layer
 
-Modular building blocks with specific functionality:
+Modular building blocks with platform-aware implementations:
 
 - Self-contained package and configuration definitions
-- Platform-agnostic with platform-specific implementations
-- Declare dependencies on other components
-- Include lifecycle scripts for setup and management
+- Cross-platform support with platform-specific optimizations  
+- Dependency declarations between components
+- Lifecycle scripts for setup and management
 
 ### 3. Package Layer
 
 Platform-specific implementation details:
 
-- Package manager lists (Homebrew, apt, npm, etc.)
+- Package manager lists (Homebrew, apt, apk, pacman, npm, etc.)
 - Configuration files and symlink definitions
 - VS Code extensions and language-specific tools
 
 ### Dependency Resolution
 
 ```plain
-User: ./bin/meowctl install personal
+User: ./bin/meowctl install personal                    # Desktop environment
     ↓
-Preset resolves components: shell-essential, git, core-development, meowvim...
+Preset resolves components: shell-essential, desktop-essential, core-development, meowvim...
     ↓
-Dependencies calculated: pipx → node → git → shell-essential → core-development → meowvim
+Dependencies calculated: pipx → node → git → shell-essential → desktop-essential → meowvim
     ↓
-Packages installed in order with platform detection
+Platform-specific packages installed with macOS optimizations
     ↓
-Configurations symlinked and lifecycle scripts executed
+GUI configurations symlinked and system preferences applied
+
+User: ./bin/meowctl install litterbox-go               # Container environment  
+    ↓
+Preset resolves components: shell-essential, core-development, go-development, docker-cli
+    ↓  
+Dependencies calculated: pipx → node → git → shell-essential → core-development → go-development
+    ↓
+Linux-specific packages installed with container optimizations
+    ↓
+CLI configurations symlinked and development tools configured
 ```
 
 ---
