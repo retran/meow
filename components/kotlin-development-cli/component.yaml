@@ -1,5 +1,5 @@
 # @file:    components/kotlin-development-cli/component.yaml
-# @brief:   Component definition for kotlin-development-cli installation and configuration.
+# @brief:   Kotlin command-line development tools and compilers.
 # @author:  Andrew Vasilyev
 # @license: MIT
 #

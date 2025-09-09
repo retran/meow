@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # @file:    components/dotnet-development/scripts/env.sh
-# @brief:   Installation or configuration script for dotnet-development component.
+# @brief:   Environment configuration script for .NET development tools and SDK paths.
 # @author:  Andrew Vasilyev
 # @license: MIT
 #

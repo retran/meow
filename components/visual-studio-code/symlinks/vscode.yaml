@@ -1,5 +1,5 @@
 # @file:    components/visual-studio-code/symlinks/vscode.yaml
-# @brief:   Component configuration file for modular system setup.
+# @brief:   Symlink configuration for Visual Studio Code settings, keybindings, and extensions.
 # @author:  Andrew Vasilyev
 # @license: MIT
 #

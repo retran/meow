@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # @file:    components/adaptive-keyboard-layouts/scripts/macos_keyboard.sh
-# @brief:   Installation or configuration script for adaptive-keyboard-layouts component.
+# @brief:   macOS-specific keyboard layout configuration and management utilities.
 # @author:  Andrew Vasilyev
 # @license: MIT
 #

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # @file:    components/docker-desktop/scripts/env.sh
-# @brief:   Installation or configuration script for docker-desktop component.
+# @brief:   Environment configuration script for Docker Desktop and container tools.
 # @author:  Andrew Vasilyev
 # @license: MIT
 #

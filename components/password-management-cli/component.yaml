@@ -1,5 +1,5 @@
 # @file:    components/password-management-cli/component.yaml
-# @brief:   Component definition for password-management-cli installation and configuration.
+# @brief:   Command-line password management tools including Bitwarden CLI for secure terminal access.
 # @author:  Andrew Vasilyev
 # @license: MIT
 #

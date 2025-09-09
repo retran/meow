@@ -1,5 +1,5 @@
 # @file:    components/browsers/component.yaml
-# @brief:   Component definition for browsers installation and configuration.
+# @brief:   Web browsers for development and testing including Chrome, Firefox, and Safari.
 # @author:  Andrew Vasilyev
 # @license: MIT
 #

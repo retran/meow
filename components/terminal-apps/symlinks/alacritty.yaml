@@ -1,5 +1,5 @@
 # @file:    components/terminal-apps/symlinks/alacritty.yaml
-# @brief:   Component configuration file for modular system setup.
+# @brief:   Symlink configuration for Alacritty terminal emulator settings and themes.
 # @author:  Andrew Vasilyev
 # @license: MIT
 #

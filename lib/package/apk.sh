@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # @file:    lib/package/apk.sh
-# @brief:   Package manager abstraction and installation utilities.
+# @brief:   Alpine package manager utilities for Alpine Linux package installation and management.
 # @author:  Andrew Vasilyev
 # @license: MIT
 #

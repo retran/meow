@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # @file:    components/time-tracking/scripts/cleanup.sh
-# @brief:   Installation or configuration script for time-tracking component.
+# @brief:   Cleanup script for removing time tracking tools and temporary data.
 # @author:  Andrew Vasilyev
 # @license: MIT
 #

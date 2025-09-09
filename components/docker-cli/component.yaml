@@ -1,5 +1,5 @@
 # @file:    components/docker-cli/component.yaml
-# @brief:   Component definition for docker-cli installation and configuration.
+# @brief:   Docker CLI tools for remote container management from development environments.
 # @author:  Andrew Vasilyev
 # @license: MIT
 #

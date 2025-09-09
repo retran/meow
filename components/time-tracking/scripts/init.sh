@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # @file:    components/time-tracking/scripts/init.sh
-# @brief:   Installation or configuration script for time-tracking component.
+# @brief:   Initialization script for time tracking applications and configuration.
 # @author:  Andrew Vasilyev
 # @license: MIT
 #

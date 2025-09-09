@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # @file:    components/js-development/scripts/env.sh
-# @brief:   Installation or configuration script for js-development component.
+# @brief:   Environment configuration script for JavaScript development tools and Node.js paths.
 # @author:  Andrew Vasilyev
 # @license: MIT
 #

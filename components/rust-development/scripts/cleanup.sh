@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # @file:    components/rust-development/scripts/cleanup.sh
-# @brief:   Installation or configuration script for rust-development component.
+# @brief:   Cleanup script for removing Rust development tools and temporary files.
 # @author:  Andrew Vasilyev
 # @license: MIT
 #

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # @file:    components/shell-essential/scripts/init.sh
-# @brief:   Installation or configuration script for shell-essential component.
+# @brief:   Initialization script for essential shell tools and development environment.
 # @author:  Andrew Vasilyev
 # @license: MIT
 #

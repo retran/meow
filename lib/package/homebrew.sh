@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # @file:    lib/package/homebrew.sh
-# @brief:   Package manager abstraction and installation utilities.
+# @brief:   Homebrew package manager utilities for macOS package installation and management.
 # @author:  Andrew Vasilyev
 # @license: MIT
 #

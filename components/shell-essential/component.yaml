@@ -1,5 +1,5 @@
 # @file:    components/shell-essential/component.yaml
-# @brief:   Component definition for shell-essential installation and configuration.
+# @brief:   Essential shell tools and development foundation for all environments including git, node, bash/zsh, and monitoring utilities.
 # @author:  Andrew Vasilyev
 # @license: MIT
 #

@@ -1,5 +1,5 @@
 # @file:    components/neovim/component.yaml
-# @brief:   Component definition for neovim installation and configuration.
+# @brief:   Neovim text editor with essential plugins and configurations for modern vim-compatible terminal editing.
 # @author:  Andrew Vasilyev
 # @license: MIT
 #

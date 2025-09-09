@@ -1,5 +1,5 @@
 # @file:    components/time-tracking-cli/component.yaml
-# @brief:   Component definition for time-tracking-cli installation and configuration.
+# @brief:   Command-line time tracking tools for terminal-based productivity monitoring.
 # @author:  Andrew Vasilyev
 # @license: MIT
 #

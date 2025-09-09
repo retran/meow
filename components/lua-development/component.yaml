@@ -1,5 +1,5 @@
 # @file:    components/lua-development/component.yaml
-# @brief:   Component definition for lua-development installation and configuration.
+# @brief:   Lua programming language development environment with interpreters and tools.
 # @author:  Andrew Vasilyev
 # @license: MIT
 #

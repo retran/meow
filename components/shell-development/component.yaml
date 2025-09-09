@@ -1,5 +1,5 @@
 # @file:    components/shell-development/component.yaml
-# @brief:   Component definition for shell-development installation and configuration.
+# @brief:   Shell scripting development tools including linters, formatters, and testing utilities.
 # @author:  Andrew Vasilyev
 # @license: MIT
 #

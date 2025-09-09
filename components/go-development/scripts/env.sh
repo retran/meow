@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # @file:    components/go-development/scripts/env.sh
-# @brief:   Installation or configuration script for go-development component.
+# @brief:   Environment configuration script for Go development tools and module paths.
 # @author:  Andrew Vasilyev
 # @license: MIT
 #

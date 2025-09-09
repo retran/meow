@@ -1,5 +1,5 @@
 # @file:    components/python-development/component.yaml
-# @brief:   Component definition for python-development installation and configuration.
+# @brief:   Python development environment with pip, virtual environments, and development tools.
 # @author:  Andrew Vasilyev
 # @license: MIT
 #

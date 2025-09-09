@@ -1,5 +1,5 @@
 # @file:    components/meowvim/component.yaml
-# @brief:   Component definition for meowvim installation and configuration.
+# @brief:   Custom Neovim configuration with advanced features and plugin management.
 # @author:  Andrew Vasilyev
 # @license: MIT
 #

@@ -1,5 +1,5 @@
 # @file:    components/web-development/component.yaml
-# @brief:   Component definition for web-development installation and configuration.
+# @brief:   Web development stack with CSS frameworks, build tools, and deployment utilities.
 # @author:  Andrew Vasilyev
 # @license: MIT
 #

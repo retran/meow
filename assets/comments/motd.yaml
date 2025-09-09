@@ -1,5 +1,5 @@
 # @file:    assets/comments/motd.yaml
-# @brief:   System information template for dynamic content generation.
+# @brief:   Message of the day template for system welcome messages and daily information.
 # @author:  Andrew Vasilyev
 # @license: MIT
 #

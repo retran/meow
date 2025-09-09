@@ -1,5 +1,5 @@
 # @file:    components/tmux/component.yaml
-# @brief:   Component definition for tmux installation and configuration.
+# @brief:   Terminal multiplexer for session management and workspace organization.
 # @author:  Andrew Vasilyev
 # @license: MIT
 #

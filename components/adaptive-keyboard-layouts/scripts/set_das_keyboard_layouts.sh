@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # @file:    components/adaptive-keyboard-layouts/scripts/set_das_keyboard_layouts.sh
-# @brief:   Installation or configuration script for adaptive-keyboard-layouts component.
+# @brief:   Das Keyboard specific layout configuration and switching utilities.
 # @author:  Andrew Vasilyev
 # @license: MIT
 #

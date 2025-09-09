@@ -1,5 +1,5 @@
 # @file:    presets/litterbox-dotnet/preset.yaml
-# @brief:   Preset definition for litterbox-dotnet environment template.
+# @brief:   Microsoft .NET development litterbox environment with SDK and development tools.
 # @author:  Andrew Vasilyev
 # @license: MIT
 #

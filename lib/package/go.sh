@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # @file:    lib/package/go.sh
-# @brief:   Package manager abstraction and installation utilities.
+# @brief:   Go module utilities for Go package installation and dependency management.
 # @author:  Andrew Vasilyev
 # @license: MIT
 #

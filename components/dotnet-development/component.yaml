@@ -1,5 +1,5 @@
 # @file:    components/dotnet-development/component.yaml
-# @brief:   Component definition for dotnet-development installation and configuration.
+# @brief:   Microsoft .NET development environment with SDK and runtime tools.
 # @author:  Andrew Vasilyev
 # @license: MIT
 #

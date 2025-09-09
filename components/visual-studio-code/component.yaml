@@ -1,5 +1,5 @@
 # @file:    components/visual-studio-code/component.yaml
-# @brief:   Component definition for visual-studio-code installation and configuration.
+# @brief:   Visual Studio Code editor with extensions and configuration for development.
 # @author:  Andrew Vasilyev
 # @license: MIT
 #

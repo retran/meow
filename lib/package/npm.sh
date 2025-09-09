@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # @file:    lib/package/npm.sh
-# @brief:   Package manager abstraction and installation utilities.
+# @brief:   npm package manager utilities for Node.js package installation and management.
 # @author:  Andrew Vasilyev
 # @license: MIT
 #

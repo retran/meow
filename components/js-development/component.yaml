@@ -1,5 +1,5 @@
 # @file:    components/js-development/component.yaml
-# @brief:   Component definition for js-development installation and configuration.
+# @brief:   JavaScript/TypeScript development tools including Node.js, npm, and modern JS frameworks.
 # @author:  Andrew Vasilyev
 # @license: MIT
 #

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # @file:    components/desktop-essential/scripts/setup.sh
-# @brief:   Installation or configuration script for desktop-essential component.
+# @brief:   Setup script for desktop applications and system utilities installation.
 # @author:  Andrew Vasilyev
 # @license: MIT
 #

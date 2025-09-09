@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # @file:    lib/package/apt.sh
-# @brief:   Package manager abstraction and installation utilities.
+# @brief:   APT package manager utilities for Debian/Ubuntu package installation and management.
 # @author:  Andrew Vasilyev
 # @license: MIT
 #

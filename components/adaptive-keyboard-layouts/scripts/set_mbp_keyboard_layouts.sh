@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # @file:    components/adaptive-keyboard-layouts/scripts/set_mbp_keyboard_layouts.sh
-# @brief:   Installation or configuration script for adaptive-keyboard-layouts component.
+# @brief:   MacBook Pro specific keyboard layout configuration and switching utilities.
 # @author:  Andrew Vasilyev
 # @license: MIT
 #

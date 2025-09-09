@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # @file:    lib/package/common.sh
-# @brief:   Package manager abstraction and installation utilities.
+# @brief:   Common package manager utilities and shared functionality across package systems.
 # @author:  Andrew Vasilyev
 # @license: MIT
 #

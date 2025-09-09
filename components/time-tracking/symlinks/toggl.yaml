@@ -1,5 +1,5 @@
 # @file:    components/time-tracking/symlinks/toggl.yaml
-# @brief:   Component configuration file for modular system setup.
+# @brief:   Symlink configuration for Toggl time tracking CLI settings and authentication.
 # @author:  Andrew Vasilyev
 # @license: MIT
 #

@@ -1,5 +1,5 @@
 # @file:    components/hammerspoon/symlinks/hammerspoon.yaml
-# @brief:   Component configuration file for modular system setup.
+# @brief:   Symlink configuration for Hammerspoon automation scripts and window management.
 # @author:  Andrew Vasilyev
 # @license: MIT
 #

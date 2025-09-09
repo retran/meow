@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # @file:    components/rust-development/scripts/setup.sh
-# @brief:   Installation or configuration script for rust-development component.
+# @brief:   Setup script for Rust development environment and toolchain installation.
 # @author:  Andrew Vasilyev
 # @license: MIT
 #

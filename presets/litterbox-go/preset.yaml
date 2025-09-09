@@ -1,5 +1,5 @@
 # @file:    presets/litterbox-go/preset.yaml
-# @brief:   Preset definition for litterbox-go environment template.
+# @brief:   Go development litterbox environment with Go toolchain and utilities.
 # @author:  Andrew Vasilyev
 # @license: MIT
 #

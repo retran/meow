@@ -1,5 +1,5 @@
 # @file:    components/go-development/component.yaml
-# @brief:   Component definition for go-development installation and configuration.
+# @brief:   Go programming language development environment with toolchain and utilities.
 # @author:  Andrew Vasilyev
 # @license: MIT
 #

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # @file:    components/adaptive-keyboard-layouts/scripts/setup.sh
-# @brief:   Installation or configuration script for adaptive-keyboard-layouts component.
+# @brief:   Setup script for adaptive keyboard layout management system.
 # @author:  Andrew Vasilyev
 # @license: MIT
 #

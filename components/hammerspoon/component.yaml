@@ -1,5 +1,5 @@
 # @file:    components/hammerspoon/component.yaml
-# @brief:   Component definition for hammerspoon installation and configuration.
+# @brief:   Hammerspoon automation framework for macOS window management and scripting.
 # @author:  Andrew Vasilyev
 # @license: MIT
 #

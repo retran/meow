@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # @file:    lib/package/vscode.sh
-# @brief:   Package manager abstraction and installation utilities.
+# @brief:   Visual Studio Code extension management utilities for IDE customization.
 # @author:  Andrew Vasilyev
 # @license: MIT
 #

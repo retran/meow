@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # @file:    lib/package/mas.sh
-# @brief:   Package manager abstraction and installation utilities.
+# @brief:   Mac App Store command line utilities for macOS app installation and management.
 # @author:  Andrew Vasilyev
 # @license: MIT
 #

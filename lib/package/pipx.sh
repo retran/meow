@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # @file:    lib/package/pipx.sh
-# @brief:   Package manager abstraction and installation utilities.
+# @brief:   pipx utilities for isolated Python application installation and management.
 # @author:  Andrew Vasilyev
 # @license: MIT
 #

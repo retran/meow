@@ -1,5 +1,5 @@
 # @file:    presets/litterbox-python/preset.yaml
-# @brief:   Preset definition for litterbox-python environment template.
+# @brief:   Python development litterbox environment with pip, virtual environments, and tools.
 # @author:  Andrew Vasilyev
 # @license: MIT
 #

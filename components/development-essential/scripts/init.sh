@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # @file:    components/development-essential/scripts/init.sh
-# @brief:   Installation or configuration script for development-essential component.
+# @brief:   Initialization script for essential development tools and environment setup.
 # @author:  Andrew Vasilyev
 # @license: MIT
 #

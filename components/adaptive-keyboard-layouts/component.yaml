@@ -1,5 +1,5 @@
 # @file:    components/adaptive-keyboard-layouts/component.yaml
-# @brief:   Component definition for adaptive-keyboard-layouts installation and configuration.
+# @brief:   Adaptive keyboard layout management for different development workflows.
 # @author:  Andrew Vasilyev
 # @license: MIT
 #

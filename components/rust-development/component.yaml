@@ -1,5 +1,5 @@
 # @file:    components/rust-development/component.yaml
-# @brief:   Component definition for rust-development installation and configuration.
+# @brief:   Rust programming language development environment with cargo and toolchain.
 # @author:  Andrew Vasilyev
 # @license: MIT
 #

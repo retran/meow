@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # @file:    lib/package/cargo.sh
-# @brief:   Package manager abstraction and installation utilities.
+# @brief:   Cargo package manager utilities for Rust crate installation and management.
 # @author:  Andrew Vasilyev
 # @license: MIT
 #

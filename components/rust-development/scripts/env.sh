@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # @file:    components/rust-development/scripts/env.sh
-# @brief:   Installation or configuration script for rust-development component.
+# @brief:   Environment configuration script for Rust development tools and cargo paths.
 # @author:  Andrew Vasilyev
 # @license: MIT
 #
