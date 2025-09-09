@@ -9,13 +9,6 @@ source "${MEOW}/lib/core/ui.sh"
 source "${MEOW}/lib/core/platform.sh"
 source "${MEOW}/lib/core/dry_run.sh"
 
-dry_run_package_operation() {
-  local manager_display_name="$1"
-  local operation="$2"
-  local package_name="$3"
-  dry_run_log "$(_f "Would %s %s package %s" "$operation" "$manager_display_name" "$package_name")"
-}
-
 run_package_operation() {
   local start_msg="$1"
   local success_msg="$2"
