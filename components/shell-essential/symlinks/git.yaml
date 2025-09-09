@@ -1,0 +1,7 @@
+# @file:    components/shell-essential/symlinks/git.yaml
+# @brief:   Symlink configuration for Git version control settings.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
+- source: "$MEOW/private/git/.gitconfig"
+  target: "$HOME/.gitconfig"

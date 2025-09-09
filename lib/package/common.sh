@@ -233,18 +233,38 @@ update_packages_generic() {
           ui_verbose_info "$(_f "Checking if %s %s is up-to-date..." "$manager_display_name" "$package_name")"
           test_output=$($update_cmd "$package_name" 2>&1) || true
         else
+          # Use spinner but capture output properly by running command in background
           local temp_file
           temp_file=$(mktemp) || {
             ui_action_error "$(_f "Failed to create temporary file for update check.")"
             return 1
           }
 
-          if ui_silent_spinner "$(_f "Checking %s %s" "$manager_display_name" "$package_name")" "$update_cmd" "$package_name" >"$temp_file" 2>&1; then
-            test_output=$(cat "$temp_file")
-          else
-            test_output=$(cat "$temp_file")
-            ui_action_error "$(_f "Failed to check update status for %s %s. Output:\n%s" "$manager_display_name" "$package_name" "$test_output")"
-          fi
+          # Run the command in background and capture output
+          ($update_cmd "$package_name" >"$temp_file" 2>&1) &
+          local cmd_pid=$!
+          
+          # Show spinner while command runs
+          local spinner_chars="⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"
+          local i=0
+          local spinner_color="${YELLOW:-$(tput setaf 3 2>/dev/null || echo '')}"
+          local reset_color="${RESET:-$(tput sgr0 2>/dev/null || echo '')}"
+          
+          while kill -0 "$cmd_pid" 2>/dev/null; do
+            local char="${spinner_chars:$((i % ${#spinner_chars})):1}"
+            printf "\r%b%s%b Checking %s %s" "$spinner_color" "$char" "$reset_color" "$manager_display_name" "$package_name"
+            sleep 0.1
+            i=$((i + 1))
+          done
+          
+          # Wait for command to complete and get exit status
+          wait "$cmd_pid" 2>/dev/null || true
+          
+          # Clear spinner line
+          printf "\r%s" "$(tput el 2>/dev/null || printf '%*s' 80 '')"
+          
+          # Read the captured output
+          test_output=$(cat "$temp_file" 2>/dev/null || echo "")
           rm -f "$temp_file" || true
         fi
         if echo "$test_output" | grep -Eq "$skip_pattern"; then
