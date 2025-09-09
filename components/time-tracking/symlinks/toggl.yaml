@@ -1,2 +1,2 @@
-- source: "$MEOW/.installed/components/toggl-cli/config/toggl/.togglrc"
+- source: "$MEOW/.installed/components/time-tracking-cli/config/toggl/.togglrc"
   target: "$HOME/.togglrc"

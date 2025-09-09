@@ -4,6 +4,6 @@ platforms:
   - macos
 
 depends_on:
-  - desktop-essential
-  - toggl-desktop
-  - toggl-cli
+  - desktop-core
+  - time-tracking
+  - time-tracking-cli
