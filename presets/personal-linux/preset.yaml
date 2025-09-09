@@ -1,0 +1,18 @@
+description: >-
+  Personal development setup for Linux containers with shell tools and CLI applications
+
+platforms:
+  - linux
+
+required:
+  - neovim
+  - core-development
+  - password-management-cli
+  - markdown
+  - docker-cli
+  - time-tracking-cli
+  - shell-development
+  - lua-development
+  - go-development
+  - python-development
+  - rust-development

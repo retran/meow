@@ -189,16 +189,16 @@ Configuration options:
 
 ---
 
-## Available Presets
+### Available Presets
 
 ### Desktop Environments (macOS)
 
-- **personal** - Complete development environment with entertainment, social, gaming packages, and meowvim pre-installed
+- **personal** - Complete development environment with entertainment, social, gaming packages, and development tools. Includes desktop apps, browsers, and full productivity suite
 - **professional** - Business-focused environment with corporate communication tools (Slack, Zoom), excluding entertainment software
 
 ### Container-Optimized Environments (Linux)
 
-Lightweight development containers optimized for specific use cases:
+Lightweight development containers optimized for specific use cases. All container presets automatically include essential shell tools:
 
 - **litterbox-essential** - Minimal base with core shell utilities and development tools
 - **litterbox-go** - Go development environment
@@ -206,6 +206,10 @@ Lightweight development containers optimized for specific use cases:
 - **litterbox-python** - Python development environment
 - **litterbox-dotnet** - .NET development environment
 - **litterbox-fullstack** - Complete full-stack development environment
+
+### Container Testing Environment (Linux)
+
+- **personal-linux** - Linux-compatible version of personal preset with CLI tools for testing and development containers
 
 ---
 
@@ -312,24 +316,26 @@ Platform-specific implementation details:
 
 ### Dependency Resolution
 
+**Automatic Shell Foundation**: All development environments automatically include `shell-foundation` through the dependency system, ensuring essential shell tools are always installed first.
+
 ```plain
 User: ./bin/meowctl install personal                    # Desktop environment
     ↓
-Preset resolves components: shell-foundation, neovim, desktop-core, visual-studio-code, business-communication...
+Preset resolves components: neovim, desktop-core, visual-studio-code, business-communication...
     ↓
-Dependencies calculated: shell-foundation → neovim → desktop-core → visual-studio-code → browsers...
+Dependencies calculated: shell-foundation → fonts → desktop-core → neovim → visual-studio-code → browsers...
     ↓
-Platform-specific packages installed with macOS optimizations
+Platform-specific packages installed with macOS optimizations (shell tools first, then desktop apps)
     ↓
 GUI configurations symlinked and system preferences applied
 
 User: ./bin/meowctl install litterbox-go               # Container environment  
     ↓
-Preset resolves components: shell-foundation, neovim, core-development, go-development, docker-cli
+Preset resolves components: neovim, core-development, go-development, docker-cli
     ↓  
 Dependencies calculated: shell-foundation → neovim → core-development → go-development
     ↓
-Linux-specific packages installed with container optimizations
+Linux-specific packages installed with container optimizations (shell tools only)
     ↓
 CLI configurations symlinked and development tools configured
 ```

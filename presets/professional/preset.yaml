@@ -5,7 +5,6 @@ platforms:
   - macos
 
 required:
-  - shell-foundation
   - neovim
   - desktop-core
   - browsers

@@ -5,7 +5,6 @@ platforms:
   - linux
 
 required:
-  - shell-foundation
   - neovim
   - core-development
   - python-development
