@@ -3,4 +3,4 @@ description: >-
   Includes Toggl CLI for cross-platform time tracking.
 
 depends_on:
-  - shell-foundation
+  - shell-essential

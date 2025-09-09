@@ -6,4 +6,4 @@ platforms:
   - macos
 
 depends_on:
-  - shell-foundation
+  - shell-essential

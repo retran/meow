@@ -19,7 +19,7 @@ _detect_os() {
   esac
 }
 
-# Detect CPU architecture using POSIX-compliant uname  
+# Detect CPU architecture using POSIX-compliant uname
 _detect_arch() {
   case "$(uname -m)" in
     x86_64) echo "amd64" ;;
@@ -54,7 +54,7 @@ test:
   - item2
 required:
   - shell-essential
-  - core-development
+  - development-essential
 EOF
 
     local test_result
@@ -87,7 +87,7 @@ EOF
 
 _install_yq_from_github() {
   local OS ARCH INSTALL_DIR
-  
+
   # Detect environment using helper functions
   OS=$(_detect_os)
   ARCH=$(_detect_arch)
@@ -98,12 +98,12 @@ _install_yq_from_github() {
     ui_action_error "$(_f "Unsupported OS: %s. Cannot install yq." "$(uname -s)")"
     return 1
   fi
-  
+
   if [ "$ARCH" = "unknown" ]; then
     ui_action_error "$(_f "Unsupported architecture: %s. Cannot install yq." "$(uname -m)")"
     return 1
   fi
-  
+
   if [ -z "$INSTALL_DIR" ]; then
     ui_action_error "Cannot find writable directory for yq installation. Tried /usr/local/bin and \$HOME/.local/bin"
     return 1
@@ -114,7 +114,7 @@ _install_yq_from_github() {
   URL="https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/${BIN_NAME}"
   DEST="${INSTALL_DIR}/yq"
   TMPBIN="/tmp/yq_${OS}_${ARCH}_${YQ_VERSION}.tmp"
-  
+
   # Determine if we need sudo based on install directory
   use_sudo="false"
   if [ "$INSTALL_DIR" = "/usr/local/bin" ]; then
@@ -204,11 +204,11 @@ EOF
   fi
 
   ui_verbose_info "yq installation verified successfully"
-  
+
   # Add to PATH if installing to ~/.local/bin
   if [ "$INSTALL_DIR" = "$HOME/.local/bin" ]; then
     ui_verbose_info "yq installed to ~/.local/bin - ensure this directory is in your PATH"
   fi
-  
+
   return 0
 }

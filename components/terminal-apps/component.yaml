@@ -6,6 +6,6 @@ platforms:
   - macos
 
 depends_on:
-  - desktop-core
-  - shell-foundation
+  - desktop-essential
+  - shell-essential
   - fonts

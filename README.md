@@ -217,13 +217,13 @@ Lightweight development containers optimized for specific use cases. All contain
 
 ### 🏗️ Foundation Infrastructure
 
-- **shell-foundation** - Essential shell environment with git, Node.js, file navigation tools, system monitoring utilities, and terminal enhancement (zsh plugins, starship prompt)
+- **shell-essential** - Essential shell environment with git, Node.js, file navigation tools, system monitoring utilities, and terminal enhancement (zsh plugins, starship prompt)
 - **neovim** - Modern text editor with essential plugins and configurations
-- **core-development** - Cross-language development tools (go-task, yamllint, httpie)
+- **development-essential** - Cross-language development tools (go-task, yamllint, httpie)
 
 ### 🖥️ Desktop Environment (macOS)
 
-- **desktop-core** - Core system utilities and desktop management (Raycast, mas, AppCleaner)
+- **desktop-essential** - Core system utilities and desktop management (Raycast, mas, AppCleaner)
 - **desktop-utilities** - File management and screen recording tools (Keka archiver, Kap screen recorder)
 - **browsers** - Web browsers and related tools (Google Chrome)
 - **terminal-apps** - Terminal emulator applications with configurations (Alacritty)
@@ -316,14 +316,14 @@ Platform-specific implementation details:
 
 ### Dependency Resolution
 
-**Automatic Shell Foundation**: All development environments automatically include `shell-foundation` through the dependency system, ensuring essential shell tools are always installed first.
+**Automatic Shell Foundation**: All development environments automatically include `shell-essential` through the dependency system, ensuring essential shell tools are always installed first.
 
 ```plain
 User: ./bin/meowctl install personal                    # Desktop environment
     ↓
-Preset resolves components: neovim, desktop-core, visual-studio-code, business-communication...
+Preset resolves components: neovim, desktop-essential, visual-studio-code, business-communication...
     ↓
-Dependencies calculated: shell-foundation → fonts → desktop-core → neovim → visual-studio-code → browsers...
+Dependencies calculated: shell-essential → fonts → desktop-essential → neovim → visual-studio-code → browsers...
     ↓
 Platform-specific packages installed with macOS optimizations (shell tools first, then desktop apps)
     ↓
@@ -331,9 +331,9 @@ GUI configurations symlinked and system preferences applied
 
 User: ./bin/meowctl install litterbox-go               # Container environment  
     ↓
-Preset resolves components: neovim, core-development, go-development, docker-cli
+Preset resolves components: neovim, development-essential, go-development, docker-cli
     ↓  
-Dependencies calculated: shell-foundation → neovim → core-development → go-development
+Dependencies calculated: shell-essential → neovim → development-essential → go-development
     ↓
 Linux-specific packages installed with container optimizations (shell tools only)
     ↓
@@ -379,8 +379,8 @@ platforms:
 
 # Component dependencies
 depends_on:
-  - shell-foundation
-  - core-development
+  - shell-essential
+  - development-essential
 
 # Optional: External git repository
 repository:
@@ -478,9 +478,9 @@ platforms:
 
 # Required components
 required:
-  - shell-foundation
+  - shell-essential
   - file-navigation  
-  - core-development
+  - development-essential
   - my-custom-component
 ```
 

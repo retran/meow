@@ -2,4 +2,4 @@ description: >-
   Python runtime, version management, and language server
 
 depends_on:
-  - core-development
+  - development-essential

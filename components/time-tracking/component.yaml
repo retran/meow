@@ -7,4 +7,4 @@ platforms:
 
 depends_on:
   - time-tracking-cli
-  - desktop-core
+  - desktop-essential

@@ -3,4 +3,4 @@ description: >-
   Provides a modern vim-compatible editor for terminal-based editing.
 
 depends_on:
-  - shell-foundation
+  - shell-essential

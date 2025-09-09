@@ -1,2 +1,2 @@
-- source: "$MEOW/.installed/components/desktop-core/config/alacritty/alacritty.toml"
+- source: "$MEOW/.installed/components/terminal-apps/config/alacritty/alacritty.toml"
   target: "$HOME/.config/alacritty/alacritty.toml"

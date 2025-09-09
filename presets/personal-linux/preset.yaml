@@ -6,7 +6,7 @@ platforms:
 
 required:
   - neovim
-  - core-development
+  - development-essential
   - password-management-cli
   - markdown
   - docker-cli

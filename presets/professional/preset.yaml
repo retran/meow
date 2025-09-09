@@ -6,12 +6,12 @@ platforms:
 
 required:
   - neovim
-  - desktop-core
+  - desktop-essential
   - browsers
   - terminal-apps
   - visual-studio-code
   - password-management
-  - core-development
+  - development-essential
   - markdown
   - docker-desktop
   - business-communication
