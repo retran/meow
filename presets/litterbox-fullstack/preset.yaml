@@ -1,3 +1,8 @@
+# @file:    presets/litterbox-fullstack/preset.yaml
+# @brief:   Preset definition for litterbox-fullstack environment template.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 description: >-
   Full-stack development litterbox setup with Go backend and JavaScript/React frontend
 

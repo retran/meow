@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+# @file:    components/shell-essential/scripts/init.sh
+# @brief:   Installation or configuration script for shell-essential component.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 
 if [ -n "${_COMPONENT_SHELL_ESSENTIAL_INIT_SOURCED:-}" ]; then
   return 0

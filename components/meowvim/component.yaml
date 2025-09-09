@@ -1,3 +1,8 @@
+# @file:    components/meowvim/component.yaml
+# @brief:   Component definition for meowvim installation and configuration.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 description: "Neovim configuration with git repository management and IDE-like features"
 
 repository:

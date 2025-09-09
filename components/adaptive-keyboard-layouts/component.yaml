@@ -1,3 +1,8 @@
+# @file:    components/adaptive-keyboard-layouts/component.yaml
+# @brief:   Component definition for adaptive-keyboard-layouts installation and configuration.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 description: "USB keyboard detection and automatic layout switching via Hammerspoon"
 
 type: hammerspoon

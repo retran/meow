@@ -1,3 +1,8 @@
+# @file:    components/docker-desktop/component.yaml
+# @brief:   Component definition for docker-desktop installation and configuration.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 description: "OrbStack - lightweight Docker and Linux VMs for macOS"
 
 platforms:

@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+# @file:    components/docker-desktop/scripts/env.sh
+# @brief:   Installation or configuration script for docker-desktop component.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 
 if [ -n "${_COMPONENT_DOCKER_DESKTOP_ENV_SOURCED:-}" ]; then
   exit 0

@@ -1,3 +1,8 @@
+# @file:    components/meowvim-keyboard-layouts/component.yaml
+# @brief:   Component definition for meowvim-keyboard-layouts installation and configuration.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 description: "Vim mode-based keyboard layout switching for Neovide and Alacritty"
 
 type: hammerspoon

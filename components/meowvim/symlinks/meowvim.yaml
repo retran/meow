@@ -1,2 +1,7 @@
+# @file:    components/meowvim/symlinks/meowvim.yaml
+# @brief:   Configuration file for system setup and management.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 - source: "$MEOW/.downloads/meowvim"
   target: "$HOME/.config/nvim"

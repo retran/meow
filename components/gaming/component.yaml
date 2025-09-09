@@ -1,3 +1,8 @@
+# @file:    components/gaming/component.yaml
+# @brief:   Component definition for gaming installation and configuration.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 description: "Gaming platforms and entertainment applications"
 
 platforms:

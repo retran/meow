@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+# @file:    lib/components/dependencies.sh
+# @brief:   Component management utilities for modular system installation.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 
 if [ -n "${_LIB_COMPONENTS_DEPENDENCIES_SOURCED:-}" ]; then
   return 0

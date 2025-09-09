@@ -1,3 +1,8 @@
+# @file:    components/js-development/component.yaml
+# @brief:   Component definition for js-development installation and configuration.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 description: >-
   JavaScript/TypeScript runtime, language servers, and development tools
 

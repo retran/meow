@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+# @file:    lib/components/operations.sh
+# @brief:   Component management utilities for modular system installation.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 
 MEOW_INSTALLING_COMPONENTS=()
 MEOW_UPDATED_COMPONENTS=()

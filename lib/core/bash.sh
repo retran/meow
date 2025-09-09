@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+# @file:    lib/core/bash.sh
+# @brief:   Bash utility functions and compatibility helpers.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 
 source "${MEOW}/lib/core/ui.sh"
 

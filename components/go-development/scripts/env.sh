@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+# @file:    components/go-development/scripts/env.sh
+# @brief:   Installation or configuration script for go-development component.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 
 if [ -n "${_COMPONENT_GO_DEVELOPMENT_ENV_SOURCED:-}" ]; then
   return 0

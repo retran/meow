@@ -1,3 +1,8 @@
+-- @file:    components/hammerspoon/config/hammerspoon/init.lua
+-- @brief:   Main configuration file for Hammerspoon window management.
+-- @author:  Andrew Vasilyev
+-- @license: MIT
+--
 -- config/hammerspoon/init.lua - Hammerspoon configuration with component support
 
 local installedComponents = {}

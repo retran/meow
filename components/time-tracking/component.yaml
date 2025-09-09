@@ -1,3 +1,8 @@
+# @file:    components/time-tracking/component.yaml
+# @brief:   Component definition for time-tracking installation and configuration.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 description: >-
   Time tracking desktop application.
   Includes Toggl Track desktop app for macOS.

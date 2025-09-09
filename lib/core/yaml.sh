@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+# @file:    lib/core/yaml.sh
+# @brief:   YAML parsing and manipulation utilities.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 
 if [ -n "${_LIB_YAML_SOURCED:-}" ]; then
   return 0

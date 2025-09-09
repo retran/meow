@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+# @file:    lib/motd/motd.sh
+# @brief:   Message of the day generation and system information display.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 
 if [ -n "${_LIB_MOTD_SOURCED:-}" ]; then
   return 0

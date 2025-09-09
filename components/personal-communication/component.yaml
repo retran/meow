@@ -1,3 +1,8 @@
+# @file:    components/personal-communication/component.yaml
+# @brief:   Component definition for personal-communication installation and configuration.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 description: >-
   Personal communication and messaging applications.
   Includes social and personal messaging tools (Discord, Telegram, WhatsApp).

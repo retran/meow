@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+# @file:    components/development-essential/scripts/init.sh
+# @brief:   Installation or configuration script for development-essential component.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 
 if [ -n "${_COMPONENT_CORE_DEVELOPMENT_INIT_SOURCED:-}" ]; then
   exit 0

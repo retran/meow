@@ -1,3 +1,8 @@
+# @file:    components/go-development/component.yaml
+# @brief:   Component definition for go-development installation and configuration.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 description: "Go compiler, language server, debugging tools, and development utilities"
 
 depends_on:

@@ -1,3 +1,8 @@
+# @file:    components/python-development/component.yaml
+# @brief:   Component definition for python-development installation and configuration.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 description: >-
   Python runtime, version management, and language server
 

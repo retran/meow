@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+# @file:    lib/components/repository.sh
+# @brief:   Component management utilities for modular system installation.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 
 if [ -n "${_LIB_COMPONENTS_REPOSITORY_SOURCED:-}" ]; then
   return 0

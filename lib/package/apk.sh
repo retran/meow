@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+# @file:    lib/package/apk.sh
+# @brief:   Package manager abstraction and installation utilities.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 if [ -n "${_LIB_PACKAGE_APK_SOURCED:-}" ]; then
   return 0
 fi

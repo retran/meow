@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+# @file:    components/rust-development/scripts/env.sh
+# @brief:   Installation or configuration script for rust-development component.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 
 if [ -n "${_COMPONENT_RUST_DEVELOPMENT_ENV_SOURCED:-}" ]; then
   return 0

@@ -1,2 +1,7 @@
+# @file:    components/hammerspoon/symlinks/hammerspoon.yaml
+# @brief:   Component configuration file for modular system setup.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 - source: "$MEOW/.installed/components/hammerspoon/config/hammerspoon"
   target: "$HOME/.hammerspoon"

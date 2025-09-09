@@ -1,3 +1,8 @@
+# @file:    .github/workflows/ci.yml
+# @brief:   GitHub Actions workflow for continuous integration and automation.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 name: Code Quality
 
 on:

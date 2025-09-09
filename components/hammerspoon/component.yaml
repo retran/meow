@@ -1,3 +1,8 @@
+# @file:    components/hammerspoon/component.yaml
+# @brief:   Component definition for hammerspoon installation and configuration.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 description: "Lua-based macOS automation framework for system customization"
 
 platforms:

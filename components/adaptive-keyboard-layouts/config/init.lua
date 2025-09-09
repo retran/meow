@@ -1,3 +1,8 @@
+-- @file:    components/adaptive-keyboard-layouts/config/init.lua
+-- @brief:   Keyboard layout configuration for adaptive input management.
+-- @author:  Andrew Vasilyev
+-- @license: MIT
+--
 local keyboardLayouts = {}
 
 keyboardLayouts.config = {

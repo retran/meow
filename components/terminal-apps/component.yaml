@@ -1,3 +1,8 @@
+# @file:    components/terminal-apps/component.yaml
+# @brief:   Component definition for terminal-apps installation and configuration.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 description: >-
   Terminal emulator applications and configurations.
   Includes Alacritty with custom configurations.

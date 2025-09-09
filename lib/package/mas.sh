@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+# @file:    lib/package/mas.sh
+# @brief:   Package manager abstraction and installation utilities.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 
 source "${MEOW}/lib/core/ui.sh"
 

@@ -1,3 +1,8 @@
+# @file:    assets/comments/motd.yaml
+# @brief:   System information template for dynamic content generation.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 motd:
   morning_early:
     - "Wow, you're up early! Even cats sleep more than that!"

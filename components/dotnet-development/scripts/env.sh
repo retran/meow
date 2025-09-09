@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+# @file:    components/dotnet-development/scripts/env.sh
+# @brief:   Installation or configuration script for dotnet-development component.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 
 if [ -n "${_COMPONENT_DOTNET_DEVELOPMENT_ENV_SOURCED:-}" ]; then
   exit 0

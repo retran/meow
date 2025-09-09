@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+# @file:    lib/package/cargo.sh
+# @brief:   Package manager abstraction and installation utilities.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 
 if [ -n "${_LIB_PACKAGE_CARGO_SOURCED:-}" ]; then
   return 0

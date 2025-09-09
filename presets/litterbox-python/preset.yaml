@@ -1,3 +1,8 @@
+# @file:    presets/litterbox-python/preset.yaml
+# @brief:   Preset definition for litterbox-python environment template.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 description: >-
   Python development litterbox setup with data science and web frameworks
 

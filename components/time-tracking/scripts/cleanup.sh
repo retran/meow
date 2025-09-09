@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+# @file:    components/time-tracking/scripts/cleanup.sh
+# @brief:   Installation or configuration script for time-tracking component.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 
 source "${MEOW}/lib/core/ui.sh"
 

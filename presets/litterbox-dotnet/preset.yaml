@@ -1,3 +1,8 @@
+# @file:    presets/litterbox-dotnet/preset.yaml
+# @brief:   Preset definition for litterbox-dotnet environment template.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 description: >-
   .NET development litterbox setup with C# and related tooling
 

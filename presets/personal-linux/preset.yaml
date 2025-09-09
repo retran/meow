@@ -1,3 +1,8 @@
+# @file:    presets/personal-linux/preset.yaml
+# @brief:   Preset definition for personal-linux environment template.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 description: >-
   Personal development setup for Linux containers with shell tools and CLI applications
 

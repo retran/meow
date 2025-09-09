@@ -1,3 +1,8 @@
+# @file:    components/markdown/component.yaml
+# @brief:   Component definition for markdown installation and configuration.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 description: >-
   Technical writing and documentation tools with linting and static site generation
 

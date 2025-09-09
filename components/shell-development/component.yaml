@@ -1,3 +1,8 @@
+# @file:    components/shell-development/component.yaml
+# @brief:   Component definition for shell-development installation and configuration.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 description: >-
   Shell scripting tools including linting, formatting, and language server support
 

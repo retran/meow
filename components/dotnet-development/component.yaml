@@ -1,3 +1,8 @@
+# @file:    components/dotnet-development/component.yaml
+# @brief:   Component definition for dotnet-development installation and configuration.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 description: ".NET SDK, PowerShell, and development tooling"
 
 depends_on:

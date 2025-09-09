@@ -1,3 +1,8 @@
+# @file:    .meowg1k/config.yaml
+# @brief:   Shell script for system setup and configuration.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 ---
 generate:
   defaultProvider: "llama"

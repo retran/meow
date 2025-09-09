@@ -1,3 +1,8 @@
+# @file:    components/time-tracking-cli/component.yaml
+# @brief:   Component definition for time-tracking-cli installation and configuration.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 description: >-
   Time tracking command-line tools.
   Includes Toggl CLI for cross-platform time tracking.

@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+# @file:    components/adaptive-keyboard-layouts/scripts/macos_keyboard.sh
+# @brief:   Installation or configuration script for adaptive-keyboard-layouts component.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 
 if [ -n "${MEOW:-}" ] && [ -f "${MEOW}/lib/core/ui.sh" ]; then
   source "${MEOW}/lib/core/ui.sh"

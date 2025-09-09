@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+# @file:    components/time-tracking/scripts/init.sh
+# @brief:   Installation or configuration script for time-tracking component.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 
 if [ -n "${_COMPONENT_TOGGL_INIT_SOURCED:-}" ]; then
   exit 0

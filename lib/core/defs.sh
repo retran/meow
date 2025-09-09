@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+# @file:    lib/core/defs.sh
+# @brief:   Core definitions and constants for the meow system.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 
 if [ -n "${_LIB_DEFS_SOURCED:-}" ]; then
   return 0

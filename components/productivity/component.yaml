@@ -1,3 +1,8 @@
+# @file:    components/productivity/component.yaml
+# @brief:   Component definition for productivity installation and configuration.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 description: "Project management and workflow optimization tools"
 
 platforms:

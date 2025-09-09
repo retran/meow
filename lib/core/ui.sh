@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+# @file:    lib/core/ui.sh
+# @brief:   User interface utilities and messaging functions for meow.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 
 if [ -n "${_LIB_CORE_UI_SOURCED:-}" ]; then
   return 0

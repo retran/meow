@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+# @file:    components/js-development/scripts/env.sh
+# @brief:   Installation or configuration script for js-development component.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 
 if [ -n "${_COMPONENT_JS_DEVELOPMENT_ENV_SOURCED:-}" ]; then
   exit 0

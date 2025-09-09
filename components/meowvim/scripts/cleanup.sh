@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+# @file:    components/meowvim/scripts/cleanup.sh
+# @brief:   Installation or configuration script for meowvim component.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 
 source "${MEOW}/lib/core/ui.sh"
 

@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+# @file:    components/rust-development/scripts/setup.sh
+# @brief:   Installation or configuration script for rust-development component.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 
 COMPONENT_NAME="$1"
 MEOW="$2"

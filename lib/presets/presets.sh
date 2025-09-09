@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+# @file:    lib/presets/presets.sh
+# @brief:   Preset management utilities for environment template deployment.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 
 if [ -n "${_LIB_PACKAGE_PRESET_SYSTEM_SOURCED:-}" ]; then
   return 0

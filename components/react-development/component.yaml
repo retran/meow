@@ -1,3 +1,8 @@
+# @file:    components/react-development/component.yaml
+# @brief:   Component definition for react-development installation and configuration.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 description: >-
   React framework tools, testing utilities, and development scaffolding
 
