@@ -5,8 +5,9 @@ platforms:
   - linux
 
 required:
-  - shell-essential
-  - core-development
+  - neovim
+  - development-essential
+  - password-management-cli
   - go-development
   - docker-cli
   - markdown

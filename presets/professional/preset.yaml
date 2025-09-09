@@ -5,10 +5,15 @@ platforms:
   - macos
 
 required:
-  - shell-essential
+  - neovim
   - desktop-essential
-  - core-development
+  - browsers
+  - terminal-apps
+  - visual-studio-code
+  - password-management
+  - development-essential
   - markdown
   - docker-desktop
-  - corporate-communication
+  - business-communication
   - productivity
+  - time-tracking

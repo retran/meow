@@ -1,0 +1,2 @@
+- source: "$MEOW/.installed/components/visual-studio-code/config/vscode/settings.json"
+  target: "$HOME/Library/Application Support/Code/User/settings.json"

@@ -1,0 +1,9 @@
+description: >-
+  Web browsers and related tools.
+  Includes Google Chrome and browser extensions.
+
+platforms:
+  - macos
+
+depends_on:
+  - desktop-essential

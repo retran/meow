@@ -44,6 +44,13 @@ has a _purr-fect_ setup for you.
 
 ## Core Features
 
+### Dual-Purpose Architecture
+
+**meow** serves two distinct but complementary use cases:
+
+- **🖥️ Desktop Development Environments** (macOS): Complete personal or professional setups with GUI applications, system integrations, and productivity tools
+- **🐳 Container Development Environments** (Linux): Optimized development containers with essential CLI tools and language-specific toolchains
+
 ### Component-Based Architecture
 
 **Components** are modular building blocks that define specific functionality:
@@ -53,9 +60,10 @@ has a _purr-fect_ setup for you.
 - Lifecycle scripts for setup, environment configuration, and cleanup
 
 **Presets** combine components into complete environment configurations:
+- Desktop environments: `personal`, `professional` (macOS)
+- Container environments: `litterbox-*` series (Linux)
 - Language-specific development setups
-- Platform-optimized configurations (desktop vs container)
-- Role-based environments (personal vs professional)
+- Role-based configurations with appropriate platform targeting
 
 ### Cross-Platform Package Management
 
@@ -181,38 +189,62 @@ Configuration options:
 
 ---
 
-## Available Presets
+### Available Presets
 
-### Personal
+### Desktop Environments (macOS)
 
-- **personal** - Complete development environment with entertainment, social, gaming packages, and meowvim pre-installed
-
-### Professional Development
-
+- **personal** - Complete development environment with entertainment, social, gaming packages, and development tools. Includes desktop apps, browsers, and full productivity suite
 - **professional** - Business-focused environment with corporate communication tools (Slack, Zoom), excluding entertainment software
 
-### Container-Optimized
+### Container-Optimized Environments (Linux)
 
-- **litterbox-essential** - Minimal base with core shell utilities
+Lightweight development containers optimized for specific use cases. All container presets automatically include essential shell tools:
+
+- **litterbox-essential** - Minimal base with core shell utilities and development tools
 - **litterbox-go** - Go development environment
-- **litterbox-rust** - Rust development environment
+- **litterbox-rust** - Rust development environment  
 - **litterbox-python** - Python development environment
 - **litterbox-dotnet** - .NET development environment
 - **litterbox-fullstack** - Complete full-stack development environment
+
+### Container Testing Environment (Linux)
+
+- **personal-linux** - Linux-compatible version of personal preset with CLI tools for testing and development containers
 
 ---
 
 ## Available Components
 
-### Core Infrastructure
+### 🏗️ Foundation Infrastructure
 
-- **shell-essential** - Modern command-line tools (fzf, ripgrep, bat, eza, zoxide, tmux, starship)
-- **desktop-essential** - Desktop applications and system utilities for graphical environments
-- **git** - Git version control system, GitHub CLI, git-lfs, and lazygit
-- **core-development** - Essential development tools (go-task, yamllint, httpie)
-- **fonts** - Programming and development fonts
+- **shell-essential** - Essential shell environment with git, Node.js, file navigation tools, system monitoring utilities, and terminal enhancement (zsh plugins, starship prompt)
+- **neovim** - Modern text editor with essential plugins and configurations
+- **development-essential** - Cross-language development tools (go-task, yamllint, httpie)
 
-### Development Environments
+### 🖥️ Desktop Environment (macOS)
+
+- **desktop-essential** - Core system utilities and desktop management (Raycast, mas, AppCleaner)
+- **desktop-utilities** - File management and screen recording tools (Keka archiver, Kap screen recorder)
+- **browsers** - Web browsers and related tools (Google Chrome)
+- **terminal-apps** - Terminal emulator applications with configurations (Alacritty)
+- **fonts** - Programming and development fonts (JetBrains Mono, Nerd Fonts)
+- **tmux** - Terminal multiplexer for advanced session management (macOS only)
+
+### 🔐 Security & Communication
+
+- **password-management** - Bitwarden desktop application (macOS only)
+- **password-management-cli** - Bitwarden command-line interface (cross-platform)
+- **business-communication** - Professional messaging tools (Slack, Zoom)
+- **personal-communication** - Personal messaging applications (Discord, Telegram, WhatsApp)
+
+### ⚒️ Development Tools
+
+- **visual-studio-code** - VS Code IDE with essential extensions (GitHub Copilot, themes, containers)
+- **shell-development** - Shell scripting tools, linting, and language server support
+- **markdown** - Markdown editing and preview tools
+- **meowvim** - Custom Neovim configuration from GitHub repository
+
+### 🚀 Language-Specific Development
 
 - **go-development** - Go toolchain, debugger, and language servers
 - **rust-development** - Rust toolchain and cargo tools
@@ -220,82 +252,92 @@ Configuration options:
 - **js-development** - Node.js, npm, and JavaScript tools
 - **react-development** - React-specific tools and VS Code extensions
 - **dotnet-development** - .NET SDK and development environment
-- **kotlin-development** - Kotlin compiler and tools (standalone, install separately)
+- **kotlin-development-cli** - Kotlin compiler and JVM tools (cross-platform, standardized temurin JVM)
+- **kotlin-development** - IntelliJ IDEA IDE for Kotlin development (macOS only)
 - **lua-development** - Lua interpreter and development tools
-- **shell-development** - Shell scripting tools, linting, and language server support
 - **web-development** - Web development stack with CSS frameworks and build tools
-- **markdown** - Markdown editing and preview tools
+
+### 🎯 Productivity & Media
+
+- **productivity** - Task management and productivity applications (Linear, Notion, DrawIO)
+- **media** - Media creation tools (OBS Studio)
+- **gaming** - Gaming platforms and entertainment (Steam, GeForce Now)
+- **time-tracking-cli** - Toggl CLI tools with configuration (cross-platform)
+- **time-tracking** - Toggl Track desktop application (macOS only)
+
+### 🎮 Specialized Applications
+
 - **game-development** - Game creation tools including 3D modeling and engine support
 
-### Platform & Infrastructure
+### 🐳 Container-Specific
 
-- **docker-cli** - Docker command-line interface
-- **docker-desktop** - OrbStack desktop application (macOS)
-- **node** - Node.js runtime and npm
-- **pipx** - Python application installer
+- **docker-cli** - Docker command-line interface for Linux container environments
+- **docker-desktop** - OrbStack desktop application for lightweight Docker and Linux VMs (macOS)
 
-### Communication & Productivity
+### 🔧 Optional Advanced Components
 
-- **productivity** - Task management and productivity applications
-- **personal-communication** - Personal messaging and social apps
-- **corporate-communication** - Business tools (Slack, Teams, Zoom)
-- **media** - Media creation and consumption tools
-- **gaming** - Gaming platforms and entertainment
-- **toggl-cli** - Toggl CLI for time tracking
-- **toggl-desktop** - Toggl Track desktop application
+These components provide specialized functionality and must be installed separately using `meowctl component install <component-name>`:
 
-### Optional Components
-
-These components are not included in any preset and must be installed separately using `meowctl component install <component-name>`:
-
-- **meowvim** - Advanced Neovim configuration managed as a separate git repository
 - **adaptive-keyboard-layouts** - Dynamic keyboard layout switching for different connected keyboards
 - **meowvim-keyboard-layouts** - Neovim mode-aware keyboard layout switching
-- **hammerspoon** - macOS automation and window management
+- **hammerspoon** - macOS automation and window management framework
 
 ---
 
 ## Architecture
 
-`meow` uses a three-layer architecture for maximum flexibility:
+`meow` uses a three-layer architecture designed for both desktop and container environments:
 
 ### 1. Presets Layer
 
-High-level environment configurations that combine components:
+High-level environment configurations optimized for specific use cases:
 
-- Handle platform-specific variations
+- **Desktop presets** (macOS): Handle GUI applications, system integrations, and platform-specific tools
+- **Container presets** (Linux): Optimized for development containers with essential CLI tools
 - Define complete workflows and use cases
 - Manage component dependencies automatically
 
 ### 2. Components Layer
 
-Modular building blocks with specific functionality:
+Modular building blocks with platform-aware implementations:
 
 - Self-contained package and configuration definitions
-- Platform-agnostic with platform-specific implementations
-- Declare dependencies on other components
-- Include lifecycle scripts for setup and management
+- Cross-platform support with platform-specific optimizations  
+- Dependency declarations between components
+- Lifecycle scripts for setup and management
 
 ### 3. Package Layer
 
 Platform-specific implementation details:
 
-- Package manager lists (Homebrew, apt, npm, etc.)
+- Package manager lists (Homebrew, apt, apk, pacman, npm, etc.)
 - Configuration files and symlink definitions
 - VS Code extensions and language-specific tools
 
 ### Dependency Resolution
 
+**Automatic Shell Foundation**: All development environments automatically include `shell-essential` through the dependency system, ensuring essential shell tools are always installed first.
+
 ```plain
-User: ./bin/meowctl install personal
+User: ./bin/meowctl install personal                    # Desktop environment
     ↓
-Preset resolves components: shell-essential, git, core-development, meowvim...
+Preset resolves components: neovim, desktop-essential, visual-studio-code, business-communication...
     ↓
-Dependencies calculated: pipx → node → git → shell-essential → core-development → meowvim
+Dependencies calculated: shell-essential → fonts → desktop-essential → neovim → visual-studio-code → browsers...
     ↓
-Packages installed in order with platform detection
+Platform-specific packages installed with macOS optimizations (shell tools first, then desktop apps)
     ↓
-Configurations symlinked and lifecycle scripts executed
+GUI configurations symlinked and system preferences applied
+
+User: ./bin/meowctl install litterbox-go               # Container environment  
+    ↓
+Preset resolves components: neovim, development-essential, go-development, docker-cli
+    ↓  
+Dependencies calculated: shell-essential → neovim → development-essential → go-development
+    ↓
+Linux-specific packages installed with container optimizations (shell tools only)
+    ↓
+CLI configurations symlinked and development tools configured
 ```
 
 ---
@@ -338,7 +380,7 @@ platforms:
 # Component dependencies
 depends_on:
   - shell-essential
-  - core-development
+  - development-essential
 
 # Optional: External git repository
 repository:
@@ -437,8 +479,8 @@ platforms:
 # Required components
 required:
   - shell-essential
-  - git
-  - core-development
+  - file-navigation  
+  - development-essential
   - my-custom-component
 ```
 

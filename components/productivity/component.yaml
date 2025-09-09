@@ -5,5 +5,5 @@ platforms:
 
 depends_on:
   - desktop-essential
-  - toggl-desktop
-  - toggl-cli
+  - time-tracking
+  - time-tracking-cli

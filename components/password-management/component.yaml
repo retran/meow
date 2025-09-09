@@ -1,0 +1,10 @@
+description: >-
+  Desktop password management applications.
+  Includes Bitwarden desktop app for secure password management.
+
+platforms:
+  - macos
+
+depends_on:
+  - desktop-essential
+  - password-management-cli

@@ -1,12 +1,12 @@
 description: >-
-  Go development litterbox setup
+  Go development litterbox setup for backend services
 
 platforms:
   - linux
 
 required:
-  - shell-essential
-  - core-development
+  - neovim
+  - development-essential
   - go-development
-  - markdown
   - docker-cli
+  - markdown

@@ -5,4 +5,4 @@ repository:
   branch: "dev"
 
 depends_on:
-  - core-development
+  - neovim

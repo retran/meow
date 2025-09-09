@@ -1,4 +1,6 @@
-description: "Core desktop applications, system utilities, and GUI tools for macOS"
+description: >-
+  Core desktop system utilities and essential GUI applications.
+  Includes system management, app launcher, and basic desktop tools.
 
 platforms:
   - macos

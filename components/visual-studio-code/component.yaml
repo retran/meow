@@ -1,0 +1,10 @@
+description: >-
+  Visual Studio Code IDE with essential extensions for development.
+  Includes VS Code with GitHub, Copilot, and theme extensions.
+
+platforms:
+  - macos
+
+depends_on:
+  - desktop-essential
+  - neovim

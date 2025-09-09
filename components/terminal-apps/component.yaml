@@ -1,0 +1,11 @@
+description: >-
+  Terminal emulator applications and configurations.
+  Includes Alacritty with custom configurations.
+
+platforms:
+  - macos
+
+depends_on:
+  - desktop-essential
+  - shell-essential
+  - fonts

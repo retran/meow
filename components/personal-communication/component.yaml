@@ -1,4 +1,6 @@
-description: "Personal messaging and social communication applications"
+description: >-
+  Personal communication and messaging applications.
+  Includes social and personal messaging tools (Discord, Telegram, WhatsApp).
 
 platforms:
   - macos

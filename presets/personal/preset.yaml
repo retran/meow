@@ -5,13 +5,17 @@ platforms:
   - macos
 
 required:
-  - shell-essential
+  - neovim
   - desktop-essential
-  - core-development
-  - meowvim
+  - browsers
+  - terminal-apps
+  - visual-studio-code
+  - password-management
+  - development-essential
   - game-development
   - markdown
   - docker-desktop
+  - business-communication
   - personal-communication
   - productivity
   - media

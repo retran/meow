@@ -1,9 +1,3 @@
 description: >-
-  Core command-line utilities and shell environment foundation.
-  Includes modern shell tools, terminal multiplexer, file navigation,
-  and text processing utilities.
-
-depends_on:
-  - git
-  - pipx
-  - node
+  Essential shell tools and development foundation for all environments.
+  Includes git, node, bash/zsh, file navigation tools, and system monitoring utilities.

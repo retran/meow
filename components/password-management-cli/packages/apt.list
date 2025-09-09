@@ -1,0 +1,2 @@
+# bitwarden-cli not available in standard Ubuntu repos
+# Users can install via npm: npm install -g @bitwarden/cli
