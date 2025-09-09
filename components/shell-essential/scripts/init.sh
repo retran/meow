@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+# @file:    components/shell-essential/scripts/init.sh
+# @brief:   Initialization script for essential shell tools and development environment.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 
 if [ -n "${_COMPONENT_SHELL_ESSENTIAL_INIT_SOURCED:-}" ]; then
   return 0

@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+# @file:    lib/components/components.sh
+# @brief:   Component management utilities for modular system installation.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 
 if [[ -n "${_LIB_CORE_COMPONENTS_SOURCED:-}" ]]; then
   return 0

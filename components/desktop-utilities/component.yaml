@@ -1,3 +1,8 @@
+# @file:    components/desktop-utilities/component.yaml
+# @brief:   Desktop utility applications for system maintenance and file management.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 description: "Desktop utility applications for system maintenance and file management"
 
 platforms:

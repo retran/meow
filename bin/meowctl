@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+# @file:    bin/meowctl
+# @brief:   Main command-line interface for the meow dotfiles management system.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 
 MEOW="${MEOW:-$HOME/.meow}"
 

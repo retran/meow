@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+# @file:    lib/package/npm.sh
+# @brief:   npm package manager utilities for Node.js package installation and management.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 
 if [ -n "${_LIB_PACKAGE_NPM_SOURCED:-}" ]; then
   return 0

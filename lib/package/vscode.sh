@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+# @file:    lib/package/vscode.sh
+# @brief:   Visual Studio Code extension management utilities for IDE customization.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 
 if [ -n "${_LIB_PACKAGE_VSCODE_SOURCED:-}" ]; then
   return 0

@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+# @file:    lib/core/dry_run.sh
+# @brief:   Dry-run mode utilities for safe operation testing.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 
 source "${MEOW}/lib/core/ui.sh"
 source "${MEOW}/lib/core/colors.sh"

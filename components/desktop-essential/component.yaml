@@ -1,3 +1,8 @@
+# @file:    components/desktop-essential/component.yaml
+# @brief:   Core desktop system utilities and essential GUI applications including system management and app launcher tools.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 description: >-
   Core desktop system utilities and essential GUI applications.
   Includes system management, app launcher, and basic desktop tools.

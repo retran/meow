@@ -1,3 +1,8 @@
+# @file:    .meowg1k/config.yaml
+# @brief:   Configuration file for meowg1k code generation tool settings and AI provider configuration.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 ---
 generate:
   defaultProvider: "llama"

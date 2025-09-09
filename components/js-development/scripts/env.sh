@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+# @file:    components/js-development/scripts/env.sh
+# @brief:   Environment configuration script for JavaScript development tools and Node.js paths.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 
 if [ -n "${_COMPONENT_JS_DEVELOPMENT_ENV_SOURCED:-}" ]; then
   exit 0

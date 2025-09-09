@@ -1,3 +1,8 @@
+# @file:    components/development-essential/component.yaml
+# @brief:   Essential development tools and utilities for any programming environment.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 description: "Cross-language development tools for version control, project management, and code collaboration"
 
 depends_on:

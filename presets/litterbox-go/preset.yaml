@@ -1,3 +1,8 @@
+# @file:    presets/litterbox-go/preset.yaml
+# @brief:   Go development litterbox environment with Go toolchain and utilities.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 description: >-
   Go development litterbox setup for backend services
 

@@ -1,3 +1,8 @@
+# @file:    components/business-communication/component.yaml
+# @brief:   Business communication applications for professional collaboration and meetings.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 description: >-
   Business communication and collaboration applications.
   Includes professional tools for work environments (Slack, Zoom).

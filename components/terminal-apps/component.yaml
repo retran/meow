@@ -1,3 +1,8 @@
+# @file:    components/terminal-apps/component.yaml
+# @brief:   Terminal-based applications and utilities for command-line productivity.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 description: >-
   Terminal emulator applications and configurations.
   Includes Alacritty with custom configurations.

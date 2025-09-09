@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+# @file:    components/meowvim-keyboard-layouts/scripts/setup.sh
+# @brief:   Setup script for vim keyboard layout switching configuration.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 
 COMPONENT_NAME="$1"
 MEOW="$2"

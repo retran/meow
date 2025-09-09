@@ -1,3 +1,8 @@
+# @file:    components/browsers/component.yaml
+# @brief:   Web browsers for development and testing including Chrome, Firefox, and Safari.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 description: >-
   Web browsers and related tools.
   Includes Google Chrome and browser extensions.

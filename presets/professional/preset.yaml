@@ -1,3 +1,8 @@
+# @file:    presets/professional/preset.yaml
+# @brief:   Professional laptop setup for business and work environments.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 description: >-
   Professional laptop setup
 

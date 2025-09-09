@@ -1,3 +1,8 @@
+# @file:    components/docker-desktop/component.yaml
+# @brief:   Docker Desktop application for container development and management.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 description: "OrbStack - lightweight Docker and Linux VMs for macOS"
 
 platforms:

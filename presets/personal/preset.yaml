@@ -1,3 +1,8 @@
+# @file:    presets/personal/preset.yaml
+# @brief:   Personal laptop setup with packages for entertainment, social networking, and pet projects.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 description: >-
   Personal laptop setup with packages for entertainment, social networking, and pet projects
 

@@ -1,3 +1,8 @@
+# @file:    assets/comments/uptime.yaml
+# @brief:   System uptime information template for server monitoring and status display.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 uptime:
   base:
     - "such endurance!"

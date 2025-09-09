@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+# @file:    lib/package/homebrew.sh
+# @brief:   Homebrew package manager utilities for macOS package installation and management.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 
 if [ -n "${_LIB_PACKAGE_HOMEBREW_SOURCED:-}" ]; then
   return 0

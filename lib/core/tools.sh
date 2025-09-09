@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+# @file:    lib/core/tools.sh
+# @brief:   Tool availability checking and dependency management.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 
 if [ -n "${_LIB_CORE_TOOLS_SOURCED:-}" ]; then
   return 0

@@ -1,3 +1,8 @@
+# @file:    presets/litterbox-python/preset.yaml
+# @brief:   Python development litterbox environment with pip, virtual environments, and tools.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 description: >-
   Python development litterbox setup with data science and web frameworks
 

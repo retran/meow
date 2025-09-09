@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+# @file:    components/desktop-essential/scripts/setup.sh
+# @brief:   Setup script for desktop applications and system utilities installation.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 
 # Component parameters
 COMPONENT_NAME="$1"

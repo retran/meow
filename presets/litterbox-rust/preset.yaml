@@ -1,3 +1,8 @@
+# @file:    presets/litterbox-rust/preset.yaml
+# @brief:   Rust development litterbox environment with Rust toolchain and cargo tools.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 description: >-
   Rust development litterbox setup with systems programming tools
 

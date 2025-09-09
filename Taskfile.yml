@@ -1,3 +1,8 @@
+# @file:    Taskfile.yml
+# @brief:   Task automation configuration for project maintenance and development.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 # Taskfile for meow project maintenance
 # ====================================
 # https://taskfile.dev

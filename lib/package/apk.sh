@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+# @file:    lib/package/apk.sh
+# @brief:   Alpine package manager utilities for Alpine Linux package installation and management.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 if [ -n "${_LIB_PACKAGE_APK_SOURCED:-}" ]; then
   return 0
 fi

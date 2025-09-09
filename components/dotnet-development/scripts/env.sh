@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+# @file:    components/dotnet-development/scripts/env.sh
+# @brief:   Environment configuration script for .NET development tools and SDK paths.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 
 if [ -n "${_COMPONENT_DOTNET_DEVELOPMENT_ENV_SOURCED:-}" ]; then
   exit 0

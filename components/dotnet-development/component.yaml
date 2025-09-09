@@ -1,3 +1,8 @@
+# @file:    components/dotnet-development/component.yaml
+# @brief:   Microsoft .NET development environment with SDK and runtime tools.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 description: ".NET SDK, PowerShell, and development tooling"
 
 depends_on:

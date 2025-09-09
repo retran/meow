@@ -1,3 +1,8 @@
+# @file:    components/meowvim/component.yaml
+# @brief:   Custom Neovim configuration with advanced features and plugin management.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 description: "Neovim configuration with git repository management and IDE-like features"
 
 repository:

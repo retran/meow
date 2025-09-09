@@ -1,3 +1,8 @@
+# @file:    presets/litterbox-fullstack/preset.yaml
+# @brief:   Full-stack development litterbox with web, mobile, and backend development tools.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 description: >-
   Full-stack development litterbox setup with Go backend and JavaScript/React frontend
 

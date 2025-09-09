@@ -1,2 +1,7 @@
+# @file:    components/meowvim/symlinks/meowvim.yaml
+# @brief:   Symlink configuration for meowvim Neovim distribution and plugin settings.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 - source: "$MEOW/.downloads/meowvim"
   target: "$HOME/.config/nvim"

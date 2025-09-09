@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+# @file:    lib/components/core.sh
+# @brief:   Component management utilities for modular system installation.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 
 source "${MEOW}/lib/core/ui.sh"
 

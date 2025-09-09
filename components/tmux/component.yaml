@@ -1,3 +1,8 @@
+# @file:    components/tmux/component.yaml
+# @brief:   Terminal multiplexer for session management and workspace organization.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 description: >-
   Terminal multiplexer for advanced terminal session management.
   Provides tmux for session management and window splitting.

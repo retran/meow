@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+# @file:    lib/core/platform.sh
+# @brief:   Platform detection and system-specific utilities.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 
 if [ -n "${_LIB_CORE_PLATFORM_SOURCED:-}" ]; then
   return 0

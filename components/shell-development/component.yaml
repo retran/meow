@@ -1,3 +1,8 @@
+# @file:    components/shell-development/component.yaml
+# @brief:   Shell scripting development tools including linters, formatters, and testing utilities.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 description: >-
   Shell scripting tools including linting, formatting, and language server support
 

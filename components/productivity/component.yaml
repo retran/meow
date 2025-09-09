@@ -1,3 +1,8 @@
+# @file:    components/productivity/component.yaml
+# @brief:   Project management and workflow optimization tools.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 description: "Project management and workflow optimization tools"
 
 platforms:

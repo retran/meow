@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+# @file:    components/meowvim/scripts/cleanup.sh
+# @brief:   Cleanup script for removing meowvim configuration and temporary files.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 
 source "${MEOW}/lib/core/ui.sh"
 

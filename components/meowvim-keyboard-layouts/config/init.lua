@@ -1,3 +1,8 @@
+-- @file:    components/meowvim-keyboard-layouts/config/init.lua
+-- @brief:   Keyboard layout management for Neovim and Neovide integration.
+-- @author:  Andrew Vasilyev
+-- @license: MIT
+--
 local meowvimKeyboardLayouts = {}
 
 local lastInputSource = nil

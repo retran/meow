@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+# @file:    lib/core/colors.sh
+# @brief:   Color definitions and terminal styling for consistent UI output.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 
 if [ -n "${_LIB_CORE_COLORS_SOURCED:-}" ]; then
   return 0

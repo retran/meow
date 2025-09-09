@@ -1,3 +1,8 @@
+# @file:    components/game-development/component.yaml
+# @brief:   Game creation tools including 3D modeling and engine support.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 description: "Game creation tools including 3D modeling and engine support"
 
 platforms:

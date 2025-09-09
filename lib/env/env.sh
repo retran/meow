@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+# @file:    lib/env/env.sh
+# @brief:   Environment configuration and variable management.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 
 if [ -n "${_MEOW_CORE_ENV_SOURCED:-}" ]; then
   return 0

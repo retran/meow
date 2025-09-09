@@ -1,3 +1,8 @@
+# @file:    components/js-development/component.yaml
+# @brief:   JavaScript/TypeScript development tools including Node.js, npm, and modern JS frameworks.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 description: >-
   JavaScript/TypeScript runtime, language servers, and development tools
 

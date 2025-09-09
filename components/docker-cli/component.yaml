@@ -1,3 +1,8 @@
+# @file:    components/docker-cli/component.yaml
+# @brief:   Docker CLI tools for remote container management from development environments.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 description: "Docker CLI tools for remote container management from development environments"
 
 platforms:

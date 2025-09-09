@@ -1,3 +1,8 @@
+# @file:    components/media/component.yaml
+# @brief:   Media creation and editing applications for audio, video, and graphics production.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 description: "Media production and streaming tools"
 
 platforms:

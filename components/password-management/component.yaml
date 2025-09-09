@@ -1,3 +1,8 @@
+# @file:    components/password-management/component.yaml
+# @brief:   Desktop password management applications including Bitwarden for secure password management.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 description: >-
   Desktop password management applications.
   Includes Bitwarden desktop app for secure password management.

@@ -1,2 +1,7 @@
+# @file:    components/time-tracking/symlinks/toggl.yaml
+# @brief:   Symlink configuration for Toggl time tracking CLI settings and authentication.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 - source: "$MEOW/.installed/components/time-tracking-cli/config/toggl/.togglrc"
   target: "$HOME/.togglrc"

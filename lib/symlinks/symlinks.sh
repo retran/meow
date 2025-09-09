@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+# @file:    lib/symlinks/symlinks.sh
+# @brief:   Symlink management utilities for dotfile deployment.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 
 source "${MEOW}/lib/core/ui.sh"
 source "${MEOW}/lib/core/defs.sh"

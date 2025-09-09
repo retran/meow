@@ -1,3 +1,8 @@
+# @file:    assets/comments/ram.yaml
+# @brief:   Memory usage information template for system resource monitoring and display.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 ram:
   base:
     - "whiskers need more!"

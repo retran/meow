@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+# @file:    lib/package/common.sh
+# @brief:   Common package manager utilities and shared functionality across package systems.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 
 if [ -n "${_LIB_PACKAGE_COMMON_SOURCED:-}" ]; then
   return 0

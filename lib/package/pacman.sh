@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+# @file:    lib/package/pacman.sh
+# @brief:   Pacman package manager utilities for Arch Linux package installation and management.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 
 if [ -n "${_LIB_PACKAGE_PACMAN_SOURCED:-}" ]; then
   return 0

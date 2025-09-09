@@ -1,3 +1,8 @@
+# @file:    presets/litterbox-essential/preset.yaml
+# @brief:   Core development litterbox setup with essential tools for development environments.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 description: >-
   Core development litterbox setup with essential tools for development
 

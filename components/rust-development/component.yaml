@@ -1,3 +1,8 @@
+# @file:    components/rust-development/component.yaml
+# @brief:   Rust programming language development environment with cargo and toolchain.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 description: "Rust toolchain, cargo extensions, and debugging support"
 
 depends_on:

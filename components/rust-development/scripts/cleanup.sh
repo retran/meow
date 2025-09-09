@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+# @file:    components/rust-development/scripts/cleanup.sh
+# @brief:   Cleanup script for removing Rust development tools and temporary files.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 
 source "${MEOW}/lib/core/ui.sh"
 

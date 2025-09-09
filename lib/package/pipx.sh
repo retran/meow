@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+# @file:    lib/package/pipx.sh
+# @brief:   pipx utilities for isolated Python application installation and management.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 
 if [ -n "${_LIB_PACKAGE_PIPX_SOURCED:-}" ]; then
   return 0

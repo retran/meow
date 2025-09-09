@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+# @file:    components/adaptive-keyboard-layouts/scripts/macos_keyboard.sh
+# @brief:   macOS-specific keyboard layout configuration and management utilities.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 
 if [ -n "${MEOW:-}" ] && [ -f "${MEOW}/lib/core/ui.sh" ]; then
   source "${MEOW}/lib/core/ui.sh"

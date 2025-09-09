@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+# @file:    lib/components/packages.sh
+# @brief:   Component management utilities for modular system installation.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 source "${MEOW}/lib/core/ui.sh"
 
 if [ -n "${_LIB_COMPONENTS_PACKAGES_SOURCED:-}" ]; then

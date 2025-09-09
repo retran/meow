@@ -1,3 +1,8 @@
+# @file:    components/time-tracking-cli/component.yaml
+# @brief:   Command-line time tracking tools for terminal-based productivity monitoring.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 description: >-
   Time tracking command-line tools.
   Includes Toggl CLI for cross-platform time tracking.

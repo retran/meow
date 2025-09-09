@@ -1,3 +1,8 @@
+# @file:    components/kotlin-development/component.yaml
+# @brief:   IntelliJ IDEA IDE for Kotlin development.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 description: "IntelliJ IDEA IDE for Kotlin development"
 
 platforms:

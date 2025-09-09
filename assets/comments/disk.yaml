@@ -1,3 +1,8 @@
+# @file:    assets/comments/disk.yaml
+# @brief:   Disk usage information template for system monitoring and status display.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 disk:
   base:
     - "room for toys"

@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+# @file:    components/shell-essential/scripts/env.sh
+# @brief:   Environment configuration script for shell development tools and paths.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 
 if [ -n "${_COMPONENT_SHELL_ESSENTIAL_ENV_SOURCED:-}" ]; then
   return 0

@@ -1,3 +1,8 @@
+# @file:    components/terminal-apps/config/alacritty/alacritty.toml
+# @brief:   Configuration file for system setup and management.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 [font]
 size = 15.0
 

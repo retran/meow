@@ -1,2 +1,7 @@
+# @file:    components/terminal-apps/symlinks/alacritty.yaml
+# @brief:   Symlink configuration for Alacritty terminal emulator settings and themes.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 - source: "$MEOW/.installed/components/terminal-apps/config/alacritty/alacritty.toml"
   target: "$HOME/.config/alacritty/alacritty.toml"

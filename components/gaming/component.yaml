@@ -1,3 +1,8 @@
+# @file:    components/gaming/component.yaml
+# @brief:   Gaming platforms and entertainment applications.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 description: "Gaming platforms and entertainment applications"
 
 platforms:

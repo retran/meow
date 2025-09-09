@@ -1,3 +1,8 @@
+# @file:    components/time-tracking/component.yaml
+# @brief:   Time tracking applications for productivity monitoring and project management.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 description: >-
   Time tracking desktop application.
   Includes Toggl Track desktop app for macOS.

@@ -1,3 +1,8 @@
+# @file:    components/fonts/component.yaml
+# @brief:   Developer fonts including Nerd Fonts for terminal applications.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 description: "Developer fonts including Nerd Fonts for terminal applications"
 
 platforms:

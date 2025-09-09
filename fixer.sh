@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+# @file:    fixer.sh
+# @brief:   AI-powered script fixer for shell code quality and compatibility improvements.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 
 # --- Configuration ---
 SCRIPT_NAME="$(basename "$0")"

@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+# @file:    components/rust-development/scripts/env.sh
+# @brief:   Environment configuration script for Rust development tools and cargo paths.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 
 if [ -n "${_COMPONENT_RUST_DEVELOPMENT_ENV_SOURCED:-}" ]; then
   return 0

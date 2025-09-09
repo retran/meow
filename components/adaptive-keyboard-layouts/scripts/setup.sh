@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+# @file:    components/adaptive-keyboard-layouts/scripts/setup.sh
+# @brief:   Setup script for adaptive keyboard layout management system.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 
 COMPONENT_NAME="$1"
 MEOW="$2"

@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+# @file:    lib/core/session.sh
+# @brief:   Session management and state tracking utilities.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 
 if [ -n "${_LIB_CORE_SESSION_SOURCED:-}" ]; then
   return 0

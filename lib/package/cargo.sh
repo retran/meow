@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+# @file:    lib/package/cargo.sh
+# @brief:   Cargo package manager utilities for Rust crate installation and management.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
 
 if [ -n "${_LIB_PACKAGE_CARGO_SOURCED:-}" ]; then
   return 0
