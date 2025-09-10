@@ -16,7 +16,6 @@ required:
   - desktop-utilities
   - browsers
   - terminal-apps
-  - neovim
   - visual-studio-code
   - password-management
   - development-essential
