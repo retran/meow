@@ -10,8 +10,10 @@ platforms:
   - macos
 
 required:
+  - tmux
   - neovim
   - desktop-essential
+  - desktop-utilities
   - browsers
   - terminal-apps
   - visual-studio-code

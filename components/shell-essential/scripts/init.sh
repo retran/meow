@@ -76,11 +76,13 @@ fi
 plugins=("${base_plugins[@]}" "${conditional_plugins[@]}" "${os_plugins[@]}")
 export plugins
 
-# Set tmux autostart based on terminal detection
-if [ -n "$ALACRITTY_LOG" ] || [ "$TERM_PROGRAM" = "Alacritty" ] || [ -n "$ALACRITTY_WINDOW_ID" ]; then
-  export ZSH_TMUX_AUTOSTART=true
-else
-  export ZSH_TMUX_AUTOSTART=false
+# Set tmux autostart based on terminal detection (only if tmux is available)
+if command -v tmux >/dev/null 2>&1; then
+  if [ -n "$ALACRITTY_LOG" ] || [ "$TERM_PROGRAM" = "Alacritty" ] || [ -n "$ALACRITTY_WINDOW_ID" ]; then
+    export ZSH_TMUX_AUTOSTART=true
+  else
+    export ZSH_TMUX_AUTOSTART=false
+  fi
 fi
 
 if [ -f "$HOME/.oh-my-zsh/oh-my-zsh.sh" ]; then

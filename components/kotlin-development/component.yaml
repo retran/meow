@@ -9,5 +9,4 @@ platforms:
   - macos
 
 depends_on:
-  - visual-studio-code
   - kotlin-development-cli
