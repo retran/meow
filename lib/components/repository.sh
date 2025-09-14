@@ -22,7 +22,7 @@
 # THE SOFTWARE.
 #
 # @file: lib/components/repository.sh
-# @brief: Component management utilities for modular system installation.
+# @brief: Git repository cloning and management for component-specific configurations.
 # @author: Andrew Vasilyev
 # @license: MIT
 #

@@ -22,7 +22,7 @@
 # THE SOFTWARE.
 #
 # @file: lib/components/dependencies.sh
-# @brief: Component management utilities for modular system installation.
+# @brief: Component dependency resolution and relationship management.
 # @author: Andrew Vasilyev
 # @license: MIT
 #

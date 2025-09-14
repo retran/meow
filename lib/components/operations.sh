@@ -22,7 +22,7 @@
 # THE SOFTWARE.
 #
 # @file: lib/components/operations.sh
-# @brief: Component management utilities for modular system installation.
+# @brief: High-level component installation, update, and collection operations.
 # @author: Andrew Vasilyev
 # @license: MIT
 #

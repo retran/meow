@@ -22,7 +22,7 @@
 # THE SOFTWARE.
 #
 # @file: lib/components/core.sh
-# @brief: Component management utilities for modular system installation.
+# @brief: Core component installation, status checking, and symlink management.
 # @author: Andrew Vasilyev
 # @license: MIT
 #

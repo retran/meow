@@ -22,7 +22,7 @@
 # THE SOFTWARE.
 #
 # @file: bin/meowctl
-# @brief: Main command-line interface for the meow dotfiles management system.
+# @brief: Command-line tool for installing presets, managing components, and handling dotfile symlinks.
 # @author: Andrew Vasilyev
 # @license: MIT
 #

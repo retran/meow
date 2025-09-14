@@ -22,7 +22,7 @@
 # THE SOFTWARE.
 #
 # @file: lib/components/packages.sh
-# @brief: Component management utilities for modular system installation.
+# @brief: Package installation and management for components across platform package managers.
 # @author: Andrew Vasilyev
 # @license: MIT
 #

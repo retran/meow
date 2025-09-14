@@ -22,7 +22,7 @@
 # THE SOFTWARE.
 #
 # @file: lib/components/symlinks.sh
-# @brief: Component management utilities for modular system installation.
+# @brief: Component symlink setup and removal for dotfile configuration management.
 # @author: Andrew Vasilyev
 # @license: MIT
 #
