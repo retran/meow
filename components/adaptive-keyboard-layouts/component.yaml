@@ -21,7 +21,7 @@
 # THE SOFTWARE.
 #
 # @file: components/adaptive-keyboard-layouts/component.yaml
-# @brief: Adaptive keyboard layout management for different development workflows.
+# @brief: USB keyboard detection and automatic layout switching via Hammerspoon automation.
 # @author: Andrew Vasilyev
 # @license: MIT
 #
