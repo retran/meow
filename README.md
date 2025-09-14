@@ -69,13 +69,13 @@ has a _purr-fect_ setup for you.
 
 Automatically detects and uses appropriate package managers:
 
-| Platform           | Package Manager                          |
-| ------------------ | ---------------------------------------- |
-| **macOS**          | Homebrew, mas (Mac App Store)            |
-| **Ubuntu/Debian**  | apt                                      |
-| **Alpine Linux**   | apk                                      |
-| **Arch Linux**     | pacman                                   |
-| **Cross-platform** | npm, pipx, cargo, VS Code extensions    |
+| Platform           | Package Manager                              |
+| ------------------ | -------------------------------------------- |
+| **macOS**          | Homebrew, mas (Mac App Store)               |
+| **Ubuntu/Debian**  | apt                                          |
+| **Alpine Linux**   | apk                                          |
+| **Arch Linux**     | pacman                                       |
+| **Cross-platform** | npm, pipx, cargo, go, VS Code extensions    |
 
 ### Symlink Management
 
@@ -209,7 +209,7 @@ Lightweight development containers optimized for specific use cases. All contain
 
 ### Container Testing Environment (Linux)
 
-- **personal-linux** - Linux-compatible version of personal preset with CLI tools for testing and development containers
+All container presets are optimized for Linux development environments.
 
 ---
 
@@ -223,23 +223,24 @@ Lightweight development containers optimized for specific use cases. All contain
 
 ### 🖥️ Desktop Environment (macOS)
 
-- **desktop-essential** - Core system utilities and desktop management (Raycast, mas, AppCleaner)
-- **desktop-utilities** - File management and screen recording tools (Keka archiver, Kap screen recorder)
-- **browsers** - Web browsers and related tools (Google Chrome)
-- **terminal-apps** - Terminal emulator applications with configurations (Alacritty)
-- **fonts** - Programming and development fonts (JetBrains Mono, Nerd Fonts)
+- **desktop-essential** - Core system utilities and desktop management (Raycast, mas, AppCleaner) (macOS only)
+- **desktop-utilities** - File management and screen recording tools (Keka archiver, Kap screen recorder) (macOS only)
+- **browsers** - Web browsers and related tools (Google Chrome) (macOS only)
+- **terminal-apps** - Terminal emulator applications with configurations (Alacritty) (macOS only)
+- **fonts** - Programming and development fonts (JetBrains Mono, Nerd Fonts) (macOS only)
 - **tmux** - Terminal multiplexer for advanced session management (macOS only)
 
 ### 🔐 Security & Communication
 
 - **password-management** - Bitwarden desktop application (macOS only)
 - **password-management-cli** - Bitwarden command-line interface (cross-platform)
-- **business-communication** - Professional messaging tools (Slack, Zoom)
+- **business-communication** - Professional messaging tools (Slack, Zoom) (macOS only)
+- **personal-communication** - Personal messaging applications (Discord, Telegram, WhatsApp) (macOS only)
 - **personal-communication** - Personal messaging applications (Discord, Telegram, WhatsApp)
 
 ### ⚒️ Development Tools
 
-- **visual-studio-code** - VS Code IDE with essential extensions (GitHub Copilot, themes, containers)
+- **visual-studio-code** - VS Code IDE with essential extensions (GitHub Copilot, themes, containers) (macOS only)
 - **shell-development** - Shell scripting tools, linting, and language server support
 - **markdown** - Markdown editing and preview tools
 - **meowvim** - Custom Neovim configuration from GitHub repository
@@ -259,28 +260,28 @@ Lightweight development containers optimized for specific use cases. All contain
 
 ### 🎯 Productivity & Media
 
-- **productivity** - Task management and productivity applications (Linear, Notion, DrawIO)
-- **media** - Media creation tools (OBS Studio)
-- **gaming** - Gaming platforms and entertainment (Steam, GeForce Now)
+- **productivity** - Task management and productivity applications (Linear, Notion, DrawIO) (macOS only)
+- **media** - Media creation tools (OBS Studio) (macOS only)
+- **gaming** - Gaming platforms and entertainment (Steam, GeForce Now) (macOS only)
 - **time-tracking-cli** - Toggl CLI tools with configuration (cross-platform)
 - **time-tracking** - Toggl Track desktop application (macOS only)
 
 ### 🎮 Specialized Applications
 
-- **game-development** - Game creation tools including 3D modeling and engine support
+- **game-development** - Game creation tools including 3D modeling and engine support (macOS only)
 
 ### 🐳 Container-Specific
 
-- **docker-cli** - Docker command-line interface for Linux container environments
-- **docker-desktop** - OrbStack desktop application for lightweight Docker and Linux VMs (macOS)
+- **docker-cli** - Docker command-line interface for Linux container environments (Linux only)
+- **docker-desktop** - OrbStack desktop application for lightweight Docker and Linux VMs (macOS only)
 
 ### 🔧 Optional Advanced Components
 
 These components provide specialized functionality and must be installed separately using `meowctl component install <component-name>`:
 
-- **adaptive-keyboard-layouts** - Dynamic keyboard layout switching for different connected keyboards
-- **meowvim-keyboard-layouts** - Neovim mode-aware keyboard layout switching
-- **hammerspoon** - macOS automation and window management framework
+- **adaptive-keyboard-layouts** - Dynamic keyboard layout switching for different connected keyboards (macOS only)
+- **meowvim-keyboard-layouts** - Neovim mode-aware keyboard layout switching (macOS only)
+- **hammerspoon** - macOS automation and window management framework (macOS only)
 
 ---
 
@@ -479,7 +480,6 @@ platforms:
 # Required components
 required:
   - shell-essential
-  - file-navigation  
   - development-essential
   - my-custom-component
 ```
