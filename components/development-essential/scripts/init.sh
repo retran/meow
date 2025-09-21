@@ -48,7 +48,14 @@ _prepare_commit_message() {
   )
 }
 
-# AI-assisted git commit alias (if meow is available)
+# AI-assisted git commit function (if meow is available)
 if command -v meow >/dev/null 2>&1; then
-  alias mgc='git diff --staged | meow g -t commit | _prepare_commit_message | git commit -F - --edit'
+  mgc() {
+    if [ -n "$1" ]; then
+      (echo "$1"; echo ""; git diff --staged)
+    else
+      git diff --staged
+    fi | meow g -t commit | _prepare_commit_message | git commit -F - --edit
+  }
 fi
+

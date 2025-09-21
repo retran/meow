@@ -34,7 +34,6 @@ platforms:
 required:
   - neovim
   - development-essential
-  - password-management-cli
   - go-development
   - docker-cli
   - markdown
