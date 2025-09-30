@@ -43,48 +43,68 @@ option_as_alt  = "OnlyLeft"
 columns = 120
 lines = 40
 
-# -----------------------------------------------------------------------------
-# TokyoNight Alacritty Colors
-# Theme: Tokyo Night
-# Upstream: https://github.com/folke/tokyonight.nvim/raw/main/extras/alacritty/tokyonight_night.toml
-# -----------------------------------------------------------------------------
-
-# Default colors
 [colors.primary]
-background = '#1a1b26'
-foreground = '#c0caf5'
+background = "#1e1e2e"
+foreground = "#cdd6f4"
+dim_foreground = "#7f849c"
+bright_foreground = "#cdd6f4"
 
 [colors.cursor]
-cursor = '#c0caf5'
-text = '#1a1b26'
+text = "#1e1e2e"
+cursor = "#f5e0dc"
 
-# Normal colors
+[colors.vi_mode_cursor]
+text = "#1e1e2e"
+cursor = "#b4befe"
+
+[colors.search.matches]
+foreground = "#1e1e2e"
+background = "#a6adc8"
+
+[colors.search.focused_match]
+foreground = "#1e1e2e"
+background = "#a6e3a1"
+
+[colors.footer_bar]
+foreground = "#1e1e2e"
+background = "#a6adc8"
+
+[colors.hints.start]
+foreground = "#1e1e2e"
+background = "#f9e2af"
+
+[colors.hints.end]
+foreground = "#1e1e2e"
+background = "#a6adc8"
+
+[colors.selection]
+text = "#1e1e2e"
+background = "#f5e0dc"
+
 [colors.normal]
-black = '#15161e'
-red = '#f7768e'
-green = '#9ece6a'
-yellow = '#e0af68'
-blue = '#7aa2f7'
-magenta = '#bb9af7'
-cyan = '#7dcfff'
-white = '#a9b1d6'
+black = "#45475a"
+red = "#f38ba8"
+green = "#a6e3a1"
+yellow = "#f9e2af"
+blue = "#89b4fa"
+magenta = "#f5c2e7"
+cyan = "#94e2d5"
+white = "#bac2de"
 
-# Bright colors
 [colors.bright]
-black = '#414868'
-red = '#ff899d'
-green = '#9fe044'
-yellow = '#faba4a'
-blue = '#8db0ff'
-magenta = '#c7a9ff'
-cyan = '#a4daff'
-white = '#c0caf5'
+black = "#585b70"
+red = "#f38ba8"
+green = "#a6e3a1"
+yellow = "#f9e2af"
+blue = "#89b4fa"
+magenta = "#f5c2e7"
+cyan = "#94e2d5"
+white = "#a6adc8"
 
-# Indexed Colors
 [[colors.indexed_colors]]
 index = 16
-color = '#ff9e64'
+color = "#fab387"
 
 [[colors.indexed_colors]]
 index = 17
-color = '#db4b4b'
+color = "#f5e0dc"
