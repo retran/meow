@@ -1,0 +1,17 @@
+# @file:    presets/professional-wsl/preset.yaml
+# @brief:   Professional laptop setup for WSL work environment.
+# @author:  Andrew Vasilyev
+# @license: MIT
+#
+description: >-
+  Professional laptop setup (WSL)
+
+platforms:
+  - linux
+
+required:
+  - shell-essential
+  - tmux
+  - development-essential
+  - neovim
+  - markdown

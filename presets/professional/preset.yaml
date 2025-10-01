@@ -32,6 +32,7 @@ platforms:
   - macos
 
 required:
+  - shell-essential
   - tmux
   - neovim
   - desktop-essential

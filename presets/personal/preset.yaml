@@ -32,6 +32,7 @@ platforms:
   - macos
 
 required:
+  - shell-essential
   - tmux
   - desktop-essential
   - desktop-utilities
