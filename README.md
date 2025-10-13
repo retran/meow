@@ -202,7 +202,7 @@ Lightweight development containers optimized for specific use cases. All contain
 
 - **litterbox-essential** - Minimal base with core shell utilities and development tools
 - **litterbox-go** - Go development environment
-- **litterbox-rust** - Rust development environment  
+- **litterbox-rust** - Rust development environment
 - **litterbox-python** - Python development environment
 - **litterbox-dotnet** - .NET development environment
 - **litterbox-fullstack** - Complete full-stack development environment
@@ -232,11 +232,8 @@ All container presets are optimized for Linux development environments.
 
 ### 🔐 Security & Communication
 
-- **password-management** - Bitwarden desktop application (macOS only)
-- **password-management-cli** - Bitwarden command-line interface (cross-platform)
 - **business-communication** - Professional messaging tools (Slack, Zoom) (macOS only)
 - **personal-communication** - Personal messaging applications (Discord, Telegram, WhatsApp) (macOS only)
-- **personal-communication** - Personal messaging applications (Discord, Telegram, WhatsApp)
 
 ### ⚒️ Development Tools
 
@@ -303,7 +300,7 @@ High-level environment configurations optimized for specific use cases:
 Modular building blocks with platform-aware implementations:
 
 - Self-contained package and configuration definitions
-- Cross-platform support with platform-specific optimizations  
+- Cross-platform support with platform-specific optimizations
 - Dependency declarations between components
 - Lifecycle scripts for setup and management
 
@@ -330,10 +327,10 @@ Platform-specific packages installed with macOS optimizations (shell tools first
     ↓
 GUI configurations symlinked and system preferences applied
 
-User: ./bin/meowctl install litterbox-go               # Container environment  
+User: ./bin/meowctl install litterbox-go               # Container environment
     ↓
 Preset resolves components: neovim, development-essential, go-development, docker-cli
-    ↓  
+    ↓
 Dependencies calculated: shell-essential → neovim → development-essential → go-development
     ↓
 Linux-specific packages installed with container optimizations (shell tools only)

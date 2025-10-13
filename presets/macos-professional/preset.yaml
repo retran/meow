@@ -20,18 +20,28 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #
-# @file: components/password-management/component.yaml
-# @brief: Desktop password management applications including Bitwarden for secure password management.
+# @file: presets/professional/preset.yaml
+# @brief: Professional laptop setup for business and work environments.
 # @author: Andrew Vasilyev
 # @license: MIT
 #
 description: >-
-  Desktop password management applications.
-  Includes Bitwarden desktop app for secure password management.
+  Professional laptop setup
 
 platforms:
   - macos
 
-depends_on:
+required:
+  - shell-essential
+  - tmux
   - desktop-essential
-  - password-management-cli
+  - desktop-utilities
+  - browsers
+  - terminal-apps
+  - neovim
+  - visual-studio-code
+  - development-essential
+  - markdown
+  - docker-desktop
+  - business-communication
+  - productivity

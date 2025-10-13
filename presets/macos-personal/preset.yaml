@@ -20,14 +20,31 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #
-# @file: components/password-management-cli/component.yaml
-# @brief: Command-line password management tools including Bitwarden CLI for secure terminal access.
+# @file: presets/personal/preset.yaml
+# @brief: Personal laptop setup with packages for entertainment, social networking, and pet projects.
 # @author: Andrew Vasilyev
 # @license: MIT
 #
 description: >-
-  Command-line password management tools.
-  Includes Bitwarden CLI for secure password access from terminal.
+  Personal laptop setup with packages for entertainment, social networking, and pet projects
 
-depends_on:
+platforms:
+  - macos
+
+required:
   - shell-essential
+  - tmux
+  - desktop-essential
+  - desktop-utilities
+  - browsers
+  - terminal-apps
+  - neovim
+  - visual-studio-code
+  - development-essential
+  - game-development
+  - markdown
+  - docker-desktop
+  - personal-communication
+  - productivity
+  - media
+  - gaming
