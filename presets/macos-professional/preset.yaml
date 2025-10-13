@@ -34,12 +34,14 @@ platforms:
 required:
   - shell-essential
   - tmux
-  - neovim
   - desktop-essential
   - desktop-utilities
   - browsers
   - terminal-apps
+  - neovim
   - visual-studio-code
   - development-essential
   - markdown
   - docker-desktop
+  - business-communication
+  - productivity
