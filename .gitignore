@@ -19,6 +19,7 @@ tests/tmp/
 # State
 .installed/
 .downloads/
+.meowg1k
 
 # Secrets
 private/git/.gitconfig
