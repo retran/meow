@@ -1,6 +1,3 @@
-# yamllint configuration for meow project
-# =======================================
-
 extends: default
 
 rules:
