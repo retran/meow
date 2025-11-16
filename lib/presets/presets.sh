@@ -193,6 +193,9 @@ install_preset() {
     return 1
   fi
 
+  local previous_pm_config="${MEOW_ACTIVE_PRESET_FILE:-}"
+  MEOW_ACTIVE_PRESET_FILE="$preset_file"
+
   if ! is_preset_available "$preset"; then
     ui_error "$(_f "Preset '%s' is not available on this platform." "$preset")"
     return 1
@@ -324,8 +327,12 @@ install_preset() {
       force_install="true"
     fi
 
+    local previous_pm_config="${MEOW_ACTIVE_PRESET_FILE:-}"
+    MEOW_ACTIVE_PRESET_FILE="$preset_file"
+
     _initialize_session || {
       ui_error "Session initialization failed."
+      MEOW_ACTIVE_PRESET_FILE="$previous_pm_config"
       return 1
     }
 
@@ -357,11 +364,13 @@ install_preset() {
       _finalize_session
       unset MEOW_INSTALLING_COMPONENTS
       ui_error "$(_f "Failed to install all required components for preset '%s'." "$preset")"
+      MEOW_ACTIVE_PRESET_FILE="$previous_pm_config"
       return 1
     fi
 
     _finalize_session
     unset MEOW_INSTALLING_COMPONENTS
+    MEOW_ACTIVE_PRESET_FILE="$previous_pm_config"
   fi
 
   if is_dry_run; then
@@ -383,6 +392,11 @@ update_preset() {
     ui_warning "$(_f "Preset '%s' is not installed." "$preset")"
     return 1
   fi
+
+  local preset_file
+  preset_file=$(get_preset_file "$preset")
+  local previous_pm_config="${MEOW_ACTIVE_PRESET_FILE:-}"
+  MEOW_ACTIVE_PRESET_FILE="$preset_file"
 
   ui_header "$(_f "Updating Preset: %s" "$preset")"
 
@@ -412,6 +426,7 @@ update_preset() {
   fi
 
   ui_action_success "$(_f "Preset '%s' updated successfully." "$preset")"
+  MEOW_ACTIVE_PRESET_FILE="$previous_pm_config"
   return 0
 }
 
@@ -539,6 +554,7 @@ uninstall_preset() {
 
       if ! uninstall_component "${args[@]}"; then
         ui_error "$(_f "Failed to uninstall components for preset '%s'." "$preset_name")"
+        MEOW_ACTIVE_PRESET_FILE="$previous_pm_config"
         return 1
       fi
     else
@@ -549,6 +565,7 @@ uninstall_preset() {
   remove_preset_tracking "$preset"
 
   ui_success "$(_f "Preset '%s' uninstalled successfully." "$preset")"
+  MEOW_ACTIVE_PRESET_FILE="$previous_pm_config"
   return 0
 }
 

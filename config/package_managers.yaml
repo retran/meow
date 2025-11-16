@@ -1,0 +1,22 @@
+package_managers:
+  - match:
+      platform: macos
+    include: [homebrew, mas, pipx, npm, go, cargo, vscode]
+  - match:
+      platform: linux
+    include: [pipx, npm, go, cargo, vscode]
+  - match:
+      distro_like: [debian]
+    include: [apt]
+  - match:
+      distro: ubuntu
+    include: [snap]
+  - match:
+      distro_like: [fedora, rhel]
+    include: [dnf]
+  - match:
+      distro: arch
+    include: [pacman]
+  - match:
+      distro: alpine
+    include: [apk]
