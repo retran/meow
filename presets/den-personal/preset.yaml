@@ -1,0 +1,11 @@
+description: Catden personal workstation setup with desktop apps, entertainment, and
+  pet projects
+extends:
+  - den-essential
+required:
+  - game-development
+  - docker-desktop
+  - personal-communication
+  - productivity
+  - media
+  - gaming

@@ -1,2 +1,1 @@
-dotnet-sdk-8.0
-powershell
+include ../common/lang/dnf.list

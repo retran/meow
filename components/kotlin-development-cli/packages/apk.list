@@ -1,1 +1,1 @@
-openjdk21
+include ../common/cli/apk.list

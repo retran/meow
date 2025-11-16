@@ -1,1 +1,1 @@
-pyenv
+include ../common/lang/dnf.list

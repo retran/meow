@@ -1,2 +1,1 @@
-dotnet-sdk
-powershell
+include ../common/lang/pacman.list

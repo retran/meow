@@ -13,7 +13,7 @@ source "${MEOW}/lib/core/yaml.sh"
 
 : "${MEOW_ACTIVE_PRESET_FILE:=}"
 
-MEOW_PACKAGES_CONFIG_FILE="${MEOW}/config/packages.yaml"
+MEOW_DEFAULT_PRESET_FILE="${MEOW}/presets/base/preset.yaml"
 
 _meow_pkg_resolve_file() {
   local file="$1"
@@ -95,25 +95,41 @@ _meow_pkg_read_stack() {
   local platform="$1"
   local distro="$2"
   local likes="$3"
+  local component="$4"
   local result="[]"
-  local files=()
-  files+=("$MEOW_PACKAGES_CONFIG_FILE")
+
+  local preset_file=""
   if [ -n "$MEOW_ACTIVE_PRESET_FILE" ]; then
-    files+=("$MEOW_ACTIVE_PRESET_FILE")
+    preset_file="$MEOW_ACTIVE_PRESET_FILE"
+  elif [ -f "$MEOW_DEFAULT_PRESET_FILE" ]; then
+    preset_file="$MEOW_DEFAULT_PRESET_FILE"
   fi
-  files+=("${MEOW_COMPONENTS_DIR}/${4}/component.yaml")
-  local file json
-  for file in "${files[@]}"; do
-    json=$(_meow_pkg_resolve_file "$file") || continue
-    matches=$(_meow_pkg_match_entry "$json" "$platform" "$distro" "$likes")
-    result=$(python3 - "$result" "$matches" <<'PY'
+
+  if [ -n "$preset_file" ]; then
+    local preset_entries
+    preset_entries=$(_meow_pkg_collect_from_preset "$preset_file")
+    result=$(python3 - "$result" "$preset_entries" <<'PY'
 import json, sys
 base = json.loads(sys.argv[1])
 entries = json.loads(sys.argv[2])
 base.extend(entries)
 print(json.dumps(base))
 PY)
-  done
+  fi
+
+  local component_file="${MEOW_COMPONENTS_DIR}/${component}/component.yaml"
+  local json
+  json=$(_meow_pkg_resolve_file "$component_file") || echo "[]"
+  local matches
+  matches=$(_meow_pkg_match_entry "$json" "$platform" "$distro" "$likes")
+  result=$(python3 - "$result" "$matches" <<'PY'
+import json, sys
+base = json.loads(sys.argv[1])
+entries = json.loads(sys.argv[2])
+base.extend(entries)
+print(json.dumps(base))
+PY)
+
   echo "$result"
 }
 
@@ -147,4 +163,30 @@ meow_pm_collect_sources_for_manager() {
   local entries
   entries=$(_meow_pkg_read_stack "$platform" "$distro" "$likes" "$component")
   _meow_pkg_collect_sources "$component" "$manager" "$entries"
+}
+
+_meow_pkg_collect_from_preset() {
+  local preset_file="$1"
+  [ -f "$preset_file" ] || { echo "[]"; return; }
+  python3 - "$preset_file" "$MEOW_PRESETS_DIR" <<'PY'
+import json, sys, yaml, os
+preset_file = sys.argv[1]
+base_dir = sys.argv[2]
+visited = set()
+
+def gather(file):
+    if not os.path.isfile(file) or file in visited:
+        return []
+    visited.add(file)
+    with open(file) as fh:
+        data = yaml.safe_load(fh) or {}
+    result = []
+    for parent in data.get('extends') or []:
+        parent_file = os.path.join(base_dir, parent, 'preset.yaml')
+        result.extend(gather(parent_file))
+    result.extend(data.get('packages') or [])
+    return result
+
+print(json.dumps(gather(preset_file)))
+PY
 }

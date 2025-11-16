@@ -1,1 +1,1 @@
-neovim
+include ../common/cli/pacman.list

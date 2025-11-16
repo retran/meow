@@ -1,2 +1,1 @@
-# IntelliJ IDEA not available in standard Ubuntu repos
-# Use kotlin-development-cli component for CLI development
+include ../common/lang/dnf.list

@@ -1,1 +1,1 @@
-neovim
+include ../common/cli/homebrew.list

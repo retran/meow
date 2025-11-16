@@ -164,6 +164,7 @@ configure_npm() {
   return 0
 }
 
+source "${MEOW}/components/shell-common/scripts/setup-helpers.sh"
 install_zsh_plugins() {
   local zsh_custom_dir="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
   local plugins_installed_count=0

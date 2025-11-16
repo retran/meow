@@ -91,32 +91,48 @@ get_preset_file() {
 
 get_preset_required_components() {
   local preset="$1"
+  _collect_preset_requirements "$preset" "" || return 1
+}
+
+_collect_preset_requirements() {
+  local preset="$1"
+  local stack="$2"
+
+  if [[ " $stack " == *" $preset "* ]]; then
+    ui_error "$(_f "Detected circular preset inheritance involving '%s'." "$preset")"
+    return 1
+  fi
+
   local preset_file
   preset_file=$(get_preset_file "$preset")
 
   if [ ! -f "$preset_file" ]; then
-    if [ "$MEOW_VERBOSE" = "true" ]; then
-      ui_verbose_info "$(_f "Debug: Preset file not found: %s" "$preset_file")" >&2
-    fi
+    ui_error "$(_f "Preset '%s' definition not found." "$preset")"
     return 1
   fi
 
-  if [ "$MEOW_VERBOSE" = "true" ]; then
-    ui_verbose_info "$(_f "Debug: Reading preset file: %s" "$preset_file")" >&2
-    local file_content
-    file_content=$(cat "$preset_file" 2>/dev/null || echo "Failed to read file")
-    ui_verbose_info "$(_f "Debug: Preset file content: %s" "$file_content")" >&2
+  local combined=""
+  local extends_str
+  extends_str=$(read_yaml_array "$preset_file" ".extends[]?" 2>/dev/null || echo "")
+
+  if [ -n "$extends_str" ]; then
+    while IFS= read -r parent; do
+      [ -n "$parent" ] || continue
+      local parent_components
+      parent_components=$(_collect_preset_requirements "$parent" "$stack $preset") || return 1
+      if [ -n "$parent_components" ]; then
+        combined+="$parent_components"$'\n'
+      fi
+    done <<<"$extends_str"
   fi
 
-  # Use the shared YAML parsing logic with array parsing
   local required_components
-  required_components=$(read_yaml_array "$preset_file" ".required[]")
-
-  if [ "$MEOW_VERBOSE" = "true" ]; then
-    ui_verbose_info "$(_f "Debug: final required components result: '%s'" "$required_components")" >&2
+  required_components=$(read_yaml_array "$preset_file" ".required[]?" 2>/dev/null || echo "")
+  if [ -n "$required_components" ]; then
+    combined+="$required_components"
   fi
 
-  echo "$required_components"
+  printf '%s' "$combined" | sed '/^$/d'
 }
 
 collect_preset_components_for_installation() {

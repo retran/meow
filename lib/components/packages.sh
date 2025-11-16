@@ -230,17 +230,38 @@ _uninstall_packages_for_component_manager() {
   "$fn" "$component"
 }
 
+_resolve_packages_file() {
+  local component="$1"
+  local mgr="$2"
+  local path="${MEOW_COMPONENTS_DIR}/${component}/packages/${mgr}.list"
+  if [ ! -f "$path" ]; then
+    return 1
+  fi
+
+  if head -n1 "$path" | grep -q '^include '; then
+    local include_path
+    include_path=$(head -n1 "$path" | awk '{print $2}')
+    local resolved
+    resolved=$(realpath -m "${MEOW_COMPONENTS_DIR}/${component}/packages/${include_path}")
+    if [ -f "$resolved" ]; then
+      echo "$resolved"
+      return 0
+    fi
+  fi
+
+  echo "$path"
+}
+
 _install_packages_for_component_manager() {
   local component="$1"
   local mgr="$2"
   local fn="install_${mgr}_packages"
-  local packages_file="${MEOW_COMPONENTS_DIR}/${component}/packages/${mgr}.list"
+  local packages_file
+  packages_file=$(_resolve_packages_file "$component" "$mgr") || return 0
 
   command -v "$fn" >/dev/null 2>&1 || return 0
 
-  [ -f "$packages_file" ] || return 0
-
-  "$fn" "$component"
+  PACKAGES_OVERRIDE_FILE="$packages_file" "$fn" "$component"
   return $?
 }
 

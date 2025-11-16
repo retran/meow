@@ -113,26 +113,50 @@ is_component_available() {
 
   [ -f "$component_file" ] || return 1
 
-  if ! yaml_path_exists "$component_file" ".platforms"; then
-    ui_error "$(_f "Component '%s' is missing required 'platforms' declaration." "$component")"
-    return 1
-  fi
+  if yaml_path_exists "$component_file" ".platforms"; then
+    local platform_json
+    platform_json=$(yq -o=json '.platforms // []' "$component_file" 2>/dev/null)
+    if [ -n "$platform_json" ]; then
+      local platform
+      platform=$(get_platform)
+      local matches
+      matches=$(python3 - "$platform" "${MEOW_OS_ID:-}" "${MEOW_OS_ID_LIKE// /,}" <<'PY'
+import json, sys
+platform, distro, likes = sys.argv[1], sys.argv[2], sys.argv[3].split(',') if sys.argv[3] else []
+entries = json.load(sys.stdin)
 
-  local current_platform
-  current_platform=$(get_platform)
-  local platform_supported=false
-  local platform_name
+def to_list(value):
+    if not value:
+        return []
+    if isinstance(value, list):
+        return value
+    return [value]
 
-  while IFS= read -r platform_name; do
-    platform_name=$(echo "$platform_name" | tr -d '"')
-    if [ -n "$platform_name" ] && [ "$platform_name" = "$current_platform" ]; then
-      platform_supported=true
-      break
+for entry in entries:
+    if isinstance(entry, str):
+        if entry == platform:
+            print('1')
+            sys.exit(0)
+        continue
+    match = entry.get('match') or {}
+    platforms = to_list(match.get('platform'))
+    if platforms and platform not in platforms:
+        continue
+    distros = to_list(match.get('distro'))
+    if distros and distro not in distros:
+        continue
+    distro_like = to_list(match.get('distro_like'))
+    if distro_like and not any(item in likes for item in distro_like):
+        continue
+    print('1')
+    sys.exit(0)
+print('0')
+PY
+)
+      if [ "$matches" != "1" ]; then
+        return 1
+      fi
     fi
-  done < <(read_yaml_array "$component_file" ".platforms[]" 2>/dev/null)
-
-  if [ "$platform_supported" = "false" ]; then
-    return 1
   fi
 
   if yaml_path_exists "$component_file" ".depends_on"; then

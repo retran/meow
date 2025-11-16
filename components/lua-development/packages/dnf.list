@@ -1,3 +1,1 @@
-luacheck
-luarocks
-stylua
+include ../common/lang/dnf.list

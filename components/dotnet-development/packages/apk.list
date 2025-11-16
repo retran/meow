@@ -1,1 +1,1 @@
-dotnet-runtime
+include ../common/lang/apk.list

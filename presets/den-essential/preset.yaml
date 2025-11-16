@@ -1,0 +1,21 @@
+# MIT License
+#
+# Catden base preset with desktop fundamentals
+#
+extends:
+  - base
+
+description: >-
+  Shared Catden essentials (shell, tmux, desktop base)
+
+required:
+  - shell-essential
+  - tmux
+  - desktop-essential
+  - desktop-utilities
+  - browsers
+  - terminal-apps
+  - neovim
+  - visual-studio-code
+  - development-essential
+  - markdown
