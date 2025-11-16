@@ -151,6 +151,9 @@ show_component_help() {
   ui_message "Options for list:"
   ui_message "  --names-only                   Show only component names without status"
   ui_message ""
+  ui_message "Options for install:"
+  ui_message "  --force                        Reinstall components even if already present"
+  ui_message ""
   ui_message "Examples:"
   ui_message "  $0 component list"
   ui_message "  $0 component list --names-only"
@@ -313,6 +316,7 @@ cmd_component() {
       ;;
     install)
       local install_args=()
+      local install_components=()
       while [ $# -gt 0 ]; do
         case "$1" in
           --verbose | -v)
@@ -323,20 +327,25 @@ cmd_component() {
             export MEOW_DRY_RUN="true"
             shift
             ;;
+          --force)
+            install_args+=("--force")
+            shift
+            ;;
           *)
             install_args+=("$1")
+            install_components+=("$1")
             shift
             ;;
         esac
       done
 
-      if [ ${#install_args[@]} -eq 0 ]; then
+      if [ ${#install_components[@]} -eq 0 ]; then
         ui_error "No components specified for install command"
         exit 1
       fi
 
       # Validate all component names first
-      for component in "${install_args[@]}"; do
+      for component in "${install_components[@]}"; do
         if ! validate_component_name "$component"; then
           exit 1
         fi

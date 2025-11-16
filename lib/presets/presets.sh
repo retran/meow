@@ -319,29 +319,49 @@ install_preset() {
       ui_indent "All components already installed for this preset."
     fi
 
+    local force_install="false"
+    if [ "$force_flag" = "--force" ]; then
+      force_install="true"
+    fi
+
     _initialize_session || {
       ui_error "Session initialization failed."
       return 1
     }
 
     declare -ga MEOW_INSTALLING_COMPONENTS=()
+    local installed_this_session=()
 
     local install_success=true
     for component in "${installation_order[@]}"; do
-      if ! _install_single_component "$component" false false; then
+      if ! _install_single_component "$component" false false "$force_install"; then
         ui_error "$(_f "Failed to install component '%s' for preset '%s'." "$component" "$preset")"
         install_success=false
         break
       fi
+
+      if [ "$MEOW_LAST_COMPONENT_CHANGED" = "true" ]; then
+        installed_this_session+=("$component")
+      fi
     done
 
-    _finalize_session
-    unset MEOW_INSTALLING_COMPONENTS
-
     if [ "$install_success" != "true" ]; then
+      if [ ${#installed_this_session[@]} -gt 0 ]; then
+        ui_warning "Rolling back partially installed components for preset '$preset'..."
+        for ((i = ${#installed_this_session[@]} - 1; i >= 0; i--)); do
+          local rollback_comp="${installed_this_session[$i]}"
+          ui_warning "$(_f "Rolling back '%s'." "$rollback_comp")"
+          _uninstall_single_component "$rollback_comp" "true" >/dev/null 2>&1 || true
+        done
+      fi
+      _finalize_session
+      unset MEOW_INSTALLING_COMPONENTS
       ui_error "$(_f "Failed to install all required components for preset '%s'." "$preset")"
       return 1
     fi
+
+    _finalize_session
+    unset MEOW_INSTALLING_COMPONENTS
   fi
 
   if is_dry_run; then
@@ -568,6 +588,7 @@ uninstall_all() {
     dry_run_file_operation "remove_directory" "${MEOW_INSTALLED_COMPONENTS_DIR}"
     dry_run_file_operation "remove_directory" "${MEOW_INSTALLED_PRESETS_DIR}"
     dry_run_file_operation "remove_directory" "${MEOW_MANUALLY_INSTALLED_COMPONENTS_DIR}"
+    dry_run_file_operation "remove_directory" "${MEOW_DOWNLOADS_DIR}"
     ui_success "All components would be uninstalled and installation tracking cleaned (dry run)."
   else
     if [ -d "${MEOW_INSTALLED_COMPONENTS_DIR}" ]; then
@@ -583,6 +604,10 @@ uninstall_all() {
     if [ -d "${MEOW_MANUALLY_INSTALLED_COMPONENTS_DIR}" ]; then
       rm -rf "${MEOW_MANUALLY_INSTALLED_COMPONENTS_DIR:?}"
       ui_verbose_info "Removed manual installation tracking directory: %s" "${MEOW_MANUALLY_INSTALLED_COMPONENTS_DIR}"
+    fi
+    if [ -d "${MEOW_DOWNLOADS_DIR}" ]; then
+      rm -rf "${MEOW_DOWNLOADS_DIR:?}"
+      ui_verbose_info "Removed downloads cache directory: %s" "${MEOW_DOWNLOADS_DIR}"
     fi
     ui_success "All components uninstalled and installation tracking cleaned."
   fi
