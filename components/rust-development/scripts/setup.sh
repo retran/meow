@@ -78,13 +78,6 @@ install_rust_components() {
     ui_error "Failed to install clippy component."
   fi
 
-  if ! ui_spinner "Installing rust-analyzer component" \
-    --success "rust-analyzer installed successfully." \
-    --fail "Failed to install rust-analyzer component." \
-    rustup component add rust-analyzer; then
-    ui_error "Failed to install rust-analyzer component."
-  fi
-
   if command -v rustfmt >/dev/null 2>&1; then
     ui_action_success "rustfmt available."
   else
