@@ -28,3 +28,8 @@
 description: >-
   Essential shell tools and development foundation for all environments.
   Includes git, node, bash/zsh, file navigation tools, and system monitoring utilities.
+
+platforms:
+  - macos
+  - linux
+

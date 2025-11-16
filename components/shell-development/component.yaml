@@ -28,5 +28,9 @@
 description: >-
   Shell scripting tools including linting, formatting, and language server support
 
+platforms:
+  - macos
+  - linux
+
 depends_on:
   - shell-essential

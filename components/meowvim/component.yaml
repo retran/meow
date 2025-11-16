@@ -31,5 +31,9 @@ repository:
   url: "https://github.com/retran/meowvim"
   branch: "dev"
 
+platforms:
+  - macos
+  - linux
+
 depends_on:
   - neovim

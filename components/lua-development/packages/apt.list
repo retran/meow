@@ -1,1 +1,3 @@
-
+luacheck
+luarocks
+stylua

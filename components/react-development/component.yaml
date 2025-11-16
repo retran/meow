@@ -28,5 +28,9 @@
 description: >-
   React framework tools, testing utilities, and development scaffolding
 
+platforms:
+  - macos
+  - linux
+
 depends_on:
   - js-development

@@ -27,5 +27,9 @@
 #
 description: "Rust toolchain, cargo extensions, and debugging support"
 
+platforms:
+  - macos
+  - linux
+
 depends_on:
   - development-essential

@@ -28,5 +28,9 @@
 description: >-
   JavaScript/TypeScript runtime, language servers, and development tools
 
+platforms:
+  - macos
+  - linux
+
 depends_on:
   - development-essential

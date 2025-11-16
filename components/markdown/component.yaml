@@ -28,5 +28,9 @@
 description: >-
   Technical writing and documentation tools with linting and static site generation
 
+platforms:
+  - macos
+  - linux
+
 depends_on:
   - development-essential

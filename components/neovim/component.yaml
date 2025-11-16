@@ -29,5 +29,9 @@ description: >-
   Neovim text editor with essential plugins and configurations.
   Provides a modern vim-compatible editor for terminal-based editing.
 
+platforms:
+  - macos
+  - linux
+
 depends_on:
   - shell-essential

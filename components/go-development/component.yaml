@@ -27,5 +27,9 @@
 #
 description: "Go compiler, language server, debugging tools, and development utilities"
 
+platforms:
+  - macos
+  - linux
+
 depends_on:
   - development-essential

@@ -28,5 +28,9 @@
 description: >-
   Web development stack with CSS frameworks, build tools, and deployment utilities
 
+platforms:
+  - macos
+  - linux
+
 depends_on:
   - react-development

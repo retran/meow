@@ -113,23 +113,26 @@ is_component_available() {
 
   [ -f "$component_file" ] || return 1
 
-  if yaml_path_exists "$component_file" ".platforms"; then
-    local current_platform
-    current_platform=$(get_platform)
-    local platform_supported=false
-    local platform_name
+  if ! yaml_path_exists "$component_file" ".platforms"; then
+    ui_error "$(_f "Component '%s' is missing required 'platforms' declaration." "$component")"
+    return 1
+  fi
 
-    while IFS= read -r platform_name; do
-      platform_name=$(echo "$platform_name" | tr -d '"')
-      if [ -n "$platform_name" ] && [ "$platform_name" = "$current_platform" ]; then
-        platform_supported=true
-        break
-      fi
-    done < <(read_yaml_array "$component_file" ".platforms[]" 2>/dev/null)
+  local current_platform
+  current_platform=$(get_platform)
+  local platform_supported=false
+  local platform_name
 
-    if [ "$platform_supported" = "false" ]; then
-      return 1
+  while IFS= read -r platform_name; do
+    platform_name=$(echo "$platform_name" | tr -d '"')
+    if [ -n "$platform_name" ] && [ "$platform_name" = "$current_platform" ]; then
+      platform_supported=true
+      break
     fi
+  done < <(read_yaml_array "$component_file" ".platforms[]" 2>/dev/null)
+
+  if [ "$platform_supported" = "false" ]; then
+    return 1
   fi
 
   if yaml_path_exists "$component_file" ".depends_on"; then

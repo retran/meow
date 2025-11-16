@@ -27,6 +27,10 @@
 #
 description: "Cross-language development tools for version control, project management, and code collaboration"
 
+platforms:
+  - macos
+  - linux
+
 depends_on:
   - shell-essential
   - shell-development

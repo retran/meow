@@ -28,5 +28,9 @@
 description: >-
   Python runtime, version management, and language server
 
+platforms:
+  - macos
+  - linux
+
 depends_on:
   - development-essential
