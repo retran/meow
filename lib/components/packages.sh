@@ -87,7 +87,7 @@ install_component_packages() {
         package_errors=$((package_errors + 1))
       fi
     fi
-  elif [ "$IS_DEBIAN_BASED" = "true" ]; then
+  elif meow_os_is_like "debian"; then
     if [ -f "${packages_dir}/apt.list" ]; then
       if _install_packages_for_component_manager "$component" "apt"; then
         has_packages=true
@@ -169,7 +169,7 @@ uninstall_component_packages() {
   if [ "$IS_MACOS" = "true" ]; then
     _uninstall_packages_for_component_manager "$component" "homebrew"
     _uninstall_packages_for_component_manager "$component" "mas"
-  elif [ "$IS_DEBIAN_BASED" = "true" ]; then
+  elif meow_os_is_like "debian"; then
     _uninstall_packages_for_component_manager "$component" "apt"
   elif [ "$IS_RPM_BASED" = "true" ]; then
     _uninstall_packages_for_component_manager "$component" "dnf"
@@ -288,7 +288,7 @@ update_component_packages() {
     else
       package_errors=$((package_errors + 1))
     fi
-  elif [ "$IS_DEBIAN_BASED" = "true" ]; then
+  elif meow_os_is_like "debian"; then
     if _update_package_manager "apt" "apt" "$component"; then
       has_packages=true
     else

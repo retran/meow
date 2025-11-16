@@ -38,7 +38,7 @@ source "${MEOW}/lib/core/tools.sh"
 _initialize_session() {
   if [ "$IS_ALPINE" = "true" ]; then
     ui_spinner "Initializing Alpine Linux setup..." setup_apk ""
-  elif [ "$IS_DEBIAN_BASED" = "true" ]; then
+  elif meow_os_is_like "debian"; then
     ui_spinner "Initializing Debian/Ubuntu setup..." setup_apt ""
   elif [ "$IS_RPM_BASED" = "true" ]; then
     ui_spinner "Initializing RPM setup..." setup_dnf ""
@@ -60,7 +60,7 @@ _initialize_session() {
 _finalize_session() {
   if [ "$IS_ALPINE" = "true" ]; then
     cleanup_apk ""
-  elif [ "$IS_DEBIAN_BASED" = "true" ]; then
+  elif meow_os_is_like "debian"; then
     cleanup_apt ""
   elif [ "$IS_RPM_BASED" = "true" ]; then
     cleanup_dnf ""

@@ -59,7 +59,7 @@ is_preset_available() {
     local current_platform=""
     if [ "$IS_MACOS" = "true" ]; then
       current_platform="macos"
-    elif [ "$IS_DEBIAN_BASED" = "true" ]; then
+    elif meow_os_is_like "debian"; then
       current_platform="linux"
     elif [ "$IS_ALPINE" = "true" ]; then
       current_platform="linux"

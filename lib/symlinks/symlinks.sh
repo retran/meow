@@ -166,7 +166,7 @@ setup_component_symlinks_from_file() {
       should_create=true
     elif [ "$os" = "macos" ] && [ "$IS_MACOS" = "true" ]; then
       should_create=true
-    elif [ "$os" = "linux" ] && [ "$IS_DEBIAN_BASED" = "true" ]; then
+    elif [ "$os" = "linux" ] && meow_os_is_like "debian"; then
       should_create=true
     fi
 
