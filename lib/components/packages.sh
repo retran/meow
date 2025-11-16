@@ -41,11 +41,13 @@ source "${MEOW}/lib/package/mas.sh"
 source "${MEOW}/lib/package/apt.sh"
 source "${MEOW}/lib/package/apk.sh"
 source "${MEOW}/lib/package/pacman.sh"
+source "${MEOW}/lib/package/dnf.sh"
 source "${MEOW}/lib/package/pipx.sh"
 source "${MEOW}/lib/package/npm.sh"
 source "${MEOW}/lib/package/go.sh"
 source "${MEOW}/lib/package/cargo.sh"
 source "${MEOW}/lib/package/vscode.sh"
+source "${MEOW}/lib/package/snap.sh"
 
 install_component_packages() {
   local component="$1"
@@ -93,6 +95,14 @@ install_component_packages() {
         package_errors=$((package_errors + 1))
       fi
     fi
+  elif [ "$IS_RPM_BASED" = "true" ]; then
+    if [ -f "${packages_dir}/dnf.list" ]; then
+      if _install_packages_for_component_manager "$component" "dnf"; then
+        has_packages=true
+      else
+        package_errors=$((package_errors + 1))
+      fi
+    fi
   elif [ "$IS_ALPINE" = "true" ]; then
     if [ -f "${packages_dir}/apk.list" ]; then
       if _install_packages_for_component_manager "$component" "apk"; then
@@ -111,7 +121,7 @@ install_component_packages() {
     fi
   fi
 
-  for mgr in pipx npm go cargo vscode; do
+  for mgr in pipx npm go cargo vscode snap; do
     if [ -f "${packages_dir}/${mgr}.list" ]; then
       if _install_packages_for_component_manager "$component" "$mgr"; then
         has_packages=true
@@ -161,13 +171,15 @@ uninstall_component_packages() {
     _uninstall_packages_for_component_manager "$component" "mas"
   elif [ "$IS_DEBIAN_BASED" = "true" ]; then
     _uninstall_packages_for_component_manager "$component" "apt"
+  elif [ "$IS_RPM_BASED" = "true" ]; then
+    _uninstall_packages_for_component_manager "$component" "dnf"
   elif [ "$IS_ALPINE" = "true" ]; then
     _uninstall_packages_for_component_manager "$component" "apk"
   elif [ "$IS_ARCH" = "true" ]; then
     _uninstall_packages_for_component_manager "$component" "pacman"
   fi
 
-  for mgr in pipx npm go cargo vscode; do
+  for mgr in pipx npm go cargo vscode snap; do
     _uninstall_packages_for_component_manager "$component" "$mgr"
   done
 
@@ -226,6 +238,10 @@ _update_package_manager() {
   local component="$3"
   local packages_file="${MEOW_COMPONENTS_DIR}/${component}/packages/${manager_name}.list"
 
+  if [ "$manager_name" = "dnf" ]; then
+    cli_command=$(_get_dnf_command) || return 0
+  fi
+
   if ! command -v "$cli_command" >/dev/null 2>&1; then
     return 0
   fi
@@ -278,6 +294,12 @@ update_component_packages() {
     else
       package_errors=$((package_errors + 1))
     fi
+  elif [ "$IS_RPM_BASED" = "true" ]; then
+    if _update_package_manager "dnf" "dnf" "$component"; then
+      has_packages=true
+    else
+      package_errors=$((package_errors + 1))
+    fi
   elif [ "$IS_ALPINE" = "true" ]; then
     if _update_package_manager "apk" "apk" "$component"; then
       has_packages=true
@@ -292,7 +314,7 @@ update_component_packages() {
     fi
   fi
 
-  for mgr in pipx npm go cargo vscode; do
+  for mgr in pipx npm go cargo vscode snap; do
     if _update_package_manager "$mgr" "$mgr" "$component"; then
       has_packages=true
     else

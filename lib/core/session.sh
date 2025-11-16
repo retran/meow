@@ -40,6 +40,8 @@ _initialize_session() {
     ui_spinner "Initializing Alpine Linux setup..." setup_apk ""
   elif [ "$IS_DEBIAN_BASED" = "true" ]; then
     ui_spinner "Initializing Debian/Ubuntu setup..." setup_apt ""
+  elif [ "$IS_RPM_BASED" = "true" ]; then
+    ui_spinner "Initializing RPM setup..." setup_dnf ""
   elif [ "$IS_ARCH" = "true" ]; then
     ui_spinner "Initializing Arch Linux setup..." setup_pacman ""
   elif [ "$IS_MACOS" = "true" ]; then
@@ -60,6 +62,8 @@ _finalize_session() {
     cleanup_apk ""
   elif [ "$IS_DEBIAN_BASED" = "true" ]; then
     cleanup_apt ""
+  elif [ "$IS_RPM_BASED" = "true" ]; then
+    cleanup_dnf ""
   elif [ "$IS_ARCH" = "true" ]; then
     cleanup_pacman ""
   elif [ "$IS_MACOS" = "true" ]; then

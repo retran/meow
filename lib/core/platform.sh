@@ -35,6 +35,7 @@ IS_MACOS=false
 IS_DEBIAN_BASED=false
 IS_ALPINE=false
 IS_ARCH=false
+IS_RPM_BASED=false
 
 if [ "$(uname -s)" = "Darwin" ]; then
   IS_MACOS=true
@@ -69,6 +70,19 @@ if [ -f "/etc/os-release" ]; then
   case "$ID_LIKE_LOWER" in
     *"debian"*)
       IS_DEBIAN_BASED=true
+      ;;
+  esac
+
+  case "$ID_LOWER" in
+    rhel | centos | rocky | almalinux | fedora)
+      IS_RPM_BASED=true
+      ;;
+    *)
+      case "$ID_LIKE_LOWER" in
+        *"rhel"* | *"fedora"* | *"centos"* | *"rocky"* | *"almalinux"*)
+          IS_RPM_BASED=true
+          ;;
+      esac
       ;;
   esac
 fi
