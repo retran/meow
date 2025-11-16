@@ -1,3 +1,5 @@
 description: Terminal emulator applications and configurations. Includes Alacritty
   with custom configurations.
 platforms:
+- match:
+    platform: macos

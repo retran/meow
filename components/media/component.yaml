@@ -1,2 +1,4 @@
 description: Media production and streaming tools
 platforms:
+- match:
+    platform: macos

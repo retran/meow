@@ -1,2 +1,4 @@
 description: Lua runtime, language server, linting, and package management tools
 platforms:
+- match:
+    platform: macos

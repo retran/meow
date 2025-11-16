@@ -1,2 +1,4 @@
 description: Web browsers and related tools. Includes Google Chrome and browser extensions.
 platforms:
+- match:
+    platform: macos

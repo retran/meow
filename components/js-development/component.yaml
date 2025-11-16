@@ -1,2 +1,4 @@
 description: JavaScript/TypeScript runtime, language servers, and development tools
 platforms:
+- match:
+    platform: macos

@@ -1,5 +1,6 @@
 description: Python development litterbox setup with data science and web frameworks
 extends:
+- base
 - litterbox-essential
 required:
 - python-development

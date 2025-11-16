@@ -1,3 +1,5 @@
 description: Web development stack with CSS frameworks, build tools, and deployment
   utilities
 platforms:
+- match:
+    platform: macos

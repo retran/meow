@@ -1,2 +1,4 @@
 description: Lua-based macOS automation framework for system customization
 platforms:
+- match:
+    platform: macos

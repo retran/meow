@@ -1,3 +1,5 @@
 description: Business communication and collaboration applications. Includes professional
   tools for work environments (Slack, Zoom).
 platforms:
+- match:
+    platform: macos

@@ -1,2 +1,4 @@
 description: React framework tools, testing utilities, and development scaffolding
 platforms:
+- match:
+    platform: macos

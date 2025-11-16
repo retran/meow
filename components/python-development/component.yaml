@@ -1,2 +1,4 @@
 description: Python runtime, version management, and language server
 platforms:
+- match:
+    platform: macos

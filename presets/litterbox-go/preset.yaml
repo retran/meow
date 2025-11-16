@@ -1,5 +1,6 @@
 description: Go development litterbox setup for backend services
 extends:
+- base
 - litterbox-essential
 required:
 - go-development

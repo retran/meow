@@ -54,3 +54,5 @@ packages:
     include:
     - apk
 required: []
+extends:
+- base

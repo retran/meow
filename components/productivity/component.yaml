@@ -1,2 +1,4 @@
 description: Project management and workflow optimization tools
 platforms:
+- match:
+    platform: macos

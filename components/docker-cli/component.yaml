@@ -1,2 +1,4 @@
 description: Docker CLI tools for remote container management from development environments
 platforms:
+- match:
+    platform: macos

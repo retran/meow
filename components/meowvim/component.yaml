@@ -3,3 +3,5 @@ repository:
   url: https://github.com/retran/meowvim
   branch: dev
 platforms:
+- match:
+    platform: macos

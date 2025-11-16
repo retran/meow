@@ -1,3 +1,5 @@
 description: Vim mode-based keyboard layout switching for Neovide and Alacritty
 type: hammerspoon
 platforms:
+- match:
+    platform: macos

@@ -1,2 +1,4 @@
 description: IntelliJ IDEA IDE for Kotlin development
 platforms:
+- match:
+    platform: macos

@@ -1,2 +1,4 @@
 description: Developer fonts including Nerd Fonts for terminal applications
 platforms:
+- match:
+    platform: macos
