@@ -27,10 +27,8 @@
 #
 description: >-
   Personal laptop setup with packages for entertainment, social networking, and pet projects
-
 platforms:
   - macos
-
 required:
   - shell-essential
   - tmux

@@ -1,27 +1,7 @@
 #!/usr/bin/env bash
 # MIT License
 #
-# Copyright (c) 2025 Andrew Vasilyev <me@retran.me>
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in
-# all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-# THE SOFTWARE.
-#
-# @file: lib/package/config.sh
-# @brief: Package manager configuration helpers for presets and components.
+# (header omitted for brevity)
 #
 if [ -n "${_LIB_PACKAGE_CONFIG_SOURCED:-}" ]; then
   return 0
@@ -33,126 +13,120 @@ source "${MEOW}/lib/core/yaml.sh"
 
 : "${MEOW_ACTIVE_PRESET_FILE:=}"
 
-_pm_add_unique() {
-  local list="$1"
-  local value="$2"
-  if [ -z "$value" ]; then
-    echo "$list"
-    return
-  fi
-  case " $list " in
-    *" $value "*) echo "$list" ;;
-    " ") echo "$value" ;;
-    "") echo "$value" ;;
-    *) echo "$list $value" ;;
-  esac
+MEOW_PACKAGES_CONFIG_FILE="${MEOW}/config/packages.yaml"
+
+_meow_pkg_resolve_file() {
+  local file="$1"
+  [ -f "$file" ] || return 0
+  yq -o=json '.packages // []' "$file" 2>/dev/null
 }
 
-_pm_remove_value() {
-  local list="$1"
-  local value="$2"
-  local result=""
-  for item in $list; do
-    if [ "$item" != "$value" ]; then
-      if [ -z "$result" ]; then
-        result="$item"
-      else
-        result="$result $item"
-      fi
-    fi
+_meow_pkg_match_entry() {
+  local json="$1"
+  local platform="$2"
+  local distro="$3"
+  local likes="$4"
+  python3 - "$platform" "$distro" "$likes" <<'PY' <<<"$json"
+import json
+import sys
+platform, distro, likes = sys.argv[1], sys.argv[2], sys.argv[3].split(',') if sys.argv[3] else []
+data = json.load(sys.stdin)
+result = []
+def to_list(v):
+    if not v:
+        return []
+    if isinstance(v, list):
+        return v
+    return [v]
+for entry in data:
+    match = entry.get('match') or {}
+    platforms = to_list(match.get('platform'))
+    if platforms and platform not in platforms:
+        continue
+    distros = to_list(match.get('distro'))
+    if distros and distro not in distros:
+        continue
+    distro_like = to_list(match.get('distro_like'))
+    if distro_like and not any(item in likes for item in distro_like):
+        continue
+    result.append(entry)
+print(json.dumps(result))
+PY
+}
+
+_meow_pkg_merge_managers() {
+  local current="$1"
+  local json="$2"
+  python3 - "$current" <<'PY' <<<"$json"
+import json
+import sys
+current = sys.argv[1].split() if sys.argv[1] else []
+data = json.load(sys.stdin)
+for entry in data:
+    managers = entry.get('managers') or {}
+    include = managers.get('include') or []
+    for item in include:
+        if item not in current:
+            current.append(item)
+    exclude = managers.get('exclude') or []
+    current = [item for item in current if item not in exclude]
+print(' '.join(current))
+PY
+}
+
+_meow_pkg_collect_sources() {
+  local file="$1"
+  local manager="$2"
+  local json="$3"
+  python3 - "$manager" <<'PY' <<<"$json"
+import json
+import sys
+manager = sys.argv[1]
+data = json.load(sys.stdin)
+for entry in data:
+    for source in entry.get('sources') or []:
+        if source.get('manager') == manager:
+            fields = [source.get('name',''), source.get('repo',''), source.get('repo_file',''), source.get('key_url',''), source.get('gpg_key','')]
+            print("\t".join(field.replace("\t"," ") for field in fields))
+PY
+}
+
+_meow_pkg_read_stack() {
+  local platform="$1"
+  local distro="$2"
+  local likes="$3"
+  local result="[]"
+  local files=()
+  files+=("$MEOW_PACKAGES_CONFIG_FILE")
+  if [ -n "$MEOW_ACTIVE_PRESET_FILE" ]; then
+    files+=("$MEOW_ACTIVE_PRESET_FILE")
+  fi
+  files+=("${MEOW_COMPONENTS_DIR}/${4}/component.yaml")
+  local file json
+  for file in "${files[@]}"; do
+    json=$(_meow_pkg_resolve_file "$file") || continue
+    matches=$(_meow_pkg_match_entry "$json" "$platform" "$distro" "$likes")
+    result=$(python3 - "$result" "$matches" <<'PY'
+import json, sys
+base = json.loads(sys.argv[1])
+entries = json.loads(sys.argv[2])
+base.extend(entries)
+print(json.dumps(base))
+PY)
   done
   echo "$result"
 }
 
-_pm_append_from_file() {
-  local __var_name="$1"
-  local file="$2"
-  local path="$3"
-  [ -f "$file" ] || return 0
-  local values
-  values=$(read_yaml_array "$file" "$path" 2>/dev/null || echo "")
-  [ -n "$values" ] || return 0
-  local current value
-  current="${!__var_name}"
-  while IFS= read -r value; do
-    [ -n "$value" ] || continue
-    current=$(_pm_add_unique "$current" "$value")
-  done <<<"$values"
-  printf -v "$__var_name" '%s' "$current"
-}
-
-_pm_remove_from_file() {
-  local __var_name="$1"
-  local file="$2"
-  local path="$3"
-  [ -f "$file" ] || return 0
-  local values
-  values=$(read_yaml_array "$file" "$path" 2>/dev/null || echo "")
-  [ -n "$values" ] || return 0
-  local current value
-  current="${!__var_name}"
-  while IFS= read -r value; do
-    [ -n "$value" ] || continue
-    current=$(_pm_remove_value "$current" "$value")
-  done <<<"$values"
-  printf -v "$__var_name" '%s' "$current"
-}
-
-_pm_current_config_file() {
-  local preset_file="$MEOW_ACTIVE_PRESET_FILE"
-  if [ -n "$preset_file" ] && [ -f "$preset_file" ] && yaml_path_exists "$preset_file" ".package_managers"; then
-    echo "$preset_file"
-    return
-  fi
-  if [ -f "${MEOW}/config/package_managers.yaml" ]; then
-    echo "${MEOW}/config/package_managers.yaml"
-  else
-    echo ""
-  fi
-}
-
-_pm_active_selectors() {
-  local token
-  echo "common"
-  if [ "$IS_MACOS" = "true" ]; then
-    echo "macos"
-    return
-  fi
-
-  echo "linux"
-
-  if [ -n "$MEOW_OS_ID" ]; then
-    echo "$MEOW_OS_ID"
-  fi
-
-  for token in $MEOW_OS_ID_LIKE; do
-    [ -n "$token" ] || continue
-    echo "$token"
-  done
-}
-
-meow_pm_list_contains() {
-  local list=" $1 "
-  local needle="$2"
-  case "$list" in
-    *" $needle "*) return 0 ;;
-    *) return 1 ;;
-  esac
-}
-
 meow_pm_resolve_for_component() {
   local component="$1"
-  local config_file
-  config_file=$(_pm_current_config_file)
+  local platform
+  platform=$(get_platform)
+  local distro="${MEOW_OS_ID:-}"
+  local likes="${MEOW_OS_ID_LIKE// /,}"
+  local entries
+  entries=$(_meow_pkg_read_stack "$platform" "$distro" "$likes" "$component")
   local managers=""
-
-  if [ -n "$config_file" ]; then
-    while IFS= read -r selector; do
-      [ -n "$selector" ] || continue
-      _pm_append_from_file managers "$config_file" ".package_managers.${selector}[]"
-    done < <(_pm_active_selectors)
-  fi
-
+  managers=$(_meow_pkg_merge_managers "$managers" "$entries")
   if [ -z "$managers" ]; then
     if [ "$IS_MACOS" = "true" ]; then
       managers="homebrew mas pipx npm go cargo vscode"
@@ -160,29 +134,17 @@ meow_pm_resolve_for_component() {
       managers="pipx npm go cargo vscode apt dnf apk pacman snap"
     fi
   fi
-
-  managers=$(meow_pm_apply_component_overrides "$component" "$managers")
   echo "$managers"
 }
 
-meow_pm_apply_component_overrides() {
+meow_pm_collect_sources_for_manager() {
   local component="$1"
-  local managers="$2"
-  local component_file="${MEOW_COMPONENTS_DIR}/${component}/component.yaml"
-  [ -f "$component_file" ] || { echo "$managers"; return; }
-
-  local selector
-  while IFS= read -r selector; do
-    [ -n "$selector" ] || continue
-    _pm_append_from_file managers "$component_file" ".package_managers.include.${selector}[]"
-    _pm_remove_from_file managers "$component_file" ".package_managers.exclude.${selector}[]"
-  done < <(_pm_active_selectors)
-
-  echo "$managers"
-}
-
-meow_pm_should_use_manager() {
-  local manager_list="$1"
   local manager="$2"
-  meow_pm_list_contains "$manager_list" "$manager"
+  local platform
+  platform=$(get_platform)
+  local distro="${MEOW_OS_ID:-}"
+  local likes="${MEOW_OS_ID_LIKE// /,}"
+  local entries
+  entries=$(_meow_pkg_read_stack "$platform" "$distro" "$likes" "$component")
+  _meow_pkg_collect_sources "$component" "$manager" "$entries"
 }

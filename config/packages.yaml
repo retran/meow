@@ -1,4 +1,4 @@
-package_managers:
+packages:
   - match:
       platform: macos
     include: [homebrew, mas, pipx, npm, go, cargo, vscode]

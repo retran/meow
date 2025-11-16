@@ -27,10 +27,8 @@
 #
 description: >-
   Professional laptop setup
-
 platforms:
   - macos
-
 required:
   - shell-essential
   - tmux

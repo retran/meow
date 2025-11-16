@@ -27,10 +27,8 @@
 #
 description: >-
   .NET development litterbox setup with C# and related tooling
-
 platforms:
   - linux
-
 required:
   - neovim
   - development-essential

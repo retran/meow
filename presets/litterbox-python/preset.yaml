@@ -27,10 +27,8 @@
 #
 description: >-
   Python development litterbox setup with data science and web frameworks
-
 platforms:
   - linux
-
 required:
   - neovim
   - development-essential

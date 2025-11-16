@@ -27,10 +27,8 @@
 #
 description: >-
   Professional laptop setup (WSL)
-
 platforms:
   - linux
-
 required:
   - shell-essential
   - tmux

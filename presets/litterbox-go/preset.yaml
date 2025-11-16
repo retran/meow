@@ -27,10 +27,8 @@
 #
 description: >-
   Go development litterbox setup for backend services
-
 platforms:
   - linux
-
 required:
   - neovim
   - development-essential

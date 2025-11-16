@@ -1118,6 +1118,8 @@ _uninstall_single_component() {
     fi
   fi
 
+  cleanup_component_sources "$component"
+
   if [[ "$MEOW_VERBOSE" = "true" ]]; then
     ui_step_header "$(_f "Removing component tracking for %s" "$component")"
   fi

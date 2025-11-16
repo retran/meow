@@ -37,6 +37,7 @@ source "${MEOW}/lib/core/defs.sh"
 source "${MEOW}/lib/core/platform.sh"
 source "${MEOW}/lib/package/common.sh"
 source "${MEOW}/lib/package/config.sh"
+source "${MEOW}/lib/package/sources.sh"
 source "${MEOW}/lib/package/homebrew.sh"
 source "${MEOW}/lib/package/mas.sh"
 source "${MEOW}/lib/package/apt.sh"
@@ -77,6 +78,7 @@ install_component_packages() {
 
   if [ "$IS_MACOS" = "true" ]; then
     if meow_pm_should_use_manager "$active_managers" "homebrew" && [ -f "${packages_dir}/homebrew.list" ]; then
+      apply_component_sources "$component" "homebrew"
       if _install_packages_for_component_manager "$component" "homebrew"; then
         has_packages=true
       else
@@ -84,6 +86,7 @@ install_component_packages() {
       fi
     fi
     if meow_pm_should_use_manager "$active_managers" "mas" && [ -f "${packages_dir}/mas.list" ]; then
+      apply_component_sources "$component" "mas"
       if _install_packages_for_component_manager "$component" "mas"; then
         has_packages=true
       else
@@ -92,6 +95,7 @@ install_component_packages() {
     fi
   elif meow_os_is_like "debian"; then
     if meow_pm_should_use_manager "$active_managers" "apt" && [ -f "${packages_dir}/apt.list" ]; then
+      apply_component_sources "$component" "apt"
       if _install_packages_for_component_manager "$component" "apt"; then
         has_packages=true
       else
@@ -100,6 +104,7 @@ install_component_packages() {
     fi
   elif [ "$IS_RPM_BASED" = "true" ]; then
     if meow_pm_should_use_manager "$active_managers" "dnf" && [ -f "${packages_dir}/dnf.list" ]; then
+      apply_component_sources "$component" "dnf"
       if _install_packages_for_component_manager "$component" "dnf"; then
         has_packages=true
       else
@@ -300,10 +305,16 @@ update_component_packages() {
   active_managers="$(meow_pm_resolve_for_component "$component")"
 
   if [ "$IS_MACOS" = "true" ]; then
+    if meow_pm_should_use_manager "$active_managers" "homebrew"; then
+      apply_component_sources "$component" "homebrew"
+    fi
     if meow_pm_should_use_manager "$active_managers" "homebrew" && _update_package_manager "homebrew" "brew" "$component"; then
       has_packages=true
     elif meow_pm_should_use_manager "$active_managers" "homebrew"; then
       package_errors=$((package_errors + 1))
+    fi
+    if meow_pm_should_use_manager "$active_managers" "mas"; then
+      apply_component_sources "$component" "mas"
     fi
     if meow_pm_should_use_manager "$active_managers" "mas" && _update_package_manager "mas" "mas" "$component"; then
       has_packages=true
@@ -311,12 +322,18 @@ update_component_packages() {
       package_errors=$((package_errors + 1))
     fi
   elif meow_os_is_like "debian"; then
+    if meow_pm_should_use_manager "$active_managers" "apt"; then
+      apply_component_sources "$component" "apt"
+    fi
     if meow_pm_should_use_manager "$active_managers" "apt" && _update_package_manager "apt" "apt" "$component"; then
       has_packages=true
     elif meow_pm_should_use_manager "$active_managers" "apt"; then
       package_errors=$((package_errors + 1))
     fi
   elif [ "$IS_RPM_BASED" = "true" ]; then
+    if meow_pm_should_use_manager "$active_managers" "dnf"; then
+      apply_component_sources "$component" "dnf"
+    fi
     if meow_pm_should_use_manager "$active_managers" "dnf" && _update_package_manager "dnf" "dnf" "$component"; then
       has_packages=true
     elif meow_pm_should_use_manager "$active_managers" "dnf"; then

@@ -27,10 +27,8 @@
 #
 description: >-
   Rust development litterbox setup with systems programming tools
-
 platforms:
   - linux
-
 required:
   - neovim
   - development-essential
