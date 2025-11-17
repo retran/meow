@@ -96,7 +96,7 @@ cache_package_list() {
   if [ -z "${!cache_var:-}" ]; then
     ui_verbose_action_start "$(_f "Caching installed %s packages..." "$manager")"
     local output
-    output="$($list_command)"
+    output="$(eval "$list_command" 2>/dev/null || true)"
     eval "$cache_var=\"\$output\""
     ui_verbose_action_success "$(_f "Successfully cached %s packages." "$manager")"
   fi

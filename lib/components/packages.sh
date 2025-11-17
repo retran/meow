@@ -96,6 +96,13 @@ install_component_packages() {
   elif meow_os_is_like "debian"; then
     if meow_pm_should_use_manager "$active_managers" "apt" && [ -f "${packages_dir}/apt.list" ]; then
       apply_component_sources "$component" "apt"
+       if [ "${MEOW_APT_SOURCES_CHANGED:-0}" = "1" ]; then
+         ui_spinner "APT: Updating package index for new sources" \
+           --success "APT: Package index updated successfully." \
+           --fail "APT: Failed to update package index." \
+           sudo apt-get update
+         MEOW_APT_SOURCES_CHANGED=0
+       fi
       if _install_packages_for_component_manager "$component" "apt"; then
         has_packages=true
       else

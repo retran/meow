@@ -243,6 +243,7 @@ _ps_apply_apt_source() {
   fi
 
   _ps_record_source "$component" "$slug" "apt" "$list_path" "$key_path"
+  MEOW_APT_SOURCES_CHANGED=1
 }
 
 _ps_apply_dnf_source() {

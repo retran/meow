@@ -47,7 +47,7 @@ _get_dnf_command() {
 }
 
 _cache_installed_dnf_packages() {
-  cache_package_list "dnf" "rpm -qa --qf '%{NAME}\n' 2>/dev/null"
+  cache_package_list "dnf" "rpm -qa --qf '%{NAME}\n'"
 }
 
 is_dnf_package_installed() {

@@ -338,5 +338,9 @@ show_motd() {
   fi
 
   display_art_and_stats "$art_content" "$stats_content"
-  tput cnorm
+  if [ "${MEOW_TPUT_SUPPORTED:-0}" -eq 1 ]; then
+    tput cnorm >/dev/null 2>&1 || true
+  else
+    printf '\033[?25h'
+  fi
 }

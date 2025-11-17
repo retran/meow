@@ -136,6 +136,40 @@ ui_list_item() { _icon_msg_core "${NORMAL}    " "$@"; }
 ui_emphasis() { _icon_msg_core "${BOLD}" "$@"; }
 ui_indent() { _icon_msg_core "${NORMAL}  ↳ " "$@"; }
 
+_meow_hide_cursor() {
+  if [ "${MEOW_TPUT_SUPPORTED:-0}" -eq 1 ]; then
+    tput civis 2>/dev/null || true
+  else
+    printf '\033[?25l'
+  fi
+}
+
+_meow_show_cursor() {
+  if [ "${MEOW_TPUT_SUPPORTED:-0}" -eq 1 ]; then
+    tput cnorm 2>/dev/null || true
+  else
+    printf '\033[?25h'
+  fi
+}
+
+_meow_clear_line_sequence() {
+  if [ "${MEOW_TPUT_SUPPORTED:-0}" -eq 1 ]; then
+    tput el 2>/dev/null
+  else
+    printf '\033[K'
+  fi
+}
+
+_meow_spinner_color() {
+  if [ -n "${YELLOW:-}" ]; then
+    printf '%s' "$YELLOW"
+  elif [ "${MEOW_TPUT_SUPPORTED:-0}" -eq 1 ]; then
+    tput setaf 3 2>/dev/null || printf ''
+  else
+    printf ''
+  fi
+}
+
 ui_verbose_action_start() {
   if [ "$MEOW_VERBOSE" = "true" ]; then
     ui_action_start "$@"
@@ -223,8 +257,8 @@ ui_silent_spinner() {
   {
     local spinner_chars="⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"
     local i=0
-    local spinner_color="${YELLOW:-$(tput setaf 3)}"
-    tput civis || true
+    local spinner_color="$(_meow_spinner_color)"
+    _meow_hide_cursor
     while true; do
       local char="${spinner_chars:$((i % ${#spinner_chars})):1}"
       printf "\r%b%s%b %s" "${spinner_color}" "$char" "${RESET}" "$msg"
@@ -243,8 +277,8 @@ ui_silent_spinner() {
   kill "$spinner_pid" 2>/dev/null || true
   wait "$spinner_pid" 2>/dev/null || true
 
-  printf "\r%s" "$(tput el)"
-  tput cnorm || true
+  printf "\r%s" "$(_meow_clear_line_sequence)"
+  _meow_show_cursor
 
   rm -f "$temp_output_file"
   return "$cmd_exit_status"
@@ -289,14 +323,14 @@ ui_spinner() {
   local delay=0.1
   local spinstr='⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏'
   local temp_output_file
-  local spinner_color="${YELLOW:-$(tput setaf 3)}"
+  local spinner_color="$(_meow_spinner_color)"
 
   temp_output_file=$(mktemp "${TMPDIR:-/tmp}/spinner_output.XXXXXX") || {
     ui_error "Failed to create temporary file for spinner output."
     return 1
   }
 
-  tput civis || true
+  _meow_hide_cursor
 
   printf "%b%s%b %b%s%b" "${spinner_color}" "${spinstr:0:1}" "${RESET}" "${NORMAL}" "$msg" "${RESET}"
 
@@ -319,9 +353,8 @@ ui_spinner() {
     cmd_exit_status=$?
   fi
 
-  printf "\r%s" "$(tput el)"
-
-  tput cnorm || true
+  printf "\r%s" "$(_meow_clear_line_sequence)"
+  _meow_show_cursor
 
   local final_success_msg="${success_msg:-${msg} completed successfully.}"
   local final_fail_msg="${fail_msg:-${msg} failed.}"
