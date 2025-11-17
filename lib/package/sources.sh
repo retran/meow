@@ -252,6 +252,7 @@ _ps_apply_apt_source() {
     echo "$repo"
   } | sudo tee "$list_path" >/dev/null
 
+  local key_installed="false"
   if [ -n "$key_url" ]; then
     key_path="/etc/apt/trusted.gpg.d/${slug}.gpg"
     local tmp_key=""
@@ -267,22 +268,36 @@ _ps_apply_apt_source() {
           downloaded="true"
         fi
       fi
-      if [ "$downloaded" != "true" ]; then
-        rm -f "$tmp_key"
-        tmp_key=""
+
+      if [ "$downloaded" = "true" ] && [ -s "$tmp_key" ]; then
+        sudo mkdir -p /etc/apt/trusted.gpg.d >/dev/null 2>&1 || true
+        if command -v gpg >/dev/null 2>&1; then
+          local tmp_key_bin=""
+          tmp_key_bin=$(mktemp 2>/dev/null) || true
+          if [ -n "$tmp_key_bin" ]; then
+            if gpg --yes --dearmor -o "$tmp_key_bin" "$tmp_key" >/dev/null 2>&1; then
+              if sudo install -m 0644 "$tmp_key_bin" "$key_path" >/dev/null 2>&1; then
+                key_installed="true"
+              fi
+            fi
+            rm -f "$tmp_key_bin"
+          fi
+        fi
+
+        if [ "$key_installed" != "true" ]; then
+          if sudo tee "$key_path" >/dev/null 2>&1 <"$tmp_key"; then
+            key_installed="true"
+          fi
+        fi
       fi
+
+      rm -f "$tmp_key"
     fi
 
-    if [ -n "$tmp_key" ] && [ -s "$tmp_key" ]; then
-      sudo mkdir -p /etc/apt/trusted.gpg.d >/dev/null 2>&1 || true
-      if command -v gpg >/dev/null 2>&1; then
-        gpg --dearmor <"$tmp_key" | sudo tee "$key_path" >/dev/null 2>&1 || true
-      else
-        sudo tee "$key_path" >/dev/null <"$tmp_key"
-      fi
-      rm -f "$tmp_key"
-    else
+    if [ "$key_installed" != "true" ]; then
       key_path=""
+      sudo rm -f "$list_path" >/dev/null 2>&1 || true
+      return 1
     fi
   fi
 
