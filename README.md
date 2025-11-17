@@ -242,6 +242,7 @@ All container presets are optimized for Linux development environments.
 ### ⚒️ Development Tools
 
 - **visual-studio-code** - VS Code IDE with essential extensions (GitHub Copilot, themes, containers) (macOS only)
+- **visual-studio-code-cli** - VS Code CLI for Remote Tunnels (`code tunnel`) installed from Microsoft's official update service (Linux)
 - **shell-development** - Shell scripting tools, linting, and language server support
 - **markdown** - Markdown editing and preview tools
 - **meowvim** - Custom Neovim configuration from GitHub repository

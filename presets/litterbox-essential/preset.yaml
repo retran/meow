@@ -8,3 +8,4 @@ required:
 - development-essential
 - docker-cli
 - markdown
+- visual-studio-code-cli
