@@ -212,7 +212,8 @@ install_component() {
   }
 
   MEOW_INSTALLING_COMPONENTS=()
-  local installed_this_session=()
+  local failed_component=""
+  local failed_component_is_requested="false"
 
   local install_success="true"
   for component in "${multiple_installation_order[@]}"; do
@@ -235,20 +236,16 @@ install_component() {
     if ! _install_single_component "$component" "$comp_is_manual" "$comp_is_dependency" "$force_install"; then
       ui_error "$(_f "Failed to install component: %s" "$component")"
       install_success="false"
+      failed_component="$component"
+      failed_component_is_requested="$is_requested_component"
       break
-    fi
-
-    if [[ "$MEOW_LAST_COMPONENT_CHANGED" = "true" ]]; then
-      installed_this_session+=("$component")
     fi
   done
 
   if [[ "$install_success" != "true" ]]; then
-    if [[ ${#installed_this_session[@]} -gt 0 ]]; then
-      local last_idx=$((${#installed_this_session[@]} - 1))
-      local failed_comp="${installed_this_session[$last_idx]}"
-      ui_warning "$(_f "Rolling back failed component '%s'." "$failed_comp")"
-      _uninstall_single_component "$failed_comp" "true" >/dev/null 2>&1 || true
+    if [[ -n "$failed_component" ]]; then
+      ui_warning "$(_f "Rolling back failed component '%s'." "$failed_component")"
+      _uninstall_single_component "$failed_component" "$failed_component_is_requested" >/dev/null 2>&1 || true
     fi
     _finalize_session
     MEOW_INSTALLING_COMPONENTS=()

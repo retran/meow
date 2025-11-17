@@ -357,29 +357,22 @@ install_preset() {
     else
       MEOW_INSTALLING_COMPONENTS=()
     fi
-    local installed_this_session=()
 
     local install_success=true
+    local failed_component=""
     for component in "${installation_order[@]}"; do
       if ! _install_single_component "$component" false false "$force_install"; then
         ui_error "$(_f "Failed to install component '%s' for preset '%s'." "$component" "$preset")"
         install_success=false
+        failed_component="$component"
         break
-      fi
-
-      if [ "$MEOW_LAST_COMPONENT_CHANGED" = "true" ]; then
-        installed_this_session+=("$component")
       fi
     done
 
     if [ "$install_success" != "true" ]; then
-      if [ ${#installed_this_session[@]} -gt 0 ]; then
-        ui_warning "Rolling back partially installed components for preset '$preset'..."
-        for ((i = ${#installed_this_session[@]} - 1; i >= 0; i--)); do
-          local rollback_comp="${installed_this_session[$i]}"
-          ui_warning "$(_f "Rolling back '%s'." "$rollback_comp")"
-          _uninstall_single_component "$rollback_comp" "true" >/dev/null 2>&1 || true
-        done
+      if [ -n "$failed_component" ]; then
+        ui_warning "$(_f "Rolling back failed component '%s'." "$failed_component")"
+        _uninstall_single_component "$failed_component" "true" >/dev/null 2>&1 || true
       fi
       _finalize_session
       unset MEOW_INSTALLING_COMPONENTS
