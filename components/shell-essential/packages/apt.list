@@ -16,7 +16,7 @@ ripgrep
 zoxide
 htop
 findutils
-watch
+procps
 zsh-autosuggestions
 zsh-syntax-highlighting
 starship
