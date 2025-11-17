@@ -23,3 +23,6 @@ starship
 eza
 fd-find
 glow
+apt-transport-https
+ca-certificates
+gnupg
