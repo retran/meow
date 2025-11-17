@@ -35,7 +35,7 @@ source "${MEOW}/lib/package/common.sh"
 source "${MEOW}/lib/core/dry_run.sh"
 
 _cache_installed_apt_packages() {
-  cache_package_list "apt" "dpkg-query -f='\${binary:Package}\n' -W"
+  cache_package_list "apt" "dpkg-query -f='\${binary:Package}\t\${Status}\n' -W | awk '\$2==\"install\" && \$3==\"ok\" && \$4==\"installed\" {print \$1}'"
 }
 
 is_apt_package_installed() {

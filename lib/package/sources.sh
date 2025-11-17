@@ -223,8 +223,27 @@ _ps_apply_apt_source() {
   local list_path="/etc/apt/sources.list.d/${slug}.list"
   local key_path=""
 
-  if [ -f "${MEOW_PACKAGE_SOURCES_STATE_DIR}/${component}/${slug}" ]; then
-    return 0
+  local state_dir="${MEOW_PACKAGE_SOURCES_STATE_DIR}/${component}"
+  local state_file="${state_dir}/${slug}"
+  if [ -f "$state_file" ]; then
+    local idx=0
+    local recorded_manager=""
+    local recorded_paths=()
+    while IFS= read -r line; do
+      if [ $idx -eq 0 ]; then
+        recorded_manager="$line"
+      else
+        if [ -n "$line" ]; then
+          recorded_paths+=("$line")
+        fi
+      fi
+      idx=$((idx + 1))
+    done <"$state_file"
+
+    if [ "$recorded_manager" = "apt" ] && [ ${#recorded_paths[@]} -gt 0 ]; then
+      _ps_cleanup_paths "${recorded_paths[@]}"
+    fi
+    rm -f "$state_file"
   fi
 
   sudo mkdir -p /etc/apt/sources.list.d >/dev/null 2>&1 || true
