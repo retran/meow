@@ -245,12 +245,10 @@ install_component() {
 
   if [[ "$install_success" != "true" ]]; then
     if [[ ${#installed_this_session[@]} -gt 0 ]]; then
-      ui_warning "Rolling back partially installed components..."
-      for ((i = ${#installed_this_session[@]} - 1; i >= 0; i--)); do
-        local rollback_comp="${installed_this_session[$i]}"
-        ui_warning "$(_f "Rolling back '%s'." "$rollback_comp")"
-        _uninstall_single_component "$rollback_comp" "true" >/dev/null 2>&1 || true
-      done
+      local last_idx=$((${#installed_this_session[@]} - 1))
+      local failed_comp="${installed_this_session[$last_idx]}"
+      ui_warning "$(_f "Rolling back failed component '%s'." "$failed_comp")"
+      _uninstall_single_component "$failed_comp" "true" >/dev/null 2>&1 || true
     fi
     _finalize_session
     MEOW_INSTALLING_COMPONENTS=()
