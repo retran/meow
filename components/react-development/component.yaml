@@ -2,5 +2,7 @@ description: React framework tools, testing utilities, and development scaffoldi
 platforms:
 - match:
     platform: macos
+- match:
+    platform: linux
 depends_on:
 - js-development

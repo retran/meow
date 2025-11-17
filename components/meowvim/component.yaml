@@ -5,5 +5,7 @@ repository:
 platforms:
 - match:
     platform: macos
+- match:
+    platform: linux
 depends_on:
 - neovim
