@@ -118,46 +118,72 @@ is_component_available() {
     platform=$(get_platform)
     local likes_csv="${MEOW_OS_ID_LIKE// /,}"
     local version="${MEOW_OS_VERSION_ID:-}"
-    local platform_match
-    platform_match=$(
-      PLATFORM="$platform" \
-      DISTRO="${MEOW_OS_ID:-}" \
-      VERSION="$version" \
-      LIKES="$likes_csv" \
-      yq eval '
-def tolist($x):
-  if $x == null then []
-  elif ($x | type) == "!!seq" then $x
-  else [$x]
-  end;
-env(PLATFORM) as $platform |
-env(DISTRO) as $distro |
-env(VERSION) as $version |
-(env(LIKES) | split(",") | map(select(. != ""))) as $likes |
-any(.platforms[]?;
-  if type == "!!str" then . == $platform
-  else
-    (.match // {}) as $match |
-    (tolist($match.platform)) as $platforms |
-    (tolist($match.distro)) as $distros |
-    (tolist($match.version_id)) as $versions |
-    (tolist($match.distro_like)) as $likes_req |
-    (
-      ($platforms | length == 0 or any($platforms[]; . == $platform))
-      and
-      ($distros | length == 0 or ($distro != "" and any($distros[]; . == $distro)))
-      and
-      ($versions | length == 0 or ($version != "" and any($versions[]; . == $version)))
-      and
-      ($likes_req | length == 0 or (
-        ($likes | length) > 0
-        and any($likes_req[]; . as $req | any($likes[]; . == $req))
-      ))
-    )
-  end
-)' "$component_file" 2>/dev/null
-    )
-    if [ "$platform_match" != "true" ]; then
+    local platforms_json
+    platforms_json=$(yq eval -o=json '.platforms' "$component_file" 2>/dev/null || echo "null")
+
+    if ! PLATFORMS_JSON="$platforms_json" python3 -c '
+import json
+import os
+import sys
+
+platform = sys.argv[1]
+distro = sys.argv[2]
+version = sys.argv[3]
+likes_arg = sys.argv[4]
+likes = [token for token in likes_arg.split(",") if token]
+
+def normalize(value):
+    if value is None:
+        return []
+    if isinstance(value, list):
+        return [str(v) for v in value if v is not None]
+    return [str(value)]
+
+raw = os.environ.get("PLATFORMS_JSON") or "null"
+try:
+    platforms = json.loads(raw)
+except json.JSONDecodeError:
+    sys.exit(1)
+
+if not platforms:
+    sys.exit(1)
+
+if isinstance(platforms, dict):
+    platforms = [platforms]
+
+def matches_entry(entry):
+    if isinstance(entry, str):
+        return entry == platform
+    if not isinstance(entry, dict):
+        return False
+
+    match_section = entry.get("match")
+    if not match_section:
+        match_section = entry
+
+    platforms_req = normalize(match_section.get("platform"))
+    distros_req = normalize(match_section.get("distro"))
+    versions_req = normalize(match_section.get("version_id"))
+    likes_req = normalize(match_section.get("distro_like"))
+
+    platform_ok = (not platforms_req) or (platform and platform in platforms_req)
+    distro_ok = (not distros_req) or (distro and distro in distros_req)
+    version_ok = (not versions_req) or (version and version in versions_req)
+
+    likes_ok = False
+    if not likes_req:
+        likes_ok = True
+    elif likes:
+        likes_ok = any(req in likes for req in likes_req)
+
+    return platform_ok and distro_ok and version_ok and likes_ok
+
+for item in platforms:
+    if matches_entry(item):
+        sys.exit(0)
+
+sys.exit(1)
+' "$platform" "${MEOW_OS_ID:-}" "$version" "$likes_csv"; then
       return 1
     fi
   fi
