@@ -8,10 +8,17 @@ platforms:
 package_sources:
 - manager: apt
   match:
-    distro_like:
+    distro:
+    - ubuntu
+  name: go-task
+  repo: deb https://dl.cloudsmith.io/public/task/task/deb/ubuntu noble main
+  key_url: https://dl.cloudsmith.io/public/task/task/gpg.046FD1186CA342F0.key
+- manager: apt
+  match:
+    distro:
     - debian
   name: go-task
-  repo: deb https://dl.cloudsmith.io/public/task/task/deb/{{DISTRO}} {{VERSION_CODENAME}} main
+  repo: deb https://dl.cloudsmith.io/public/task/task/deb/debian bookworm main
   key_url: https://dl.cloudsmith.io/public/task/task/gpg.046FD1186CA342F0.key
 - manager: dnf
   match:
