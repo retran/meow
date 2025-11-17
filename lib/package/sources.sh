@@ -235,10 +235,35 @@ _ps_apply_apt_source() {
 
   if [ -n "$key_url" ]; then
     key_path="/etc/apt/trusted.gpg.d/${slug}.gpg"
-    if command -v curl >/dev/null 2>&1; then
-      curl -fsSL "$key_url" | sudo tee "$key_path" >/dev/null
-    elif command -v wget >/dev/null 2>&1; then
-      wget -qO - "$key_url" | sudo tee "$key_path" >/dev/null
+    local tmp_key=""
+    tmp_key=$(mktemp 2>/dev/null) || true
+    if [ -n "$tmp_key" ]; then
+      local downloaded="false"
+      if command -v curl >/dev/null 2>&1; then
+        if curl -fsSL "$key_url" -o "$tmp_key"; then
+          downloaded="true"
+        fi
+      elif command -v wget >/dev/null 2>&1; then
+        if wget -qO "$tmp_key" "$key_url"; then
+          downloaded="true"
+        fi
+      fi
+      if [ "$downloaded" != "true" ]; then
+        rm -f "$tmp_key"
+        tmp_key=""
+      fi
+    fi
+
+    if [ -n "$tmp_key" ] && [ -s "$tmp_key" ]; then
+      sudo mkdir -p /etc/apt/trusted.gpg.d >/dev/null 2>&1 || true
+      if command -v gpg >/dev/null 2>&1; then
+        gpg --dearmor <"$tmp_key" | sudo tee "$key_path" >/dev/null 2>&1 || true
+      else
+        sudo tee "$key_path" >/dev/null <"$tmp_key"
+      fi
+      rm -f "$tmp_key"
+    else
+      key_path=""
     fi
   fi
 
