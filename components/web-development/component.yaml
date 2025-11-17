@@ -3,5 +3,7 @@ description: Web development stack with CSS frameworks, build tools, and deploym
 platforms:
 - match:
     platform: macos
+- match:
+    platform: linux
 depends_on:
 - js-development

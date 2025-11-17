@@ -3,3 +3,5 @@ description: Essential shell tools and development foundation for all environmen
 platforms:
 - match:
     platform: macos
+- match:
+    platform: linux

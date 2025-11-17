@@ -3,6 +3,7 @@ wget
 git
 git-lfs
 python3-pip
+pipx
 nodejs
 npm
 bash

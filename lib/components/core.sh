@@ -117,10 +117,12 @@ is_component_available() {
     local platform
     platform=$(get_platform)
     local likes_csv="${MEOW_OS_ID_LIKE// /,}"
+    local version="${MEOW_OS_VERSION_ID:-}"
     local platform_match
     platform_match=$(
       PLATFORM="$platform" \
       DISTRO="${MEOW_OS_ID:-}" \
+      VERSION="$version" \
       LIKES="$likes_csv" \
       yq eval '
 def tolist($x):
@@ -130,6 +132,7 @@ def tolist($x):
   end;
 env(PLATFORM) as $platform |
 env(DISTRO) as $distro |
+env(VERSION) as $version |
 (env(LIKES) | split(",") | map(select(. != ""))) as $likes |
 any(.platforms[]?;
   if type == "!!str" then . == $platform
@@ -137,11 +140,14 @@ any(.platforms[]?;
     (.match // {}) as $match |
     (tolist($match.platform)) as $platforms |
     (tolist($match.distro)) as $distros |
+    (tolist($match.version_id)) as $versions |
     (tolist($match.distro_like)) as $likes_req |
     (
       ($platforms | length == 0 or any($platforms[]; . == $platform))
       and
       ($distros | length == 0 or ($distro != "" and any($distros[]; . == $distro)))
+      and
+      ($versions | length == 0 or ($version != "" and any($versions[]; . == $version)))
       and
       ($likes_req | length == 0 or (
         ($likes | length) > 0

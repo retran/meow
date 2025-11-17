@@ -39,6 +39,7 @@ IS_RPM_BASED=false
 MEOW_OS_ID=""
 MEOW_OS_VERSION_ID=""
 MEOW_OS_ID_LIKE=""
+MEOW_OS_VERSION_CODENAME=""
 
 if [ "$(uname -s)" = "Darwin" ]; then
   IS_MACOS=true
@@ -51,6 +52,7 @@ if [ -f "/etc/os-release" ]; then
   MEOW_OS_ID="$(echo "${ID:-}" | tr '[:upper:]' '[:lower:]')"
   MEOW_OS_VERSION_ID="$(echo "${VERSION_ID:-}" | tr '[:upper:]' '[:lower:]')"
   MEOW_OS_ID_LIKE="$(echo "${ID_LIKE:-}" | tr '[:upper:]' '[:lower:]')"
+  MEOW_OS_VERSION_CODENAME="$(echo "${VERSION_CODENAME:-${UBUNTU_CODENAME:-}}" | tr '[:upper:]' '[:lower:]')"
 
   if [ "$MEOW_OS_ID" = "alpine" ]; then
     IS_ALPINE=true

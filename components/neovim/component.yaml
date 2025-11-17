@@ -3,5 +3,7 @@ description: Neovim text editor with essential plugins and configurations. Provi
 platforms:
 - match:
     platform: macos
+- match:
+    platform: linux
 depends_on:
 - shell-essential

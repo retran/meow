@@ -2,5 +2,7 @@ description: JavaScript/TypeScript runtime, language servers, and development to
 platforms:
 - match:
     platform: macos
+- match:
+    platform: linux
 depends_on:
 - development-essential

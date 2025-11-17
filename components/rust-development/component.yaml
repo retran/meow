@@ -2,5 +2,7 @@ description: Rust toolchain, cargo extensions, and debugging support
 platforms:
 - match:
     platform: macos
+- match:
+    platform: linux
 depends_on:
 - development-essential

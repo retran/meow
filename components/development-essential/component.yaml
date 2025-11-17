@@ -3,5 +3,28 @@ description: Cross-language development tools for version control, project manag
 platforms:
 - match:
     platform: macos
+- match:
+    platform: linux
+package_sources:
+- manager: apt
+  match:
+    distro_like:
+    - debian
+  name: go-task
+  repo: deb https://repo.go-task.io/ /
+  key_url: https://repo.go-task.io/gpg.key
+- manager: dnf
+  match:
+    distro_like:
+    - rhel
+    - fedora
+  name: go-task
+  repo_file: |
+    [go-task]
+    name=go-task
+    baseurl=https://repo.go-task.io/rpm/
+    enabled=1
+    gpgcheck=1
+    gpgkey=https://repo.go-task.io/gpg.key
 depends_on:
 - neovim

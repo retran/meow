@@ -26,13 +26,15 @@ _meow_pkg_match_entry() {
   local json="$1"
   local platform="$2"
   local distro="$3"
-  local likes="$4"
-  python3 - "$json" "$platform" "$distro" "$likes" <<'PY'
+  local version="$4"
+  local likes="$5"
+  python3 - "$json" "$platform" "$distro" "$version" "$likes" <<'PY'
 import json
 import sys
 data = json.loads(sys.argv[1] or "[]")
 platform, distro = sys.argv[2], sys.argv[3]
-likes = sys.argv[4].split(',') if len(sys.argv) > 4 and sys.argv[4] else []
+version = sys.argv[4]
+likes = sys.argv[5].split(',') if len(sys.argv) > 5 and sys.argv[5] else []
 result = []
 def to_list(v):
     if not v:
@@ -47,6 +49,9 @@ for entry in data:
         continue
     distros = to_list(match.get('distro'))
     if distros and distro not in distros:
+        continue
+    versions = to_list(match.get('version_id'))
+    if versions and (not version or version not in versions):
         continue
     distro_like = to_list(match.get('distro_like'))
     if distro_like and not any(item in likes for item in distro_like):
@@ -96,8 +101,9 @@ PY
 _meow_pkg_read_stack() {
   local platform="$1"
   local distro="$2"
-  local likes="$3"
-  local component="$4"
+  local version="$3"
+  local likes="$4"
+  local component="$5"
   local result="[]"
 
   local preset_file=""
@@ -125,7 +131,7 @@ PY
   local json
   json=$(_meow_pkg_resolve_file "$component_file") || echo "[]"
   local matches
-  matches=$(_meow_pkg_match_entry "$json" "$platform" "$distro" "$likes")
+  matches=$(_meow_pkg_match_entry "$json" "$platform" "$distro" "$version" "$likes")
   result=$(
     python3 - "$result" "$matches" <<'PY'
 import json, sys
@@ -144,9 +150,10 @@ meow_pm_resolve_for_component() {
   local platform
   platform=$(get_platform)
   local distro="${MEOW_OS_ID:-}"
+  local version="${MEOW_OS_VERSION_ID:-}"
   local likes="${MEOW_OS_ID_LIKE// /,}"
   local entries
-  entries=$(_meow_pkg_read_stack "$platform" "$distro" "$likes" "$component")
+  entries=$(_meow_pkg_read_stack "$platform" "$distro" "$version" "$likes" "$component")
   local managers=""
   managers=$(_meow_pkg_merge_managers "$managers" "$entries")
   if [ -z "$managers" ]; then
@@ -174,9 +181,10 @@ meow_pm_collect_sources_for_manager() {
   local platform
   platform=$(get_platform)
   local distro="${MEOW_OS_ID:-}"
+  local version="${MEOW_OS_VERSION_ID:-}"
   local likes="${MEOW_OS_ID_LIKE// /,}"
   local entries
-  entries=$(_meow_pkg_read_stack "$platform" "$distro" "$likes" "$component")
+  entries=$(_meow_pkg_read_stack "$platform" "$distro" "$version" "$likes" "$component")
   _meow_pkg_collect_sources "$component" "$manager" "$entries"
 }
 

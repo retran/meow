@@ -207,6 +207,10 @@ Lightweight development containers optimized for specific use cases. All contain
 - **litterbox-dotnet** - .NET development environment
 - **litterbox-fullstack** - Complete full-stack development environment
 
+All litterbox presets now install their toolchains through the host distribution's package
+managers on Linux (including Microsoft’s repositories for the .NET 10 SDK) so they work
+consistently on Ubuntu, Debian, and similar environments without custom install scripts.
+
 ### Container Testing Environment (Linux)
 
 All container presets are optimized for Linux development environments.
@@ -249,7 +253,7 @@ All container presets are optimized for Linux development environments.
 - **python-development** - Python, pip, poetry, and development utilities
 - **js-development** - Node.js, npm, and JavaScript tools
 - **react-development** - React-specific tools and VS Code extensions
-- **dotnet-development** - .NET SDK and development environment
+- **dotnet-development** - .NET 10 SDK and PowerShell tooling installed via the official package feeds (Canonical's Ubuntu repositories/backports, Debian's Microsoft repository, Fedora/RHEL AppStream, Alpine's apk)
 - **kotlin-development-cli** - Kotlin compiler and JVM tools (cross-platform, standardized temurin JVM)
 - **kotlin-development** - IntelliJ IDEA IDE for Kotlin development (macOS only)
 - **lua-development** - Lua interpreter and development tools

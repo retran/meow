@@ -39,22 +39,26 @@ _ps_collect_sources_from_file() {
   local manager="$2"
   local platform="$3"
   local distro="$4"
-  local likes="$5"
+  local version="$5"
+  local codename="$6"
+  local likes="$7"
 
   [ -f "$file" ] || return 0
 
   local json
   json=$(yq -o=json '.package_sources // []' "$file" 2>/dev/null || echo "[]")
 
-  python3 - "$manager" "$platform" "$distro" "$likes" "$json" <<'PY'
+  python3 - "$manager" "$platform" "$distro" "$version" "$codename" "$likes" "$json" <<'PY'
 import json
 import sys
 
 manager = sys.argv[1]
 platform = sys.argv[2]
 distro = sys.argv[3]
-likes = [x for x in sys.argv[4].split(',') if x]
-entries = json.loads(sys.argv[5] or "[]")
+version = sys.argv[4]
+codename = sys.argv[5]
+likes = [x for x in sys.argv[6].split(',') if x]
+entries = json.loads(sys.argv[7] or "[]")
 
 def to_list(value):
     if value is None:
@@ -71,6 +75,9 @@ def matches(entry):
     distros = to_list(match.get('distro'))
     if distros and distro not in distros:
         return False
+    versions = to_list(match.get('version_id'))
+    if versions and (not version or version not in versions):
+        return False
     distro_like = to_list(match.get('distro_like'))
     if distro_like:
         if not likes:
@@ -79,17 +86,27 @@ def matches(entry):
             return False
     return True
 
+def apply_template(value):
+    if not value:
+        return ""
+    return (
+        value.replace("{{VERSION_ID}}", version or "")
+        .replace("{{VERSION_CODENAME}}", codename or "")
+        .replace("{{DISTRO}}", distro or "")
+        .replace("{{PLATFORM}}", platform or "")
+    )
+
 for entry in entries:
     if entry.get('manager') != manager:
         continue
     if not matches(entry):
         continue
     fields = [
-        entry.get('name', ''),
-        entry.get('repo', ''),
-        entry.get('repo_file', ''),
-        entry.get('key_url', ''),
-        entry.get('gpg_key', ''),
+        apply_template(entry.get('name', '')),
+        apply_template(entry.get('repo', '')),
+        apply_template(entry.get('repo_file', '')),
+        apply_template(entry.get('key_url', '')),
+        apply_template(entry.get('gpg_key', '')),
     ]
     print("\t".join(field.replace("\t", " ") for field in fields))
 PY
@@ -101,24 +118,26 @@ meow_ps_collect_sources() {
   local platform
   platform=$(get_platform)
   local distro="${MEOW_OS_ID:-}"
+  local version="${MEOW_OS_VERSION_ID:-}"
+  local codename="${MEOW_OS_VERSION_CODENAME:-}"
   local likes="${MEOW_OS_ID_LIKE// /,}"
 
   local output=""
   local config_file
   config_file="${MEOW}/config/package_sources.yaml"
   if [ -f "$config_file" ]; then
-    output+="$(_ps_collect_sources_from_file "$config_file" "$manager" "$platform" "$distro" "$likes")"
+    output+="$(_ps_collect_sources_from_file "$config_file" "$manager" "$platform" "$distro" "$version" "$codename" "$likes")"
     output+=$'\n'
   fi
 
   if [ -n "$MEOW_ACTIVE_PRESET_FILE" ] && [ -f "$MEOW_ACTIVE_PRESET_FILE" ]; then
-    output+="$(_ps_collect_sources_from_file "$MEOW_ACTIVE_PRESET_FILE" "$manager" "$platform" "$distro" "$likes")"
+    output+="$(_ps_collect_sources_from_file "$MEOW_ACTIVE_PRESET_FILE" "$manager" "$platform" "$distro" "$version" "$codename" "$likes")"
     output+=$'\n'
   fi
 
   local component_file="${MEOW_COMPONENTS_DIR}/${component}/component.yaml"
   if [ -f "$component_file" ]; then
-    output+="$(_ps_collect_sources_from_file "$component_file" "$manager" "$platform" "$distro" "$likes")"
+    output+="$(_ps_collect_sources_from_file "$component_file" "$manager" "$platform" "$distro" "$version" "$codename" "$likes")"
   fi
 
   printf '%s' "$output"
