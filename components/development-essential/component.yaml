@@ -11,8 +11,8 @@ package_sources:
     distro_like:
     - debian
   name: go-task
-  repo: deb https://repo.go-task.io/ /
-  key_url: https://repo.go-task.io/gpg.key
+  repo: deb https://dl.cloudsmith.io/public/task/task/deb/{{DISTRO}} {{VERSION_CODENAME}} main
+  key_url: https://dl.cloudsmith.io/public/task/task/gpg.046FD1186CA342F0.key
 - manager: dnf
   match:
     distro_like:
