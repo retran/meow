@@ -114,50 +114,45 @@ is_component_available() {
   [ -f "$component_file" ] || return 1
 
   if yaml_path_exists "$component_file" ".platforms"; then
-    local platform_json
-    platform_json=$(yq -o=json '.platforms // []' "$component_file" 2>/dev/null)
-    if [ -n "$platform_json" ]; then
-      local platform
-      platform=$(get_platform)
-      local matches
-      matches=$(python3 - "$platform_json" "$platform" "${MEOW_OS_ID:-}" "${MEOW_OS_ID_LIKE// /,}" <<'PY'
-import json, sys
-entries = json.loads(sys.argv[1] or "[]")
-platform = sys.argv[2]
-distro = sys.argv[3]
-likes = sys.argv[4].split(',') if len(sys.argv) > 4 and sys.argv[4] else []
-
-def to_list(value):
-    if not value:
-        return []
-    if isinstance(value, list):
-        return value
-    return [value]
-
-for entry in entries:
-    if isinstance(entry, str):
-        if entry == platform:
-            print('1')
-            sys.exit(0)
-        continue
-    match = entry.get('match') or {}
-    platforms = to_list(match.get('platform'))
-    if platforms and platform not in platforms:
-        continue
-    distros = to_list(match.get('distro'))
-    if distros and distro not in distros:
-        continue
-    distro_like = to_list(match.get('distro_like'))
-    if distro_like and not any(item in likes for item in distro_like):
-        continue
-    print('1')
-    sys.exit(0)
-print('0')
-PY
-)
-      if [ "$matches" != "1" ]; then
-        return 1
-      fi
+    local platform
+    platform=$(get_platform)
+    local likes_csv="${MEOW_OS_ID_LIKE// /,}"
+    local platform_match
+    platform_match=$(
+      PLATFORM="$platform" \
+      DISTRO="${MEOW_OS_ID:-}" \
+      LIKES="$likes_csv" \
+      yq eval '
+def tolist($x):
+  if $x == null then []
+  elif ($x | type) == "!!seq" then $x
+  else [$x]
+  end;
+env(PLATFORM) as $platform |
+env(DISTRO) as $distro |
+(env(LIKES) | split(",") | map(select(. != ""))) as $likes |
+any(.platforms[]?;
+  if type == "!!str" then . == $platform
+  else
+    (.match // {}) as $match |
+    (tolist($match.platform)) as $platforms |
+    (tolist($match.distro)) as $distros |
+    (tolist($match.distro_like)) as $likes_req |
+    (
+      ($platforms | length == 0 or any($platforms[]; . == $platform))
+      and
+      ($distros | length == 0 or ($distro != "" and any($distros[]; . == $distro)))
+      and
+      ($likes_req | length == 0 or (
+        ($likes | length) > 0
+        and any($likes_req[]; . as $req | any($likes[]; . == $req))
+      ))
+    )
+  end
+)' "$component_file" 2>/dev/null
+    )
+    if [ "$platform_match" != "true" ]; then
+      return 1
     fi
   fi
 
