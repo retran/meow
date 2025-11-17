@@ -161,7 +161,7 @@ apply_component_sources() {
   local component="$1"
   local manager="$2"
   local sources
-  sources=$(meow_pm_collect_sources_for_manager "$component" "$manager")
+  sources=$(meow_ps_collect_sources "$component" "$manager")
   [ -n "$sources" ] || return 0
 
   while IFS=$'\t' read -r name repo repo_file key_url gpg_key; do
