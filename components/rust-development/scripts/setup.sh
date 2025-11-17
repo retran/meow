@@ -31,15 +31,54 @@ MEOW="$2"
 
 source "${MEOW}/lib/core/ui.sh"
 
+install_rustup_cli() {
+  if command -v rustup >/dev/null 2>&1; then
+    return 0
+  fi
+
+  ui_step_header "Installing rustup"
+
+  if [ "$MEOW_DRY_RUN" = "true" ]; then
+    ui_info "(dry-run) Would download and run the official rustup installer script."
+    return 0
+  fi
+
+  local installer_cmd=""
+  if command -v curl >/dev/null 2>&1; then
+    installer_cmd="curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs"
+  elif command -v wget >/dev/null 2>&1; then
+    installer_cmd="wget -qO- https://sh.rustup.rs"
+  else
+    ui_error "Neither curl nor wget is available to download the rustup installer."
+    return 1
+  fi
+
+  if ! eval "$installer_cmd" | sh -s -- -y --no-modify-path; then
+    ui_error "Failed to run the rustup installer."
+    return 1
+  fi
+
+  if [ -f "$HOME/.cargo/env" ]; then
+    # shellcheck disable=SC1090
+    source "$HOME/.cargo/env"
+  else
+    export PATH="$HOME/.cargo/bin:$PATH"
+  fi
+
+  ui_action_success "rustup installed successfully."
+}
+
 setup_rustup() {
+  if ! command -v rustup >/dev/null 2>&1; then
+    install_rustup_cli || return 1
+  fi
+
   ui_step_header "Setting up Rust toolchain"
 
-  if command -v rustup >/dev/null 2>&1; then
-    if rustup show >/dev/null 2>&1; then
-      ui_action_success "Rust toolchain already initialized."
-      install_rust_components
-      return 0
-    fi
+  if rustup show >/dev/null 2>&1; then
+    ui_action_success "Rust toolchain already initialized."
+    install_rust_components
+    return 0
   fi
 
   if ! ui_spinner "Installing Rust toolchain with rustup" \
@@ -51,6 +90,7 @@ setup_rustup() {
   fi
 
   if [ -f "$HOME/.cargo/env" ]; then
+    # shellcheck disable=SC1090
     source "$HOME/.cargo/env"
   fi
 
