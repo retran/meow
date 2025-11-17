@@ -1,1 +1,21 @@
-include ../common/cli/apk.list
+curl
+wget
+git
+git-lfs
+nodejs
+npm
+bash
+zsh
+coreutils
+direnv
+bat
+fzf
+ripgrep
+zoxide
+htop
+findutils
+watch
+zsh-autosuggestions
+zsh-syntax-highlighting
+starship
+ripgrep

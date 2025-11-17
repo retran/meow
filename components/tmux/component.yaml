@@ -3,3 +3,5 @@ description: Terminal multiplexer for advanced terminal session management. Prov
 platforms:
 - match:
     platform: macos
+depends_on:
+- shell-essential

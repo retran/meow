@@ -3,3 +3,5 @@ description: Technical writing and documentation tools with linting and static s
 platforms:
 - match:
     platform: macos
+depends_on:
+- development-essential

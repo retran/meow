@@ -3,3 +3,6 @@ type: hammerspoon
 platforms:
 - match:
     platform: macos
+depends_on:
+- meowvim
+- adaptive-keyboard-layouts

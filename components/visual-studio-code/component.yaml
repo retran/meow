@@ -3,3 +3,5 @@ description: Visual Studio Code IDE with essential extensions for development. I
 platforms:
 - match:
     platform: macos
+depends_on:
+- development-essential

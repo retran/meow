@@ -156,7 +156,8 @@ install_packages_generic() {
     *) manager_display_name="$(capitalize "$manager_name")" ;;
   esac
 
-  local package_file="${MEOW_COMPONENTS_DIR}/${component}/packages/${manager_name}.list"
+  local package_file_override="${PACKAGES_OVERRIDE_FILE:-}"
+  local package_file="${package_file_override:-${MEOW_COMPONENTS_DIR}/${component}/packages/${manager_name}.list}"
   if [ ! -f "$package_file" ]; then
     return 0
   fi

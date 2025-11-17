@@ -2,3 +2,5 @@ description: .NET SDK, PowerShell, and development tooling
 platforms:
 - match:
     platform: macos
+depends_on:
+- development-essential

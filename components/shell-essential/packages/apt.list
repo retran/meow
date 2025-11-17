@@ -1,1 +1,24 @@
-include ../common/cli/apt.list
+curl
+wget
+git
+git-lfs
+python3-pip
+nodejs
+npm
+bash
+zsh
+coreutils
+direnv
+bat
+fzf
+ripgrep
+zoxide
+htop
+findutils
+watch
+zsh-autosuggestions
+zsh-syntax-highlighting
+starship
+eza
+fd-find
+glow

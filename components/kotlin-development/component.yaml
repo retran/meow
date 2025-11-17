@@ -2,3 +2,6 @@ description: IntelliJ IDEA IDE for Kotlin development
 platforms:
 - match:
     platform: macos
+depends_on:
+- kotlin-development-cli
+- desktop-essential

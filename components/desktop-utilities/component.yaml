@@ -2,3 +2,5 @@ description: Desktop utility applications for system maintenance and file manage
 platforms:
 - match:
     platform: macos
+depends_on:
+- desktop-essential

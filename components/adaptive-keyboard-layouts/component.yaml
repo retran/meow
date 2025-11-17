@@ -3,3 +3,5 @@ type: hammerspoon
 platforms:
 - match:
     platform: macos
+depends_on:
+- hammerspoon

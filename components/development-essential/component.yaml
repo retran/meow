@@ -3,3 +3,5 @@ description: Cross-language development tools for version control, project manag
 platforms:
 - match:
     platform: macos
+depends_on:
+- neovim

@@ -120,10 +120,12 @@ is_component_available() {
       local platform
       platform=$(get_platform)
       local matches
-      matches=$(python3 - "$platform" "${MEOW_OS_ID:-}" "${MEOW_OS_ID_LIKE// /,}" <<'PY'
+      matches=$(python3 - "$platform_json" "$platform" "${MEOW_OS_ID:-}" "${MEOW_OS_ID_LIKE// /,}" <<'PY'
 import json, sys
-platform, distro, likes = sys.argv[1], sys.argv[2], sys.argv[3].split(',') if sys.argv[3] else []
-entries = json.load(sys.stdin)
+entries = json.loads(sys.argv[1] or "[]")
+platform = sys.argv[2]
+distro = sys.argv[3]
+likes = sys.argv[4].split(',') if len(sys.argv) > 4 and sys.argv[4] else []
 
 def to_list(value):
     if not value:

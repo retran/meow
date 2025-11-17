@@ -3,3 +3,6 @@ description: Time tracking desktop application. Includes Toggl Track desktop app
 platforms:
 - match:
     platform: macos
+depends_on:
+- desktop-essential
+- time-tracking-cli

@@ -2,3 +2,5 @@ description: Gaming platforms and entertainment applications
 platforms:
 - match:
     platform: macos
+depends_on:
+- desktop-essential

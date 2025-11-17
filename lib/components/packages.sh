@@ -234,21 +234,7 @@ _resolve_packages_file() {
   local component="$1"
   local mgr="$2"
   local path="${MEOW_COMPONENTS_DIR}/${component}/packages/${mgr}.list"
-  if [ ! -f "$path" ]; then
-    return 1
-  fi
-
-  if head -n1 "$path" | grep -q '^include '; then
-    local include_path
-    include_path=$(head -n1 "$path" | awk '{print $2}')
-    local resolved
-    resolved=$(realpath -m "${MEOW_COMPONENTS_DIR}/${component}/packages/${include_path}")
-    if [ -f "$resolved" ]; then
-      echo "$resolved"
-      return 0
-    fi
-  fi
-
+  [ -f "$path" ] || return 1
   echo "$path"
 }
 

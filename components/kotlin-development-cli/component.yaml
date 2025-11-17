@@ -2,3 +2,5 @@ description: JVM runtime and Kotlin compiler for command-line development
 platforms:
 - match:
     platform: macos
+depends_on:
+- development-essential

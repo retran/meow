@@ -1,1 +1,18 @@
-include ../common/cli/homebrew.list
+curl
+wget
+git
+git-lfs
+node
+python
+direnv
+bat
+fzf
+ripgrep
+zoxide
+htop
+eza
+fd
+watch
+zsh-autosuggestions
+zsh-syntax-highlighting
+starship

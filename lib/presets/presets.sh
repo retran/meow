@@ -352,7 +352,11 @@ install_preset() {
       return 1
     }
 
-    declare -ga MEOW_INSTALLING_COMPONENTS=()
+    if [ -n "${BASH_VERSINFO[0]:-}" ] && [ "${BASH_VERSINFO[0]}" -ge 4 ]; then
+      declare -ga MEOW_INSTALLING_COMPONENTS=()
+    else
+      MEOW_INSTALLING_COMPONENTS=()
+    fi
     local installed_this_session=()
 
     local install_success=true

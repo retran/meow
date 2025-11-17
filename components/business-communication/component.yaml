@@ -3,3 +3,5 @@ description: Business communication and collaboration applications. Includes pro
 platforms:
 - match:
     platform: macos
+depends_on:
+- desktop-essential

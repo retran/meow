@@ -1,1 +1,23 @@
-include ../common/cli/pacman.list
+curl
+wget
+git
+git-lfs
+nodejs
+npm
+python-pip
+bash
+zsh
+coreutils
+direnv
+bat
+fzf
+ripgrep
+zoxide
+htop
+findutils
+eza
+fd
+watch
+zsh-autosuggestions
+zsh-syntax-highlighting
+starship

@@ -3,3 +3,5 @@ description: Terminal emulator applications and configurations. Includes Alacrit
 platforms:
 - match:
     platform: macos
+depends_on:
+- desktop-essential

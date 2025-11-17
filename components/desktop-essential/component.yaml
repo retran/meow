@@ -3,3 +3,6 @@ description: Core desktop system utilities and essential GUI applications. Inclu
 platforms:
 - match:
     platform: macos
+depends_on:
+- shell-essential
+- fonts

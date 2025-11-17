@@ -2,3 +2,5 @@ description: Go compiler, language server, debugging tools, and development util
 platforms:
 - match:
     platform: macos
+depends_on:
+- development-essential

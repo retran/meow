@@ -345,9 +345,9 @@ _install_single_component() {
 
   setup_component "$component"
 
-  setup_component_symlinks "$component"
-
   install_component_symlink "$component"
+
+  setup_component_symlinks "$component"
   MEOW_LAST_COMPONENT_CHANGED="true"
 
   _icon_msg_core "${GREEN}✓ " "$(_f "Component installed: %s" "$component")"

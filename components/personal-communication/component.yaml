@@ -3,3 +3,5 @@ description: Personal communication and messaging applications. Includes social 
 platforms:
 - match:
     platform: macos
+depends_on:
+- desktop-essential

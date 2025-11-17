@@ -3,3 +3,5 @@ description: Shell scripting tools including linting, formatting, and language s
 platforms:
 - match:
     platform: macos
+depends_on:
+- shell-essential

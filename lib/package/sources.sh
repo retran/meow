@@ -46,7 +46,7 @@ _ps_collect_sources_from_file() {
   local json
   json=$(yq -o=json '.package_sources // []' "$file" 2>/dev/null || echo "[]")
 
-  python3 - "$manager" "$platform" "$distro" "$likes" <<'PY' <<<"$json"
+  python3 - "$manager" "$platform" "$distro" "$likes" "$json" <<'PY'
 import json
 import sys
 
@@ -54,6 +54,7 @@ manager = sys.argv[1]
 platform = sys.argv[2]
 distro = sys.argv[3]
 likes = [x for x in sys.argv[4].split(',') if x]
+entries = json.loads(sys.argv[5] or "[]")
 
 def to_list(value):
     if value is None:
@@ -78,8 +79,7 @@ def matches(entry):
             return False
     return True
 
-data = json.load(sys.stdin)
-for entry in data:
+for entry in entries:
     if entry.get('manager') != manager:
         continue
     if not matches(entry):
