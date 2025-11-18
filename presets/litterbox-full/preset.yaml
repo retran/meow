@@ -1,4 +1,7 @@
 description: Install every Linux-compatible component for a fully loaded development environment
+platforms:
+- match:
+    platform: linux
 extends:
 - base
 - litterbox-essential

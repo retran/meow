@@ -470,21 +470,21 @@ show_final_summary() {
     local summary_text="${summary_text_builder}"
 
     if [ "$MEOW_ERROR_COUNT" -gt 0 ]; then
-      ui_error "Summary: $summary_text"
+      _base_msg "${ERROR}" "Summary: $summary_text" >&2
     else
-      ui_warning "Summary: $summary_text"
+      _base_msg "${WARNING}" "Summary: $summary_text" >&2
     fi
 
     if [ "$MEOW_VERBOSE" = "true" ] || [ "$MEOW_ERROR_COUNT" -gt 0 ]; then
       if [ "${#MEOW_ERRORS[@]}" -gt 0 ]; then
-        ui_error "Errors encountered:"
+        _base_msg "${ERROR}" "Errors encountered:" >&2
         for err_msg in "${MEOW_ERRORS[@]}"; do
           ui_list_item "$err_msg"
         done
       fi
 
       if [ "$MEOW_VERBOSE" = "true" ] && [ "${#MEOW_WARNINGS[@]}" -gt 0 ]; then
-        _base_msg "${WARNING}" "Warnings encountered (verbose mode):"
+        _base_msg "${WARNING}" "Warnings encountered (verbose mode):" >&2
         for warn_msg in "${MEOW_WARNINGS[@]}"; do
           ui_list_item "$warn_msg"
         done

@@ -11,11 +11,21 @@ DOTNET_INSTALL_DIR="${DOTNET_ROOT:-$HOME/.dotnet}"
 DOTNET_CHANNEL="${DOTNET_CHANNEL:-10.0}"
 DOTNET_QUALITY="${DOTNET_QUALITY:-ga}"
 DOTNET_INSTALL_SCRIPT_URL="https://dot.net/v1/dotnet-install.sh"
+DOTNET_TMP_DIR="${TMPDIR:-/tmp}"
+_dotnet_install_script_path=""
+
+cleanup_dotnet_install_script() {
+  if [[ -n "${_dotnet_install_script_path:-}" ]]; then
+    rm -f "${_dotnet_install_script_path:-}"
+  fi
+}
+trap 'cleanup_dotnet_install_script' EXIT
 
 install_dotnet() {
   local script_path
-  script_path="$(mktemp -t dotnet-install.XXXXXX.sh)"
-  trap 'rm -f "$script_path"' EXIT
+  mkdir -p "$DOTNET_TMP_DIR"
+  script_path="$(mktemp "${DOTNET_TMP_DIR}/dotnet-install.XXXXXX.sh")"
+  _dotnet_install_script_path="$script_path"
 
   ui_step_header "Installing .NET SDK (channel ${DOTNET_CHANNEL}, quality ${DOTNET_QUALITY})"
 
