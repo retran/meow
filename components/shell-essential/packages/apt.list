@@ -4,6 +4,8 @@ git
 git-lfs
 nodejs
 npm
+python3-pip
+pipx
 bash
 zsh
 coreutils

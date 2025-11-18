@@ -206,6 +206,7 @@ Lightweight development containers optimized for specific use cases. All contain
 - **litterbox-python** - Python development environment
 - **litterbox-dotnet** - .NET development environment
 - **litterbox-fullstack** - Complete full-stack development environment
+- **litterbox-full** - Installs every Linux-compatible component for a maximal environment
 
 All litterbox presets now install their toolchains through the host distribution's package
 managers on Linux (including Microsoft’s repositories for the .NET 10 SDK) so they work

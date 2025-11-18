@@ -3,6 +3,7 @@ wget
 git
 git-lfs
 node
+pipx
 direnv
 bat
 fzf
