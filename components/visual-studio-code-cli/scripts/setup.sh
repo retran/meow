@@ -78,7 +78,17 @@ main() {
   ln -sf "${INSTALL_PREFIX}/code" "$BIN_PATH"
 
   ui_action_success "VS Code CLI installed at ${BIN_PATH}"
-  ui_info "Run 'code tunnel --accept-server-license-terms' to register this machine when needed."
+
+  if is_dry_run; then
+    dry_run_ui_info "Would run 'code tunnel --accept-server-license-terms' to accept the server license."
+  else
+    ui_step_header "Accepting VS Code tunnel server license terms"
+    if "$BIN_PATH" tunnel --accept-server-license-terms; then
+      ui_action_success "VS Code tunnel license accepted."
+    else
+      ui_warning "Failed to run 'code tunnel --accept-server-license-terms'. You may need to rerun it manually."
+    fi
+  fi
 }
 
 main "$@"

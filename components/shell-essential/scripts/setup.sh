@@ -227,24 +227,25 @@ install_zsh_plugins() {
   return "$return_status"
 }
 
-if [ "$MEOW_VERBOSE" = "true" ]; then
-  ui_info "Installing zsh plugins"
-fi
+if command -v zsh >/dev/null 2>&1; then
+  if [ "$MEOW_VERBOSE" = "true" ]; then
+    ui_info "Configuring zsh"
+  fi
+  configure_zsh || true
 
-install_zsh_plugins
+  if [ "$MEOW_VERBOSE" = "true" ]; then
+    ui_info "Installing zsh plugins"
+  fi
+  install_zsh_plugins || true
+else
+  ui_warning "zsh is not installed. Skipping Oh My Zsh and plugin configuration."
+fi
 
 if command -v tmux >/dev/null 2>&1; then
   if [ "$MEOW_VERBOSE" = "true" ]; then
     ui_info "Configuring tmux"
   fi
   configure_tmux || true
-fi
-
-if command -v zsh >/dev/null 2>&1; then
-  if [ "$MEOW_VERBOSE" = "true" ]; then
-    ui_info "Configuring zsh"
-  fi
-  configure_zsh || true
 fi
 
 if command -v npm >/dev/null 2>&1; then
