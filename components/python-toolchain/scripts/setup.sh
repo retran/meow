@@ -21,7 +21,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #
-# @file: components/python-development/scripts/setup.sh
+# @file: components/python-toolchain/scripts/setup.sh
 # @brief: Installs Rye using the official installer script when pipx cannot provide wheels on new Python versions.
 # @author: Andrew Vasilyev
 # @license: MIT

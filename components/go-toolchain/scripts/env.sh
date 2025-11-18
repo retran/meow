@@ -21,7 +21,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #
-# @file: components/go-development/scripts/env.sh
+# @file: components/go-toolchain/scripts/env.sh
 # @brief: Environment configuration script for Go development tools and module paths.
 # @author: Andrew Vasilyev
 # @license: MIT

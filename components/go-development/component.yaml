@@ -1,8 +1,8 @@
-description: Go compiler, language server, debugging tools, and development utilities
+description: Go language servers, debugging tools, and workflow utilities layered on the go-toolchain
 platforms:
 - match:
     platform: macos
 - match:
     platform: linux
 depends_on:
-- development-essential
+- go-toolchain

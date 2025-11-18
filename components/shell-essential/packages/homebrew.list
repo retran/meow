@@ -2,7 +2,6 @@ curl
 wget
 git
 git-lfs
-node
 python
 direnv
 bat

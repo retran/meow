@@ -1,0 +1,8 @@
+description: Lua runtime, headers, and luarocks package manager across supported platforms
+platforms:
+- match:
+    platform: macos
+- match:
+    platform: linux
+depends_on:
+- development-essential

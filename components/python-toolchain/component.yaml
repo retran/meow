@@ -1,4 +1,4 @@
-description: JVM runtime and Kotlin compiler for command-line development
+description: Python runtime, pip/pipx tooling, virtualenv support, and Rye installer
 platforms:
 - match:
     platform: macos

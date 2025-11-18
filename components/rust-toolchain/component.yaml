@@ -1,0 +1,8 @@
+description: Rust toolchain bootstrap with rustup, clippy, and required system libraries
+platforms:
+- match:
+    platform: macos
+- match:
+    platform: linux
+depends_on:
+- development-essential

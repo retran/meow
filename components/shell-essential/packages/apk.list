@@ -2,8 +2,6 @@ curl
 wget
 git
 git-lfs
-nodejs
-npm
 bash
 zsh
 coreutils
@@ -18,4 +16,3 @@ watch
 zsh-autosuggestions
 zsh-syntax-highlighting
 starship
-ripgrep

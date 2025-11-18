@@ -1,4 +1,4 @@
-description: .NET SDK, PowerShell, and development tooling
+description: PowerShell tooling and VS Code enhancements for .NET developers
 platforms:
 - match:
     platform: macos
@@ -15,31 +15,5 @@ platforms:
     platform: linux
     distro:
     - alpine
-package_sources:
-- manager: apt
-  match:
-    distro: ubuntu
-    version_id:
-    - "22.04"
-    - "24.04"
-  name: dotnet-ubuntu-backports
-  repo: deb http://ppa.launchpad.net/dotnet/backports/ubuntu {{VERSION_CODENAME}} main
-  key_url: https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x45A3F127159BE9E5017811C62125B164E8E5D3FA
-- manager: apt
-  match:
-    distro: ubuntu
-    version_id:
-    - "16.04"
-    - "18.04"
-    - "20.04"
-  name: microsoft-dotnet-ubuntu
-  repo: deb [arch=amd64,arm64,armhf] https://packages.microsoft.com/ubuntu/{{VERSION_ID}}/prod {{VERSION_CODENAME}} main
-  key_url: https://packages.microsoft.com/keys/microsoft.asc
-- manager: apt
-  match:
-    distro: debian
-  name: microsoft-dotnet-debian
-  repo: deb [arch=amd64,arm64,armhf] https://packages.microsoft.com/debian/{{VERSION_ID}}/prod {{VERSION_CODENAME}} main
-  key_url: https://packages.microsoft.com/keys/microsoft.asc
 depends_on:
-- development-essential
+- dotnet-toolchain

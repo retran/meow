@@ -7,8 +7,8 @@
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
 # to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to do so, subject to the following
-# conditions:
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
 #
 # The above copyright notice and this permission notice shall be included in
 # all copies or substantial portions of the Software.
@@ -21,8 +21,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #
-# @file: components/rust-development/scripts/preinstall.sh
-# @brief: Installs rustup so cargo-based packages can be installed via package stage.
+# @file: components/rust-toolchain/scripts/setup.sh
+# @brief: Installs rustup/rust toolchain before cargo packages run.
 # @author: Andrew Vasilyev
 # @license: MIT
 #
@@ -135,7 +135,7 @@ setup_rustup() {
 }
 
 if [ "${MEOW_VERBOSE:-false}" = "true" ]; then
-  ui_info "Ensuring rustup/cargo are installed for component '${COMPONENT_NAME}'."
+  ui_info "Setting up rustup for component '${COMPONENT_NAME}'."
 fi
 
 if [ "${MEOW_DRY_RUN:-false}" = "true" ]; then

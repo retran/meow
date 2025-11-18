@@ -1,8 +1,8 @@
-description: JavaScript/TypeScript runtime, language servers, and development tools
+description: JavaScript/TypeScript language servers and developer tooling on top of the Node.js toolchain
 platforms:
 - match:
     platform: macos
 - match:
     platform: linux
 depends_on:
-- development-essential
+- js-toolchain

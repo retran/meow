@@ -21,28 +21,24 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #
-# @file: components/rust-development/scripts/env.sh
-# @brief: Environment configuration script for Rust development tools and cargo paths.
-# @author: Andrew Vasilyev
+# @file: components/python-toolchain/scripts/env.sh
+# @brief: Adds Rye shims directory to PATH for interactive shells.
+# author: Andrew Vasilyev
 # @license: MIT
 #
-if [ -n "${_COMPONENT_RUST_DEVELOPMENT_ENV_SOURCED:-}" ]; then
+if [ -n "${_COMPONENT_PYTHON_DEVELOPMENT_ENV_SOURCED:-}" ]; then
   return 0
 fi
-_COMPONENT_RUST_DEVELOPMENT_ENV_SOURCED=1
+_COMPONENT_PYTHON_DEVELOPMENT_ENV_SOURCED=1
 
-if [ -f "$HOME/.cargo/env" ]; then
-  . "$HOME/.cargo/env"
-fi
+rye_shims="${HOME}/.rye/shims"
 
-export RUST_BACKTRACE=1
-export CARGO_INCREMENTAL=1
-
-if command -v cargo >/dev/null 2>&1 && [ -d "$HOME/.cargo/bin" ]; then
-  case ":$PATH:" in
-    *":$HOME/.cargo/bin:"*) ;;
+if [ -d "$rye_shims" ]; then
+  case ":${PATH}:" in
+    *:"${rye_shims}":*)
+      ;;
     *)
-      export PATH="$HOME/.cargo/bin:$PATH"
+      export PATH="${rye_shims}:${PATH}"
       ;;
   esac
 fi

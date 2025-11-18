@@ -1,0 +1,5 @@
+base-devel
+pkgconf
+openssl
+libssh2
+curl

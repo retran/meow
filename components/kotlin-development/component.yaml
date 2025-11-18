@@ -3,5 +3,5 @@ platforms:
 - match:
     platform: macos
 depends_on:
-- kotlin-development-cli
+- kotlin-toolchain
 - desktop-essential

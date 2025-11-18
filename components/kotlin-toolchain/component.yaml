@@ -1,0 +1,8 @@
+description: JVM runtime and Kotlin compiler toolchain for command-line development
+platforms:
+- match:
+    platform: macos
+- match:
+    platform: linux
+depends_on:
+- development-essential

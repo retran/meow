@@ -54,7 +54,7 @@ source "${MEOW}/lib/package/snap.sh"
 if [ -d "$HOME/.cargo/bin" ]; then
   case ":$PATH:" in
     *":$HOME/.cargo/bin:"*) ;;
-    *) PATH="$HOME/.cargo/bin:$PATH" ;;
+    *) export PATH="$HOME/.cargo/bin:$PATH" ;;
   esac
 fi
 

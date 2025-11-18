@@ -1,8 +1,8 @@
-description: Lua runtime, language server, linting, and package management tools
+description: Lua language server, linting tools, and VS Code integration on top of lua-toolchain
 platforms:
 - match:
     platform: macos
 - match:
     platform: linux
 depends_on:
-- development-essential
+- lua-toolchain

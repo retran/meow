@@ -484,7 +484,7 @@ show_final_summary() {
       fi
 
       if [ "$MEOW_VERBOSE" = "true" ] && [ "${#MEOW_WARNINGS[@]}" -gt 0 ]; then
-        ui_warning "Warnings encountered (verbose mode):"
+        _base_msg "${WARNING}" "Warnings encountered (verbose mode):"
         for warn_msg in "${MEOW_WARNINGS[@]}"; do
           ui_list_item "$warn_msg"
         done

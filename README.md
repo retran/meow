@@ -221,7 +221,7 @@ All container presets are optimized for Linux development environments.
 
 ### 🏗️ Foundation Infrastructure
 
-- **shell-essential** - Essential shell environment with git, Node.js, file navigation tools, system monitoring utilities, and terminal enhancement (zsh plugins, starship prompt)
+- **shell-essential** - Essential shell environment with git, scripting runtimes, file navigation tools, system monitoring utilities, and terminal enhancement (zsh plugins, starship prompt)
 - **neovim** - Modern text editor with essential plugins and configurations
 - **development-essential** - Cross-language development tools (yamllint, httpie)
 - **go-task** - Task runner CLI installed via Homebrew on macOS and Linux package managers (repository configured via Task's official setup script)
@@ -250,15 +250,21 @@ All container presets are optimized for Linux development environments.
 
 ### 🚀 Language-Specific Development
 
-- **go-development** - Go toolchain, debugger, and language servers
-- **rust-development** - Rust toolchain and cargo tools
-- **python-development** - Python, pip, poetry, and development utilities
-- **js-development** - Node.js, npm, and JavaScript tools
+- **go-toolchain** - Go compiler installation and GOPATH environment wiring
+- **go-development** - Delve debugger, fmt/lint helpers, and Go-specific VS Code tooling
+- **rust-toolchain** - rustup, rustfmt, and clippy bootstrap with system dependencies
+- **rust-development** - Cargo workflow tools (watch, edit, expand, audit, etc.) layered on the rust-toolchain component
+- **python-toolchain** - Python interpreter, pip/pipx, venv/virtualenv support, and Rye installer
+- **python-development** - Pipx-installed developer CLIs (poetry, pipenv) and VS Code extensions
+- **js-toolchain** - Node.js runtime and npm CLI
+- **js-development** - JavaScript/TypeScript language servers and global npm utilities
 - **react-development** - React-specific tools and VS Code extensions
-- **dotnet-development** - .NET 10 SDK and PowerShell tooling installed via the official package feeds (Canonical's Ubuntu repositories/backports, Debian's Microsoft repository, Fedora/RHEL AppStream, Alpine's apk)
-- **kotlin-development-cli** - Kotlin compiler and JVM tools (cross-platform, standardized temurin JVM)
+- **dotnet-toolchain** - .NET 10 SDK installed via Microsoft's official package feeds for Ubuntu, Debian, Fedora/RHEL, Alpine, and macOS
+- **dotnet-development** - VS Code extensions and PowerShell tooling built on top of dotnet-toolchain
+- **kotlin-toolchain** - Temurin/OpenJDK 21 runtime and Kotlin compiler for CLI development
 - **kotlin-development** - IntelliJ IDEA IDE for Kotlin development (macOS only)
-- **lua-development** - Lua interpreter and development tools
+- **lua-toolchain** - Lua interpreter, headers, and luarocks
+- **lua-development** - Lua language server, linting, and VS Code tooling
 - **web-development** - Web development stack with CSS frameworks and build tools
 
 ### 🎯 Productivity & Media

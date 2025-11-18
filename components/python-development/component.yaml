@@ -1,8 +1,8 @@
-description: Python runtime, version management, and language server
+description: Python developer tooling (pipx apps, language servers, VS Code extensions)
 platforms:
 - match:
     platform: macos
 - match:
     platform: linux
 depends_on:
-- development-essential
+- python-toolchain
