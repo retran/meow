@@ -1,19 +1,8 @@
 description: PowerShell tooling and VS Code enhancements for .NET developers
 platforms:
-- match:
+  - match:
     platform: macos
-- match:
+  - match:
     platform: linux
-    distro_like:
-    - debian
-- match:
-    platform: linux
-    distro_like:
-    - rhel
-    - fedora
-- match:
-    platform: linux
-    distro:
-    - alpine
 depends_on:
-- dotnet-toolchain
+  - dotnet-toolchain
