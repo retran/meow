@@ -83,8 +83,19 @@ _parse_yaml_with_fallbacks() {
     if [ "$MEOW_VERBOSE" = "true" ]; then
       ui_verbose_info "Debug: $yq_cmd r '$alt_path' result: '$result'" >&2
     fi
-  fi # Method 4: Manual parsing
-  if [ -z "$result" ] || [ "$result" = "null" ]; then
+  fi
+
+  if [ "$result" = "null" ]; then
+    result=""
+  fi
+
+  if [ -n "$result" ]; then
+    printf '%s' "$result"
+    return 0
+  fi
+
+  # Method 4: Manual parsing
+  if [ -z "$result" ]; then
     if [ "$MEOW_VERBOSE" = "true" ]; then
       ui_verbose_info "Debug: yq failed, trying manual YAML parsing" >&2
     fi
