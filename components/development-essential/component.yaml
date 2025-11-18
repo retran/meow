@@ -10,14 +10,14 @@ package_sources:
   match:
     distro: ubuntu
   name: go-task
-  repo: deb [signed-by=/etc/apt/trusted.gpg.d/development-essential-go-task.gpg] https://dl.cloudsmith.io/public/task/task/deb/ubuntu noble main
+  repo: deb [signed-by=/usr/share/keyrings/development-essential-go-task.gpg] https://dl.cloudsmith.io/public/task/task/deb/ubuntu noble main
   key_url: https://dl.cloudsmith.io/public/task/task/gpg.046FD1186CA342F0.key
 - manager: apt
   match:
     distro:
     - debian
   name: go-task
-  repo: deb [signed-by=/etc/apt/trusted.gpg.d/development-essential-go-task.gpg] https://dl.cloudsmith.io/public/task/task/deb/debian bookworm main
+  repo: deb [signed-by=/usr/share/keyrings/development-essential-go-task.gpg] https://dl.cloudsmith.io/public/task/task/deb/debian bookworm main
   key_url: https://dl.cloudsmith.io/public/task/task/gpg.046FD1186CA342F0.key
 - manager: dnf
   match:

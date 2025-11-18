@@ -221,7 +221,14 @@ _ps_apply_apt_source() {
   local slug
   slug=$(_ps_slugify "${component}-${name:-apt}")
   local list_path="/etc/apt/sources.list.d/${slug}.list"
-  local key_path=""
+
+  local signed_by_path=""
+  if [[ "$repo" =~ signed-by=([^][:space:]]+) ]]; then
+    signed_by_path="${BASH_REMATCH[1]}"
+  fi
+
+  local key_path_default="/usr/share/keyrings/${slug}.gpg"
+  local key_path="${signed_by_path:-$key_path_default}"
 
   local state_dir="${MEOW_PACKAGE_SOURCES_STATE_DIR}/${component}"
   local state_file="${state_dir}/${slug}"
@@ -254,7 +261,6 @@ _ps_apply_apt_source() {
 
   local key_installed="false"
   if [ -n "$key_url" ]; then
-    key_path="/etc/apt/trusted.gpg.d/${slug}.gpg"
     local tmp_key=""
     tmp_key=$(mktemp 2>/dev/null) || true
     if [ -n "$tmp_key" ]; then
@@ -270,12 +276,14 @@ _ps_apply_apt_source() {
       fi
 
       if [ "$downloaded" = "true" ] && [ -s "$tmp_key" ]; then
-        sudo mkdir -p /etc/apt/trusted.gpg.d >/dev/null 2>&1 || true
+        local key_dir
+        key_dir=$(dirname "$key_path")
+        sudo mkdir -p "$key_dir" >/dev/null 2>&1 || true
         if command -v gpg >/dev/null 2>&1; then
           local tmp_key_bin=""
           tmp_key_bin=$(mktemp 2>/dev/null) || true
           if [ -n "$tmp_key_bin" ]; then
-            if gpg --yes --dearmor -o "$tmp_key_bin" "$tmp_key" >/dev/null 2>&1; then
+            if gpg --batch --yes --dearmor -o "$tmp_key_bin" "$tmp_key" >/dev/null 2>&1; then
               if sudo install -m 0644 "$tmp_key_bin" "$key_path" >/dev/null 2>&1; then
                 key_installed="true"
               fi
@@ -285,9 +293,7 @@ _ps_apply_apt_source() {
         fi
 
         if [ "$key_installed" != "true" ]; then
-          if sudo tee "$key_path" >/dev/null 2>&1 <"$tmp_key"; then
-            key_installed="true"
-          fi
+          sudo rm -f "$key_path" >/dev/null 2>&1 || true
         fi
       fi
 
