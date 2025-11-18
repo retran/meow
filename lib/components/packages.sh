@@ -51,6 +51,13 @@ source "${MEOW}/lib/package/cargo.sh"
 source "${MEOW}/lib/package/vscode.sh"
 source "${MEOW}/lib/package/snap.sh"
 
+if [ -d "$HOME/.cargo/bin" ]; then
+  case ":$PATH:" in
+    *":$HOME/.cargo/bin:"*) ;;
+    *) PATH="$HOME/.cargo/bin:$PATH" ;;
+  esac
+fi
+
 install_component_packages() {
   local component="$1"
   local component_dir="${MEOW_COMPONENTS_DIR}/${component}"

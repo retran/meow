@@ -97,7 +97,7 @@ _parse_yaml_with_fallbacks() {
   # Method 4: Manual parsing
   if [ -z "$result" ]; then
     if [ "$MEOW_VERBOSE" = "true" ]; then
-      ui_verbose_info "Debug: yq failed, trying manual YAML parsing" >&2
+      ui_verbose_info "Debug: yq did not return a value, checking manual parsing fallback" >&2
     fi
 
     if [ "$is_array" = "true" ]; then
