@@ -1,5 +1,7 @@
 git
 git-lfs
+nodejs
+npm
 bash
 zsh
 coreutils

@@ -2,6 +2,7 @@ curl
 wget
 git
 git-lfs
+node
 direnv
 bat
 fzf
