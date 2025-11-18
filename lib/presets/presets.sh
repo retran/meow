@@ -68,16 +68,59 @@ is_preset_available() {
     fi
 
     if [ -n "$current_platform" ]; then
-      local platform_supported=false
-      while IFS= read -r platform; do
-        [ -n "$platform" ] && [ "$platform" != "null" ] || continue
-        if [ "$platform" = "$current_platform" ]; then
-          platform_supported=true
-          break
-        fi
-      done < <(printf '%s\n' "$platforms_str")
+      local supported_platforms=()
 
-      [ "$platform_supported" = "true" ] || return 1
+      _collect_supported_platforms() {
+        local yaml_path="$1"
+        local skip_colon="${2:-false}"
+        local value output exists cleaned
+
+        output=$(read_yaml_array "$preset_file" "$yaml_path" 2>/dev/null || true)
+        if [ -z "$output" ]; then
+          return 0
+        fi
+
+        while IFS= read -r value; do
+          [ -n "$value" ] && [ "$value" != "null" ] || continue
+          if [ "$skip_colon" = "true" ] && printf '%s' "$value" | grep -q ':'; then
+            continue
+          fi
+
+          cleaned="${value#\"}"
+          cleaned="${cleaned%\"}"
+          cleaned="$(printf '%s' "$cleaned" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')"
+
+          if [ -n "$cleaned" ]; then
+            exists="false"
+            for existing in "${supported_platforms[@]}"; do
+              if [ "$existing" = "$cleaned" ]; then
+                exists="true"
+                break
+              fi
+            done
+
+            if [ "$exists" = "false" ]; then
+              supported_platforms+=("$cleaned")
+            fi
+          fi
+        done <<<"$output"
+      }
+
+      _collect_supported_platforms ".platforms[].match.platform"
+      _collect_supported_platforms ".platforms[].platform"
+      _collect_supported_platforms ".platforms[]?" "true"
+
+      if [ ${#supported_platforms[@]} -gt 0 ]; then
+        local platform_supported=false
+        for platform in "${supported_platforms[@]}"; do
+          if [ "$platform" = "$current_platform" ]; then
+            platform_supported=true
+            break
+          fi
+        done
+
+        [ "$platform_supported" = "true" ] || return 1
+      fi
     fi
   fi
 
