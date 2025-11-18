@@ -294,6 +294,38 @@ setup_component() {
   fi
 }
 
+preinstall_component() {
+  local component="$1"
+  local component_source_dir="${MEOW_COMPONENTS_DIR}/${component}"
+  local preinstall_script="${component_source_dir}/scripts/preinstall.sh"
+
+  if [ -f "$preinstall_script" ]; then
+    _icon_msg_core "${BLUE}➤ " "$(_f "Running pre-install steps for component: %s" "$component")"
+
+    if dry_run_script_execution "$preinstall_script" "preinstall script for $component"; then
+      return 0
+    fi
+
+    if [ ! -x "$preinstall_script" ]; then
+      chmod +x "$preinstall_script" || {
+        ui_error "$(_f "Failed to make preinstall script executable for '%s'." "$component")"
+        return 1
+      }
+    fi
+
+    if "$preinstall_script" "$component" "$MEOW"; then
+      ui_action_success "$(_f "Component '%s' pre-install completed successfully." "$component")"
+    else
+      ui_error "$(_f "Component '%s' pre-install failed." "$component")"
+      return 1
+    fi
+  else
+    if [ "$MEOW_VERBOSE" = "true" ]; then
+      ui_verbose_info "$(_f "No preinstall script found for component '%s'." "$component")"
+    fi
+  fi
+}
+
 cleanup_component() {
   local component="$1"
   local component_source_dir="${MEOW_COMPONENTS_DIR}/${component}"

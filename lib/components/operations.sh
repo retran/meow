@@ -321,6 +321,11 @@ _install_single_component() {
 
   MEOW_INSTALLING_COMPONENTS+=("$component")
 
+  if ! preinstall_component "$component"; then
+    ui_error "$(_f "Failed to run pre-install steps for component: %s" "$component")"
+    return 1
+  fi
+
   export MEOW_COMPONENT_MANUAL_INSTALL="$is_manual"
   if ! install_component_packages "$component"; then
     ui_error "$(_f "Failed to install packages for component: %s" "$component")"
@@ -635,6 +640,11 @@ _update_single_component() {
   fi
 
   MEOW_UPDATED_COMPONENTS+=("$component")
+
+  if ! preinstall_component "$component"; then
+    ui_error "$(_f "Failed to run pre-install steps for component: %s" "$component")"
+    return 1
+  fi
 
   if has_component_repository_config "$component"; then
     if [[ "$MEOW_VERBOSE" = "true" ]]; then

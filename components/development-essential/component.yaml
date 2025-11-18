@@ -5,32 +5,6 @@ platforms:
     platform: macos
 - match:
     platform: linux
-package_sources:
-- manager: apt
-  match:
-    distro: ubuntu
-  name: go-task
-  repo: deb [signed-by=/usr/share/keyrings/development-essential-go-task.gpg] https://dl.cloudsmith.io/public/task/task/deb/ubuntu noble main
-  key_url: https://dl.cloudsmith.io/public/task/task/gpg.046FD1186CA342F0.key
-- manager: apt
-  match:
-    distro:
-    - debian
-  name: go-task
-  repo: deb [signed-by=/usr/share/keyrings/development-essential-go-task.gpg] https://dl.cloudsmith.io/public/task/task/deb/debian bookworm main
-  key_url: https://dl.cloudsmith.io/public/task/task/gpg.046FD1186CA342F0.key
-- manager: dnf
-  match:
-    distro_like:
-    - rhel
-    - fedora
-  name: go-task
-  repo_file: |
-    [go-task]
-    name=go-task
-    baseurl=https://repo.go-task.io/rpm/
-    enabled=1
-    gpgcheck=1
-    gpgkey=https://repo.go-task.io/gpg.key
 depends_on:
+- go-task
 - neovim

@@ -1,0 +1,6 @@
+description: Task runner CLI installed via Homebrew on macOS and Linux distributions using official repository setup scripts
+platforms:
+- match:
+    platform: macos
+- match:
+    platform: linux

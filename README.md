@@ -223,7 +223,8 @@ All container presets are optimized for Linux development environments.
 
 - **shell-essential** - Essential shell environment with git, Node.js, file navigation tools, system monitoring utilities, and terminal enhancement (zsh plugins, starship prompt)
 - **neovim** - Modern text editor with essential plugins and configurations
-- **development-essential** - Cross-language development tools (go-task, yamllint, httpie)
+- **development-essential** - Cross-language development tools (yamllint, httpie)
+- **go-task** - Task runner CLI installed via Homebrew on macOS and Linux package managers (repository configured via Task's official setup script)
 
 ### 🖥️ Desktop Environment (macOS)
 
@@ -363,6 +364,7 @@ components/my-component/
 ├── config/                # Configuration file templates
 ├── symlinks/              # Symlink configuration files
 └── scripts/               # Lifecycle scripts
+    ├── preinstall.sh     # Pre-install dependencies/tasks
     ├── setup.sh          # One-time setup
     ├── env.sh            # Environment variables
     ├── init.sh           # Shell initialization
@@ -423,8 +425,9 @@ Define symlinks in YAML files within the `symlinks/` directory:
 
 ### Lifecycle Scripts
 
-Components support four types of lifecycle scripts:
+Components support five types of lifecycle scripts:
 
+- **preinstall.sh** - Runs before packages are installed (useful for vendor-provided installer scripts)
 - **setup.sh** - Runs once during initial installation
 - **env.sh** - Exports environment variables (sourced by shell)
 - **init.sh** - Runs on every shell initialization
