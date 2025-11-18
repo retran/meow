@@ -100,7 +100,7 @@ setup_ohmyzsh() {
     ui_spinner "Updating Oh My Zsh..." \
       --success "Oh My Zsh updated successfully." \
       --fail "Failed to update Oh My Zsh." \
-      sh -c "ZSH=\"\$1\" zsh -c \"source \\\"\$ZSH/oh-my-zsh.sh\\\" && omz update\"" _ "$ohmyzsh_path"
+      env ZSH="$ohmyzsh_path" zsh -c 'source "$ZSH/oh-my-zsh.sh" && omz update'
     return $?
   fi
 
