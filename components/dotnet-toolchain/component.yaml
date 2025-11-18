@@ -4,6 +4,10 @@ platforms:
     platform: macos
 - match:
     platform: linux
+    distro:
+    - debian
+- match:
+    platform: linux
     distro_like:
     - debian
 - match:
