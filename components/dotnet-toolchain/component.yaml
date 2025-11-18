@@ -4,6 +4,17 @@ platforms:
     platform: macos
 - match:
     platform: linux
+    distro_like:
+    - debian
+- match:
+    platform: linux
+    distro_like:
+    - rhel
+    - fedora
+- match:
+    platform: linux
+    distro:
+    - alpine
 depends_on:
 - development-essential
 package_sources:

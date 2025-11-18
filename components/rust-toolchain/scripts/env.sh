@@ -26,10 +26,10 @@
 # @author: Andrew Vasilyev
 # @license: MIT
 #
-if [ -n "${_COMPONENT_RUST_DEVELOPMENT_ENV_SOURCED:-}" ]; then
+if [ -n "${_COMPONENT_RUST_TOOLCHAIN_ENV_SOURCED:-}" ]; then
   return 0
 fi
-_COMPONENT_RUST_DEVELOPMENT_ENV_SOURCED=1
+_COMPONENT_RUST_TOOLCHAIN_ENV_SOURCED=1
 
 if [ -f "$HOME/.cargo/env" ]; then
   . "$HOME/.cargo/env"

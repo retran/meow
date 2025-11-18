@@ -35,6 +35,7 @@ _LIB_COMPONENTS_PACKAGES_SOURCED=1
 
 source "${MEOW}/lib/core/defs.sh"
 source "${MEOW}/lib/core/platform.sh"
+source "${MEOW}/lib/core/dry_run.sh"
 source "${MEOW}/lib/package/common.sh"
 source "${MEOW}/lib/package/config.sh"
 source "${MEOW}/lib/package/sources.sh"
@@ -57,6 +58,59 @@ if [ -d "$HOME/.cargo/bin" ]; then
     *) export PATH="$HOME/.cargo/bin:$PATH" ;;
   esac
 fi
+
+MEOW_APT_UPDATED=${MEOW_APT_UPDATED:-0}
+MEOW_DNF_UPDATED=${MEOW_DNF_UPDATED:-0}
+MEOW_PACMAN_UPDATED=${MEOW_PACMAN_UPDATED:-0}
+MEOW_APK_UPDATED=${MEOW_APK_UPDATED:-0}
+
+_ensure_package_manager_updated() {
+  local manager="$1"
+  local force="${2:-false}"
+  local upper
+  upper=$(printf '%s' "$manager" | tr '[:lower:]' '[:upper:]')
+  local flag_var="MEOW_${upper}_UPDATED"
+  local flag_value="${!flag_var:-0}"
+  if [ "$force" != "true" ] && [ "$flag_value" = "1" ]; then
+    return 0
+  fi
+
+  local label=""
+  local cmd=()
+
+  case "$manager" in
+    apt)
+      label="APT"
+      cmd=(sudo apt-get update)
+      ;;
+    dnf)
+      label="DNF"
+      cmd=(sudo dnf makecache -y)
+      ;;
+    pacman)
+      label="Pacman"
+      cmd=(sudo pacman -Sy --noconfirm)
+      ;;
+    apk)
+      label="APK"
+      cmd=(sudo apk update)
+      ;;
+    *)
+      return 0
+      ;;
+  esac
+
+  if is_dry_run; then
+    dry_run_ui_info "$(_f "Would update %s package index" "$label")"
+  else
+    ui_spinner "$(_f "%s: Updating package index" "$label")" \
+      --success "$(_f "%s: Package index updated successfully." "$label")" \
+      --fail "$(_f "%s: Failed to update package index." "$label")" \
+      "${cmd[@]}"
+  fi
+
+  printf -v "$flag_var" '1'
+}
 
 install_component_packages() {
   local component="$1"
@@ -103,13 +157,12 @@ install_component_packages() {
   elif meow_os_is_like "debian"; then
     if meow_pm_should_use_manager "$active_managers" "apt" && [ -f "${packages_dir}/apt.list" ]; then
       apply_component_sources "$component" "apt"
-       if [ "${MEOW_APT_SOURCES_CHANGED:-0}" = "1" ]; then
-         ui_spinner "APT: Updating package index for new sources" \
-           --success "APT: Package index updated successfully." \
-           --fail "APT: Failed to update package index." \
-           sudo apt-get update
-         MEOW_APT_SOURCES_CHANGED=0
-       fi
+      if [ "${MEOW_APT_SOURCES_CHANGED:-0}" = "1" ]; then
+        _ensure_package_manager_updated "apt" "true"
+        MEOW_APT_SOURCES_CHANGED=0
+      else
+        _ensure_package_manager_updated "apt"
+      fi
       if _install_packages_for_component_manager "$component" "apt"; then
         has_packages=true
       else
@@ -119,6 +172,7 @@ install_component_packages() {
   elif [ "$IS_RPM_BASED" = "true" ]; then
     if meow_pm_should_use_manager "$active_managers" "dnf" && [ -f "${packages_dir}/dnf.list" ]; then
       apply_component_sources "$component" "dnf"
+      _ensure_package_manager_updated "dnf"
       if _install_packages_for_component_manager "$component" "dnf"; then
         has_packages=true
       else
@@ -127,6 +181,7 @@ install_component_packages() {
     fi
   elif [ "$IS_ALPINE" = "true" ]; then
     if meow_pm_should_use_manager "$active_managers" "apk" && [ -f "${packages_dir}/apk.list" ]; then
+      _ensure_package_manager_updated "apk"
       if _install_packages_for_component_manager "$component" "apk"; then
         has_packages=true
       else
@@ -135,6 +190,7 @@ install_component_packages() {
     fi
   elif [ "$IS_ARCH" = "true" ]; then
     if meow_pm_should_use_manager "$active_managers" "pacman" && [ -f "${packages_dir}/pacman.list" ]; then
+      _ensure_package_manager_updated "pacman"
       if _install_packages_for_component_manager "$component" "pacman"; then
         has_packages=true
       else
@@ -345,6 +401,12 @@ update_component_packages() {
   elif meow_os_is_like "debian"; then
     if meow_pm_should_use_manager "$active_managers" "apt"; then
       apply_component_sources "$component" "apt"
+      if [ "${MEOW_APT_SOURCES_CHANGED:-0}" = "1" ]; then
+        _ensure_package_manager_updated "apt" "true"
+        MEOW_APT_SOURCES_CHANGED=0
+      else
+        _ensure_package_manager_updated "apt"
+      fi
     fi
     if meow_pm_should_use_manager "$active_managers" "apt" && _update_package_manager "apt" "apt" "$component"; then
       has_packages=true
@@ -354,6 +416,7 @@ update_component_packages() {
   elif [ "$IS_RPM_BASED" = "true" ]; then
     if meow_pm_should_use_manager "$active_managers" "dnf"; then
       apply_component_sources "$component" "dnf"
+      _ensure_package_manager_updated "dnf"
     fi
     if meow_pm_should_use_manager "$active_managers" "dnf" && _update_package_manager "dnf" "dnf" "$component"; then
       has_packages=true
@@ -361,12 +424,18 @@ update_component_packages() {
       package_errors=$((package_errors + 1))
     fi
   elif [ "$IS_ALPINE" = "true" ]; then
+    if meow_pm_should_use_manager "$active_managers" "apk"; then
+      _ensure_package_manager_updated "apk"
+    fi
     if meow_pm_should_use_manager "$active_managers" "apk" && _update_package_manager "apk" "apk" "$component"; then
       has_packages=true
     elif meow_pm_should_use_manager "$active_managers" "apk"; then
       package_errors=$((package_errors + 1))
     fi
   elif [ "$IS_ARCH" = "true" ]; then
+    if meow_pm_should_use_manager "$active_managers" "pacman"; then
+      _ensure_package_manager_updated "pacman"
+    fi
     if meow_pm_should_use_manager "$active_managers" "pacman" && _update_package_manager "pacman" "pacman" "$component"; then
       has_packages=true
     elif meow_pm_should_use_manager "$active_managers" "pacman"; then

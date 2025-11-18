@@ -30,6 +30,7 @@ fi
 _LIB_PACKAGE_SOURCES_SOURCED=1
 
 MEOW_PACKAGE_SOURCES_STATE_DIR="${MEOW}/.sources"
+MEOW_APT_UPDATED=${MEOW_APT_UPDATED:-0}
 
 source "${MEOW}/lib/core/platform.sh"
 source "${MEOW}/lib/core/yaml.sh"
@@ -309,6 +310,7 @@ _ps_apply_apt_source() {
 
   _ps_record_source "$component" "$slug" "apt" "$list_path" "$key_path"
   MEOW_APT_SOURCES_CHANGED=1
+  MEOW_APT_UPDATED=0
 }
 
 _ps_apply_dnf_source() {

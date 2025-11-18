@@ -7,3 +7,4 @@ platforms:
     platform: linux
 depends_on:
 - development-essential
+- js-toolchain

@@ -5,4 +5,4 @@ platforms:
 - match:
     platform: linux
 depends_on:
-- development-essential
+- shell-essential

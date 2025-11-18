@@ -7,4 +7,5 @@ platforms:
     platform: linux
 depends_on:
 - go-task
+- js-toolchain
 - neovim
