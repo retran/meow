@@ -58,7 +58,9 @@ collect_multiple_components_for_installation() {
 
     local component_and_deps=()
     while IFS= read -r comp; do
-      component_and_deps+=("$comp")
+      if [ -n "$comp" ]; then
+        component_and_deps+=("$comp")
+      fi
     done <<<"$component_and_deps_str"
 
     for comp in "${component_and_deps[@]}"; do
@@ -536,7 +538,9 @@ collect_installed_dependencies_for_update() {
 
   local all_components=()
   while IFS= read -r comp; do
-    all_components+=("$comp")
+    if [ -n "$comp" ]; then
+      all_components+=("$comp")
+    fi
   done <<<"$all_components_str"
 
   local already_added="false"
@@ -573,7 +577,9 @@ collect_installed_dependencies_recursively() {
     }
 
     while IFS= read -r dep; do
-      dependencies+=("$dep")
+      if [ -n "$dep" ]; then
+        dependencies+=("$dep")
+      fi
     done <<<"$dep_str"
 
     for dep in "${dependencies[@]}"; do
@@ -719,7 +725,7 @@ collect_multiple_components_for_uninstall() {
     local all_components_for_context=("${components_array[@]}")
     local filtered_source_components_str
 
-    filtered_source_components_str="$(filter_removable_dependencies_with_context "${source_components_to_filter[@]}" "${all_components_for_context[@]}" "$skip_preset_checks" "$exclude_preset")" || {
+    filter_removable_dependencies_with_context "source_components_to_filter" "all_components_for_context" "filtered_source_components_str" "$skip_preset_checks" "$exclude_preset" || {
       ui_error "Failed to filter source components for uninstallation."
       return 1
     }
@@ -749,7 +755,9 @@ collect_multiple_components_for_uninstall() {
 
       local dependencies=()
       while IFS= read -r dep; do
-        dependencies+=("$dep")
+        if [ -n "$dep" ]; then
+          dependencies+=("$dep")
+        fi
       done <<<"$dependencies_str"
 
       for dep in "${dependencies[@]}"; do
@@ -787,7 +795,7 @@ collect_multiple_components_for_uninstall() {
       done
 
       local removable_dependencies_str
-      removable_dependencies_str="$(filter_removable_dependencies_with_context "${new_dependencies_to_check[@]}" "${all_components_to_remove[@]}" "$skip_preset_checks" "$exclude_preset")" || {
+      filter_removable_dependencies_with_context "new_dependencies_to_check" "all_components_to_remove" "removable_dependencies_str" "$skip_preset_checks" "$exclude_preset" || {
         ui_error "Failed to filter removable dependencies during recursive check."
         return 1
       }
@@ -822,7 +830,9 @@ collect_multiple_components_for_uninstall() {
 
   local sorted_components=()
   while IFS= read -r comp; do
-    sorted_components+=("$comp")
+    if [[ -n "$comp" ]]; then
+      sorted_components+=("$comp")
+    fi
   done <<<"$sorted_components_str"
 
   for ((i = ${#sorted_components[@]} - 1; i >= 0; i--)); do

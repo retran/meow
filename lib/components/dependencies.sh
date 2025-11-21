@@ -124,15 +124,15 @@ get_presets_depending_on() {
       local dep
       while IFS= read -r dep; do
         if [ -n "$dep" ] && [ "$dep" != "null" ]; then
-          local component_deps=""
-          local comp_deps_raw
-          comp_deps_raw=$(get_component_dependencies "$dep")
+          local all_component_deps_raw
+          all_component_deps_raw=$(collect_dependencies_recursively_for_installation_stdout "$dep")
+          local all_component_deps=""
           local comp_dep_item
           while IFS= read -r comp_dep_item; do
             if [ -n "$comp_dep_item" ] && [ "$comp_dep_item" != "null" ]; then
-              component_deps="$component_deps$comp_dep_item"$'\n'
+              all_component_deps="$all_component_deps$comp_dep_item"$'\n'
             fi
-          done <<<"$comp_deps_raw"
+          done <<<"$all_component_deps_raw"
 
           local comp_dep
           while IFS= read -r comp_dep; do
@@ -141,7 +141,7 @@ get_presets_depending_on() {
               found_direct=true
               break 2
             fi
-          done <<<"$component_deps"
+          done <<<"$all_component_deps"
         fi
       done <<<"$required_deps"
     fi
@@ -156,6 +156,11 @@ get_presets_depending_on() {
 
 get_component_dependencies() {
   local component="$1"
+
+  if [ -z "$component" ]; then
+    return 1
+  fi
+
   local component_file="${MEOW_COMPONENTS_DIR}/${component}/component.yaml"
 
   if [ "$MEOW_VERBOSE" = "true" ]; then
@@ -206,6 +211,11 @@ get_component_dependencies() {
 
 collect_dependencies_recursively_for_installation_stdout() {
   local component="$1"
+
+  if [ -z "$component" ]; then
+    return 1
+  fi
+
   local dependencies_raw
   dependencies_raw=$(get_component_dependencies "$component")
 
@@ -227,9 +237,15 @@ collect_dependencies_recursively_for_installation_stdout() {
 }
 
 topological_sort_for_installation() {
+  if [ $# -eq 0 ]; then
+    return 0
+  fi
+
   local remaining_components=""
   for arg in "$@"; do
-    remaining_components="$remaining_components$arg"$'\n'
+    if [ -n "$arg" ]; then
+      remaining_components="$remaining_components$arg"$'\n'
+    fi
   done
 
   local sorted_components=""
@@ -351,7 +367,7 @@ collect_all_dependencies_for_installation() {
     ui_verbose_info "$(_f "Debug: Final result for '%s': '%s'" "$component" "$result")" >&2
   fi
 
-  printf '%s\n' "$result"
+  printf '%s' "$result"
 }
 
 filter_removable_dependencies_with_context() {
@@ -446,13 +462,16 @@ filter_removable_dependencies_with_context() {
     candidates="$new_candidates"
   done
 
-  eval "${_removable_name}=\"\""
+  local removable=""
   local item
   while IFS= read -r item; do
     if [ -n "$item" ]; then
-      eval "${_removable_name}+=\"$item \""
+      removable="$removable$item "
     fi
   done <<<"$candidates"
+
+  removable="${removable% }"
+  eval "${_removable_name}=\"$removable\""
 }
 
 should_remove_dependency() {
