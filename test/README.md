@@ -25,9 +25,10 @@ test/libs/bats/bin/bats test/unit/**/*.bats
 ### Run Tests by Directory
 
 ```bash
-test/libs/bats/bin/bats test/unit/core/*.bats    # Core library tests
-test/libs/bats/bin/bats test/unit/package/*.bats # Package manager tests
-test/libs/bats/bin/bats test/unit/components/*.bats # Component tests
+test/libs/bats/bin/bats test/unit/core/*.bats     # Core library tests
+test/libs/bats/bin/bats test/unit/env/*.bats      # Environment tests
+test/libs/bats/bin/bats test/unit/motd/*.bats     # MOTD tests
+test/libs/bats/bin/bats test/unit/symlinks/*.bats # Symlinks tests
 ```
 
 ### Using Taskfile
@@ -53,17 +54,14 @@ Coverage reports are generated in the `coverage/` directory.
 
 ## Test Structure
 
-Tests are organized to mirror the `lib/` directory structure:
+Tests focus on core functionality with comprehensive test coverage:
 
 ```
 test/unit/
-├── components/      # Tests for lib/components/*.sh
-├── core/           # Tests for lib/core/*.sh
-├── env/            # Tests for lib/env/*.sh
-├── motd/           # Tests for lib/motd/*.sh
-├── package/        # Tests for lib/package/*.sh
-├── presets/        # Tests for lib/presets/*.sh
-└── symlinks/       # Tests for lib/symlinks/*.sh
+├── core/           # Tests for lib/core/*.sh (7 files, 79 tests)
+├── env/            # Tests for lib/env/*.sh (1 file, 5 tests)
+├── motd/           # Tests for lib/motd/*.sh (1 file, 5 tests)
+└── symlinks/       # Tests for lib/symlinks/*.sh (1 file, 6 tests)
 ```
 
 ## Writing Tests
@@ -112,14 +110,16 @@ Common assertions used:
 
 ## Test Coverage
 
-Current test coverage includes:
+Current test coverage focuses on comprehensive testing of core functionality:
 
-- **Core libraries** (lib/core/): All 9 files with comprehensive tests
-- **Components** (lib/components/): All 7 files with basic source tests
-- **Package managers** (lib/package/): All 14 files with basic source tests
-- **Other libraries**: env, motd, presets, symlinks - all tested
+- **Core libraries** (lib/core/): 7 files with 79 comprehensive tests
+  - bash.sh (11 tests), colors.sh (14 tests), defs.sh (9 tests), 
+  - dry_run.sh (11 tests), platform.sh (15 tests), ui.sh (17 tests), yaml.sh (2 tests)
+- **Environment** (lib/env/): 1 file with 5 tests
+- **MOTD** (lib/motd/): 1 file with 5 tests
+- **Symlinks** (lib/symlinks/): 1 file with 6 tests
 
-Total: 121 unit tests covering 35 library files.
+Total: 95 unit tests covering 10 core library files with meaningful behavioral tests.
 
 ## Design Principles
 
