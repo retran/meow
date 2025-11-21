@@ -2,9 +2,6 @@
 
 [![GitHub stars](https://img.shields.io/github/stars/retran/meow?style=flat-square)](https://github.com/retran/meow/stargazers)
 [![GitHub forks](https://img.shields.io/github/forks/retran/meow?style=flat-square)](https://github.com/retran/meow/network/members)
-[![Latest Release](https://img.shields.io/github/v/release/retran/meow?style=flat-square)](https://github.com/retran/meow/releases/latest)
-[![Build Status](https://img.shields.io/github/actions/workflow/status/retran/meow/release.yml?branch=main&style=flat-square)](https://github.com/retran/meow/actions/workflows/release.yml)
-[![ShellCheck](https://img.shields.io/badge/ShellCheck-enabled-brightgreen?style=flat-square)](https://github.com/koalaman/shellcheck)
 [![License](https://img.shields.io/github/license/retran/meow?style=flat-square)](./LICENSE)
 
 <div align="center">
@@ -93,7 +90,7 @@ Apply the chosen configuration.
 
 -----
 
-\<div align="center"\>
+<div align="center">
 
 ### Made with ❤️ by Andrew Vasilyev and feline assistants Sonya Blade, Mila, and Marcus Fenix
 
@@ -101,5 +98,5 @@ Apply the chosen configuration.
 
 [⭐ Star us on GitHub](https://github.com/retran/meow) • [🐛 Report Bug](https://github.com/retran/meow/issues) • [💡 Request Feature](https://github.com/retran/meow/issues) • [🔀 Contribute](https://github.com/retran/meow/pulls)
 
-\</div\>
+</div\>
 
