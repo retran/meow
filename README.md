@@ -14,6 +14,27 @@
 
 </div>
 
+## 🚨 DEPRECATION NOTICE: `.meow` (BASH 3.2)
+
+### Status: End-of-Life
+
+The **`.meow` dotfile and environment management tool**, based on **BASH 3.2**, is officially deprecated and is no longer actively maintained.
+
+This decision stems from fundamental architectural limitations within BASH 3.2 (lack of reliable data structures, associative arrays, and testability), which prohibit achieving our goals of a clean, reliable, and testable system.
+
+### The New Path: meowctl
+
+Development has been fully rebooted on a modern architecture. We are migrating to **meowctl**, a new, statically compiled **configuration management tool**.
+
+**Key Benefits of meowctl:**
+* All complex configuration logic (YAML parsing, dependency sorting) is managed by a strictly typed **Go** core.
+* It remains a single binary, preserving the principle of not requiring a runtime (Python, Node.js) on the target machine.
+* BASH scripts are reduced to thin, reliable adapters for executing system commands (`apt`, `brew`, `sudo`).
+
+We invite you to follow the development of the new project.
+
+**➡️ New Repository:** [github.com/retran/meowctl](https://github.com/retran/meowctl)
+
 ## 🎯 Overview
 
 Setting up a consistent and reproducible development environment is often a tedious, manual process prone to errors. `.meow` solves this by providing a **modular, declarative configuration management framework** that automates the setup of developer environments across diverse operating systems. It's more than just dotfiles; it's a powerful system for defining, installing, and managing your entire development stack with idempotent operations, ensuring your environment is always in the desired state.
@@ -94,9 +115,9 @@ Apply the chosen configuration.
 
 ### Made with ❤️ by Andrew Vasilyev and feline assistants Sonya Blade, Mila, and Marcus Fenix
 
-**Happy coding with project meow\! 🐱**
+**Happy coding with project meow! 🐱**
 
 [⭐ Star us on GitHub](https://github.com/retran/meow) • [🐛 Report Bug](https://github.com/retran/meow/issues) • [💡 Request Feature](https://github.com/retran/meow/issues) • [🔀 Contribute](https://github.com/retran/meow/pulls)
 
-</div\>
+</div>
 
