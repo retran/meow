@@ -1,0 +1,6 @@
+description: Visual Studio Code CLI for tunnels and remote connections
+platforms:
+- match:
+    platform: linux
+depends_on:
+- shell-essential

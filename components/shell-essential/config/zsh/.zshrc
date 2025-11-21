@@ -2,6 +2,9 @@
 
 # config/shells/zsh configuration file for Meow
 
+autoload -Uz compinit
+compinit
+
 # Source component interactive shell scripts
 if [[ -d "${MEOW}/.installed/components" ]]; then
   # Use nullglob to avoid errors when no files match

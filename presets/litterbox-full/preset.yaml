@@ -1,0 +1,34 @@
+description: Install every Linux-compatible component for a fully loaded development environment
+platforms:
+- match:
+    platform: linux
+extends:
+- base
+- litterbox-essential
+required:
+- development-essential
+- docker-cli
+- dotnet-development
+- dotnet-toolchain
+- go-development
+- go-task
+- go-toolchain
+- js-development
+- js-toolchain
+- kotlin-toolchain
+- lua-development
+- lua-toolchain
+- markdown
+- meowvim
+- neovim
+- python-development
+- python-toolchain
+- react-development
+- rust-development
+- rust-toolchain
+- shell-development
+- shell-essential
+- time-tracking-cli
+- tmux
+- visual-studio-code-cli
+- web-development

@@ -59,7 +59,7 @@ is_preset_available() {
     local current_platform=""
     if [ "$IS_MACOS" = "true" ]; then
       current_platform="macos"
-    elif [ "$IS_DEBIAN_BASED" = "true" ]; then
+    elif meow_os_is_like "debian"; then
       current_platform="linux"
     elif [ "$IS_ALPINE" = "true" ]; then
       current_platform="linux"
@@ -68,16 +68,59 @@ is_preset_available() {
     fi
 
     if [ -n "$current_platform" ]; then
-      local platform_supported=false
-      while IFS= read -r platform; do
-        [ -n "$platform" ] && [ "$platform" != "null" ] || continue
-        if [ "$platform" = "$current_platform" ]; then
-          platform_supported=true
-          break
-        fi
-      done < <(printf '%s\n' "$platforms_str")
+      local supported_platforms=()
 
-      [ "$platform_supported" = "true" ] || return 1
+      _collect_supported_platforms() {
+        local yaml_path="$1"
+        local skip_colon="${2:-false}"
+        local value output exists cleaned
+
+        output=$(read_yaml_array "$preset_file" "$yaml_path" 2>/dev/null || true)
+        if [ -z "$output" ]; then
+          return 0
+        fi
+
+        while IFS= read -r value; do
+          [ -n "$value" ] && [ "$value" != "null" ] || continue
+          if [ "$skip_colon" = "true" ] && printf '%s' "$value" | grep -q ':'; then
+            continue
+          fi
+
+          cleaned="${value#\"}"
+          cleaned="${cleaned%\"}"
+          cleaned="$(printf '%s' "$cleaned" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')"
+
+          if [ -n "$cleaned" ]; then
+            exists="false"
+            for existing in "${supported_platforms[@]}"; do
+              if [ "$existing" = "$cleaned" ]; then
+                exists="true"
+                break
+              fi
+            done
+
+            if [ "$exists" = "false" ]; then
+              supported_platforms+=("$cleaned")
+            fi
+          fi
+        done <<<"$output"
+      }
+
+      _collect_supported_platforms ".platforms[].match.platform"
+      _collect_supported_platforms ".platforms[].platform"
+      _collect_supported_platforms ".platforms[]?" "true"
+
+      if [ ${#supported_platforms[@]} -gt 0 ]; then
+        local platform_supported=false
+        for platform in "${supported_platforms[@]}"; do
+          if [ "$platform" = "$current_platform" ]; then
+            platform_supported=true
+            break
+          fi
+        done
+
+        [ "$platform_supported" = "true" ] || return 1
+      fi
     fi
   fi
 
@@ -91,32 +134,48 @@ get_preset_file() {
 
 get_preset_required_components() {
   local preset="$1"
+  _collect_preset_requirements "$preset" "" || return 1
+}
+
+_collect_preset_requirements() {
+  local preset="$1"
+  local stack="$2"
+
+  if [[ " $stack " == *" $preset "* ]]; then
+    ui_error "$(_f "Detected circular preset inheritance involving '%s'." "$preset")"
+    return 1
+  fi
+
   local preset_file
   preset_file=$(get_preset_file "$preset")
 
   if [ ! -f "$preset_file" ]; then
-    if [ "$MEOW_VERBOSE" = "true" ]; then
-      ui_verbose_info "$(_f "Debug: Preset file not found: %s" "$preset_file")" >&2
-    fi
+    ui_error "$(_f "Preset '%s' definition not found." "$preset")"
     return 1
   fi
 
-  if [ "$MEOW_VERBOSE" = "true" ]; then
-    ui_verbose_info "$(_f "Debug: Reading preset file: %s" "$preset_file")" >&2
-    local file_content
-    file_content=$(cat "$preset_file" 2>/dev/null || echo "Failed to read file")
-    ui_verbose_info "$(_f "Debug: Preset file content: %s" "$file_content")" >&2
+  local combined=""
+  local extends_str
+  extends_str=$(read_yaml_array "$preset_file" ".extends[]?" 2>/dev/null || echo "")
+
+  if [ -n "$extends_str" ]; then
+    while IFS= read -r parent; do
+      [ -n "$parent" ] || continue
+      local parent_components
+      parent_components=$(_collect_preset_requirements "$parent" "$stack $preset") || return 1
+      if [ -n "$parent_components" ]; then
+        combined+="$parent_components"$'\n'
+      fi
+    done <<<"$extends_str"
   fi
 
-  # Use the shared YAML parsing logic with array parsing
   local required_components
-  required_components=$(read_yaml_array "$preset_file" ".required[]")
-
-  if [ "$MEOW_VERBOSE" = "true" ]; then
-    ui_verbose_info "$(_f "Debug: final required components result: '%s'" "$required_components")" >&2
+  required_components=$(read_yaml_array "$preset_file" ".required[]?" 2>/dev/null || echo "")
+  if [ -n "$required_components" ]; then
+    combined+="$required_components"
   fi
 
-  echo "$required_components"
+  printf '%s' "$combined" | sed '/^$/d'
 }
 
 collect_preset_components_for_installation() {
@@ -192,6 +251,9 @@ install_preset() {
     ui_error "$(_f "Preset '%s' not found." "$preset")"
     return 1
   fi
+
+  local previous_pm_config="${MEOW_ACTIVE_PRESET_FILE:-}"
+  MEOW_ACTIVE_PRESET_FILE="$preset_file"
 
   if ! is_preset_available "$preset"; then
     ui_error "$(_f "Preset '%s' is not available on this platform." "$preset")"
@@ -319,29 +381,52 @@ install_preset() {
       ui_indent "All components already installed for this preset."
     fi
 
+    local force_install="false"
+    if [ "$force_flag" = "--force" ]; then
+      force_install="true"
+    fi
+
+    local previous_pm_config="${MEOW_ACTIVE_PRESET_FILE:-}"
+    MEOW_ACTIVE_PRESET_FILE="$preset_file"
+
     _initialize_session || {
       ui_error "Session initialization failed."
+      MEOW_ACTIVE_PRESET_FILE="$previous_pm_config"
       return 1
     }
 
-    declare -ga MEOW_INSTALLING_COMPONENTS=()
+    if [ -n "${BASH_VERSINFO[0]:-}" ] && [ "${BASH_VERSINFO[0]}" -ge 4 ]; then
+      declare -ga MEOW_INSTALLING_COMPONENTS=()
+    else
+      MEOW_INSTALLING_COMPONENTS=()
+    fi
 
     local install_success=true
+    local failed_component=""
     for component in "${installation_order[@]}"; do
-      if ! _install_single_component "$component" false false; then
+      if ! _install_single_component "$component" false false "$force_install"; then
         ui_error "$(_f "Failed to install component '%s' for preset '%s'." "$component" "$preset")"
         install_success=false
+        failed_component="$component"
         break
       fi
     done
 
-    _finalize_session
-    unset MEOW_INSTALLING_COMPONENTS
-
     if [ "$install_success" != "true" ]; then
+      if [ -n "$failed_component" ]; then
+        ui_warning "$(_f "Rolling back failed component '%s'." "$failed_component")"
+        _uninstall_single_component "$failed_component" "true" >/dev/null 2>&1 || true
+      fi
+      _finalize_session
+      unset MEOW_INSTALLING_COMPONENTS
       ui_error "$(_f "Failed to install all required components for preset '%s'." "$preset")"
+      MEOW_ACTIVE_PRESET_FILE="$previous_pm_config"
       return 1
     fi
+
+    _finalize_session
+    unset MEOW_INSTALLING_COMPONENTS
+    MEOW_ACTIVE_PRESET_FILE="$previous_pm_config"
   fi
 
   if is_dry_run; then
@@ -363,6 +448,11 @@ update_preset() {
     ui_warning "$(_f "Preset '%s' is not installed." "$preset")"
     return 1
   fi
+
+  local preset_file
+  preset_file=$(get_preset_file "$preset")
+  local previous_pm_config="${MEOW_ACTIVE_PRESET_FILE:-}"
+  MEOW_ACTIVE_PRESET_FILE="$preset_file"
 
   ui_header "$(_f "Updating Preset: %s" "$preset")"
 
@@ -392,6 +482,7 @@ update_preset() {
   fi
 
   ui_action_success "$(_f "Preset '%s' updated successfully." "$preset")"
+  MEOW_ACTIVE_PRESET_FILE="$previous_pm_config"
   return 0
 }
 
@@ -519,6 +610,7 @@ uninstall_preset() {
 
       if ! uninstall_component "${args[@]}"; then
         ui_error "$(_f "Failed to uninstall components for preset '%s'." "$preset_name")"
+        MEOW_ACTIVE_PRESET_FILE="$previous_pm_config"
         return 1
       fi
     else
@@ -529,6 +621,7 @@ uninstall_preset() {
   remove_preset_tracking "$preset"
 
   ui_success "$(_f "Preset '%s' uninstalled successfully." "$preset")"
+  MEOW_ACTIVE_PRESET_FILE="$previous_pm_config"
   return 0
 }
 
@@ -568,6 +661,7 @@ uninstall_all() {
     dry_run_file_operation "remove_directory" "${MEOW_INSTALLED_COMPONENTS_DIR}"
     dry_run_file_operation "remove_directory" "${MEOW_INSTALLED_PRESETS_DIR}"
     dry_run_file_operation "remove_directory" "${MEOW_MANUALLY_INSTALLED_COMPONENTS_DIR}"
+    dry_run_file_operation "remove_directory" "${MEOW_DOWNLOADS_DIR}"
     ui_success "All components would be uninstalled and installation tracking cleaned (dry run)."
   else
     if [ -d "${MEOW_INSTALLED_COMPONENTS_DIR}" ]; then
@@ -583,6 +677,10 @@ uninstall_all() {
     if [ -d "${MEOW_MANUALLY_INSTALLED_COMPONENTS_DIR}" ]; then
       rm -rf "${MEOW_MANUALLY_INSTALLED_COMPONENTS_DIR:?}"
       ui_verbose_info "Removed manual installation tracking directory: %s" "${MEOW_MANUALLY_INSTALLED_COMPONENTS_DIR}"
+    fi
+    if [ -d "${MEOW_DOWNLOADS_DIR}" ]; then
+      rm -rf "${MEOW_DOWNLOADS_DIR:?}"
+      ui_verbose_info "Removed downloads cache directory: %s" "${MEOW_DOWNLOADS_DIR}"
     fi
     ui_success "All components uninstalled and installation tracking cleaned."
   fi

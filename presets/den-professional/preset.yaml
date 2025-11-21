@@ -1,0 +1,8 @@
+description: Catden professional workstation setup focused on productivity and collaboration
+extends:
+- base
+- den-essential
+required:
+- docker-desktop
+- business-communication
+- productivity

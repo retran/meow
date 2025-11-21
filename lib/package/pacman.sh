@@ -35,7 +35,7 @@ source "${MEOW}/lib/package/common.sh"
 source "${MEOW}/lib/core/dry_run.sh"
 
 _cache_installed_pacman_packages() {
-  cache_package_list "pacman" "pacman -Qq 2>/dev/null"
+  cache_package_list "pacman" "pacman -Qq"
 }
 
 is_pacman_package_installed() {

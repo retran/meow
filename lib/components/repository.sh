@@ -54,6 +54,10 @@ get_component_repository_url() {
 }
 
 get_component_repository_branch() {
+  get_component_repository_ref "$@"
+}
+
+get_component_repository_ref() {
   local component="$1"
   local component_file="${MEOW_COMPONENTS_DIR}/${component}/component.yaml"
 
@@ -70,15 +74,29 @@ get_component_repository_branch() {
   fi
 }
 
+get_component_repository_mode() {
+  local component="$1"
+  local component_file="${MEOW_COMPONENTS_DIR}/${component}/component.yaml"
+
+  local tag
+  tag=$(read_yaml_value "$component_file" ".repository.tag")
+
+  if [ -n "$tag" ] && [ "$tag" != "null" ]; then
+    echo "tag"
+  else
+    echo "branch"
+  fi
+}
+
 clone_component_repository() {
   local component="$1"
   local installed_dir="${MEOW_DOWNLOADS_DIR}/${component}"
 
-  local repo_url branch_or_tag
+  local repo_url checkout_ref
   repo_url=$(get_component_repository_url "$component")
-  branch_or_tag=$(get_component_repository_branch "$component")
+  checkout_ref=$(get_component_repository_ref "$component")
 
-  if dry_run_git_operation "clone" "$installed_dir" "$(_f "%s (branch: %s)" "$repo_url" "$branch_or_tag")"; then
+  if dry_run_git_operation "clone" "$installed_dir" "$(_f "%s (ref: %s)" "$repo_url" "$checkout_ref")"; then
     return 0
   fi
 
@@ -101,7 +119,7 @@ clone_component_repository() {
 
   local clone_message="$(_f "Cloning repository for '%s'..." "$component")"
   ui_spinner "$clone_message" \
-    git clone --depth 1 -b "$branch_or_tag" "$repo_url" "$installed_dir"
+    git clone --depth 1 -b "$checkout_ref" "$repo_url" "$installed_dir"
 
   return $?
 }
@@ -109,6 +127,8 @@ clone_component_repository() {
 update_component_repository() {
   local component="$1"
   local installed_dir="${MEOW_DOWNLOADS_DIR}/${component}"
+  local checkout_mode
+  checkout_mode=$(get_component_repository_mode "$component")
 
   if dry_run_git_operation "pull" "$installed_dir"; then
     return 0
@@ -120,9 +140,18 @@ update_component_repository() {
     return $?
   fi
 
+  if [ "$checkout_mode" = "tag" ]; then
+    ui_info "$(_f "Repository for '%s' is pinned to a tag. Re-cloning to ensure correct version." "$component")"
+    clone_component_repository "$component"
+    return $?
+  fi
+
   if [ "$MEOW_VERBOSE" = "true" ]; then
     ui_step_header "$(_f "Updating repository for component: %s" "$component")"
   fi
+
+  local checkout_ref
+  checkout_ref=$(get_component_repository_ref "$component")
 
   local update_message="$(_f "Updating repository for '%s'..." "$component")"
 
@@ -130,9 +159,9 @@ update_component_repository() {
     sh -c "
 
       cd '$installed_dir' || exit 1
-      git fetch || exit 1
-      GIT_BRANCH_NAME=\$(git rev-parse --abbrev-ref HEAD || exit 1)
-      git reset --hard \"origin/\$GIT_BRANCH_NAME\" || exit 1
+      git fetch origin '$checkout_ref' || exit 1
+      git checkout -B '$checkout_ref' \"origin/$checkout_ref\" >/dev/null 2>&1 || exit 1
+      git reset --hard \"origin/$checkout_ref\" || exit 1
     "
 
   local update_status=$?

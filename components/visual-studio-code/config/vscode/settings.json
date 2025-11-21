@@ -13,7 +13,7 @@
   "window.customTitleBarVisibility": "never",
   "window.commandCenter": false,
 
-  "workbench.colorTheme": "Tokyo Night",
+  "workbench.colorTheme": "Catppuccin Mocha",
   "workbench.layoutControl.enabled": false,
 
   "extensions.ignoreRecommendations": true,

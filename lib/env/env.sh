@@ -67,6 +67,11 @@ _meow_set_if_command_exists "PAGER" "less" "more"
 
 export PATH="$HOME/.local/bin:$PATH"
 
+# Normalize TERM so tput-based UI works even if the terminal type isn't installed
+if [ -z "${TERM:-}" ] || ! infocmp >/dev/null 2>&1; then
+  export TERM="xterm-256color"
+fi
+
 if [ "$(uname -s)" = "Darwin" ]; then
   export HOMEBREW_PREFIX="/opt/homebrew"
   export HOMEBREW_NO_ANALYTICS=1

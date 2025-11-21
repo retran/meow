@@ -114,20 +114,37 @@ is_component_available() {
   [ -f "$component_file" ] || return 1
 
   if yaml_path_exists "$component_file" ".platforms"; then
-    local current_platform
-    current_platform=$(get_platform)
-    local platform_supported=false
-    local platform_name
+    local platform
+    platform=$(get_platform)
+    local likes_csv="${MEOW_OS_ID_LIKE// /,}"
+    local version="${MEOW_OS_VERSION_ID:-}"
+    local platforms_json
+    platforms_json=$(yq eval -o=json '.platforms' "$component_file" 2>/dev/null || echo "null")
 
-    while IFS= read -r platform_name; do
-      platform_name=$(echo "$platform_name" | tr -d '"')
-      if [ -n "$platform_name" ] && [ "$platform_name" = "$current_platform" ]; then
-        platform_supported=true
-        break
-      fi
-    done < <(read_yaml_array "$component_file" ".platforms[]" 2>/dev/null)
+    _ensure_yq_available
+    local yq_cmd
+    yq_cmd=$(command -v yq)
 
-    if [ "$platform_supported" = "false" ]; then
+    local query='
+      def to_list(v): if (v | type) == "array" then v elif v == null then [] else [v] end;
+      def is_match(entry; platform; distro; version; likes):
+        if (entry | type) == "string" then
+          entry == platform
+        elif (entry | type) == "object" then
+          (if entry.match then entry.match else entry end) as $m
+          | ((to_list($m.platform) | length) == 0 or (to_list($m.platform) | contains([platform])))
+            and ((to_list($m.distro) | length) == 0 or (to_list($m.distro) | contains([distro])))
+            and ((to_list($m.version_id) | length) == 0 or (version != "" and (to_list($m.version_id) | contains([version]))))
+            and ((to_list($m.distro_like) | length) == 0 or ( (likes | split(",")) as $l | (to_list($m.distro_like) | .[] | select(. as $item | $l | contains([$item]))) | length > 0))
+        else
+          false
+        end;
+      (if (.|type) == "array" then .[] else . end) | select(is_match(.; strenv(platform); strenv(distro); strenv(version); strenv(likes))) | length > 0
+    '
+    local match
+    match=$(echo "$platforms_json" | "$yq_cmd" --arg platform "$platform" --arg distro "${MEOW_OS_ID:-}" --arg version "${version:-}" --arg likes "$likes_csv" "$query")
+
+    if [ "$match" != "true" ]; then
       return 1
     fi
   fi
@@ -234,6 +251,38 @@ setup_component() {
   else
     if [ "$MEOW_VERBOSE" = "true" ]; then
       ui_verbose_info "$(_f "No setup script found for component '%s'." "$component")"
+    fi
+  fi
+}
+
+preinstall_component() {
+  local component="$1"
+  local component_source_dir="${MEOW_COMPONENTS_DIR}/${component}"
+  local preinstall_script="${component_source_dir}/scripts/preinstall.sh"
+
+  if [ -f "$preinstall_script" ]; then
+    _icon_msg_core "${BLUE}➤ " "$(_f "Running pre-install steps for component: %s" "$component")"
+
+    if dry_run_script_execution "$preinstall_script" "preinstall script for $component"; then
+      return 0
+    fi
+
+    if [ ! -x "$preinstall_script" ]; then
+      chmod +x "$preinstall_script" || {
+        ui_error "$(_f "Failed to make preinstall script executable for '%s'." "$component")"
+        return 1
+      }
+    fi
+
+    if "$preinstall_script" "$component" "$MEOW"; then
+      ui_action_success "$(_f "Component '%s' pre-install completed successfully." "$component")"
+    else
+      ui_error "$(_f "Component '%s' pre-install failed." "$component")"
+      return 1
+    fi
+  else
+    if [ "$MEOW_VERBOSE" = "true" ]; then
+      ui_verbose_info "$(_f "No preinstall script found for component '%s'." "$component")"
     fi
   fi
 }

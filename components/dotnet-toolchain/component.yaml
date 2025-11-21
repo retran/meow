@@ -1,0 +1,49 @@
+description: .NET SDK installation sourced from Microsoft repositories across supported distributions
+platforms:
+- match:
+    platform: macos
+- match:
+    platform: linux
+    distro:
+    - debian
+- match:
+    platform: linux
+    distro_like:
+    - debian
+- match:
+    platform: linux
+    distro_like:
+    - rhel
+    - fedora
+- match:
+    platform: linux
+    distro:
+    - alpine
+depends_on:
+- development-essential
+package_sources:
+- manager: apt
+  match:
+    distro: ubuntu
+    version_id:
+    - "22.04"
+    - "24.04"
+  name: dotnet-ubuntu-backports
+  repo: deb http://ppa.launchpad.net/dotnet/backports/ubuntu {{VERSION_CODENAME}} main
+  key_url: https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x45A3F127159BE9E5017811C62125B164E8E5D3FA
+- manager: apt
+  match:
+    distro: ubuntu
+    version_id:
+    - "16.04"
+    - "18.04"
+    - "20.04"
+  name: microsoft-dotnet-ubuntu
+  repo: deb [arch=amd64,arm64,armhf] https://packages.microsoft.com/ubuntu/{{VERSION_ID}}/prod {{VERSION_CODENAME}} main
+  key_url: https://packages.microsoft.com/keys/microsoft.asc
+- manager: apt
+  match:
+    distro: debian
+  name: microsoft-dotnet-debian
+  repo: deb [arch=amd64,arm64,armhf] https://packages.microsoft.com/debian/{{VERSION_ID}}/prod {{VERSION_CODENAME}} main
+  key_url: https://packages.microsoft.com/keys/microsoft.asc

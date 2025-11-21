@@ -1,0 +1,7 @@
+pkgconf-pkg-config
+openssl-devel
+libssh2-devel
+libcurl-devel
+gcc
+gcc-c++
+make

@@ -35,6 +35,40 @@ source "${MEOW}/lib/core/ui.sh"
 source "${MEOW}/lib/core/platform.sh"
 source "${MEOW}/lib/core/dry_run.sh"
 
+MEOW_PACKAGE_UPDATE_CACHE=""
+
+reset_package_update_cache() {
+  MEOW_PACKAGE_UPDATE_CACHE=""
+}
+
+_package_update_key() {
+  local manager_name="$1"
+  local package_name="$2"
+  echo "${manager_name}::${package_name}"
+}
+
+_package_update_cache_contains() {
+  local key
+  key=$(_package_update_key "$1" "$2")
+
+  if [ -z "$MEOW_PACKAGE_UPDATE_CACHE" ]; then
+    return 1
+  fi
+
+  printf '%s\n' "$MEOW_PACKAGE_UPDATE_CACHE" | grep -Fx -- "$key" >/dev/null 2>&1
+}
+
+_package_update_cache_add() {
+  local key
+  key=$(_package_update_key "$1" "$2")
+
+  if [ -z "$MEOW_PACKAGE_UPDATE_CACHE" ]; then
+    MEOW_PACKAGE_UPDATE_CACHE="$key"
+  else
+    MEOW_PACKAGE_UPDATE_CACHE="${MEOW_PACKAGE_UPDATE_CACHE}"$'\n'"$key"
+  fi
+}
+
 run_package_operation() {
   local start_msg="$1"
   local success_msg="$2"
@@ -62,7 +96,7 @@ cache_package_list() {
   if [ -z "${!cache_var:-}" ]; then
     ui_verbose_action_start "$(_f "Caching installed %s packages..." "$manager")"
     local output
-    output="$($list_command)"
+    output="$(eval "$list_command" 2>/dev/null || true)"
     eval "$cache_var=\"\$output\""
     ui_verbose_action_success "$(_f "Successfully cached %s packages." "$manager")"
   fi
@@ -122,7 +156,8 @@ install_packages_generic() {
     *) manager_display_name="$(capitalize "$manager_name")" ;;
   esac
 
-  local package_file="${MEOW_COMPONENTS_DIR}/${component}/packages/${manager_name}.list"
+  local package_file_override="${PACKAGES_OVERRIDE_FILE:-}"
+  local package_file="${package_file_override:-${MEOW_COMPONENTS_DIR}/${component}/packages/${manager_name}.list}"
   if [ ! -f "$package_file" ]; then
     return 0
   fi
@@ -238,11 +273,20 @@ update_packages_generic() {
   fi
 
   local updated_count=0 up_to_date_count=0 failed_count=0
+  local deduplicated_count=0 not_installed_count=0
 
   while IFS= read -r line; do
     local package_name
     package_name=$(parse_package_line "$line")
     if [ -z "$package_name" ]; then
+      continue
+    fi
+
+    if _package_update_cache_contains "$manager_name" "$package_name"; then
+      ((deduplicated_count++)) || true
+      if [ "$MEOW_VERBOSE" = "true" ]; then
+        ui_verbose_info "$(_f "%s %s already updated earlier in this session, skipping duplicate request." "$manager_display_name" "$package_name")"
+      fi
       continue
     fi
 
@@ -296,10 +340,12 @@ update_packages_generic() {
       if [ "$is_up_to_date" = "true" ]; then
         ui_verbose_action_success "$(_f "%s %s is already up-to-date." "$manager_display_name" "$package_name")"
         ((up_to_date_count++)) || true
+        _package_update_cache_add "$manager_name" "$package_name"
       else
         if is_dry_run; then
           dry_run_package_operation "$manager_display_name" "update" "$package_name"
           ((updated_count++)) || true
+          _package_update_cache_add "$manager_name" "$package_name"
           continue
         fi
 
@@ -311,34 +357,49 @@ update_packages_generic() {
             "$(_f "Failed to update %s %s!" "$manager_display_name" "$package_name")" \
             $update_cmd "$package_name"; then
             ((updated_count++)) || true
+            _package_update_cache_add "$manager_name" "$package_name"
           else
             ((failed_count++)) || true
+            _package_update_cache_add "$manager_name" "$package_name"
           fi
         else
           # shellcheck disable=SC2086 # Arguments are intentionally word-split by ui_silent_spinner's design
           if ui_silent_spinner "$(_f "Updating %s %s" "$manager_display_name" "$package_name")" $update_cmd "$package_name"; then
             ((updated_count++)) || true
+            _package_update_cache_add "$manager_name" "$package_name"
           else
             ((failed_count++)) || true
             ui_action_error "$(_f "Failed to update %s %s!" "$manager_display_name" "$package_name")"
+            _package_update_cache_add "$manager_name" "$package_name"
           fi
         fi
       fi
     else
       ui_action_warning "$(_f "Package %s %s not installed, skipping update." "$manager_display_name" "$package_name")"
+      ((not_installed_count++)) || true
+      _package_update_cache_add "$manager_name" "$package_name"
     fi
   done <"$package_file"
 
+  local dedup_suffix=""
+  if [ "$deduplicated_count" -gt 0 ]; then
+    dedup_suffix="$(_f ", %d deduplicated" "$deduplicated_count")"
+  fi
+
+  if [ "$not_installed_count" -gt 0 ]; then
+    dedup_suffix="$dedup_suffix$(_f ", %d not installed" "$not_installed_count")"
+  fi
+
   if [ "$failed_count" -eq 0 ]; then
     if [ "$updated_count" -gt 0 ]; then
-      ui_indent "$(_f "%s: ✓ %d updated, %d up-to-date" "$(capitalize "$manager_name")" "$updated_count" "$up_to_date_count")"
+      ui_indent "$(_f "%s: ✓ %d updated, %d up-to-date%s" "$(capitalize "$manager_name")" "$updated_count" "$up_to_date_count" "$dedup_suffix")"
       return 0
     else
-      ui_indent "$(_f "%s: ✓ All %d packages up-to-date" "$(capitalize "$manager_name")" "$up_to_date_count")"
+      ui_indent "$(_f "%s: ✓ All %d packages up-to-date%s" "$(capitalize "$manager_name")" "$up_to_date_count" "$dedup_suffix")"
       return 0
     fi
   else
-    ui_indent "$(_f "%s: ✗ %d failed, %d updated, %d up-to-date" "$(capitalize "$manager_name")" "$failed_count" "$updated_count" "$up_to_date_count")"
+    ui_indent "$(_f "%s: ✗ %d failed, %d updated, %d up-to-date%s" "$(capitalize "$manager_name")" "$failed_count" "$updated_count" "$up_to_date_count" "$dedup_suffix")"
     return 1
   fi
 }

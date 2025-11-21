@@ -28,6 +28,7 @@
 #
 MEOW_INSTALLING_COMPONENTS=()
 MEOW_UPDATED_COMPONENTS=()
+MEOW_LAST_COMPONENT_CHANGED="false"
 
 if [[ -n "${_LIB_COMPONENTS_OPERATIONS_SOURCED:-}" ]]; then
   return 0
@@ -57,7 +58,9 @@ collect_multiple_components_for_installation() {
 
     local component_and_deps=()
     while IFS= read -r comp; do
-      component_and_deps+=("$comp")
+      if [ -n "$comp" ]; then
+        component_and_deps+=("$comp")
+      fi
     done <<<"$component_and_deps_str"
 
     for comp in "${component_and_deps[@]}"; do
@@ -85,6 +88,7 @@ collect_multiple_components_for_installation() {
 install_component() {
   local components=()
   local is_manual="true"
+  local force_install="false"
 
   while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -94,6 +98,10 @@ install_component() {
         ;;
       --auto)
         is_manual="false"
+        shift
+        ;;
+      --force)
+        force_install="true"
         shift
         ;;
       *)
@@ -206,6 +214,8 @@ install_component() {
   }
 
   MEOW_INSTALLING_COMPONENTS=()
+  local failed_component=""
+  local failed_component_is_requested="false"
 
   local install_success="true"
   for component in "${multiple_installation_order[@]}"; do
@@ -225,20 +235,27 @@ install_component() {
       comp_is_manual="false"
     fi
 
-    if ! _install_single_component "$component" "$comp_is_manual" "$comp_is_dependency"; then
+    if ! _install_single_component "$component" "$comp_is_manual" "$comp_is_dependency" "$force_install"; then
       ui_error "$(_f "Failed to install component: %s" "$component")"
       install_success="false"
+      failed_component="$component"
+      failed_component_is_requested="$is_requested_component"
       break
     fi
   done
 
-  _finalize_session
-  MEOW_INSTALLING_COMPONENTS=()
-
   if [[ "$install_success" != "true" ]]; then
+    if [[ -n "$failed_component" ]]; then
+      ui_warning "$(_f "Rolling back failed component '%s'." "$failed_component")"
+      _uninstall_single_component "$failed_component" "$failed_component_is_requested" >/dev/null 2>&1 || true
+    fi
+    _finalize_session
+    MEOW_INSTALLING_COMPONENTS=()
     return 1
   fi
 
+  _finalize_session
+  MEOW_INSTALLING_COMPONENTS=()
   return 0
 }
 
@@ -246,6 +263,8 @@ _install_single_component() {
   local component="$1"
   local is_manual="${2:-true}"
   local is_dependency="${3:-false}"
+  local force_install="${4:-false}"
+  MEOW_LAST_COMPONENT_CHANGED="false"
 
   local already_installing="false"
   for installing_comp in "${MEOW_INSTALLING_COMPONENTS[@]}"; do
@@ -272,7 +291,10 @@ _install_single_component() {
   fi
 
   if is_component_installed "$component"; then
-    if [[ "$is_manual" = "true" ]] && ! is_component_manually_installed "$component"; then
+    if [[ "$force_install" = "true" ]]; then
+      ui_warning "$(_f "Component '%s' already installed. Reinstalling due to --force." "$component")"
+      _uninstall_single_component "$component" "true" "true" >/dev/null 2>&1 || true
+    elif [[ "$is_manual" = "true" ]] && ! is_component_manually_installed "$component"; then
       mkdir -p "$MEOW_MANUALLY_INSTALLED_COMPONENTS_DIR" || {
         ui_error "$(_f "Failed to create directory for manual installations: %s" "$MEOW_MANUALLY_INSTALLED_COMPONENTS_DIR")"
         return 1
@@ -284,8 +306,9 @@ _install_single_component() {
       ui_action_success "$(_f "Component '%s' is now marked as manually installed." "$component")"
     else
       ui_verbose_info "$(_f "Component '%s' is already installed." "$component")"
+      MEOW_LAST_COMPONENT_CHANGED="false"
+      return 0
     fi
-    return 0
   fi
 
   if [[ "$MEOW_VERBOSE" = "true" ]]; then
@@ -300,13 +323,16 @@ _install_single_component() {
 
   MEOW_INSTALLING_COMPONENTS+=("$component")
 
+  if ! preinstall_component "$component"; then
+    ui_error "$(_f "Failed to run pre-install steps for component: %s" "$component")"
+    return 1
+  fi
+
   export MEOW_COMPONENT_MANUAL_INSTALL="$is_manual"
   if ! install_component_packages "$component"; then
     ui_error "$(_f "Failed to install packages for component: %s" "$component")"
     return 1
   fi
-
-  install_component_symlink "$component"
 
   if has_component_repository_config "$component"; then
     if [[ "$MEOW_VERBOSE" = "true" ]]; then
@@ -321,7 +347,10 @@ _install_single_component() {
 
   setup_component "$component"
 
+  install_component_symlink "$component"
+
   setup_component_symlinks "$component"
+  MEOW_LAST_COMPONENT_CHANGED="true"
 
   _icon_msg_core "${GREEN}✓ " "$(_f "Component installed: %s" "$component")"
   unset MEOW_COMPONENT_MANUAL_INSTALL
@@ -373,6 +402,22 @@ update_component() {
     ui_error "No components specified for update."
     return 1
   fi
+
+  local missing_components=()
+  for component in "${components[@]}"; do
+    if ! is_component_installed "$component"; then
+      missing_components+=("$component")
+    fi
+  done
+
+  if [[ ${#missing_components[@]} -gt 0 ]]; then
+    for missing in "${missing_components[@]}"; do
+      ui_error "$(_f "Component '%s' is not installed and cannot be updated." "$missing")"
+    done
+    return 1
+  fi
+
+  reset_package_update_cache
 
   local multiple_update_order_str
   multiple_update_order_str="$(collect_multiple_components_for_update "${components[@]}")" || {
@@ -493,7 +538,9 @@ collect_installed_dependencies_for_update() {
 
   local all_components=()
   while IFS= read -r comp; do
-    all_components+=("$comp")
+    if [ -n "$comp" ]; then
+      all_components+=("$comp")
+    fi
   done <<<"$all_components_str"
 
   local already_added="false"
@@ -530,7 +577,9 @@ collect_installed_dependencies_recursively() {
     }
 
     while IFS= read -r dep; do
-      dependencies+=("$dep")
+      if [ -n "$dep" ]; then
+        dependencies+=("$dep")
+      fi
     done <<<"$dep_str"
 
     for dep in "${dependencies[@]}"; do
@@ -597,6 +646,11 @@ _update_single_component() {
   fi
 
   MEOW_UPDATED_COMPONENTS+=("$component")
+
+  if ! preinstall_component "$component"; then
+    ui_error "$(_f "Failed to run pre-install steps for component: %s" "$component")"
+    return 1
+  fi
 
   if has_component_repository_config "$component"; then
     if [[ "$MEOW_VERBOSE" = "true" ]]; then
@@ -671,7 +725,7 @@ collect_multiple_components_for_uninstall() {
     local all_components_for_context=("${components_array[@]}")
     local filtered_source_components_str
 
-    filtered_source_components_str="$(filter_removable_dependencies_with_context "${source_components_to_filter[@]}" "${all_components_for_context[@]}" "$skip_preset_checks" "$exclude_preset")" || {
+    filter_removable_dependencies_with_context "source_components_to_filter" "all_components_for_context" "filtered_source_components_str" "$skip_preset_checks" "$exclude_preset" || {
       ui_error "Failed to filter source components for uninstallation."
       return 1
     }
@@ -693,6 +747,9 @@ collect_multiple_components_for_uninstall() {
     local new_dependencies_to_check=()
 
     for component in "${collected_components[@]}"; do
+      if [ -z "$component" ]; then
+        continue
+      fi
       local dependencies_str
       dependencies_str="$(get_component_dependencies "$component")" || {
         ui_warning "$(_f "Failed to get dependencies for '%s', some dependencies might be missed during recursive check." "$component")"
@@ -701,7 +758,9 @@ collect_multiple_components_for_uninstall() {
 
       local dependencies=()
       while IFS= read -r dep; do
-        dependencies+=("$dep")
+        if [ -n "$dep" ]; then
+          dependencies+=("$dep")
+        fi
       done <<<"$dependencies_str"
 
       for dep in "${dependencies[@]}"; do
@@ -739,7 +798,7 @@ collect_multiple_components_for_uninstall() {
       done
 
       local removable_dependencies_str
-      removable_dependencies_str="$(filter_removable_dependencies_with_context "${new_dependencies_to_check[@]}" "${all_components_to_remove[@]}" "$skip_preset_checks" "$exclude_preset")" || {
+      filter_removable_dependencies_with_context "new_dependencies_to_check" "all_components_to_remove" "removable_dependencies_str" "$skip_preset_checks" "$exclude_preset" || {
         ui_error "Failed to filter removable dependencies during recursive check."
         return 1
       }
@@ -774,7 +833,9 @@ collect_multiple_components_for_uninstall() {
 
   local sorted_components=()
   while IFS= read -r comp; do
-    sorted_components+=("$comp")
+    if [[ -n "$comp" ]]; then
+      sorted_components+=("$comp")
+    fi
   done <<<"$sorted_components_str"
 
   for ((i = ${#sorted_components[@]} - 1; i >= 0; i--)); do
@@ -784,7 +845,7 @@ collect_multiple_components_for_uninstall() {
 
 uninstall_component() {
   local all_args=("$@")
-  local components=()
+  local requested_components=()
   local force_flag="false"
   local skip_preset_checks="false"
   local exclude_preset=""
@@ -804,30 +865,37 @@ uninstall_component() {
         exclude_preset="${current_arg#--exclude-preset=}"
         ;;
       *)
-        # This is a component name
-        components+=("$current_arg")
+        requested_components+=("$current_arg")
         ;;
     esac
     ((i++))
   done
 
-  if [[ ${#components[@]} -eq 0 ]]; then
+  if [[ ${#requested_components[@]} -eq 0 ]]; then
     ui_error "No components specified for uninstallation."
     return 1
   fi
 
-  for component in "${components[@]}"; do
+  local components=()
+  for component in "${requested_components[@]}"; do
     if ! is_component_installed "$component"; then
       ui_warning "$(_f "Component '%s' is not installed, skipping uninstallation." "$component")"
-      return 1
+      continue
     fi
 
     local component_file="${MEOW_COMPONENTS_DIR}/${component}/component.yaml"
     if [[ ! -f "$component_file" ]]; then
       ui_error "$(_f "Component definition file for '%s' not found at %s." "$component" "$component_file")"
-      return 1
+      continue
     fi
+
+    components+=("$component")
   done
+
+  if [[ ${#components[@]} -eq 0 ]]; then
+    ui_info "No components are installed that match the uninstall request."
+    return 0
+  fi
 
   if [[ "$force_flag" != "true" ]]; then
     for component in "${components[@]}"; do
@@ -932,7 +1000,7 @@ uninstall_component() {
     ui_step_header "Uninstall order:"
     for comp in "${multiple_uninstall_order[@]}"; do
       local is_requested_component="false"
-      for requested_comp in "${components[@]}"; do
+      for requested_comp in "${requested_components[@]}"; do
         if [[ "$requested_comp" = "$comp" ]]; then
           is_requested_component="true"
           break
@@ -950,7 +1018,7 @@ uninstall_component() {
     local requested_comp_list=""
     for comp in "${multiple_uninstall_order[@]}"; do
       local is_requested_component="false"
-      for requested_comp in "${components[@]}"; do
+      for requested_comp in "${requested_components[@]}"; do
         if [[ "$requested_comp" = "$comp" ]]; then
           is_requested_component="true"
           break
@@ -989,7 +1057,7 @@ uninstall_component() {
 
   for component in "${multiple_uninstall_order[@]}"; do
     local is_requested_component="false"
-    for requested_comp in "${components[@]}"; do
+    for requested_comp in "${requested_components[@]}"; do
       if [[ "$requested_comp" = "$component" ]]; then
         is_requested_component="true"
         break
@@ -1016,6 +1084,7 @@ uninstall_component() {
 _uninstall_single_component() {
   local component="$1"
   local is_requested_component="${2:-true}"
+  local skip_packages="${3:-false}"
 
   if [[ "$MEOW_VERBOSE" = "true" ]]; then
     ui_component_uninstalling "$component"
@@ -1056,12 +1125,18 @@ _uninstall_single_component() {
   if [[ "$MEOW_VERBOSE" = "true" ]]; then
     ui_step_header "$(_f "Uninstalling packages for %s" "$component")"
   fi
-  if uninstall_component_packages "$component"; then
-    ui_verbose_action_success "Packages uninstalled successfully."
+  if [[ "$skip_packages" = "true" ]]; then
+    ui_verbose_info "$(_f "Skipping package removal for %s (requested)." "$component")"
   else
-    ui_warning "$(_f "Some package uninstallation may have failed for %s." "$component")"
-    success="false"
+    if uninstall_component_packages "$component"; then
+      ui_verbose_action_success "Packages uninstalled successfully."
+    else
+      ui_warning "$(_f "Some package uninstallation may have failed for %s." "$component")"
+      success="false"
+    fi
   fi
+
+  cleanup_component_sources "$component"
 
   if [[ "$MEOW_VERBOSE" = "true" ]]; then
     ui_step_header "$(_f "Removing component tracking for %s" "$component")"

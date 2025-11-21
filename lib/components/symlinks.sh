@@ -167,7 +167,7 @@ remove_component_symlinks_from_file() {
       local num_symlinks
       num_symlinks=$(yaml_array_length "$symlinks_file")
 
-      if case "$num_symlinks" in [1-9][0-9]* | 0) true ;; *) false ;; esac && [ "$num_symlinks" -gt 0 ]; then
+      if [[ "$num_symlinks" =~ ^[0-9]+$ ]] && [ "$num_symlinks" -gt 0 ]; then
         local i=0
         while [ "$i" -lt "$num_symlinks" ]; do
           local target_path
@@ -209,7 +209,7 @@ remove_component_symlinks_from_file() {
   local num_symlinks
   num_symlinks=$(yaml_array_length "$symlinks_file")
 
-  if ! case "$num_symlinks" in [1-9][0-9]* | 0) true ;; *) false ;; esac || [ "$num_symlinks" -eq 0 ]; then
+  if ! [[ "$num_symlinks" =~ ^[0-9]+$ ]] || [ "$num_symlinks" -eq 0 ]; then
     ui_warning "$(_f "No symlinks defined or invalid content in %s." "$symlinks_file")"
     return 0
   fi

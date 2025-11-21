@@ -35,17 +35,82 @@ _LIB_COMPONENTS_PACKAGES_SOURCED=1
 
 source "${MEOW}/lib/core/defs.sh"
 source "${MEOW}/lib/core/platform.sh"
+source "${MEOW}/lib/core/dry_run.sh"
 source "${MEOW}/lib/package/common.sh"
+source "${MEOW}/lib/package/config.sh"
+source "${MEOW}/lib/package/sources.sh"
 source "${MEOW}/lib/package/homebrew.sh"
 source "${MEOW}/lib/package/mas.sh"
 source "${MEOW}/lib/package/apt.sh"
 source "${MEOW}/lib/package/apk.sh"
 source "${MEOW}/lib/package/pacman.sh"
+source "${MEOW}/lib/package/dnf.sh"
 source "${MEOW}/lib/package/pipx.sh"
 source "${MEOW}/lib/package/npm.sh"
 source "${MEOW}/lib/package/go.sh"
 source "${MEOW}/lib/package/cargo.sh"
 source "${MEOW}/lib/package/vscode.sh"
+source "${MEOW}/lib/package/snap.sh"
+
+if [ -d "$HOME/.cargo/bin" ]; then
+  case ":$PATH:" in
+    *":$HOME/.cargo/bin:"*) ;;
+    *) export PATH="$HOME/.cargo/bin:$PATH" ;;
+  esac
+fi
+
+MEOW_APT_UPDATED=${MEOW_APT_UPDATED:-0}
+MEOW_DNF_UPDATED=${MEOW_DNF_UPDATED:-0}
+MEOW_PACMAN_UPDATED=${MEOW_PACMAN_UPDATED:-0}
+MEOW_APK_UPDATED=${MEOW_APK_UPDATED:-0}
+
+_ensure_package_manager_updated() {
+  local manager="$1"
+  local force="${2:-false}"
+  local upper
+  upper=$(printf '%s' "$manager" | tr '[:lower:]' '[:upper:]')
+  local flag_var="MEOW_${upper}_UPDATED"
+  local flag_value="${!flag_var:-0}"
+  if [ "$force" != "true" ] && [ "$flag_value" = "1" ]; then
+    return 0
+  fi
+
+  local label=""
+  local cmd=()
+
+  case "$manager" in
+    apt)
+      label="APT"
+      cmd=(sudo apt-get update)
+      ;;
+    dnf)
+      label="DNF"
+      cmd=(sudo dnf makecache -y)
+      ;;
+    pacman)
+      label="Pacman"
+      cmd=(sudo pacman -Sy --noconfirm)
+      ;;
+    apk)
+      label="APK"
+      cmd=(sudo apk update)
+      ;;
+    *)
+      return 0
+      ;;
+  esac
+
+  if is_dry_run; then
+    dry_run_ui_info "$(_f "Would update %s package index" "$label")"
+  else
+    ui_spinner "$(_f "%s: Updating package index" "$label")" \
+      --success "$(_f "%s: Package index updated successfully." "$label")" \
+      --fail "$(_f "%s: Failed to update package index." "$label")" \
+      "${cmd[@]}"
+  fi
+
+  printf -v "$flag_var" '1'
+}
 
 install_component_packages() {
   local component="$1"
@@ -69,32 +134,54 @@ install_component_packages() {
 
   local has_packages=false
   local package_errors=0
+  local active_managers
+  active_managers="$(meow_pm_resolve_for_component "$component")"
 
   if [ "$IS_MACOS" = "true" ]; then
-    if [ -f "${packages_dir}/homebrew.list" ]; then
+    if meow_pm_should_use_manager "$active_managers" "homebrew" && [ -f "${packages_dir}/homebrew.list" ]; then
+      apply_component_sources "$component" "homebrew"
       if _install_packages_for_component_manager "$component" "homebrew"; then
         has_packages=true
       else
         package_errors=$((package_errors + 1))
       fi
     fi
-    if [ -f "${packages_dir}/mas.list" ]; then
+    if meow_pm_should_use_manager "$active_managers" "mas" && [ -f "${packages_dir}/mas.list" ]; then
+      apply_component_sources "$component" "mas"
       if _install_packages_for_component_manager "$component" "mas"; then
         has_packages=true
       else
         package_errors=$((package_errors + 1))
       fi
     fi
-  elif [ "$IS_DEBIAN_BASED" = "true" ]; then
-    if [ -f "${packages_dir}/apt.list" ]; then
+  elif meow_os_is_like "debian"; then
+    if meow_pm_should_use_manager "$active_managers" "apt" && [ -f "${packages_dir}/apt.list" ]; then
+      apply_component_sources "$component" "apt"
+      if [ "${MEOW_APT_SOURCES_CHANGED:-0}" = "1" ]; then
+        _ensure_package_manager_updated "apt" "true"
+        MEOW_APT_SOURCES_CHANGED=0
+      else
+        _ensure_package_manager_updated "apt"
+      fi
       if _install_packages_for_component_manager "$component" "apt"; then
         has_packages=true
       else
         package_errors=$((package_errors + 1))
       fi
     fi
+  elif [ "$IS_RPM_BASED" = "true" ]; then
+    if meow_pm_should_use_manager "$active_managers" "dnf" && [ -f "${packages_dir}/dnf.list" ]; then
+      apply_component_sources "$component" "dnf"
+      _ensure_package_manager_updated "dnf"
+      if _install_packages_for_component_manager "$component" "dnf"; then
+        has_packages=true
+      else
+        package_errors=$((package_errors + 1))
+      fi
+    fi
   elif [ "$IS_ALPINE" = "true" ]; then
-    if [ -f "${packages_dir}/apk.list" ]; then
+    if meow_pm_should_use_manager "$active_managers" "apk" && [ -f "${packages_dir}/apk.list" ]; then
+      _ensure_package_manager_updated "apk"
       if _install_packages_for_component_manager "$component" "apk"; then
         has_packages=true
       else
@@ -102,7 +189,8 @@ install_component_packages() {
       fi
     fi
   elif [ "$IS_ARCH" = "true" ]; then
-    if [ -f "${packages_dir}/pacman.list" ]; then
+    if meow_pm_should_use_manager "$active_managers" "pacman" && [ -f "${packages_dir}/pacman.list" ]; then
+      _ensure_package_manager_updated "pacman"
       if _install_packages_for_component_manager "$component" "pacman"; then
         has_packages=true
       else
@@ -111,8 +199,8 @@ install_component_packages() {
     fi
   fi
 
-  for mgr in pipx npm go cargo vscode; do
-    if [ -f "${packages_dir}/${mgr}.list" ]; then
+  for mgr in pipx npm go cargo vscode snap; do
+    if meow_pm_should_use_manager "$active_managers" "$mgr" && [ -f "${packages_dir}/${mgr}.list" ]; then
       if _install_packages_for_component_manager "$component" "$mgr"; then
         has_packages=true
       else
@@ -156,19 +244,38 @@ uninstall_component_packages() {
     ui_step_header "$(_f "Dry run: Would uninstall packages for component '%s'" "$component")"
   fi
 
+  local active_managers
+  active_managers="$(meow_pm_resolve_for_component "$component")"
+
   if [ "$IS_MACOS" = "true" ]; then
-    _uninstall_packages_for_component_manager "$component" "homebrew"
-    _uninstall_packages_for_component_manager "$component" "mas"
-  elif [ "$IS_DEBIAN_BASED" = "true" ]; then
-    _uninstall_packages_for_component_manager "$component" "apt"
+    if meow_pm_should_use_manager "$active_managers" "homebrew"; then
+      _uninstall_packages_for_component_manager "$component" "homebrew"
+    fi
+    if meow_pm_should_use_manager "$active_managers" "mas"; then
+      _uninstall_packages_for_component_manager "$component" "mas"
+    fi
+  elif meow_os_is_like "debian"; then
+    if meow_pm_should_use_manager "$active_managers" "apt"; then
+      _uninstall_packages_for_component_manager "$component" "apt"
+    fi
+  elif [ "$IS_RPM_BASED" = "true" ]; then
+    if meow_pm_should_use_manager "$active_managers" "dnf"; then
+      _uninstall_packages_for_component_manager "$component" "dnf"
+    fi
   elif [ "$IS_ALPINE" = "true" ]; then
-    _uninstall_packages_for_component_manager "$component" "apk"
+    if meow_pm_should_use_manager "$active_managers" "apk"; then
+      _uninstall_packages_for_component_manager "$component" "apk"
+    fi
   elif [ "$IS_ARCH" = "true" ]; then
-    _uninstall_packages_for_component_manager "$component" "pacman"
+    if meow_pm_should_use_manager "$active_managers" "pacman"; then
+      _uninstall_packages_for_component_manager "$component" "pacman"
+    fi
   fi
 
-  for mgr in pipx npm go cargo vscode; do
-    _uninstall_packages_for_component_manager "$component" "$mgr"
+  for mgr in pipx npm go cargo vscode snap; do
+    if meow_pm_should_use_manager "$active_managers" "$mgr"; then
+      _uninstall_packages_for_component_manager "$component" "$mgr"
+    fi
   done
 
   if [ "$MEOW_VERBOSE" != "true" ]; then
@@ -193,17 +300,24 @@ _uninstall_packages_for_component_manager() {
   "$fn" "$component"
 }
 
+_resolve_packages_file() {
+  local component="$1"
+  local mgr="$2"
+  local path="${MEOW_COMPONENTS_DIR}/${component}/packages/${mgr}.list"
+  [ -f "$path" ] || return 1
+  echo "$path"
+}
+
 _install_packages_for_component_manager() {
   local component="$1"
   local mgr="$2"
   local fn="install_${mgr}_packages"
-  local packages_file="${MEOW_COMPONENTS_DIR}/${component}/packages/${mgr}.list"
+  local packages_file
+  packages_file=$(_resolve_packages_file "$component" "$mgr") || return 0
 
   command -v "$fn" >/dev/null 2>&1 || return 0
 
-  [ -f "$packages_file" ] || return 0
-
-  "$fn" "$component"
+  PACKAGES_OVERRIDE_FILE="$packages_file" "$fn" "$component"
   return $?
 }
 
@@ -225,6 +339,10 @@ _update_package_manager() {
   local cli_command="$2"
   local component="$3"
   local packages_file="${MEOW_COMPONENTS_DIR}/${component}/packages/${manager_name}.list"
+
+  if [ "$manager_name" = "dnf" ]; then
+    cli_command=$(_get_dnf_command) || return 0
+  fi
 
   if ! command -v "$cli_command" >/dev/null 2>&1; then
     return 0
@@ -260,39 +378,75 @@ update_component_packages() {
 
   local package_errors=0
   local has_packages=false
+  local active_managers
+  active_managers="$(meow_pm_resolve_for_component "$component")"
 
   if [ "$IS_MACOS" = "true" ]; then
-    if _update_package_manager "homebrew" "brew" "$component"; then
+    if meow_pm_should_use_manager "$active_managers" "homebrew"; then
+      apply_component_sources "$component" "homebrew"
+    fi
+    if meow_pm_should_use_manager "$active_managers" "homebrew" && _update_package_manager "homebrew" "brew" "$component"; then
       has_packages=true
-    else
+    elif meow_pm_should_use_manager "$active_managers" "homebrew"; then
       package_errors=$((package_errors + 1))
     fi
-    if _update_package_manager "mas" "mas" "$component"; then
+    if meow_pm_should_use_manager "$active_managers" "mas"; then
+      apply_component_sources "$component" "mas"
+    fi
+    if meow_pm_should_use_manager "$active_managers" "mas" && _update_package_manager "mas" "mas" "$component"; then
       has_packages=true
-    else
+    elif meow_pm_should_use_manager "$active_managers" "mas"; then
       package_errors=$((package_errors + 1))
     fi
-  elif [ "$IS_DEBIAN_BASED" = "true" ]; then
-    if _update_package_manager "apt" "apt" "$component"; then
+  elif meow_os_is_like "debian"; then
+    if meow_pm_should_use_manager "$active_managers" "apt"; then
+      apply_component_sources "$component" "apt"
+      if [ "${MEOW_APT_SOURCES_CHANGED:-0}" = "1" ]; then
+        _ensure_package_manager_updated "apt" "true"
+        MEOW_APT_SOURCES_CHANGED=0
+      else
+        _ensure_package_manager_updated "apt"
+      fi
+    fi
+    if meow_pm_should_use_manager "$active_managers" "apt" && _update_package_manager "apt" "apt" "$component"; then
       has_packages=true
-    else
+    elif meow_pm_should_use_manager "$active_managers" "apt"; then
+      package_errors=$((package_errors + 1))
+    fi
+  elif [ "$IS_RPM_BASED" = "true" ]; then
+    if meow_pm_should_use_manager "$active_managers" "dnf"; then
+      apply_component_sources "$component" "dnf"
+      _ensure_package_manager_updated "dnf"
+    fi
+    if meow_pm_should_use_manager "$active_managers" "dnf" && _update_package_manager "dnf" "dnf" "$component"; then
+      has_packages=true
+    elif meow_pm_should_use_manager "$active_managers" "dnf"; then
       package_errors=$((package_errors + 1))
     fi
   elif [ "$IS_ALPINE" = "true" ]; then
-    if _update_package_manager "apk" "apk" "$component"; then
+    if meow_pm_should_use_manager "$active_managers" "apk"; then
+      _ensure_package_manager_updated "apk"
+    fi
+    if meow_pm_should_use_manager "$active_managers" "apk" && _update_package_manager "apk" "apk" "$component"; then
       has_packages=true
-    else
+    elif meow_pm_should_use_manager "$active_managers" "apk"; then
       package_errors=$((package_errors + 1))
     fi
   elif [ "$IS_ARCH" = "true" ]; then
-    if _update_package_manager "pacman" "pacman" "$component"; then
+    if meow_pm_should_use_manager "$active_managers" "pacman"; then
+      _ensure_package_manager_updated "pacman"
+    fi
+    if meow_pm_should_use_manager "$active_managers" "pacman" && _update_package_manager "pacman" "pacman" "$component"; then
       has_packages=true
-    else
+    elif meow_pm_should_use_manager "$active_managers" "pacman"; then
       package_errors=$((package_errors + 1))
     fi
   fi
 
-  for mgr in pipx npm go cargo vscode; do
+  for mgr in pipx npm go cargo vscode snap; do
+    if ! meow_pm_should_use_manager "$active_managers" "$mgr"; then
+      continue
+    fi
     if _update_package_manager "$mgr" "$mgr" "$component"; then
       has_packages=true
     else

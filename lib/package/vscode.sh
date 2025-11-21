@@ -36,7 +36,7 @@ source "${MEOW}/lib/core/dry_run.sh"
 
 _cache_installed_vscode_extensions() {
   if command -v code >/dev/null 2>&1; then
-    cache_package_list "vscode" "code --list-extensions 2>/dev/null"
+    cache_package_list "vscode" "code --list-extensions"
   fi
 }
 
