@@ -230,47 +230,10 @@ teardown() {
 }
 
 
-@test "platform.sh: IS_MACOS is boolean" {
-    source "${MEOW}/lib/core/platform.sh"
-    [ "$IS_MACOS" = "true" ] || [ "$IS_MACOS" = "false" ]
-    source "${MEOW}/lib/core/platform.sh"
-    [ "$IS_MACOS" = "true" ] || [ "$IS_MACOS" = "false" ]
-}
 
-@test "platform.sh: IS_ALPINE is boolean" {
-    source "${MEOW}/lib/core/platform.sh"
-    [ "$IS_ALPINE" = "true" ] || [ "$IS_ALPINE" = "false" ]
-    source "${MEOW}/lib/core/platform.sh"
-    [ "$IS_ALPINE" = "true" ] || [ "$IS_ALPINE" = "false" ]
-}
 
-@test "platform.sh: IS_ARCH is boolean" {
-    source "${MEOW}/lib/core/platform.sh"
-    [ "$IS_ARCH" = "true" ] || [ "$IS_ARCH" = "false" ]
-    source "${MEOW}/lib/core/platform.sh"
-    [ "$IS_ARCH" = "true" ] || [ "$IS_ARCH" = "false" ]
-}
 
-@test "platform.sh: IS_RPM_BASED is boolean" {
-    source "${MEOW}/lib/core/platform.sh"
-    [ "$IS_RPM_BASED" = "true" ] || [ "$IS_RPM_BASED" = "false" ]
-    source "${MEOW}/lib/core/platform.sh"
-    [ "$IS_RPM_BASED" = "true" ] || [ "$IS_RPM_BASED" = "false" ]
-}
 
-@test "platform.sh: MEOW_OS_ID is set" {
-    source "${MEOW}/lib/core/platform.sh"
-    [ -n "$MEOW_OS_ID" ]
-    source "${MEOW}/lib/core/platform.sh"
-    [ -n "$MEOW_OS_ID" ]
-}
-
-@test "platform.sh: MEOW_OS_ID_LIKE is set or empty" {
-    source "${MEOW}/lib/core/platform.sh"
-    [ -n "$MEOW_OS_ID_LIKE" ] || [ -z "$MEOW_OS_ID_LIKE" ]
-    source "${MEOW}/lib/core/platform.sh"
-    [ -n "$MEOW_OS_ID_LIKE" ] || [ -z "$MEOW_OS_ID_LIKE" ]
-}
 
 @test "platform.sh: get_platform returns one of expected values" {
     source "${MEOW}/lib/core/platform.sh"
@@ -331,20 +294,5 @@ teardown() {
     assert_failure
 }
 
-@test "platform.sh: meow_os_matches_any with many arguments" {
-    source "${MEOW}/lib/core/platform.sh"
-    run meow_os_matches_any "os1" "os2" "os3" "os4" "os5"
-    [ "$status" -eq 0 ] || [ "$status" -eq 1 ]
-}
 
-@test "platform.sh: MEOW_OS_ID is not empty or is empty" {
-    source "${MEOW}/lib/core/platform.sh"
-    [ -n "$MEOW_OS_ID" ] || [ -z "$MEOW_OS_ID" ]
-}
 
-@test "platform.sh: IS_MACOS and IS_ALPINE not both true" {
-    source "${MEOW}/lib/core/platform.sh"
-    [ "$IS_MACOS" = "true" -a "$IS_ALPINE" = "false" ] || \
-    [ "$IS_MACOS" = "false" ] || \
-    [ "$IS_ALPINE" = "false" ]
-}

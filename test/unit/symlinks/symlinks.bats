@@ -172,14 +172,6 @@ teardown() {
     ln -s "$source1" "$target"
     create_symlink "$source2" "$target" >/dev/null 2>&1
     [ -L "$target" ]
-    source "${MEOW}/lib/symlinks/symlinks.sh"
-    local source1="$TEST_TEMP_DIR/source1"
-    local source2="$TEST_TEMP_DIR/source2"
-    local target="$TEST_TEMP_DIR/target"
-    touch "$source1" "$source2"
-    ln -s "$source1" "$target"
-    create_symlink "$source2" "$target" >/dev/null 2>&1
-    [ -L "$target" ]
 }
 
 @test "symlinks.sh: debug with DEBUG=1 produces output" {
@@ -230,23 +222,7 @@ teardown() {
     [ -n "$result" ]
 }
 
-@test "symlinks.sh: create_symlink with existing target file" {
-    source "${MEOW}/lib/symlinks/symlinks.sh"
-    local source="$TEST_TEMP_DIR/src"
-    local target="$TEST_TEMP_DIR/tgt"
-    touch "$source" "$target"
-    run create_symlink "$source" "$target"
-    [ "$status" -eq 0 ] || [ "$status" -eq 1 ]
-}
 
-@test "symlinks.sh: create_symlink creates parent directories" {
-    source "${MEOW}/lib/symlinks/symlinks.sh"
-    local source="$TEST_TEMP_DIR/src"
-    local target="$TEST_TEMP_DIR/nested/dir/tgt"
-    touch "$source"
-    create_symlink "$source" "$target" >/dev/null 2>&1
-    [ -L "$target" ] || [ ! -L "$target" ]
-}
 
 @test "symlinks.sh: debug with DEBUG=0 produces no output" {
     export DEBUG=0

@@ -281,14 +281,4 @@ teardown() {
     [ -n "$result" ]
 }
 
-@test "bash.sh: warn_bash_compatibility with old bash shows warning" {
-    source "${MEOW}/lib/core/bash.sh"
-    result=$(warn_bash_compatibility 2>&1)
-    [ -n "$result" ] || [ -z "$result" ]
-}
 
-@test "bash.sh: check_bash_version with string arguments" {
-    source "${MEOW}/lib/core/bash.sh"
-    run check_bash_version "abc" "def"
-    [ "$status" -eq 0 ] || [ "$status" -ne 0 ]
-}

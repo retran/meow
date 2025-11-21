@@ -217,15 +217,6 @@ teardown() {
 
 
 
-@test "yaml.sh: read_yaml_value with nested path" {
-    if command -v yq >/dev/null 2>&1; then
-        source "${MEOW}/lib/core/yaml.sh"
-        result=$(read_yaml_value "$TEST_YAML" ".nested.config")
-        [ -n "$result" ] || [ -z "$result" ]
-    else
-        skip "yq not available"
-    fi
-}
 
 @test "yaml.sh: read_yaml_value with invalid path" {
     if command -v yq >/dev/null 2>&1; then
@@ -259,17 +250,6 @@ teardown() {
     fi
 }
 
-@test "yaml.sh: process_yaml_array with test callback" {
-    if command -v yq >/dev/null 2>&1; then
-        source "${MEOW}/lib/core/yaml.sh"
-        test_func() { echo "processed: $1"; }
-        export -f test_func
-        result=$(process_yaml_array "$TEST_YAML" ".platforms[]" test_func 2>&1)
-        [ -n "$result" ] || [ -z "$result" ]
-    else
-        skip "yq not available"
-    fi
-}
 
 @test "yaml.sh: process_yaml_array with dry-run" {
     if command -v yq >/dev/null 2>&1; then

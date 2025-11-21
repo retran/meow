@@ -149,15 +149,7 @@ teardown() {
     [[ "${MEOW_DOWNLOADS_DIR}" == /* ]]
 }
 
-@test "defs.sh: MEOW_PRESETS_DIR exists or doesn't" {
-    source "${MEOW}/lib/core/defs.sh"
-    [ -d "${MEOW_PRESETS_DIR}" ] || [ ! -d "${MEOW_PRESETS_DIR}" ]
-}
 
-@test "defs.sh: MEOW_COMPONENTS_DIR exists or doesn't" {
-    source "${MEOW}/lib/core/defs.sh"
-    [ -d "${MEOW_COMPONENTS_DIR}" ] || [ ! -d "${MEOW_COMPONENTS_DIR}" ]
-}
 
 @test "defs.sh: all directory paths don't contain double slashes" {
     source "${MEOW}/lib/core/defs.sh"

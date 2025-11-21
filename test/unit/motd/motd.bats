@@ -120,11 +120,6 @@ teardown() {
 
 
 
-@test "motd.sh: load_yaml_comments with valid category" {
-    source "${MEOW}/lib/motd/motd.sh"
-    run load_yaml_comments "general" "default"
-    [ "$status" -eq 0 ] || [ "$status" -eq 1 ]
-}
 
 @test "motd.sh: get_comment_collection returns text" {
     source "${MEOW}/lib/motd/motd.sh"
@@ -138,12 +133,6 @@ teardown() {
     [ -n "$result" ]
 }
 
-@test "motd.sh: get_system_info with custom cache dir" {
-    source "${MEOW}/lib/motd/motd.sh"
-    mkdir -p "$TEST_TEMP_DIR/custom_cache"
-    result=$(get_system_info "$TEST_TEMP_DIR/custom_cache" 2>&1)
-    [ -n "$result" ] || [ -z "$result" ]
-}
 
 @test "motd.sh: build_greeting with current user" {
     source "${MEOW}/lib/motd/motd.sh"
@@ -157,11 +146,6 @@ teardown() {
     assert_success
 }
 
-@test "motd.sh: build_system_stats returns output" {
-    source "${MEOW}/lib/motd/motd.sh"
-    result=$(build_system_stats 2>&1)
-    [ -n "$result" ] || [ -z "$result" ]
-}
 
 @test "motd.sh: MEOW_MOTD_CACHE_DIR is created on source" {
     rm -rf "${TEST_TEMP_DIR}/.cache/meow"
@@ -170,7 +154,3 @@ teardown() {
     [ -d "${MEOW_MOTD_CACHE_DIR}" ]
 }
 
-@test "motd.sh: MEOW_MOTD_ASSETS_DIR contains art directory" {
-    source "${MEOW}/lib/motd/motd.sh"
-    [ -d "${MEOW_MOTD_ASSETS_DIR}/art" ] || [ ! -d "${MEOW_MOTD_ASSETS_DIR}/art" ]
-}

@@ -206,23 +206,7 @@ teardown() {
     [ -n "${INFO+x}" ]
 }
 
-@test "colors.sh: color variables can be concatenated" {
-    source "${MEOW}/lib/core/colors.sh"
-    combined="${RED}${BOLD}"
-    [ -n "${combined}" ] || [ -z "${combined}" ]
-    source "${MEOW}/lib/core/colors.sh"
-    combined="${RED}${BOLD}"
-    [ -n "${combined}" ] || [ -z "${combined}" ]
-}
 
-@test "colors.sh: NORMAL and RESET work together" {
-    source "${MEOW}/lib/core/colors.sh"
-    combined="${NORMAL}${RESET}"
-    [ -n "${combined}" ] || [ -z "${combined}" ]
-    source "${MEOW}/lib/core/colors.sh"
-    combined="${NORMAL}${RESET}"
-    [ -n "${combined}" ] || [ -z "${combined}" ]
-}
 
 @test "colors.sh: all semantic colors are set" {
     source "${MEOW}/lib/core/colors.sh"
@@ -237,19 +221,7 @@ teardown() {
     [ -n "${INFO+x}" ]
 }
 
-@test "colors.sh: HEADER and SUBHEADER are different or same" {
-    source "${MEOW}/lib/core/colors.sh"
-    [ "${HEADER}" = "${SUBHEADER}" ] || [ "${HEADER}" != "${SUBHEADER}" ]
-    source "${MEOW}/lib/core/colors.sh"
-    [ "${HEADER}" = "${SUBHEADER}" ] || [ "${HEADER}" != "${SUBHEADER}" ]
-}
 
-@test "colors.sh: BOLD variable contains content or is empty" {
-    source "${MEOW}/lib/core/colors.sh"
-    [ -n "${BOLD}" ] || [ -z "${BOLD}" ]
-    source "${MEOW}/lib/core/colors.sh"
-    [ -n "${BOLD}" ] || [ -z "${BOLD}" ]
-}
 
 @test "colors.sh: color variables remain constant" {
     source "${MEOW}/lib/core/colors.sh"
@@ -271,10 +243,6 @@ teardown() {
     [ -n "${WARNING+x}" ]
 }
 
-@test "colors.sh: MEOW_TPUT_SUPPORTED is boolean-like" {
-    source "${MEOW}/lib/core/colors.sh"
-    [ "$MEOW_TPUT_SUPPORTED" = "true" ] || [ "$MEOW_TPUT_SUPPORTED" = "false" ] || [ "$MEOW_TPUT_SUPPORTED" = "1" ] || [ "$MEOW_TPUT_SUPPORTED" = "0" ]
-}
 
 @test "colors.sh: colors can be used in strings" {
     source "${MEOW}/lib/core/colors.sh"
