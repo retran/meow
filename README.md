@@ -1,7 +1,7 @@
 # 🐱 .meow
 
 [![Maintenance Status: Deprecated](https://img.shields.io/badge/Maintenance%20Status-DEPRECATED-red.svg?style=flat-square)](./docs/README.md)
-[![New Project: MeowCtl](https://img.shields.io/badge/New%20Project-MeowCtl-blue.svg?style=flat-square)](https://github.com/retran/meowctl)
+[![New Project: MeowCtl](https://img.shields.io/badge/New%20Project-meowctl-blue.svg?style=flat-square)](https://github.com/retran/meowctl)
 [![GitHub stars](https://img.shields.io/github/stars/retran/meow?style=flat-square)](https://github.com/retran/meow/stargazers)
 [![GitHub forks](https://img.shields.io/github/forks/retran/meow?style=flat-square)](https://github.com/retran/meow/network/members)
 [![License](https://img.shields.io/github/license/retran/meow?style=flat-square)](./LICENSE)
