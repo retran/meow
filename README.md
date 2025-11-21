@@ -13,7 +13,7 @@
 
 <img src="./assets/icon.png" alt=".meow Logo" width="200">
 
-[Full Documentation](./docs/README.md) • [Architecture](./docs/08-CONCEPTS-AND-ARCHITECTURE.md) • [Installation](./docs/01-INSTALLATION.md) • [Component Guide](./docs/09-COMPONENT-DEVELOPMENT.md) • [Contributing](https://github.com/retran/meow/pulls)
+[Full Documentation](./docs/README.md) • [Architecture](./docs/12-ARCHITECTURE.md) • [Installation](./docs/01-INSTALLATION.md) • [Component Guide](./docs/09-COMPONENT-DEVELOPMENT.md) • [Contributing](https://github.com/retran/meow/pulls)
 
 </div>
 
@@ -33,8 +33,8 @@ Setting up a consistent and reproducible development environment is often a tedi
 
 -   **🧩 Component-Based Architecture**: Build your environment from isolated, reusable [components](./docs/09-COMPONENT-DEVELOPMENT.md), each defined by a clear manifest and containing its own packages, configurations, and scripts.
 -   **📦 Universal Package Management**: Seamlessly handle package installations across macOS (Homebrew, mas) and Linux (apt, dnf, pacman, apk) through a unified abstraction layer.
--   **📑 Presets (Den & Litterbox)**: Apply configurations called [Presets](./docs/03-PRESETS.md) to quickly deploy tailored setups.
--   **🔄 Idempotent Operations**: Run setup scripts multiple times safely; `.meow` ensures that actions are only taken if necessary, bringing your system to the desired state without unintended side effects, a core [principle](./docs/07-PRINCIPLES.md) of the framework.
+-   **📑 Presets (Den & Litterbox)**: Apply configurations called [Presets](./docs/03-USING-PRESETS.md) to quickly deploy tailored setups.
+-   **🔄 Idempotent Operations**: Run setup scripts multiple times safely; `.meow` ensures that actions are only taken if necessary, bringing your system to the desired state without unintended side effects, a core [principle](./docs/11-PRINCIPLES.md) of the framework.
 -   **⚡ Zero Dependencies**: The core framework is written in pure Shell (Bash/Zsh) and requires only `git` and `curl` to bootstrap, ensuring maximum portability and minimal overhead. It is also compatible with Bash 3.2, which is the default on macOS.
 
 ## 📦 Installation
@@ -44,13 +44,13 @@ For detailed instructions, please see the [**Full Installation Guide**](./docs/0
 ### Quick Install
 
 ```bash
-git clone https://github.com/retran/meow.git ~/.meow
+git clone [https://github.com/retran/meow.git](https://github.com/retran/meow.git) ~/.meow
 cd ~/.meow
-```
+````
 
 ## 🚀 Quick Start
 
-### 1\. Configure Environment (Important!)
+### 1\. Configure Environment (Important\!)
 
 Before installing a preset, set up your personal configuration. This ensures your Git identity and secrets are correctly linked.
 
@@ -65,7 +65,7 @@ nano private/git/.gitconfig
 
 ### 2\. Select a Preset
 
-List available [presets](./docs/03-PRESETS.md) to find one that matches your needs:
+List available [presets](https://www.google.com/search?q=./docs/03-USING-PRESETS.md) to find one that matches your needs:
 
 ```bash
 ./bin/meowctl list
@@ -93,12 +93,13 @@ Apply the chosen configuration.
 
 -----
 
-<div align="center">
+\<div align="center"\>
 
 ### Made with ❤️ by Andrew Vasilyev and feline assistants Sonya Blade, Mila, and Marcus Fenix
 
-**Happy coding with project meow! 🐱**
+**Happy coding with project meow\! 🐱**
 
 [⭐ Star us on GitHub](https://github.com/retran/meow) • [🐛 Report Bug](https://github.com/retran/meow/issues) • [💡 Request Feature](https://github.com/retran/meow/issues) • [🔀 Contribute](https://github.com/retran/meow/pulls)
 
-</div>
+\</div\>
+

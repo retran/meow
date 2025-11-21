@@ -16,8 +16,7 @@ Then, edit `private/meow/.meowrc` to suit your preferences.
 
 ### Available Options
 
-
--   `MEOW_ENABLE_MAS`: Set to `"true"` to enable package management from the Mac App Store using the `mas` command. Defaults to `"true"` on macOS.
+- `MEOW_ENABLE_MAS`: Set to `"true"` to enable package management from the Mac App Store using the `mas` command. Defaults to `"true"` on macOS.
 
 **Example `.meowrc`:**
 
@@ -56,9 +55,9 @@ Then, edit `private/git/.gitconfig` with your details. This file will be symlink
 
 These environment variables can be set in your shell's environment to control `meowctl`.
 
--   `MEOW`: The path to your `.meow` installation. Defaults to `$HOME/.meow`.
--   `MEOW_VERBOSE`: Set to `true` for verbose output. Equivalent to the `--verbose` flag.
--   `MEOW_DRY_RUN`: Set to `true` to simulate command execution. Equivalent to the `--dry-run` flag.
+- `MEOW`: The path to your `.meow` installation. Defaults to `$HOME/.meow`.
+- `MEOW_VERBOSE`: Set to `true` for verbose output. Equivalent to the `--verbose` flag.
+- `MEOW_DRY_RUN`: Set to `true` to simulate command execution. Equivalent to the `--dry-run` flag.
 
 ---
 
@@ -66,5 +65,5 @@ These environment variables can be set in your shell's environment to control `m
 
 The global configurations described here provide the foundation for your setup. To see how these settings are used and expanded upon, refer to the following guides:
 
--   **[Presets](./03-PRESETS.md)**: Learn how components are grouped together, forming the basis of a complete setup.
--   **[Component Development Guide](./08-COMPONENT-DEVELOPMENT.md)**: Understand how individual components can be configured and built.
+- **[Presets](./03-PRESETS.md)**: Learn how components are grouped together, forming the basis of a complete setup.
+- **[Component Development Guide](./08-COMPONENT-DEVELOPMENT.md)**: Understand how individual components can be configured and built.

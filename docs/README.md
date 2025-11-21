@@ -8,26 +8,26 @@ The documents are designed to be read in order, but are also interlinked to allo
 
 ### User Guide
 
--   **[01 - Installation](./01-INSTALLATION.md)**: Start here. A detailed guide to getting `.meow` running on your system.
--   **[03 - Using Presets](./03-USING-PRESETS.md)**: A conceptual guide to organizing configurations using Presets, including "The Den" and "The Litterbox".
--   **[05 - Troubleshooting](./05-TROUBLESHOOTING.md)**: A guide to common issues, debugging techniques, and how to get help if you get stuck.
+- **[01 - Installation](./01-INSTALLATION.md)**: Start here. A detailed guide to getting `.meow` running on your system.
+- **[03 - Using Presets](./03-USING-PRESETS.md)**: A conceptual guide to organizing configurations using Presets, including "The Den" and "The Litterbox".
+- **[05 - Troubleshooting](./05-TROUBLESHOOTING.md)**: A guide to common issues, debugging techniques, and how to get help if you get stuck.
 
 ### Reference
 
--   **[04 - Command Reference](./04-COMMAND-REFERENCE.md)**: A complete reference manual for all `meowctl` commands and their options.
--   **[06 - Component Reference](./06-COMPONENT-REFERENCE.md)**: A detailed reference for all available components.
+- **[04 - Command Reference](./04-COMMAND-REFERENCE.md)**: A complete reference manual for all `meowctl` commands and their options.
+- **[06 - Component Reference](./06-COMPONENT-REFERENCE.md)**: A detailed reference for all available components, their dependencies, and supported platforms.
 
 ### Customization & Development
 
--   **[02 - Configuration](./02-CONFIGURATION.md)**: An explanation of how to customize `.meow` using `.meowrc`, secrets, and environment variables.
--   **[07 - Package Configuration](./07-PACKAGE-CONFIGURATION.md)**: (TODO: Описание матчинга ОС и источников)
--   **[08 - Preset Development](./08-PRESET-DEVELOPMENT.md)**: (TODO: Разработка пресетов)
--   **[09 - Component Development](./09-COMPONENT-DEVELOPMENT.md)**: A comprehensive guide on how to create new components, from their structure to their lifecycle scripts.
--   **[10 - Hammerspoon Integration](./10-HAMMERSPOON-INTEGRATION.md)**: (TODO: Hammerspoon, Lua, плавуны)
+- **[02 - Configuration](./02-CONFIGURATION.md)**: An explanation of how to customize `.meow` using `.meowrc`, secrets, and environment variables.
+- **[07 - Package Configuration](./07-PACKAGE-CONFIGURATION.md)**: Learn how the framework resolves package managers, matches OS versions, and configures custom package sources.
+- **[08 - Preset Development](./08-PRESET-DEVELOPMENT.md)**: A guide to creating custom presets, inheriting from existing ones, and defining environment roles.
+- **[09 - Component Development](./09-COMPONENT-DEVELOPMENT.md)**: A comprehensive guide on how to create new components, from their structure to their lifecycle scripts.
+- **[10 - Hammerspoon Integration](./10-HAMMERSPOON-INTEGRATION.md)**: Details on the Hammerspoon architecture, adaptive keyboard layouts, and Vim integration.
 
 ### Architecture
 
--   **[11 - Principles](./11-PRINCIPLES.md)**: The core philosophy that guides the design and development of `.meow`.
--   **[12 - Architecture](./12-ARCHITECTURE.md)**: A deep dive into the internal architecture of `.meow`, explaining the layered design and command lifecycle.
+- **[11 - Principles](./11-PRINCIPLES.md)**: The core philosophy that guides the design and development of `.meow`.
+- **[12 - Architecture](./12-ARCHITECTURE.md)**: A deep dive into the internal architecture of `.meow`, explaining the layered design and command lifecycle.
 
 We hope this documentation helps you get the most out of the `.meow` framework!

@@ -6,9 +6,9 @@ This guide provides detailed instructions for installing the `.meow` framework.
 
 Before you begin, ensure you have the following prerequisites installed on your system.
 
--   **`git`**: Required for cloning the repository.
--   **`curl`**: Required for some installation scripts and component downloads.
--   **A POSIX-compliant shell**: `.meow` is written in pure Shell and is compatible with Bash (version 3.2+) and Zsh.
+- **`git`**: Required for cloning the repository.
+- **`curl`**: Required for some installation scripts and component downloads.
+- **A POSIX-compliant shell**: `.meow` is written in pure Shell and is compatible with Bash (version 3.2+) and Zsh.
 
 ## Quick Installation
 
@@ -59,7 +59,6 @@ Before installing any presets, you **must** configure your environment. This ens
     ```
 
 > **Note**: For a deep dive into all configuration options, see the **[Configuration Guide](./02-CONFIGURATION.md)**.
-
 
 ## First Steps: Installing a Preset
 

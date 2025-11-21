@@ -6,9 +6,9 @@ This document provides a complete reference for all `meowctl` commands.
 
 These options can be used with any command.
 
--   `--verbose`, `-v`: Enables verbose output, showing detailed logs and command outputs.
--   `--dry-run`: Simulates the command's execution without making any actual changes to the system. This is useful for previewing what will happen.
--   `--help`, `-h`: Shows help information for a command.
+- `--verbose`, `-v`: Enables verbose output, showing detailed logs and command outputs.
+- `--dry-run`: Simulates the command's execution without making any actual changes to the system. This is useful for previewing what will happen.
+- `--help`, `-h`: Shows help information for a command.
 
 ---
 
@@ -24,11 +24,11 @@ meowctl install <preset> [options]
 
 ### Arguments
 
--   [`<preset>`](./03-USING-PRESETS.md): (Required) The name of the preset to install (e.g., `den-personal`).
+- [`<preset>`](./03-USING-PRESETS.md): (Required) The name of the preset to install (e.g., `den-personal`).
 
 ### Options
 
--   `--force`: Forces the re-installation of all components in the preset, even if they are already installed.
+- `--force`: Forces the re-installation of all components in the preset, even if they are already installed.
 
 ### Examples
 
@@ -54,11 +54,11 @@ meowctl uninstall <preset|all> [options]
 
 ### Arguments
 
--   `<preset|all>`: (Required) The name of the [preset](./03-USING-PRESETS.md) to uninstall, or `all` to uninstall all currently installed presets and components.
+- `<preset|all>`: (Required) The name of the [preset](./03-USING-PRESETS.md) to uninstall, or `all` to uninstall all currently installed presets and components.
 
 ### Options
 
--   `--force`: Forces the uninstallation of components, even if they are required by another installed preset or were installed manually.
+- `--force`: Forces the uninstallation of components, even if they are required by another installed preset or were installed manually.
 
 ### Examples
 
@@ -84,12 +84,12 @@ meowctl update [preset|all] [options]
 
 ### Arguments
 
--   `[preset]`: (Optional) The name of the [preset](./03-USING-PRESETS.md) whose components you want to update.
--   `all` or no argument: Updates all currently installed components across all presets.
+- `[preset]`: (Optional) The name of the [preset](./03-USING-PRESETS.md) whose components you want to update.
+- `all` or no argument: Updates all currently installed components across all presets.
 
 ### Options
 
--   `--pull`: Performs a `git pull` on the `.meow` repository itself before running the update, ensuring the latest component and preset definitions are used.
+- `--pull`: Performs a `git pull` on the `.meow` repository itself before running the update, ensuring the latest component and preset definitions are used.
 
 ### Examples
 
@@ -118,9 +118,9 @@ meowctl list
 
 ### Status Indicators
 
--   `✓`: The preset is installed.
--   `❌`: The preset is not available on the current platform.
--   (no icon): The preset is available but not installed.
+- `✓`: The preset is installed.
+- `❌`: The preset is not available on the current platform.
+- (no icon): The preset is available but not installed.
 
 ### Example
 
@@ -138,37 +138,37 @@ Manages individual [components](./09-COMPONENT-DEVELOPMENT.md) directly.
 
 Lists all available components and their status.
 
--   **Usage:** `meowctl component list [--names-only]`
--   **Options:**
-    -   `--names-only`: Prints only the names of the components without status information.
+- **Usage:** `meowctl component list [--names-only]`
+- **Options:**
+  - `--names-only`: Prints only the names of the components without status information.
 
 ### `component install`
 
 Installs one or more components manually.
 
--   **Usage:** `meowctl component install <component> [...]`
--   **Arguments:**
-    -   `<component>`: (Required) The name of the component(s) to install.
--   **Options:**
-    -   `--force`: Reinstalls the components even if they are already present.
+- **Usage:** `meowctl component install <component> [...]`
+- **Arguments:**
+  - `<component>`: (Required) The name of the component(s) to install.
+- **Options:**
+  - `--force`: Reinstalls the components even if they are already present.
 
 ### `component uninstall`
 
 Uninstalls a component.
 
--   **Usage:** `meowctl component uninstall <component> [--force]`
--   **Arguments:**
-    -   `<component>`: (Required) The name of the component to uninstall.
--   **Options:**
-    -   `--force`: Skips dependency checks. Use with caution, as this may break other components that depend on this one.
+- **Usage:** `meowctl component uninstall <component> [--force]`
+- **Arguments:**
+  - `<component>`: (Required) The name of the component to uninstall.
+- **Options:**
+  - `--force`: Skips dependency checks. Use with caution, as this may break other components that depend on this one.
 
 ### `component update`
 
 Updates one or more components.
 
--   **Usage:** `meowctl component update <component> [...]`
--   **Arguments:**
-    -   `<component>`: (Required) The name of the component(s) to update.
+- **Usage:** `meowctl component update <component> [...]`
+- **Arguments:**
+  - `<component>`: (Required) The name of the component(s) to update.
 
 ---
 
@@ -180,17 +180,17 @@ Manages backups of dotfiles that were replaced during symlinking.
 
 Lists all available backup files.
 
--   **Usage:** `meowctl backup list [pattern]`
--   **Arguments:**
-    -   `[pattern]`: (Optional) A search pattern to filter the list of backups.
+- **Usage:** `meowctl backup list [pattern]`
+- **Arguments:**
+  - `[pattern]`: (Optional) A search pattern to filter the list of backups.
 
 ### `backup restore`
 
 Restores a specific dotfile from a backup file.
 
--   **Usage:** `meowctl backup restore <file>`
--   **Arguments:**
-    -   `<file>`: (Required) The full name of the backup file to restore (e.g., `.zshrc.backup.20231201_120000`).
+- **Usage:** `meowctl backup restore <file>`
+- **Arguments:**
+  - `<file>`: (Required) The full name of the backup file to restore (e.g., `.zshrc.backup.20231201_120000`).
 
 ---
 
@@ -221,4 +221,3 @@ meowctl help install
 If you encounter any issues while using these commands, the troubleshooting guide may have a solution.
 
 ➡️ **[Refer to the Troubleshooting Guide](./05-TROUBLESHOOTING.md)**
-
