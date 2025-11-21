@@ -1,0 +1,73 @@
+# Troubleshooting
+
+This guide provides solutions to common issues and offers general advice on how to debug problems with `.meow`.
+
+## Common Issues
+
+### "Command not found: meowctl"
+
+If you see this error, it means the `meowctl` script is not in your shell's `PATH`.
+
+-   **Solution 1 (Recommended)**: Add `.meow` to your `PATH` by following the instructions in the [Installation Guide](./01-INSTALLATION.md#shell-integration).
+-   **Solution 2 (Workaround)**: Navigate to your `.meow` directory (`cd ~/.meow`) and run the command with a relative path: `./bin/meowctl`.
+
+### A Component or Preset Fails to Install
+
+Installation failures can happen for various reasons, such as a package server being down, a script error, or a network issue.
+
+1.  **Run with Verbose Mode**: The first step is to re-run the command with the `--verbose` flag. This will provide detailed output from the installation scripts, which often reveals the exact point of failure.
+
+    ```bash
+    meowctl install <preset-name> --verbose
+    ```
+
+2.  **Check the Logs**: The full output of any failed command is logged. While `.meow` does not have a formal logging system to a file, the verbose output provides the necessary information.
+
+## Debugging Techniques
+
+### Use `--dry-run`
+
+If you want to see what a command *would* do without actually making any changes, use the `--dry-run` flag. This is incredibly useful for:
+
+-   Previewing which packages will be installed or uninstalled.
+-   Seeing which files will be symlinked.
+-   Confirming the order of operations.
+
+```bash
+meowctl install <preset-name> --dry-run
+```
+
+### Isolate the Problem
+
+If an installation is failing, try to determine if the issue is with a specific component.
+
+1.  Look at the output to see which component was being installed when the failure occurred.
+2.  Try to install that component manually with `--verbose`:
+
+    ```bash
+    meowctl component install <component-name> --verbose
+    ```
+
+3.  If the component has its own `setup.sh` script, you can examine it to understand its logic.
+
+### Check Permissions
+
+Some installation issues can be caused by incorrect file or directory permissions. Ensure that your user has the necessary permissions to write to the directories where `.meow` is trying to install packages or create symlinks.
+
+## Getting Help
+
+If you've tried the steps above and are still stuck, please [open an issue](https://github.com/retran/meow/issues) on our GitHub repository.
+
+When filing an issue, please include:
+
+-   The command you were trying to run.
+-   The full output from running the command with the `--verbose` flag.
+-   Your operating system and version.
+-   Any other relevant details about your environment.
+
+---
+
+## See Also
+
+-   **[Command Reference](./03-COMMAND-REFERENCE.md)**: Double-check the syntax and available options for the command you are running.
+-   **[Installation Guide](./01-INSTALLATION.md)**: Review the initial setup steps to ensure your environment is configured correctly.
