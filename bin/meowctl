@@ -33,6 +33,12 @@ if [ -f "./config/env/env.sh" ] && [ -d "./presets" ]; then
 fi
 
 source "${MEOW}/lib/env/env.sh"
+
+# Source user settings from .meowrc if it exists
+if [ -f "$HOME/.meowrc" ]; then
+  source "$HOME/.meowrc"
+fi
+
 source "${MEOW}/lib/core/bash.sh"
 source "${MEOW}/lib/core/ui.sh"
 source "${MEOW}/lib/core/dry_run.sh"
@@ -692,8 +698,10 @@ cmd_update() {
     fi
 
     if ! git -C "$MEOW" diff-index --quiet HEAD -- 2>/dev/null; then
-      ui_warning "You have uncommitted changes in $MEOW"
-      ui_warning "Consider committing or stashing them before updating"
+      ui_error "You have uncommitted changes in $MEOW"
+      ui_error "Please commit or stash them before updating"
+      show_final_summary "Update" "$preset" "false"
+      exit 1
     fi
 
     if dry_run_git_operation "pull" "$MEOW"; then
@@ -852,9 +860,6 @@ cmd_help() {
       ;;
     update)
       show_update_help
-      ;;
-    plugin)
-      show_plugin_help
       ;;
     backup)
       show_backup_help

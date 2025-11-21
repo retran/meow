@@ -36,6 +36,9 @@ _LIB_PACKAGE_MAS_SOURCED=1
 source "${MEOW}/lib/package/common.sh"
 source "${MEOW}/lib/core/dry_run.sh"
 
+# Set default value for MEOW_ENABLE_MAS if not already set
+: "${MEOW_ENABLE_MAS:=true}"
+
 _cache_installed_mas_packages() {
   local cache_var="_MAS_INSTALLED_PACKAGES"
 
