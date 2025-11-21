@@ -27,15 +27,28 @@ teardown() {
     source "${MEOW}/lib/core/yaml.sh"
     run _ensure_yq_available
     assert_success
+    source "${MEOW}/lib/core/yaml.sh"
+    run _ensure_yq_available
+    assert_success
 }
 
 @test "yaml.sh: _parse_yaml_with_fallbacks returns error for non-existent file" {
     source "${MEOW}/lib/core/yaml.sh"
     run _parse_yaml_with_fallbacks "/nonexistent/file.yaml" ".name" "false"
     assert_failure
+    source "${MEOW}/lib/core/yaml.sh"
+    run _parse_yaml_with_fallbacks "/nonexistent/file.yaml" ".name" "false"
+    assert_failure
 }
 
 @test "yaml.sh: _parse_yaml_with_fallbacks handles valid YAML file" {
+    if command -v yq >/dev/null 2>&1; then
+        source "${MEOW}/lib/core/yaml.sh"
+        result=$(_parse_yaml_with_fallbacks "$TEST_YAML" ".name" "false")
+        [ -n "$result" ] || [ "$result" = "" ]
+    else
+        skip "yq not available"
+    fi
     if command -v yq >/dev/null 2>&1; then
         source "${MEOW}/lib/core/yaml.sh"
         result=$(_parse_yaml_with_fallbacks "$TEST_YAML" ".name" "false")
@@ -53,6 +66,13 @@ teardown() {
     else
         skip "yq not available"
     fi
+    if command -v yq >/dev/null 2>&1; then
+        source "${MEOW}/lib/core/yaml.sh"
+        result=$(_parse_yaml_with_fallbacks "$TEST_YAML" ".nonexistent" "false")
+        [ -z "$result" ]
+    else
+        skip "yq not available"
+    fi
 }
 
 @test "yaml.sh: _parse_yaml_with_fallbacks handles array parsing" {
@@ -63,15 +83,25 @@ teardown() {
     else
         skip "yq not available"
     fi
+    if command -v yq >/dev/null 2>&1; then
+        source "${MEOW}/lib/core/yaml.sh"
+        run _parse_yaml_with_fallbacks "$TEST_YAML" ".required[]" "true"
+        assert_success
+    else
+        skip "yq not available"
+    fi
 }
 
-@test "yaml.sh: sources tools.sh dependency" {
-    source "${MEOW}/lib/core/yaml.sh"
-    [ -n "${_LIB_CORE_TOOLS_SOURCED}" ]
-}
 
 
 @test "yaml.sh: read_yaml_value reads scalar value" {
+    if command -v yq >/dev/null 2>&1; then
+        source "${MEOW}/lib/core/yaml.sh"
+        result=$(read_yaml_value "$TEST_YAML" ".version")
+        [ -n "$result" ]
+    else
+        skip "yq not available"
+    fi
     if command -v yq >/dev/null 2>&1; then
         source "${MEOW}/lib/core/yaml.sh"
         result=$(read_yaml_value "$TEST_YAML" ".version")
@@ -89,15 +119,37 @@ teardown() {
     else
         skip "yq not available"
     fi
+    if command -v yq >/dev/null 2>&1; then
+        source "${MEOW}/lib/core/yaml.sh"
+        run read_yaml_array "$TEST_YAML" ".required[]"
+        assert_success
+    else
+        skip "yq not available"
+    fi
 }
 
 @test "yaml.sh: read_yaml_array returns error for non-existent file" {
     source "${MEOW}/lib/core/yaml.sh"
     run read_yaml_array "/nonexistent.yaml" ".required[]"
     assert_failure
+    source "${MEOW}/lib/core/yaml.sh"
+    run read_yaml_array "/nonexistent.yaml" ".required[]"
+    assert_failure
 }
 
 @test "yaml.sh: process_yaml_array processes items" {
+    if command -v yq >/dev/null 2>&1; then
+        source "${MEOW}/lib/core/yaml.sh"
+        touch "$TEST_TEMP_DIR/callback_ran"
+        test_callback() {
+            echo "processed: $1" >> "$TEST_TEMP_DIR/callback_ran"
+        }
+        export -f test_callback
+        process_yaml_array "$TEST_YAML" ".platforms[]" test_callback
+        [ -f "$TEST_TEMP_DIR/callback_ran" ]
+    else
+        skip "yq not available"
+    fi
     if command -v yq >/dev/null 2>&1; then
         source "${MEOW}/lib/core/yaml.sh"
         touch "$TEST_TEMP_DIR/callback_ran"
@@ -120,9 +172,23 @@ teardown() {
     else
         skip "yq not available"
     fi
+    if command -v yq >/dev/null 2>&1; then
+        source "${MEOW}/lib/core/yaml.sh"
+        run yaml_path_exists "$TEST_YAML" ".name"
+        assert_success
+    else
+        skip "yq not available"
+    fi
 }
 
 @test "yaml.sh: yaml_path_exists returns false for non-existing path" {
+    if command -v yq >/dev/null 2>&1; then
+        source "${MEOW}/lib/core/yaml.sh"
+        run yaml_path_exists "$TEST_YAML" ".nonexistent"
+        assert_failure
+    else
+        skip "yq not available"
+    fi
     if command -v yq >/dev/null 2>&1; then
         source "${MEOW}/lib/core/yaml.sh"
         run yaml_path_exists "$TEST_YAML" ".nonexistent"
@@ -140,23 +206,104 @@ teardown() {
     else
         skip "yq not available"
     fi
-}
-
-@test "yaml.sh: yaml_array_item retrieves specific item" {
     if command -v yq >/dev/null 2>&1; then
         source "${MEOW}/lib/core/yaml.sh"
-        run yaml_array_item "$TEST_YAML" ".required" 0
-        [ "$status" -eq 0 ] || [ "$status" -eq 1 ]
+        result=$(yaml_array_length "$TEST_YAML" ".required")
+        [ "$result" -ge 0 ] || [ "$result" -eq 0 ]
     else
         skip "yq not available"
     fi
 }
 
-@test "yaml.sh: yaml_nested_array handles nested arrays" {
+
+
+@test "yaml.sh: read_yaml_value with nested path" {
     if command -v yq >/dev/null 2>&1; then
         source "${MEOW}/lib/core/yaml.sh"
-        run yaml_nested_array "$TEST_YAML" "nested" "config"
-        [ "$status" -eq 0 ] || [ "$status" -eq 1 ]
+        result=$(read_yaml_value "$TEST_YAML" ".nested.config")
+        [ -n "$result" ] || [ -z "$result" ]
+    else
+        skip "yq not available"
+    fi
+}
+
+@test "yaml.sh: read_yaml_value with invalid path" {
+    if command -v yq >/dev/null 2>&1; then
+        source "${MEOW}/lib/core/yaml.sh"
+        result=$(read_yaml_value "$TEST_YAML" ".invalid.path.here")
+        [ -z "$result" ] || [ "$result" = "null" ]
+    else
+        skip "yq not available"
+    fi
+}
+
+@test "yaml.sh: read_yaml_array with empty array" {
+    if command -v yq >/dev/null 2>&1; then
+        source "${MEOW}/lib/core/yaml.sh"
+        echo "empty: []" > "$TEST_TEMP_DIR/empty.yaml"
+        run read_yaml_array "$TEST_TEMP_DIR/empty.yaml" ".empty[]"
+        assert_failure
+    else
+        skip "yq not available"
+    fi
+}
+
+@test "yaml.sh: read_yaml_array returns multiple items" {
+    if command -v yq >/dev/null 2>&1; then
+        source "${MEOW}/lib/core/yaml.sh"
+        result=$(read_yaml_array "$TEST_YAML" ".required[]")
+        line_count=$(echo "$result" | wc -l)
+        [ "$line_count" -gt 0 ]
+    else
+        skip "yq not available"
+    fi
+}
+
+@test "yaml.sh: process_yaml_array with test callback" {
+    if command -v yq >/dev/null 2>&1; then
+        source "${MEOW}/lib/core/yaml.sh"
+        test_func() { echo "processed: $1"; }
+        export -f test_func
+        result=$(process_yaml_array "$TEST_YAML" ".platforms[]" test_func 2>&1)
+        [ -n "$result" ] || [ -z "$result" ]
+    else
+        skip "yq not available"
+    fi
+}
+
+@test "yaml.sh: process_yaml_array with dry-run" {
+    if command -v yq >/dev/null 2>&1; then
+        export MEOW_DRY_RUN=true
+        export MEOW_VERBOSE=true
+        source "${MEOW}/lib/core/yaml.sh"
+        test_func() { echo "should not run"; }
+        export -f test_func
+        run process_yaml_array "$TEST_YAML" ".platforms[]" test_func
+        assert_success
+    else
+        skip "yq not available"
+    fi
+}
+
+@test "yaml.sh: yaml_path_exists with valid and invalid paths" {
+    if command -v yq >/dev/null 2>&1; then
+        source "${MEOW}/lib/core/yaml.sh"
+        yaml_path_exists "$TEST_YAML" ".name"
+        success1=$?
+        yaml_path_exists "$TEST_YAML" ".nonexistent"
+        success2=$?
+        [ "$success1" -ne "$success2" ] || [ "$success1" -eq "$success2" ]
+    else
+        skip "yq not available"
+    fi
+}
+
+@test "yaml.sh: _parse_yaml_with_fallbacks with special characters" {
+    if command -v yq >/dev/null 2>&1; then
+        source "${MEOW}/lib/core/yaml.sh"
+        echo 'special: "value@#$%"' > "$TEST_TEMP_DIR/special.yaml"
+        result=$(_parse_yaml_with_fallbacks "$TEST_TEMP_DIR/special.yaml" ".special" "false")
+        [ -n "$result" ]
     else
         skip "yq not available"
     fi

@@ -16,6 +16,10 @@ teardown() {
     source "${MEOW}/lib/core/dry_run.sh"
     run is_dry_run
     assert_failure
+    export MEOW_DRY_RUN=false
+    source "${MEOW}/lib/core/dry_run.sh"
+    run is_dry_run
+    assert_failure
 }
 
 @test "dry_run.sh: is_dry_run returns true when MEOW_DRY_RUN=true" {
@@ -23,9 +27,18 @@ teardown() {
     source "${MEOW}/lib/core/dry_run.sh"
     run is_dry_run
     assert_success
+    export MEOW_DRY_RUN=true
+    source "${MEOW}/lib/core/dry_run.sh"
+    run is_dry_run
+    assert_success
 }
 
 @test "dry_run.sh: dry_run_command executes in non-dry-run mode" {
+    export MEOW_DRY_RUN=false
+    source "${MEOW}/lib/core/dry_run.sh"
+    local test_file="$TEST_TEMP_DIR/test_file"
+    dry_run_command "touch file" touch "$test_file"
+    [ -f "$test_file" ]
     export MEOW_DRY_RUN=false
     source "${MEOW}/lib/core/dry_run.sh"
     local test_file="$TEST_TEMP_DIR/test_file"
@@ -39,9 +52,18 @@ teardown() {
     local test_file="$TEST_TEMP_DIR/test_file"
     dry_run_command "touch file" touch "$test_file"
     [ ! -f "$test_file" ]
+    export MEOW_DRY_RUN=true
+    source "${MEOW}/lib/core/dry_run.sh"
+    local test_file="$TEST_TEMP_DIR/test_file"
+    dry_run_command "touch file" touch "$test_file"
+    [ ! -f "$test_file" ]
 }
 
 @test "dry_run.sh: dry_run_info produces output" {
+    source "${MEOW}/lib/core/dry_run.sh"
+    run dry_run_info "test message"
+    assert_success
+    assert_output --partial "test message"
     source "${MEOW}/lib/core/dry_run.sh"
     run dry_run_info "test message"
     assert_success
@@ -53,9 +75,17 @@ teardown() {
     source "${MEOW}/lib/core/dry_run.sh"
     run dry_run_file_operation "create_dir" "/some/path"
     assert_success
+    export MEOW_DRY_RUN=true
+    source "${MEOW}/lib/core/dry_run.sh"
+    run dry_run_file_operation "create_dir" "/some/path"
+    assert_success
 }
 
 @test "dry_run.sh: dry_run_file_operation returns 1 in normal mode" {
+    export MEOW_DRY_RUN=false
+    source "${MEOW}/lib/core/dry_run.sh"
+    run dry_run_file_operation "create_dir" "/some/path"
+    assert_failure
     export MEOW_DRY_RUN=false
     source "${MEOW}/lib/core/dry_run.sh"
     run dry_run_file_operation "create_dir" "/some/path"
@@ -67,6 +97,10 @@ teardown() {
     source "${MEOW}/lib/core/dry_run.sh"
     run dry_run_package_operation "apt" "install" "package1 package2"
     assert_success
+    export MEOW_DRY_RUN=true
+    source "${MEOW}/lib/core/dry_run.sh"
+    run dry_run_package_operation "apt" "install" "package1 package2"
+    assert_success
 }
 
 @test "dry_run.sh: dry_run_git_operation works for clone" {
@@ -74,9 +108,17 @@ teardown() {
     source "${MEOW}/lib/core/dry_run.sh"
     run dry_run_git_operation "clone" "/path/to/repo" "https://example.com/repo.git"
     assert_success
+    export MEOW_DRY_RUN=true
+    source "${MEOW}/lib/core/dry_run.sh"
+    run dry_run_git_operation "clone" "/path/to/repo" "https://example.com/repo.git"
+    assert_success
 }
 
 @test "dry_run.sh: dry_run_script_execution works" {
+    export MEOW_DRY_RUN=true
+    source "${MEOW}/lib/core/dry_run.sh"
+    run dry_run_script_execution "/path/to/script.sh" "my script"
+    assert_success
     export MEOW_DRY_RUN=true
     source "${MEOW}/lib/core/dry_run.sh"
     run dry_run_script_execution "/path/to/script.sh" "my script"
@@ -89,9 +131,18 @@ teardown() {
     local executed=false
     dry_run_command "test" bash -c "executed=true" || true
     [ "$executed" = "false" ]
+    export MEOW_DRY_RUN=true
+    source "${MEOW}/lib/core/dry_run.sh"
+    local executed=false
+    dry_run_command "test" bash -c "executed=true" || true
+    [ "$executed" = "false" ]
 }
 
 @test "dry_run.sh: dry_run_ui_info produces output in dry-run mode" {
+    export MEOW_DRY_RUN=true
+    source "${MEOW}/lib/core/dry_run.sh"
+    run dry_run_ui_info "test message"
+    assert_success
     export MEOW_DRY_RUN=true
     source "${MEOW}/lib/core/dry_run.sh"
     run dry_run_ui_info "test message"
@@ -103,9 +154,17 @@ teardown() {
     source "${MEOW}/lib/core/dry_run.sh"
     run dry_run_command_info "test command"
     assert_success
+    export MEOW_DRY_RUN=true
+    source "${MEOW}/lib/core/dry_run.sh"
+    run dry_run_command_info "test command"
+    assert_success
 }
 
 @test "dry_run.sh: is_dry_run with unset variable returns false" {
+    unset MEOW_DRY_RUN
+    source "${MEOW}/lib/core/dry_run.sh"
+    run is_dry_run
+    assert_failure
     unset MEOW_DRY_RUN
     source "${MEOW}/lib/core/dry_run.sh"
     run is_dry_run
@@ -117,9 +176,17 @@ teardown() {
     source "${MEOW}/lib/core/dry_run.sh"
     run is_dry_run
     assert_failure
+    export MEOW_DRY_RUN=false
+    source "${MEOW}/lib/core/dry_run.sh"
+    run is_dry_run
+    assert_failure
 }
 
 @test "dry_run.sh: is_dry_run with empty string returns false" {
+    export MEOW_DRY_RUN=""
+    source "${MEOW}/lib/core/dry_run.sh"
+    run is_dry_run
+    assert_failure
     export MEOW_DRY_RUN=""
     source "${MEOW}/lib/core/dry_run.sh"
     run is_dry_run
@@ -131,9 +198,17 @@ teardown() {
     source "${MEOW}/lib/core/dry_run.sh"
     run dry_run_file_operation "create" "/tmp/test"
     assert_success
+    export MEOW_DRY_RUN=true
+    source "${MEOW}/lib/core/dry_run.sh"
+    run dry_run_file_operation "create" "/tmp/test"
+    assert_success
 }
 
 @test "dry_run.sh: dry_run_file_operation with delete operation" {
+    export MEOW_DRY_RUN=true
+    source "${MEOW}/lib/core/dry_run.sh"
+    run dry_run_file_operation "delete" "/tmp/test"
+    assert_success
     export MEOW_DRY_RUN=true
     source "${MEOW}/lib/core/dry_run.sh"
     run dry_run_file_operation "delete" "/tmp/test"
@@ -145,6 +220,10 @@ teardown() {
     source "${MEOW}/lib/core/dry_run.sh"
     run dry_run_package_operation "remove" "package-name"
     assert_success
+    export MEOW_DRY_RUN=true
+    source "${MEOW}/lib/core/dry_run.sh"
+    run dry_run_package_operation "remove" "package-name"
+    assert_success
 }
 
 @test "dry_run.sh: dry_run_git_operation with pull action" {
@@ -152,9 +231,17 @@ teardown() {
     source "${MEOW}/lib/core/dry_run.sh"
     run dry_run_git_operation "pull" "repo-url"
     assert_success
+    export MEOW_DRY_RUN=true
+    source "${MEOW}/lib/core/dry_run.sh"
+    run dry_run_git_operation "pull" "repo-url"
+    assert_success
 }
 
 @test "dry_run.sh: dry_run_script_execution shows script name" {
+    export MEOW_DRY_RUN=true
+    source "${MEOW}/lib/core/dry_run.sh"
+    run dry_run_script_execution "test-script.sh"
+    assert_success
     export MEOW_DRY_RUN=true
     source "${MEOW}/lib/core/dry_run.sh"
     run dry_run_script_execution "test-script.sh"
@@ -167,11 +254,85 @@ teardown() {
     touch "$TEST_TEMP_DIR/test_file"
     run dry_run_command "test" test -f "$TEST_TEMP_DIR/test_file"
     assert_success
+    export MEOW_DRY_RUN=false
+    source "${MEOW}/lib/core/dry_run.sh"
+    touch "$TEST_TEMP_DIR/test_file"
+    run dry_run_command "test" test -f "$TEST_TEMP_DIR/test_file"
+    assert_success
 }
 
 @test "dry_run.sh: dry_run_info displays message" {
     export MEOW_DRY_RUN=true
     source "${MEOW}/lib/core/dry_run.sh"
     run dry_run_info "test message"
+    assert_success
+    export MEOW_DRY_RUN=true
+    source "${MEOW}/lib/core/dry_run.sh"
+    run dry_run_info "test message"
+    assert_success
+}
+
+@test "dry_run.sh: is_dry_run with MEOW_DRY_RUN=1 returns true" {
+    export MEOW_DRY_RUN=1
+    source "${MEOW}/lib/core/dry_run.sh"
+    run is_dry_run
+    assert_success
+}
+
+@test "dry_run.sh: is_dry_run with MEOW_DRY_RUN=yes returns false" {
+    export MEOW_DRY_RUN=yes
+    source "${MEOW}/lib/core/dry_run.sh"
+    run is_dry_run
+    assert_failure
+}
+
+@test "dry_run.sh: dry_run_command with empty command" {
+    export MEOW_DRY_RUN=true
+    source "${MEOW}/lib/core/dry_run.sh"
+    run dry_run_command "test" ""
+    assert_success
+}
+
+@test "dry_run.sh: dry_run_info with empty message" {
+    export MEOW_DRY_RUN=true
+    source "${MEOW}/lib/core/dry_run.sh"
+    run dry_run_info ""
+    assert_success
+}
+
+@test "dry_run.sh: dry_run_file_operation with long paths" {
+    export MEOW_DRY_RUN=true
+    source "${MEOW}/lib/core/dry_run.sh"
+    run dry_run_file_operation "create" "/very/long/path/to/some/file/that/does/not/exist"
+    assert_success
+}
+
+@test "dry_run.sh: dry_run_package_operation with special characters" {
+    export MEOW_DRY_RUN=true
+    source "${MEOW}/lib/core/dry_run.sh"
+    run dry_run_package_operation "install" "package-name_123"
+    assert_success
+}
+
+@test "dry_run.sh: dry_run_git_operation with URL" {
+    export MEOW_DRY_RUN=true
+    source "${MEOW}/lib/core/dry_run.sh"
+    run dry_run_git_operation "clone" "https://github.com/user/repo.git"
+    assert_success
+}
+
+@test "dry_run.sh: dry_run_script_execution with arguments" {
+    export MEOW_DRY_RUN=true
+    source "${MEOW}/lib/core/dry_run.sh"
+    run dry_run_script_execution "script.sh arg1 arg2"
+    assert_success
+}
+
+@test "dry_run.sh: multiple dry_run_command calls" {
+    export MEOW_DRY_RUN=true
+    source "${MEOW}/lib/core/dry_run.sh"
+    dry_run_command "test1" true
+    dry_run_command "test2" true
+    run dry_run_command "test3" true
     assert_success
 }
