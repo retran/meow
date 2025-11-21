@@ -25,7 +25,7 @@ Then, edit `private/meow/.meowrc` to suit your preferences.
 export MEOW_ENABLE_MAS="true"
 ```
 
-**Note on `.meowrc` Variables:** Variables defined in your `.meowrc` file are loaded into your `zsh` profile (`config/zsh/.zprofile`) upon startup. This makes them globally available within your shell environment, not just for the `meowctl` utility.
+**Note on `.meowrc` Variables:** Variables defined in your `.meowrc` file are loaded into your Zsh shell session during startup (via `config/zsh/.zprofile`) and by `meowctl` when it executes. Changes to `.meowrc` require either a **shell restart** (opening a new terminal session) or manual sourcing (e.g., `source ~/.meowrc`) to take effect in your current shell environment. The `meowctl` utility will automatically load the updated settings when invoked.
 
 ## Secrets Management
 

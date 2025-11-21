@@ -32,6 +32,7 @@ Examples include:
 - `litterbox-rust`: Installs the Rust toolchain, cargo extensions, and formatters.
 - `litterbox-dotnet`: Sets up the .NET SDK and related tools.
 - `litterbox-python`: Provides a Python environment with common tools.
+- `litterbox-full`: Installs all Linux-compatible components for a fully loaded development environment with multiple language toolchains.
 
 ---
 

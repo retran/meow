@@ -99,7 +99,19 @@ package_sources:
     name: <unique_slug>
     repo: <repository_line>
     key_url: <url_to_gpg_key>
+    repo_file: <content_for_repo_file>  # For RPM-based distributions (DNF/YUM)
+    gpg_key: <url_to_gpg_key>           # For RPM-based distributions (DNF/YUM)
 ```
+
+**Field Descriptions:**
+
+- `manager`: The package manager this source applies to (e.g., `apt`, `dnf`, `pacman`)
+- `match`: Optional matching criteria to target specific distributions
+- `name`: A unique identifier for this package source
+- `repo`: For APT-based systems, the repository line to add to sources.list
+- `key_url`: For APT-based systems, URL to the GPG key for package verification
+- `repo_file`: For RPM-based distributions (DNF/YUM), the complete content of the `.repo` file to be created in `/etc/yum.repos.d/`
+- `gpg_key`: For RPM-based distributions (DNF/YUM), URL to the GPG key that will be imported via `rpm --import`
 
 ### Templating
 

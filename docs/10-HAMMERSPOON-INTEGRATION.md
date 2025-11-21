@@ -4,6 +4,8 @@
 
 This guide explains the architecture of the Hammerspoon integration and how to build your own Lua-based components.
 
+> **Important**: The Hammerspoon integration requires both the Hammerspoon.app and the `hs` command-line utility to be installed and available. The `hs` CLI utility is essential for scripts to interact with Hammerspoon programmatically. It is typically installed alongside Hammerspoon.app but may need to be enabled in Hammerspoon preferences.
+
 ## Architecture
 
 Unlike a standard Hammerspoon setup where all configuration resides in a single `~/.hammerspoon/init.lua`, `.meow` employs a **modular plugin system**.
