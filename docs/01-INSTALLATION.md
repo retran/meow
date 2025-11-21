@@ -58,7 +58,7 @@ Before installing any presets, you **must** configure your environment. This ens
     nano private/secrets/.secrets
     ```
 
-> **Note**: For a deep dive into all configuration options, see the **[Configuration Guide](./02-CONFIGURATION.md)**.
+> **Note**: Configuration files like `.gitconfig` and `.meowrc` only become active and linked into your system after the `shell-essential` component is installed (which creates the necessary symlinks). For a deep dive into all configuration options, see the **[Configuration Guide](./02-CONFIGURATION.md)**.
 
 ## First Steps: Installing a Preset
 

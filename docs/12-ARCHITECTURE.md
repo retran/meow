@@ -36,6 +36,10 @@ The Adapter Layer is the key to `.meow`'s cross-platform package management. It 
 
 The central script is `lib/package/common.sh`. It provides generic functions like `install_packages_generic`. This function takes a manager name (e.g., "homebrew", "apt") and the necessary commands as arguments.
 
+Supporting scripts include:
+- `lib/package/sources.sh`: Manages package repository sources, handling the addition of custom repositories and GPG keys for various package managers
+- `lib/package/config.sh`: Handles configuration merging, determining which package managers are active for the current system by combining settings from presets and components
+
 The actual detection and loading of the correct "driver" happens within the component installation logic, which checks the platform and calls the appropriate package manager script (e.g., `lib/package/apt.sh`, `lib/package/homebrew.sh`). Each of these driver scripts then calls the generic functions in `common.sh` with the correct commands for that specific package manager. For example, `apt.sh` will call `install_packages_generic` with `apt-get install` as the install command.
 
 This design allows adding support for a new package manager by simply creating a new driver script in `lib/package/` without changing the core installation logic.

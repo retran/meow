@@ -78,6 +78,21 @@ Some installation issues can be caused by incorrect file or directory permission
 
 Additionally, many package installation scripts (`apt.sh`, `pacman.sh`, etc.) use `sudo` to install system-level packages. If your user does not have passwordless `sudo` configured, or if your `sudo` session has expired, the installation may hang while waiting for a password. Ensure your `sudo` access is correctly configured before running a large installation.
 
+### Clear Caches for Synchronization Issues
+
+If you're experiencing synchronization issues or unexpected behavior, try clearing `.meow`'s internal caches:
+
+```bash
+rm -f ~/.cache/meow-motd
+rm -f ~/.sources
+```
+
+These caches store:
+- `~/.cache/meow-motd`: Cached "Message of the Day" content
+- `~/.sources`: Cached package source configurations
+
+After clearing these caches, restart your shell or re-run `meowctl` commands. The framework will rebuild the caches with fresh data.
+
 ## Getting Help
 
 If you've tried the steps above and are still stuck, please [open an issue](https://github.com/retran/meow/issues) on our GitHub repository.
