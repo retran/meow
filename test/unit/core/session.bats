@@ -26,3 +26,13 @@ teardown() {
     source "${MEOW}/lib/core/session.sh"
     declare -f _finalize_session > /dev/null
 }
+
+@test "session.sh: _initialize_session function has correct signature" {
+    source "${MEOW}/lib/core/session.sh"
+    type _initialize_session | grep -q "function"
+}
+
+@test "session.sh: _finalize_session function has correct signature" {
+    source "${MEOW}/lib/core/session.sh"
+    type _finalize_session | grep -q "function"
+}

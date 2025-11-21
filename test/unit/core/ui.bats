@@ -123,3 +123,55 @@ teardown() {
     assert_output --partial "Step Name"
     refute_output --partial "/"
 }
+
+@test "ui.sh: ui_info produces output" {
+    source "${MEOW}/lib/core/ui.sh"
+    run ui_info "info message"
+    assert_success
+    assert_output --partial "info message"
+}
+
+@test "ui.sh: ui_header produces output" {
+    source "${MEOW}/lib/core/ui.sh"
+    run ui_header "header message"
+    assert_success
+    assert_output --partial "header message"
+}
+
+@test "ui.sh: ui_subheader produces output" {
+    source "${MEOW}/lib/core/ui.sh"
+    run ui_subheader "subheader message"
+    assert_success
+    assert_output --partial "subheader message"
+}
+
+@test "ui.sh: ui_list_item produces output" {
+    source "${MEOW}/lib/core/ui.sh"
+    run ui_list_item "list item"
+    assert_success
+    assert_output --partial "list item"
+}
+
+@test "ui.sh: ui_indent produces output" {
+    source "${MEOW}/lib/core/ui.sh"
+    run ui_indent "indented text"
+    assert_success
+    assert_output --partial "indented text"
+}
+
+@test "ui.sh: ui_emphasis produces output" {
+    source "${MEOW}/lib/core/ui.sh"
+    run ui_emphasis "emphasized text"
+    assert_success
+    assert_output --partial "emphasized text"
+}
+
+@test "ui.sh: error count starts at zero" {
+    source "${MEOW}/lib/core/ui.sh"
+    [ "${MEOW_ERROR_COUNT}" -eq 0 ]
+}
+
+@test "ui.sh: warning count starts at zero" {
+    source "${MEOW}/lib/core/ui.sh"
+    [ "${MEOW_WARNING_COUNT}" -eq 0 ]
+}

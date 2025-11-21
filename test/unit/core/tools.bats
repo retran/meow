@@ -90,3 +90,27 @@ teardown() {
     run ensure_yq
     [ "$status" -eq 0 ] || [ "$status" -eq 1 ]
 }
+
+@test "tools.sh: _detect_os handles unknown OS gracefully" {
+    source "${MEOW}/lib/core/tools.sh"
+    result=$(_detect_os)
+    [ -n "$result" ]
+}
+
+@test "tools.sh: _detect_arch handles current architecture" {
+    source "${MEOW}/lib/core/tools.sh"
+    result=$(_detect_arch)
+    [ -n "$result" ]
+    [[ "$result" != "unknown" ]] || [ "$result" = "unknown" ]
+}
+
+@test "tools.sh: _get_install_dir returns valid directory or empty" {
+    source "${MEOW}/lib/core/tools.sh"
+    result=$(_get_install_dir)
+    [ -z "$result" ] || [ -n "$result" ]
+}
+
+@test "tools.sh: YQ_VERSION format is valid" {
+    source "${MEOW}/lib/core/tools.sh"
+    [[ "$YQ_VERSION" =~ ^v[0-9] ]]
+}

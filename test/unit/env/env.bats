@@ -64,3 +64,23 @@ teardown() {
     declare -f _meow_source_component_env_scripts > /dev/null
 }
 
+
+@test "env.sh: XDG variables use HOME correctly" {
+    unset _MEOW_CORE_ENV_SOURCED
+    source "${MEOW}/lib/env/env.sh"
+    [[ "${XDG_CONFIG_HOME}" == "$HOME"* ]]
+    [[ "${XDG_CACHE_HOME}" == "$HOME"* ]]
+    [[ "${XDG_DATA_HOME}" == "$HOME"* ]]
+}
+
+@test "env.sh: LANG is set to UTF-8" {
+    unset _MEOW_CORE_ENV_SOURCED
+    source "${MEOW}/lib/env/env.sh"
+    [[ "${LANG}" == *"UTF-8"* ]]
+}
+
+@test "env.sh: LC_ALL is set to UTF-8" {
+    unset _MEOW_CORE_ENV_SOURCED
+    source "${MEOW}/lib/env/env.sh"
+    [[ "${LC_ALL}" == *"UTF-8"* ]]
+}

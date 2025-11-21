@@ -78,3 +78,38 @@ teardown() {
     [ -n "${_LIB_CORE_DRY_RUN_SOURCED}" ]
 }
 
+
+@test "symlinks.sh: expand_path handles absolute paths" {
+    source "${MEOW}/lib/symlinks/symlinks.sh"
+    result=$(expand_path "/absolute/path")
+    [ "$result" = "/absolute/path" ]
+}
+
+@test "symlinks.sh: create_symlink handles existing correct symlink" {
+    source "${MEOW}/lib/symlinks/symlinks.sh"
+    local source_file="$TEST_TEMP_DIR/source"
+    local target_link="$TEST_TEMP_DIR/target"
+    touch "$source_file"
+    create_symlink "$source_file" "$target_link" >/dev/null 2>&1
+    run create_symlink "$source_file" "$target_link"
+    assert_success
+}
+
+@test "symlinks.sh: list_backups function can be called without args" {
+    source "${MEOW}/lib/symlinks/symlinks.sh"
+    run list_backups
+    assert_success
+}
+
+@test "symlinks.sh: restore_backup requires backup file argument" {
+    source "${MEOW}/lib/symlinks/symlinks.sh"
+    run restore_backup "/nonexistent/backup.file"
+    assert_failure
+}
+
+@test "symlinks.sh: debug function respects DEBUG variable" {
+    export DEBUG=0
+    source "${MEOW}/lib/symlinks/symlinks.sh"
+    run debug "test message"
+    assert_success
+}

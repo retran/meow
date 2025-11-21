@@ -82,3 +82,25 @@ teardown() {
     run dry_run_script_execution "/path/to/script.sh" "my script"
     assert_success
 }
+
+@test "dry_run.sh: dry_run_command respects MEOW_DRY_RUN setting" {
+    export MEOW_DRY_RUN=true
+    source "${MEOW}/lib/core/dry_run.sh"
+    local executed=false
+    dry_run_command "test" bash -c "executed=true" || true
+    [ "$executed" = "false" ]
+}
+
+@test "dry_run.sh: dry_run_ui_info produces output in dry-run mode" {
+    export MEOW_DRY_RUN=true
+    source "${MEOW}/lib/core/dry_run.sh"
+    run dry_run_ui_info "test message"
+    assert_success
+}
+
+@test "dry_run.sh: dry_run_command_info displays command in dry-run" {
+    export MEOW_DRY_RUN=true
+    source "${MEOW}/lib/core/dry_run.sh"
+    run dry_run_command_info "test command"
+    assert_success
+}

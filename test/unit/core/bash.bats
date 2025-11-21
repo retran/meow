@@ -79,3 +79,17 @@ teardown() {
     run warn_bash_compatibility
     assert_success
 }
+
+@test "bash.sh: get_bash_version_number handles different bash versions" {
+    source "${MEOW}/lib/core/bash.sh"
+    run get_bash_version_number
+    assert_success
+    [ "${output}" -gt 0 ]
+}
+
+@test "bash.sh: check_bash_version validates major version correctly" {
+    source "${MEOW}/lib/core/bash.sh"
+    local current_major="${BASH_VERSION%%.*}"
+    run check_bash_version "$current_major" 0
+    assert_success
+}

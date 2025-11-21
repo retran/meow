@@ -57,3 +57,20 @@ teardown() {
     [[ "${MEOW_COMPONENTS_DIR}" == "${MEOW}"* ]]
     [[ "${MEOW_INSTALLED_PRESETS_DIR}" == "${MEOW}"* ]]
 }
+
+@test "defs.sh: all directory constants are absolute paths" {
+    source "${MEOW}/lib/core/defs.sh"
+    [[ "${MEOW_PRESETS_DIR}" == /* ]]
+    [[ "${MEOW_COMPONENTS_DIR}" == /* ]]
+    [[ "${MEOW_INSTALLED_PRESETS_DIR}" == /* ]]
+}
+
+@test "defs.sh: MEOW_DOWNLOADS_DIR contains .downloads" {
+    source "${MEOW}/lib/core/defs.sh"
+    [[ "${MEOW_DOWNLOADS_DIR}" == *".downloads"* ]]
+}
+
+@test "defs.sh: MEOW_INSTALLED_COMPONENTS_DIR contains .installed" {
+    source "${MEOW}/lib/core/defs.sh"
+    [[ "${MEOW_INSTALLED_COMPONENTS_DIR}" == *".installed"* ]]
+}

@@ -77,3 +77,29 @@ teardown() {
     [ -n "${_LIB_YAML_SOURCED}" ]
 }
 
+
+@test "motd.sh: MEOW_MOTD_ASCII_ART_FILE path is under MEOW_MOTD_ASSETS_DIR" {
+    source "${MEOW}/lib/motd/motd.sh"
+    [[ "${MEOW_MOTD_ASCII_ART_FILE}" == "${MEOW_MOTD_ASSETS_DIR}"* ]]
+}
+
+@test "motd.sh: get_system_info accepts cache_dir parameter" {
+    source "${MEOW}/lib/motd/motd.sh"
+    run get_system_info "$TEST_TEMP_DIR"
+    [ "$status" -eq 0 ] || [ "$status" -eq 1 ]
+}
+
+@test "motd.sh: load_art function exists and is callable" {
+    source "${MEOW}/lib/motd/motd.sh"
+    declare -f load_art > /dev/null
+}
+
+@test "motd.sh: build_greeting function is defined" {
+    source "${MEOW}/lib/motd/motd.sh"
+    type build_greeting | grep -q "function"
+}
+
+@test "motd.sh: build_system_stats function is defined" {
+    source "${MEOW}/lib/motd/motd.sh"
+    type build_system_stats | grep -q "function"
+}

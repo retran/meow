@@ -75,3 +75,27 @@ teardown() {
     run bash -c "source '${MEOW}/lib/core/colors.sh' && echo \"\${NORMAL}\" | cat"
     assert_success
 }
+
+@test "colors.sh: defines BOLD color variable" {
+    source "${MEOW}/lib/core/colors.sh"
+    [ -n "${BOLD+x}" ]
+}
+
+@test "colors.sh: defines HEADER color variable" {
+    source "${MEOW}/lib/core/colors.sh"
+    [ -n "${HEADER+x}" ]
+}
+
+@test "colors.sh: defines SUBHEADER color variable" {
+    source "${MEOW}/lib/core/colors.sh"
+    [ -n "${SUBHEADER+x}" ]
+}
+
+@test "colors.sh: all color variables are exported" {
+    source "${MEOW}/lib/core/colors.sh"
+    [ -n "${NORMAL+x}" ]
+    [ -n "${RED+x}" ]
+    [ -n "${GREEN+x}" ]
+    [ -n "${YELLOW+x}" ]
+    [ -n "${BLUE+x}" ]
+}

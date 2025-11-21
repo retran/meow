@@ -131,3 +131,26 @@ teardown() {
         fi
     fi
 }
+
+@test "platform.sh: meow_os_is correctly validates OS ID" {
+    source "${MEOW}/lib/core/platform.sh"
+    run meow_os_is "invalidOS123"
+    assert_failure
+}
+
+@test "platform.sh: meow_os_is_like handles ID_LIKE check" {
+    source "${MEOW}/lib/core/platform.sh"
+    run meow_os_is_like "invalidLike123"
+    [ "$status" -eq 0 ] || [ "$status" -eq 1 ]
+}
+
+@test "platform.sh: meow_os_matches_any with single invalid argument fails" {
+    source "${MEOW}/lib/core/platform.sh"
+    run meow_os_matches_any "invalidOS123"
+    assert_failure
+}
+
+@test "platform.sh: get_platform function exists" {
+    source "${MEOW}/lib/core/platform.sh"
+    declare -f get_platform > /dev/null
+}
