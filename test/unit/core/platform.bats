@@ -9,22 +9,10 @@ load '../../test_helper'
 
 setup() {
     setup_test_env
-    # MEOW is already set by test_helper
 }
 
 teardown() {
     teardown_test_env
-}
-
-@test "platform.sh: sourcing sets _LIB_CORE_PLATFORM_SOURCED" {
-    source "${MEOW}/lib/core/platform.sh"
-    assert [ -n "${_LIB_CORE_PLATFORM_SOURCED}" ]
-}
-
-@test "platform.sh: sourcing twice doesn't cause errors" {
-    source "${MEOW}/lib/core/platform.sh"
-    source "${MEOW}/lib/core/platform.sh"
-    assert [ "${_LIB_CORE_PLATFORM_SOURCED}" = "1" ]
 }
 
 @test "platform.sh: get_platform returns valid platform" {

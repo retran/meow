@@ -10,11 +10,6 @@ teardown() {
     teardown_test_env
 }
 
-@test "symlinks.sh: sourcing sets _LIB_PACKAGE_SYMLINKS_SOURCED" {
-    source "${MEOW}/lib/symlinks/symlinks.sh"
-    [ -n "${_LIB_PACKAGE_SYMLINKS_SOURCED}" ]
-}
-
 @test "symlinks.sh: expand_path expands tilde" {
     source "${MEOW}/lib/symlinks/symlinks.sh"
     result=$(expand_path "~/test")

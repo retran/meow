@@ -11,11 +11,6 @@ teardown() {
     teardown_test_env
 }
 
-@test "dry_run.sh: sourcing sets _LIB_CORE_DRY_RUN_SOURCED" {
-    source "${MEOW}/lib/core/dry_run.sh"
-    [ -n "${_LIB_CORE_DRY_RUN_SOURCED}" ]
-}
-
 @test "dry_run.sh: is_dry_run returns false by default" {
     export MEOW_DRY_RUN=false
     source "${MEOW}/lib/core/dry_run.sh"

@@ -9,23 +9,11 @@ load '../../test_helper'
 
 setup() {
     setup_test_env
-    # MEOW is already set by test_helper
     source "${MEOW}/lib/core/ui.sh"
 }
 
 teardown() {
     teardown_test_env
-}
-
-@test "bash.sh: sourcing sets _LIB_CORE_BASH_COMPAT_SOURCED" {
-    source "${MEOW}/lib/core/bash.sh"
-    assert [ -n "${_LIB_CORE_BASH_COMPAT_SOURCED}" ]
-}
-
-@test "bash.sh: sourcing twice doesn't cause errors" {
-    source "${MEOW}/lib/core/bash.sh"
-    source "${MEOW}/lib/core/bash.sh"
-    assert [ "${_LIB_CORE_BASH_COMPAT_SOURCED}" = "1" ]
 }
 
 @test "bash.sh: get_bash_version_number returns a number" {

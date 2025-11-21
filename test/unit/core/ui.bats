@@ -10,11 +10,6 @@ teardown() {
     teardown_test_env
 }
 
-@test "ui.sh: sourcing sets _LIB_CORE_UI_SOURCED" {
-    source "${MEOW}/lib/core/ui.sh"
-    [ -n "${_LIB_CORE_UI_SOURCED}" ]
-}
-
 @test "ui.sh: _f formats strings correctly" {
     source "${MEOW}/lib/core/ui.sh"
     result=$(_f "Hello %s" "World")

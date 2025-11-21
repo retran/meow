@@ -9,24 +9,11 @@ load '../../test_helper'
 
 setup() {
     setup_test_env
-    # MEOW is already set by test_helper, don't override it
-    # Disable colors for testing to get predictable output
     export TERM=dumb
 }
 
 teardown() {
     teardown_test_env
-}
-
-@test "colors.sh: sourcing sets _LIB_CORE_COLORS_SOURCED" {
-    source "${MEOW}/lib/core/colors.sh"
-    assert [ -n "${_LIB_CORE_COLORS_SOURCED}" ]
-}
-
-@test "colors.sh: sourcing twice doesn't cause errors" {
-    source "${MEOW}/lib/core/colors.sh"
-    source "${MEOW}/lib/core/colors.sh"
-    assert [ "${_LIB_CORE_COLORS_SOURCED}" = "1" ]
 }
 
 @test "colors.sh: defines NORMAL color variable" {

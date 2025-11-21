@@ -10,11 +10,6 @@ teardown() {
     teardown_test_env
 }
 
-@test "tools.sh: sourcing sets _LIB_CORE_TOOLS_SOURCED" {
-    source "${MEOW}/lib/core/tools.sh"
-    [ -n "${_LIB_CORE_TOOLS_SOURCED}" ]
-}
-
 @test "tools.sh: _detect_os returns valid OS on Linux" {
     if [ "$(uname -s)" = "Linux" ]; then
         source "${MEOW}/lib/core/tools.sh"

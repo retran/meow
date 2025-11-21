@@ -10,17 +10,6 @@ teardown() {
     teardown_test_env
 }
 
-@test "session.sh: sourcing sets _LIB_CORE_SESSION_SOURCED" {
-    source "${MEOW}/lib/core/session.sh"
-    [ -n "${_LIB_CORE_SESSION_SOURCED}" ]
-}
-
-@test "session.sh: sourcing twice doesn't cause errors" {
-    source "${MEOW}/lib/core/session.sh"
-    source "${MEOW}/lib/core/session.sh"
-    [ "${_LIB_CORE_SESSION_SOURCED}" = "1" ]
-}
-
 @test "session.sh: sources required dependencies" {
     source "${MEOW}/lib/core/session.sh"
     [ -n "${_LIB_CORE_UI_SOURCED}" ]

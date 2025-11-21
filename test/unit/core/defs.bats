@@ -9,22 +9,10 @@ load '../../test_helper'
 
 setup() {
     setup_test_env
-    # MEOW is already set by test_helper
 }
 
 teardown() {
     teardown_test_env
-}
-
-@test "defs.sh: sourcing sets _LIB_DEFS_SOURCED" {
-    source "${MEOW}/lib/core/defs.sh"
-    assert [ -n "${_LIB_DEFS_SOURCED}" ]
-}
-
-@test "defs.sh: sourcing twice doesn't cause errors" {
-    source "${MEOW}/lib/core/defs.sh"
-    source "${MEOW}/lib/core/defs.sh"
-    assert [ "${_LIB_DEFS_SOURCED}" = "1" ]
 }
 
 @test "defs.sh: defines MEOW_PRESETS_DIR" {

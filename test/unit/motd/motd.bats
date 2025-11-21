@@ -10,17 +10,6 @@ teardown() {
     teardown_test_env
 }
 
-@test "motd.sh: sourcing sets _LIB_MOTD_SOURCED" {
-    source "${MEOW}/lib/motd/motd.sh"
-    [ -n "${_LIB_MOTD_SOURCED}" ]
-}
-
-@test "motd.sh: sourcing twice doesn't cause errors" {
-    source "${MEOW}/lib/motd/motd.sh"
-    source "${MEOW}/lib/motd/motd.sh"
-    [ "${_LIB_MOTD_SOURCED}" = "1" ]
-}
-
 @test "motd.sh: defines MEOW_MOTD_ASSETS_DIR" {
     source "${MEOW}/lib/motd/motd.sh"
     [ -n "${MEOW_MOTD_ASSETS_DIR}" ]

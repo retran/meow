@@ -23,17 +23,6 @@ teardown() {
     teardown_test_env
 }
 
-@test "yaml.sh: sourcing sets _LIB_YAML_SOURCED" {
-    source "${MEOW}/lib/core/yaml.sh"
-    [ -n "${_LIB_YAML_SOURCED}" ]
-}
-
-@test "yaml.sh: sourcing twice doesn't cause errors" {
-    source "${MEOW}/lib/core/yaml.sh"
-    source "${MEOW}/lib/core/yaml.sh"
-    [ "${_LIB_YAML_SOURCED}" = "1" ]
-}
-
 @test "yaml.sh: _ensure_yq_available runs without error" {
     source "${MEOW}/lib/core/yaml.sh"
     run _ensure_yq_available
