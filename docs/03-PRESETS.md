@@ -30,6 +30,8 @@ Examples include:
 
 -   `litterbox-go`: Installs the Go toolchain, debugger, and linters.
 -   `litterbox-rust`: Installs the Rust toolchain, cargo extensions, and formatters.
+-   `litterbox-dotnet`: Sets up the .NET SDK and related tools.
+-   `litterbox-python`: Provides a Python environment with common tools.
 
 ## Composition: Creating Your Own Presets
 
@@ -37,11 +39,48 @@ The real power of `.meow` comes from creating your own presets to match your exa
 
 ### Preset File Structure
 
-The `preset.yaml` file has a simple structure:
+The `preset.yaml` file supports several powerful configuration options:
 
 -   `description` (string): A brief description of what the preset is for.
--   `extends` (array, optional): A list of other presets to inherit from. Components from the extended presets will be included automatically. This is useful for building on a common base.
+
+-   `extends` (array, optional): A list of other presets to inherit from. Components and configurations from the extended presets will be included automatically. This is useful for building on a common base.
+
 -   `required` (array, optional): A list of components to install as part of this preset.
+
+-   `platforms` (array, optional): Restricts the preset to specific operating systems. If the current OS does not match an entry in this list, the preset will not be available. This is used by the `is_preset_available` logic.
+    ```yaml
+    platforms:
+      - macos
+      - linux
+    ```
+
+-   `packages` (array, optional): This section does not define individual packages to be installed. Instead, it **configures the package managers** that will be used by the components. You can define rules to include or exclude certain package managers based on the platform.
+    ```yaml
+    # In presets/base/preset.yaml
+    packages:
+      - match:
+          platform: "macos"
+        managers:
+          include: ["brew", "mas"]
+      - match:
+          platform: "linux"
+          distro: "ubuntu"
+        managers:
+          include: ["apt"]
+    ```
+
+-   `package_sources` (array, optional): This section allows a preset to define **custom package repositories**, making new packages available to the system's package managers. This is how a preset can "provide its own packages."
+    ```yaml
+    # Example of adding a custom repository
+    package_sources:
+      - manager: apt
+        match:
+          platform: "linux"
+          distro: "ubuntu"
+        name: "my-custom-repo"
+        repo: "deb [arch=amd64] https://my-repo.example.com/ubuntu focal main"
+        key_url: "https://my-repo.example.com/key.gpg"
+    ```
 
 ### Example: Creating a Custom "Den"
 

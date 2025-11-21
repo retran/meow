@@ -25,6 +25,8 @@ The Core Layer contains the primary business logic of the framework.
     -   `yaml.sh`: A simple YAML parser used to read `component.yaml` and `preset.yaml` files.
     -   `platform.sh`: Detects the current operating system (macOS, Linux distribution) and sets global constants like `IS_MACOS`.
     -   `dry_run.sh`: Implements the dry-run logic, allowing commands to be previewed without making changes.
+    
+    Other core scripts include `lib/env/env.sh`, which prepares the user's shell environment, and `lib/motd/motd.sh`, which handles the "Message of the Day" display.
 -   `lib/presets/` & `lib/components/`: These directories manage the lifecycle of presets and components, handling dependency resolution, topological sorting, and the execution of installation, update, and uninstallation logic.
 
 ### 3. Adapter Layer (`lib/package`)

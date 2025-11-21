@@ -28,7 +28,24 @@ This manifest file is the heart of the component. It defines the component's met
 
 -   `description` (string): A brief, human-readable description of what the component does.
 -   `platforms` (array, optional): Restricts the component to specific platforms. Can be `macos` or `linux`. If omitted, the component is considered universal.
--   `depends_on` (array, optional): A list of other components that must be installed before this one. The framework uses this to build a dependency graph and ensure correct installation order.
+-   `depends_on` (array, optional): A list of other components that must be installed before this one.
+-   `repository` (object, optional): Clones a Git repository into the `.downloads` directory. This is useful for components that need to source code from an external repository (e.g., a plugin manager).
+    ```yaml
+    repository:
+      url: "https://github.com/tmux-plugins/tpm"
+      branch: "master" # or 'tag: "v1.2.3"'
+    ```
+-   `package_sources` (array, optional): Defines custom package repositories (like PPAs for `apt` or custom repos for `dnf`). This allows a component to make packages available that are not in the default system repositories.
+    ```yaml
+    package_sources:
+      - manager: apt
+        match:
+          platform: "linux"
+          distro: "ubuntu"
+        name: "my-custom-repo"
+        repo: "deb [arch=amd64] https://my-repo.example.com/ubuntu focal main"
+        key_url: "https://my-repo.example.com/key.gpg"
+    ```
 
 **Example (`components/shell-essential/component.yaml`):**
 
@@ -132,18 +149,23 @@ The `symlinks/` directory contains YAML files that define the symbolic links to 
 
 Each file contains a list of source-to-target mappings.
 
--   `source`: The absolute path to the file within your component's directory. It's best practice to use the `$MEOW` environment variable.
+-   `source`: The absolute path to the file within your component's directory. It's best practice to use the `$MEOW` environment variable, which points to the root of the `.meow` repository.
 -   `target`: The absolute path to where the symlink should be created in the user's home directory. Use `$HOME` for portability.
+-   `os` (string, optional): You can make a symlink platform-specific by adding `os: macos` or `os: linux`. The symlink will only be created if the OS matches.
 
 The framework automatically handles backing up any existing files at the `target` location.
 
 **Example (`components/shell-essential/symlinks/zsh.yaml`):**
 
 ```yaml
+# This symlink will be created on any OS
 - source: "$MEOW/.installed/components/shell-essential/config/zsh/.zshrc"
   target: "$HOME/.zshrc"
-- source: "$MEOW/.installed/components/shell-essential/config/zsh/.zprofile"
-  target: "$HOME/.zprofile"
+
+# This symlink will only be created on macOS
+- source: "$MEOW/.installed/components/hammerspoon/config/karabiner.json"
+  target: "$HOME/.config/karabiner/karabiner.json"
+  os: macos
 ```
 
 ## Using the SDK: The `ui.sh` Library

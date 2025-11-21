@@ -16,18 +16,17 @@ Then, edit `private/meow/.meowrc` to suit your preferences.
 
 ### Available Options
 
--   `MEOW_ENABLE_COPILOT`: Set to `"true"` to enable GitHub Copilot integration in supported components (like VS Code). Defaults to `"false"`.
+
 -   `MEOW_ENABLE_MAS`: Set to `"true"` to enable package management from the Mac App Store using the `mas` command. Defaults to `"true"` on macOS.
 
 **Example `.meowrc`:**
 
 ```bash
-# Enable/disable GitHub Copilot integration
-export MEOW_ENABLE_COPILOT="false"
-
 # Enable/disable Mac App Store (mas) package management
 export MEOW_ENABLE_MAS="true"
 ```
+
+**Note on `.meowrc` Variables:** Variables defined in your `.meowrc` file are loaded into your `zsh` profile (`config/zsh/.zprofile`) upon startup. This makes them globally available within your shell environment, not just for the `meowctl` utility.
 
 ## Secrets Management
 

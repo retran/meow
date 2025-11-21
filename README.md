@@ -35,8 +35,7 @@ Setting up a consistent and reproducible development environment is often a tedi
 -   **📦 Universal Package Management**: Seamlessly handle package installations across macOS (Homebrew, mas) and Linux (apt, dnf, pacman, apk) through a unified abstraction layer.
 -   **📑 Presets (Den & Litterbox)**: Apply configurations called [Presets](./docs/03-PRESETS.md) to quickly deploy tailored setups.
 -   **🔄 Idempotent Operations**: Run setup scripts multiple times safely; `.meow` ensures that actions are only taken if necessary, bringing your system to the desired state without unintended side effects, a core [principle](./docs/07-PRINCIPLES.md) of the framework.
--   **⚡ Zero Dependencies**: The core framework is written in pure Shell (Bash/Zsh) and requires only `git` and `curl` to bootstrap, ensuring maximum portability and minimal overhead. It is also compatible with Bash 3.2, which is the default on macOS, avoiding the common "chicken-and-egg" problem of needing a newer shell to install a newer shell.
-
+-   **⚡ Zero Dependencies**: The core framework is written in pure Shell (Bash/Zsh) and requires only `git` and `curl` to bootstrap, ensuring maximum portability and minimal overhead. It is also compatible with Bash 3.2, which is the default on macOS.
 
 ## 📦 Installation
 
@@ -51,30 +50,48 @@ cd ~/.meow
 
 ## 🚀 Quick Start
 
-### 1. Select a Preset
+### 1\. Configure Environment (Important!)
 
-List available [presets](./docs/03-PRESETS.md) to find one that matches your needs using the [`list`](./docs/05-COMMAND-REFERENCE.md#meowctl-list) command:
+Before installing a preset, set up your personal configuration. This ensures your Git identity and secrets are correctly linked.
+
+```bash
+# Global settings
+cp private/meow/.meowrc.example private/meow/.meowrc
+
+# Git identity (Name, Email)
+cp private/git/.gitconfig.example private/git/.gitconfig
+nano private/git/.gitconfig
+```
+
+### 2\. Select a Preset
+
+List available [presets](./docs/03-PRESETS.md) to find one that matches your needs:
 
 ```bash
 ./bin/meowctl list
 ```
 
-### 2. Apply Configuration
+### 3\. Install Preset
 
-Install a preset with the [`install`](./docs/05-COMMAND-REFERENCE.md#meowctl-install) command. For a personal workstation (macOS/Linux), use [`den-personal`](./docs/03-PRESETS.md#the-den-host-configurations):
+Apply the chosen configuration.
+
+**For a personal workstation (The Den):**
 
 ```bash
 ./bin/meowctl install den-personal
 ```
 
-Or for a Go development container, use [`litterbox-go`](./docs/03-PRESETS.md#the-litterbox-ephemeral-environments):
+**For ephemeral environments (The Litterbox):**
 
 ```bash
+# Go Development
 ./bin/meowctl install litterbox-go
+
+# Python & Data Science
+./bin/meowctl install litterbox-python
 ```
 
-
----
+-----
 
 <div align="center">
 

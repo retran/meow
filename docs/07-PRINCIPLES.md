@@ -10,13 +10,13 @@ At the heart of `.meow` is the philosophy of "Configuration as Code." Every aspe
 -   **Traceability**: Changes to your environment are tracked in Git, allowing for easy auditing, rollback, and collaboration.
 -   **Collaboration**: Share your environment definitions with team members, ensuring everyone works with the same tools and configurations.
 
-## ⚡ Native Performance
+## ⚡ Native Performance & Zero Dependencies
 
 `.meow` is engineered for speed and efficiency. We explicitly chose pure Bash for the core framework over higher-level scripting languages or configuration management tools (like Ansible or Python-based solutions) for several strategic reasons:
 
 -   **Speed**: Bash scripts execute with minimal overhead, leading to exceptionally fast bootstrap and update times.
--   **Portability**: Bash is universally available on virtually all macOS and Linux distributions, eliminating external runtime dependencies.
--   **Zero Bootstrap Time**: The core `meowctl` tool requires only `git` and `curl` to get started, avoiding the "chicken-and-egg" problem of needing a complex environment to set up a complex environment.
+-   **Portability**: Bash is universally available on virtually all macOS and Linux distributions.
+-   **Zero Runtime Dependencies**: The core `meowctl` tool does not require a language runtime like Python, Node.js, or Ruby. It relies only on common system utilities (`git`, `curl`, and standard shell tools) that are almost always present on a developer's machine. This avoids the "chicken-and-egg" problem of needing a complex environment to set up a complex environment.
 
 This commitment to native performance ensures that managing your environment is a seamless and unobtrusive experience.
 
@@ -35,6 +35,14 @@ Your development environment is personal. `.meow` prioritizes a local-first appr
 -   **No Cloud Dependencies**: The core functionality of `.meow` does not require any external cloud services or internet connectivity for its basic operation (beyond initial cloning and package downloads).
 -   **Data Privacy**: All your configurations, secrets, and environment details reside locally on your machine, under your control.
 -   **Offline Functionality**: Once components and presets are downloaded, you can manage and update much of your environment even without an internet connection.
+
+## 🔄 Idempotency & Stability
+
+A core design goal of `.meow` is to provide a stable and predictable experience. This is achieved through the principle of idempotency.
+
+-   **Safe to Re-run**: All component scripts (`setup.sh`, `update.sh`) are written to be idempotent. This means you can run an installation or update command multiple times, and it will only make the necessary changes on the first run. Subsequent runs will recognize that the desired state has already been achieved and exit gracefully.
+-   **Predictable Updates**: Idempotency ensures that environment updates are reliable. You can be confident that re-running the installer will not break existing configurations or cause unexpected side effects.
+-   **Error Recovery**: If an installation fails midway, you can often fix the issue (e.g., a network problem) and simply re-run the same command to continue the process from where it left off.
 
 ---
 

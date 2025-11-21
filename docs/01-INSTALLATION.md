@@ -30,6 +30,37 @@ You can then execute the `meowctl` command directly from this directory:
 ./bin/meowctl list
 ```
 
+## Configuration (Important!)
+
+Before installing any presets, you **must** configure your environment. This ensures that your personal settings, secrets, and Git credentials are correctly linked during installation.
+
+1.  **Global Settings (`.meowrc`)**:
+    Copy the example configuration and customize it (e.g., to enable App Store support).
+
+    ```bash
+    cp private/meow/.meowrc.example private/meow/.meowrc
+    nano private/meow/.meowrc
+    ```
+
+2.  **Git Identity**:
+    Set up your Git user and email. This file will be symlinked to `~/.gitconfig`.
+
+    ```bash
+    cp private/git/.gitconfig.example private/git/.gitconfig
+    nano private/git/.gitconfig
+    ```
+
+3.  **Secrets**:
+    If you use tools that require API keys (like LLMs or Toggl), configure them now.
+
+    ```bash
+    cp private/secrets/.secrets.example private/secrets/.secrets
+    nano private/secrets/.secrets
+    ```
+
+> **Note**: For a deep dive into all configuration options, see the **[Configuration Guide](./02-CONFIGURATION.md)**.
+
+
 ## First Steps: Installing a Preset
 
 Once `.meow` is cloned, your first step is to install a preset to configure your environment.
