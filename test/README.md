@@ -25,10 +25,13 @@ test/libs/bats/bin/bats test/unit/**/*.bats
 ### Run Tests by Directory
 
 ```bash
-test/libs/bats/bin/bats test/unit/core/*.bats     # Core library tests
-test/libs/bats/bin/bats test/unit/env/*.bats      # Environment tests
-test/libs/bats/bin/bats test/unit/motd/*.bats     # MOTD tests
-test/libs/bats/bin/bats test/unit/symlinks/*.bats # Symlinks tests
+test/libs/bats/bin/bats test/unit/core/*.bats       # Core library tests
+test/libs/bats/bin/bats test/unit/components/*.bats # Component tests
+test/libs/bats/bin/bats test/unit/package/*.bats    # Package manager tests
+test/libs/bats/bin/bats test/unit/presets/*.bats    # Preset tests
+test/libs/bats/bin/bats test/unit/env/*.bats        # Environment tests
+test/libs/bats/bin/bats test/unit/motd/*.bats       # MOTD tests
+test/libs/bats/bin/bats test/unit/symlinks/*.bats   # Symlinks tests
 ```
 
 ### Using Taskfile
@@ -59,12 +62,15 @@ Tests focus on core functionality with comprehensive test coverage:
 ```
 test/unit/
 ├── core/           # Tests for lib/core/*.sh (9 files, 245 tests)
+├── components/     # Tests for lib/components/*.sh (2 files, 49 tests)
+├── package/        # Tests for lib/package/*.sh (1 file, 22 tests)
+├── presets/        # Tests for lib/presets/*.sh (1 file, 24 tests)
 ├── env/            # Tests for lib/env/*.sh (1 file, 28 tests)
 ├── motd/           # Tests for lib/motd/*.sh (1 file, 17 tests)
 └── symlinks/       # Tests for lib/symlinks/*.sh (1 file, 23 tests)
 ```
 
-**Total: 321 tests** covering 94 functions across 12 core library files (average 3.4 tests per function).
+**Total: 406 tests** covering 140+ functions across 16 library files (average 2.9 tests per function).
 
 ## Writing Tests
 
@@ -112,12 +118,26 @@ Common assertions used:
 
 ## Test Coverage
 
-Current test coverage focuses on comprehensive testing of core functionality:
+Current test coverage includes comprehensive behavioral testing:
 
-- **Core libraries** (lib/core/): 7 files with 79 comprehensive tests
-  - bash.sh (11 tests), colors.sh (14 tests), defs.sh (9 tests), 
-  - dry_run.sh (11 tests), platform.sh (15 tests), ui.sh (17 tests), yaml.sh (2 tests)
-- **Environment** (lib/env/): 1 file with 5 tests
+- **Core libraries** (lib/core/): 9 files with 245 tests
+  - bash.sh (27), colors.sh (31), defs.sh (21), dry_run.sh (32)
+  - platform.sh (22), session.sh (5), tools.sh (28), ui.sh (69), yaml.sh (18)
+- **Components** (lib/components/): 2 files with 49 tests
+  - dependencies.bats (31): topological sorting, dependency resolution
+  - core.bats (18): component installation, status tracking
+- **Package managers** (lib/package/): 1 file with 22 tests
+  - common.bats (22): cache management, package configuration
+- **Presets** (lib/presets/): 1 file with 24 tests
+  - presets.bats (24): preset management, inheritance, platform compatibility
+- **Environment** (lib/env/): 1 file with 28 tests
+  - env.bats (28): environment variables, XDG paths, UTF-8 settings
+- **MOTD** (lib/motd/): 1 file with 17 tests
+  - motd.bats (17): system info, greeting, stats generation
+- **Symlinks** (lib/symlinks/): 1 file with 23 tests
+  - symlinks.bats (23): path operations, backup management, idempotency
+
+**Total: 406 tests** across 16 library files, covering dependency resolution, package management, preset handling, and all core functionality.
 - **MOTD** (lib/motd/): 1 file with 5 tests
 - **Symlinks** (lib/symlinks/): 1 file with 6 tests
 

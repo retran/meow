@@ -1,0 +1,5 @@
+name: multi_dep
+depends_on:
+  - components/base
+  - components/utils
+  - components/config
