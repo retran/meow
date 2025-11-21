@@ -5,4 +5,3 @@ platforms:
     platform: macos
 depends_on:
 - desktop-essential
-- time-tracking-cli
