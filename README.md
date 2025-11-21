@@ -16,13 +16,15 @@
 
 ## 🚨 Deprecation Notice
 
-The **`.meow` dotfile and environment management tool**, based on **BASH 3.2**, is officially deprecated and is no longer actively maintained.
+The **`.meow` dotfile and environment management tool**, based on **BASH 3.2**, is officially **deprecated** and is no longer actively maintained.
+
+**Effective Immediately:** No further features will be developed.
 
 This decision stems from fundamental architectural limitations within BASH 3.2 (lack of reliable data structures, associative arrays, and testability), which prohibit achieving our goals of a clean, reliable, and testable system.
 
-Development has been fully rebooted on a modern architecture. We are migrating to **meowctl**, a new, statically compiled **configuration management tool**.
+Development has been fully rebooted on a new architecture. We are migrating to **meowctl**, a new, statically compiled **Go configuration management tool**, which resolves these core architectural issues.
 
-We invite you to follow the development of the new project.
+**➡️ Migration Path:** Users are strongly advised to follow the development of **meowctl**, as its architecture will be designed for backward-compatible migration of the existing component structure.
 
 **➡️ New Repository:** [github.com/retran/meowctl](https://github.com/retran/meowctl)
 
