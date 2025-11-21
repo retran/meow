@@ -1,6 +1,8 @@
 # Test artifacts
 tests/*.log
 tests/tmp/
+test/libs/*/
+coverage/
 
 # macOS
 .DS_Store

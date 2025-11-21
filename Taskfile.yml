@@ -95,3 +95,101 @@ tasks:
           fi
         done
       - echo "✓ All shell scripts have valid syntax"
+
+  test:unit:
+    desc: Run unit tests with BATS
+    cmds:
+      - echo "Running unit tests..."
+      - test/libs/bats/bin/bats test/unit/**/*.bats
+      - echo "✓ All unit tests passed"
+
+  test:unit:core:
+    desc: Run unit tests for core library only
+    cmds:
+      - echo "Running core unit tests..."
+      - test/libs/bats/bin/bats test/unit/core/*.bats
+
+  test:unit:verbose:
+    desc: Run unit tests with verbose output
+    cmds:
+      - test/libs/bats/bin/bats --verbose-run test/unit/**/*.bats
+
+  test:
+    desc: Run all tests (syntax + unit tests)
+    deps:
+      - test:syntax
+      - test:unit
+
+  coverage:install:
+    desc: Install kcov for code coverage (requires sudo on Linux)
+    cmds:
+      - |
+        if command -v kcov >/dev/null 2>&1; then
+          echo "✓ kcov is already installed"
+          exit 0
+        fi
+        
+        echo "Installing kcov..."
+        if [[ "$(uname -s)" == "Darwin" ]]; then
+          if command -v brew >/dev/null 2>&1; then
+            brew install kcov
+          else
+            echo "⚠ Homebrew not found. Please install kcov manually."
+            exit 1
+          fi
+        elif [[ "$(uname -s)" == "Linux" ]]; then
+          if command -v apt-get >/dev/null 2>&1; then
+            sudo apt-get update && sudo apt-get install -y kcov
+          elif command -v dnf >/dev/null 2>&1; then
+            sudo dnf install -y kcov
+          elif command -v pacman >/dev/null 2>&1; then
+            sudo pacman -Sy --noconfirm kcov
+          else
+            echo "⚠ Unsupported package manager. Please install kcov manually."
+            exit 1
+          fi
+        else
+          echo "⚠ Unsupported OS. Please install kcov manually."
+          exit 1
+        fi
+        echo "✓ kcov installed successfully"
+
+  coverage:
+    desc: Run tests with coverage analysis (requires kcov)
+    cmds:
+      - |
+        if ! command -v kcov >/dev/null 2>&1; then
+          echo "⚠ kcov is not installed. Run 'task coverage:install' first."
+          echo "  or install manually from https://github.com/SimonKagstrom/kcov"
+          exit 1
+        fi
+        
+        echo "Running tests with coverage..."
+        mkdir -p coverage
+        
+        BATS_FILES=$(find test/unit -name "*.bats" -type f)
+        for bats_file in $BATS_FILES; do
+          echo "Testing: $bats_file"
+          kcov --exclude-pattern=/test/,/usr/ coverage test/libs/bats/bin/bats "$bats_file" || true
+        done
+        
+        echo ""
+        echo "✓ Coverage report generated in coverage/"
+        echo "  Open coverage/index.html in your browser to view the report"
+
+  coverage:report:
+    desc: Open coverage report in browser
+    cmds:
+      - |
+        if [[ ! -f "coverage/index.html" ]]; then
+          echo "⚠ Coverage report not found. Run 'task coverage' first."
+          exit 1
+        fi
+        
+        if command -v open >/dev/null 2>&1; then
+          open coverage/index.html
+        elif command -v xdg-open >/dev/null 2>&1; then
+          xdg-open coverage/index.html
+        else
+          echo "✓ Coverage report: file://$(pwd)/coverage/index.html"
+        fi

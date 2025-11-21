@@ -1,0 +1,4 @@
+name: universal
+description: Universal preset
+required:
+  - base

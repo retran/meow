@@ -1,0 +1,5 @@
+name: app
+extends:
+  - base
+required:
+  - app-component

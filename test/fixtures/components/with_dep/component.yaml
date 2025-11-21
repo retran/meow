@@ -1,0 +1,3 @@
+name: with_dep
+depends_on:
+  - components/base

@@ -1,0 +1,5 @@
+name: extended
+extends:
+  - base
+required:
+  - extended-component
