@@ -24,7 +24,7 @@ meowctl install <preset> [options]
 
 ### Arguments
 
--   [`<preset>`](./06-PRESETS-AND-ROLES.md): (Required) The name of the preset to install (e.g., `den-personal`).
+-   [`<preset>`](./03-USING-PRESETS.md): (Required) The name of the preset to install (e.g., `den-personal`).
 
 ### Options
 
@@ -54,7 +54,7 @@ meowctl uninstall <preset|all> [options]
 
 ### Arguments
 
--   `<preset|all>`: (Required) The name of the [preset](./06-PRESETS-AND-ROLES.md) to uninstall, or `all` to uninstall all currently installed presets and components.
+-   `<preset|all>`: (Required) The name of the [preset](./03-USING-PRESETS.md) to uninstall, or `all` to uninstall all currently installed presets and components.
 
 ### Options
 
@@ -84,7 +84,7 @@ meowctl update [preset|all] [options]
 
 ### Arguments
 
--   `[preset]`: (Optional) The name of the [preset](./06-PRESETS-AND-ROLES.md) whose components you want to update.
+-   `[preset]`: (Optional) The name of the [preset](./03-USING-PRESETS.md) whose components you want to update.
 -   `all` or no argument: Updates all currently installed components across all presets.
 
 ### Options
@@ -108,7 +108,7 @@ meowctl update den-personal
 
 ## `meowctl list`
 
-Lists all available [presets](./06-PRESETS-AND-ROLES.md) and their installation status.
+Lists all available [presets](./03-USING-PRESETS.md) and their installation status.
 
 ### Usage
 
@@ -132,7 +132,7 @@ meowctl list
 
 ## `meowctl component`
 
-Manages individual [components](./05-COMPONENT-DEVELOPMENT.md) directly.
+Manages individual [components](./09-COMPONENT-DEVELOPMENT.md) directly.
 
 ### `component list`
 
@@ -220,5 +220,5 @@ meowctl help install
 
 If you encounter any issues while using these commands, the troubleshooting guide may have a solution.
 
-➡️ **[Refer to the Troubleshooting Guide](./08-TROUBLESHOOTING.md)**
+➡️ **[Refer to the Troubleshooting Guide](./05-TROUBLESHOOTING.md)**
 

@@ -50,5 +50,5 @@ A core design goal of `.meow` is to provide a stable and predictable experience.
 
 To see how these principles are implemented in the framework, you can explore the following documents:
 
--   **[Concepts and Architecture](./02-CONCEPTS-AND-ARCHITECTURE.md)**: Discover how the principles of native performance and transparency are reflected in the system's design.
--   **[Component Development Guide](./05-COMPONENT-DEVELOPMENT.md)**: Learn the practical application of "Configuration as Code" when building new components.
+-   **[Architecture](./12-ARCHITECTURE.md)**: Discover how the principles of native performance and transparency are reflected in the system's design.
+-   **[Component Development Guide](./09-COMPONENT-DEVELOPMENT.md)**: Learn the practical application of "Configuration as Code" when building new components.

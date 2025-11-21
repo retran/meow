@@ -94,5 +94,5 @@ When filing an issue, please include:
 
 ## See Also
 
--   **[Command Reference](./03-COMMAND-REFERENCE.md)**: Double-check the syntax and available options for the command you are running.
+-   **[Command Reference](./04-COMMAND-REFERENCE.md)**: Double-check the syntax and available options for the command you are running.
 -   **[Installation Guide](./01-INSTALLATION.md)**: Review the initial setup steps to ensure your environment is configured correctly.
