@@ -49,68 +49,68 @@ _ps_collect_sources_from_file() {
   local json
   json=$(yq -o=json '.package_sources // []' "$file" 2>/dev/null || echo "[]")
 
-  python3 - "$manager" "$platform" "$distro" "$version" "$codename" "$likes" "$json" <<'PY'
-import json
-import sys
+  if [ -z "$json" ] || [ "$json" = "[]" ]; then
+    return
+  fi
 
-manager = sys.argv[1]
-platform = sys.argv[2]
-distro = sys.argv[3]
-version = sys.argv[4]
-codename = sys.argv[5]
-likes = [x for x in sys.argv[6].split(',') if x]
-entries = json.loads(sys.argv[7] or "[]")
+  _ensure_yq_available
+  local yq_cmd
+  yq_cmd=$(command -v yq)
 
-def to_list(value):
-    if value is None:
-        return []
-    if isinstance(value, list):
-        return value
-    return [value]
+  # Matching logic
+  local result
+  result="$json"
 
-def matches(entry):
-    match = entry.get('match') or {}
-    platforms = to_list(match.get('platform'))
-    if platforms and platform not in platforms:
-        return False
-    distros = to_list(match.get('distro'))
-    if distros and distro not in distros:
-        return False
-    versions = to_list(match.get('version_id'))
-    if versions and (not version or version not in versions):
-        return False
-    distro_like = to_list(match.get('distro_like'))
-    if distro_like:
-        if not likes:
-            return False
-        if not any(item in likes for item in distro_like):
-            return False
-    return True
+  # Manager filter
+  result=$(echo "$result" | "$yq_cmd" -o=json --arg manager "$manager" '.[] | select(.manager == $manager)' | "$yq_cmd" -s -o=json '.')
 
-def apply_template(value):
-    if not value:
-        return ""
-    return (
-        value.replace("{{VERSION_ID}}", version or "")
-        .replace("{{VERSION_CODENAME}}", codename or "")
-        .replace("{{DISTRO}}", distro or "")
-        .replace("{{PLATFORM}}", platform or "")
-    )
+  # Platform
+  result=$(echo "$result" | "$yq_cmd" -o=json --arg platform "$platform" '.[] | select(.match.platform == null or .match.platform == $platform or (.match.platform | type == "array" and .match.platform | contains([$platform])))' | "$yq_cmd" -s -o=json '.')
 
-for entry in entries:
-    if entry.get('manager') != manager:
-        continue
-    if not matches(entry):
-        continue
-    fields = [
-        apply_template(entry.get('name', '')),
-        apply_template(entry.get('repo', '')),
-        apply_template(entry.get('repo_file', '')),
-        apply_template(entry.get('key_url', '')),
-        apply_template(entry.get('gpg_key', '')),
-    ]
-    print("\t".join(field.replace("\t", " ") for field in fields))
-PY
+  # Distro
+  result=$(echo "$result" | "$yq_cmd" -o=json --arg distro "$distro" '.[] | select(.match.distro == null or .match.distro == $distro or (.match.distro | type == "array" and .match.distro | contains([$distro])))' | "$yq_cmd" -s -o=json '.')
+
+  # Version
+  if [ -n "$version" ]; then
+    result=$(echo "$result" | "$yq_cmd" -o=json --arg version "$version" '.[] | select(.match.version_id == null or .match.version_id == $version or (.match.version_id | type == "array" and .match.version_id | contains([$version])))' | "$yq_cmd" -s -o=json '.')
+  else
+    result=$(echo "$result" | "$yq_cmd" -o=json '.[] | select(.match.version_id == null)' | "$yq_cmd" -s -o=json '.')
+  fi
+
+  # Likes
+  if [ -n "$likes" ]; then
+    local likes_json
+    likes_json="[\"$(echo "$likes" | sed 's/,/","/g')\"]"
+    result=$(echo "$result" | "$yq_cmd" -o=json --argjson likes_json "$likes_json" '.[] | select(.match.distro_like == null or (([.match.distro_like] | flatten) as $dl | ($dl | .[] | select(. as $item | $likes_json | contains([$item]))) | length > 0))' | "$yq_cmd" -s -o=json '.')
+  else
+    result=$(echo "$result" | "$yq_cmd" -o=json '.[] | select(.match.distro_like == null)' | "$yq_cmd" -s -o=json '.')
+  fi
+
+  # Templating and output
+  echo "$result" | "$yq_cmd" -r \
+    --arg version "${version:-}" \
+    --arg codename "${codename:-}" \
+    --arg distro "${distro:-}" \
+    --arg platform "${platform:-}" \
+    '
+    .[]
+    | [
+        (if .name then .name else "" end),
+        (if .repo then .repo else "" end),
+        (if .repo_file then .repo_file else "" end),
+        (if .key_url then .key_url else "" end),
+        (if .gpg_key then .gpg_key else "" end)
+      ]
+    | map(
+        tostring
+        | sub("{{VERSION_ID}}"; $version; "g")
+        | sub("{{VERSION_CODENAME}}"; $codename; "g")
+        | sub("{{DISTRO}}"; $distro; "g")
+        | sub("{{PLATFORM}}"; $platform; "g")
+        | sub("\t"; " "; "g")
+      )
+    | @tsv
+    '
 }
 
 meow_ps_collect_sources() {

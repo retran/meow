@@ -121,69 +121,30 @@ is_component_available() {
     local platforms_json
     platforms_json=$(yq eval -o=json '.platforms' "$component_file" 2>/dev/null || echo "null")
 
-    if ! PLATFORMS_JSON="$platforms_json" python3 -c '
-import json
-import os
-import sys
+    _ensure_yq_available
+    local yq_cmd
+    yq_cmd=$(command -v yq)
 
-platform = sys.argv[1]
-distro = sys.argv[2]
-version = sys.argv[3]
-likes_arg = sys.argv[4]
-likes = [token for token in likes_arg.split(",") if token]
+    local query='
+      def to_list(v): if (v | type) == "array" then v elif v == null then [] else [v] end;
+      def is_match(entry; platform; distro; version; likes):
+        if (entry | type) == "string" then
+          entry == platform
+        elif (entry | type) == "object" then
+          (if entry.match then entry.match else entry end) as $m
+          | ((to_list($m.platform) | length) == 0 or (to_list($m.platform) | contains([platform])))
+            and ((to_list($m.distro) | length) == 0 or (to_list($m.distro) | contains([distro])))
+            and ((to_list($m.version_id) | length) == 0 or (version != "" and (to_list($m.version_id) | contains([version]))))
+            and ((to_list($m.distro_like) | length) == 0 or ( (likes | split(",")) as $l | (to_list($m.distro_like) | .[] | select(. as $item | $l | contains([$item]))) | length > 0))
+        else
+          false
+        end;
+      (if (.|type) == "array" then .[] else . end) | select(is_match(.; strenv(platform); strenv(distro); strenv(version); strenv(likes))) | length > 0
+    '
+    local match
+    match=$(echo "$platforms_json" | "$yq_cmd" --arg platform "$platform" --arg distro "${MEOW_OS_ID:-}" --arg version "${version:-}" --arg likes "$likes_csv" "$query")
 
-def normalize(value):
-    if value is None:
-        return []
-    if isinstance(value, list):
-        return [str(v) for v in value if v is not None]
-    return [str(value)]
-
-raw = os.environ.get("PLATFORMS_JSON") or "null"
-try:
-    platforms = json.loads(raw)
-except json.JSONDecodeError:
-    sys.exit(1)
-
-if not platforms:
-    sys.exit(1)
-
-if isinstance(platforms, dict):
-    platforms = [platforms]
-
-def matches_entry(entry):
-    if isinstance(entry, str):
-        return entry == platform
-    if not isinstance(entry, dict):
-        return False
-
-    match_section = entry.get("match")
-    if not match_section:
-        match_section = entry
-
-    platforms_req = normalize(match_section.get("platform"))
-    distros_req = normalize(match_section.get("distro"))
-    versions_req = normalize(match_section.get("version_id"))
-    likes_req = normalize(match_section.get("distro_like"))
-
-    platform_ok = (not platforms_req) or (platform and platform in platforms_req)
-    distro_ok = (not distros_req) or (distro and distro in distros_req)
-    version_ok = (not versions_req) or (version and version in versions_req)
-
-    likes_ok = False
-    if not likes_req:
-        likes_ok = True
-    elif likes:
-        likes_ok = any(req in likes for req in likes_req)
-
-    return platform_ok and distro_ok and version_ok and likes_ok
-
-for item in platforms:
-    if matches_entry(item):
-        sys.exit(0)
-
-sys.exit(1)
-' "$platform" "${MEOW_OS_ID:-}" "$version" "$likes_csv"; then
+    if [ "$match" != "true" ]; then
       return 1
     fi
   fi
