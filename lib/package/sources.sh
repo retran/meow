@@ -46,6 +46,12 @@ _ps_collect_sources_from_file() {
 
   [ -f "$file" ] || return 0
 
+  # Check if yq is available
+  if ! command -v yq >/dev/null 2>&1; then
+    # Fallback: no sources without yq
+    return 0
+  fi
+
   local json
   json=$(yq -o=json '.package_sources // []' "$file" 2>/dev/null || echo "[]")
 
@@ -53,7 +59,6 @@ _ps_collect_sources_from_file() {
     return
   fi
 
-  _ensure_yq_available
   local yq_cmd
   yq_cmd=$(command -v yq)
 
