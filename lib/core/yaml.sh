@@ -236,7 +236,12 @@ yaml_array_length() {
   fi
 
   local length
-  length=$("$yq_cmd" 'length' "$yaml_file" 2>/dev/null || echo "0")
+  # Try yq first
+  length=$("$yq_cmd" eval '. | length' "$yaml_file" 2>/dev/null || echo "")
+  if [ -z "$length" ] || [ "$length" = "null" ]; then
+    # Fallback: count lines starting with -
+    length=$(grep -c '^- ' "$yaml_file" 2>/dev/null || echo "0")
+  fi
 
   # Validate that it's a number
   case "$length" in

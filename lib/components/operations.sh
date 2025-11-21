@@ -747,6 +747,9 @@ collect_multiple_components_for_uninstall() {
     local new_dependencies_to_check=()
 
     for component in "${collected_components[@]}"; do
+      if [ -z "$component" ]; then
+        continue
+      fi
       local dependencies_str
       dependencies_str="$(get_component_dependencies "$component")" || {
         ui_warning "$(_f "Failed to get dependencies for '%s', some dependencies might be missed during recursive check." "$component")"
