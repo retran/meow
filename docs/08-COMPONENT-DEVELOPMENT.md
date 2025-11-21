@@ -148,7 +148,7 @@ The framework automatically handles backing up any existing files at the `target
 
 ## Using the SDK: The `ui.sh` Library
 
-When writing scripts, use the helper functions from [`lib/core/ui.sh`](./02-CONCEPTS-AND-ARCHITECTURE.md#2-core-layer-libcore-and-libpresets-libcomponents) for all output. This ensures that your component's output is consistent with the rest of the framework and respects the global `--verbose` and `--dry-run` flags.
+When writing scripts, use the helper functions from [`lib/core/ui.sh`](./07-CONCEPTS-AND-ARCHITECTURE.md#2-core-layer-libcore-and-libpresets-libcomponents) for all output. This ensures that your component's output is consistent with the rest of the framework and respects the global `--verbose` and `--dry-run` flags.
 
 Always source it at the top of your script:
 `source "${MEOW}/lib/core/ui.sh"`
@@ -170,15 +170,15 @@ Follow these guidelines to create robust, maintainable components. These practic
 
 ### Do
 
--   **Write Idempotent Scripts**: This is a core [principle](./07-PRINCIPLES.md). Always check for the existence of a file, package, or setting before attempting to install or create it.
+-   **Write Idempotent Scripts**: This is a core [principle](./06-PRINCIPLES.md). Always check for the existence of a file, package, or setting before attempting to install or create it.
 -   **Use `set -e`**: Start all your shell scripts with `set -e` to ensure they fail fast.
--   **Use the `ui.sh` SDK**: Funnel all script output through the UI library to ensure [transparency](./07-PRINCIPLES.md#️-transparency).
+-   **Use the `ui.sh` SDK**: Funnel all script output through the UI library to ensure [transparency](./06-PRINCIPLES.md#️-transparency).
 -   **Check for Command Existence**: Before using a command (e.g., `git`, `tmux`), check if it's installed and in the user's `$PATH` using `command -v a_command >/dev/null 2>&1`.
 -   **Keep Components Focused**: A component should do one thing well. A `go-toolchain` component should install Go, while a `go-development` component should install linters and debuggers.
 
 ### Don't
 
--   **Don't Assume `sudo`**: Never assume the user has `sudo` access or that it is passwordless. If an operation requires elevated privileges, the [package manager adapters](./02-CONCEPTS-AND-ARCHITECTURE.md#3-adapter-layer-libpackage) will handle it. For scripts, if `sudo` is required, you should prompt the user or provide instructions.
+-   **Don't Assume `sudo`**: Never assume the user has `sudo` access or that it is passwordless. If an operation requires elevated privileges, the [package manager adapters](./07-CONCEPTS-AND-ARCHITECTURE.md#3-adapter-layer-libpackage) will handle it. For scripts, if `sudo` is required, you should prompt the user or provide instructions.
 -   **Don't Write to Absolute Paths (Hardcoded)**: Always use variables like `$HOME` and `$MEOW` to construct paths.
 -   **Don't Pollute the Global Namespace**: Keep variables and functions in your scripts specific and local where possible.
 -   **Don't Clone Git Repositories Manually (for packages)**: If a tool can be installed via a package manager, prefer that method. Only use `git clone` in a `setup.sh` for things that are not available as packages, like `tpm` for `tmux`.
@@ -189,6 +189,6 @@ Follow these guidelines to create robust, maintainable components. These practic
 
 To deepen your understanding, refer to the following documents:
 
--   **[Concepts and Architecture](./02-CONCEPTS-AND-ARCHITECTURE.md)**: Understand the layers and lifecycle that your component will be a part of.
--   **[Core Principles](./07-PRINCIPLES.md)**: Ensure your component aligns with the project's philosophy.
--   **[Presets and Roles](./06-PRESETS-AND-ROLES.md)**: See how components are bundled and used in real-world scenarios.
+-   **[Concepts and Architecture](./07-CONCEPTS-AND-ARCHITECTURE.md)**: Understand the layers and lifecycle that your component will be a part of.
+-   **[Core Principles](./06-PRINCIPLES.md)**: Ensure your component aligns with the project's philosophy.
+-   **[Presets](./03-PRESETS.md)**: See how components are bundled and used in real-world scenarios.

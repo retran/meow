@@ -1,6 +1,6 @@
-# Presets and Roles
+# Presets
 
-While components are the low-level building blocks of your environment, **Presets** are the high-level entry point that makes `.meow` powerful and easy to use. Presets are curated lists of components, designed to configure a system for a specific role or purpose.
+While components are the low-level building blocks of your environment, **Presets** are the high-level entry point that makes `.meow` powerful and easy to use. Presets are curated lists of components designed to configure a system for a specific purpose.
 
 They are organized into two main concepts: **The Den** for long-lived host machines and **The Litterbox** for ephemeral development environments.
 
@@ -70,7 +70,7 @@ Let's say you want to create a `my-den` preset that is similar to `den-professio
 
 3.  **Install your new preset:**
 
-    You can now [`install`](./03-COMMAND-REFERENCE.md#meowctl-install) your custom preset just like any other:
+    You can now [`install`](./04-COMMAND-REFERENCE.md#meowctl-install) your custom preset just like any other:
 
     ```bash
     ./bin/meowctl install my-den
@@ -84,4 +84,4 @@ The framework will automatically handle the rest: it will pull in all the compon
 
 You now know how to choose and even create a preset. The next step is to use the `meowctl` command-line tool to manage them.
 
-➡️ **[View the Command Reference](./03-COMMAND-REFERENCE.md)** to learn how to `install`, `update`, and `uninstall` presets.
+➡️ **[View the Command Reference](./04-COMMAND-REFERENCE.md)** to learn how to `install`, `update`, and `uninstall` presets.

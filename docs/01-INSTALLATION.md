@@ -35,14 +35,14 @@ You can then execute the `meowctl` command directly from this directory:
 Once `.meow` is cloned, your first step is to install a preset to configure your environment.
 
 1.  **List Available Presets**:
-    Use the [`list`](./03-COMMAND-REFERENCE.md#meowctl-list) command to see which presets are available.
+    Use the [`list`](./04-COMMAND-REFERENCE.md#meowctl-list) command to see which presets are available.
 
     ```bash
     ./bin/meowctl list
     ```
 
 2.  **Install a Preset**:
-    Choose a preset and install it using the [`install`](./03-COMMAND-REFERENCE.md#meowctl-install) command. For a personal workstation, [`den-personal`](./06-PRESETS-AND-ROLES.md#the-den-host-configurations) is a great choice.
+    Choose a preset and install it using the [`install`](./04-COMMAND-REFERENCE.md#meowctl-install) command. For a personal workstation, [`den-personal`](./03-PRESETS.md#the-den-host-configurations) is a great choice.
 
     ```bash
     ./bin/meowctl install den-personal
@@ -68,4 +68,4 @@ After adding this line, restart your shell or source the configuration file, and
 
 Now that you have installed the framework, the next logical step is to understand what you can install with it.
 
-➡️ **[Learn about Presets and Roles](./06-PRESETS-AND-ROLES.md)** to choose the right configuration for your system.
+➡️ **[Learn about Presets](./03-PRESETS.md)** to choose the right configuration for your system.

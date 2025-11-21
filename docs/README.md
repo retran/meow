@@ -6,13 +6,18 @@ The documents are designed to be read in order, but are also interlinked to allo
 
 ## Table of Contents
 
--   **[01 - Installation](./01-INSTALLATION.md)**: Start here. A detailed guide to getting `.meow` running on your system, including prerequisites and shell integration.
--   **[02 - Concepts and Architecture](./02-CONCEPTS-AND-ARCHITECTURE.md)**: A deep dive into the internal architecture of `.meow`, explaining the layered design and the lifecycle of a command.
--   **[03 - Command Reference](./03-COMMAND-REFERENCE.md)**: A complete reference manual for all `meowctl` commands and their options.
--   **[04 - Configuration](./04-CONFIGURATION.md)**: An explanation of how to customize `.meow` using `.meowrc`, secrets, and environment variables.
--   **[05 - Component Development](./05-COMPONENT-DEVELOPMENT.md)**: A comprehensive guide for contributors on how to create new components, from their structure to their lifecycle scripts.
--   **[06 - Presets and Roles](./06-PRESETS-AND-ROLES.md)**: A conceptual guide to organizing configurations using Presets, including "The Den" for workstations and "The Litterbox" for ephemeral environments.
--   **[07 - Principles](./07-PRINCIPLES.md)**: The core philosophy that guides the design and development of `.meow`, focusing on concepts like idempotency and transparency.
--   **[08 - Troubleshooting](./08-TROUBLESHOOTING.md)**: A guide to common issues, debugging techniques, and how to get help if you get stuck.
+### For Users
+
+-   **[01 - Installation](./01-INSTALLATION.md)**: Start here. A detailed guide to getting `.meow` running on your system.
+-   **[02 - Configuration](./02-CONFIGURATION.md)**: An explanation of how to customize `.meow` using `.meowrc`, secrets, and environment variables.
+-   **[03 - Presets](./03-PRESETS.md)**: A conceptual guide to organizing configurations using Presets, including "The Den" and "The Litterbox".
+-   **[04 - Command Reference](./04-COMMAND-REFERENCE.md)**: A complete reference manual for all `meowctl` commands and their options.
+-   **[05 - Troubleshooting](./05-TROUBLESHOOTING.md)**: A guide to common issues, debugging techniques, and how to get help if you get stuck.
+
+### For Contributors
+
+-   **[06 - Principles](./06-PRINCIPLES.md)**: The core philosophy that guides the design and development of `.meow`.
+-   **[07 - Concepts and Architecture](./07-CONCEPTS-AND-ARCHITECTURE.md)**: A deep dive into the internal architecture of `.meow`, explaining the layered design and command lifecycle.
+-   **[08 - Component Development](./08-COMPONENT-DEVELOPMENT.md)**: A comprehensive guide on how to create new components, from their structure to their lifecycle scripts.
 
 We hope this documentation helps you get the most out of the `.meow` framework!

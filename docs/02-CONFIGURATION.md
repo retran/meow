@@ -67,5 +67,5 @@ These environment variables can be set in your shell's environment to control `m
 
 The global configurations described here provide the foundation for your setup. To see how these settings are used and expanded upon, refer to the following guides:
 
--   **[Presets and Roles](./06-PRESETS-AND-ROLES.md)**: Learn how components are grouped together, forming the basis of a complete setup.
--   **[Component Development Guide](./05-COMPONENT-DEVELOPMENT.md)**: Understand how individual components can be configured and built.
+-   **[Presets](./03-PRESETS.md)**: Learn how components are grouped together, forming the basis of a complete setup.
+-   **[Component Development Guide](./08-COMPONENT-DEVELOPMENT.md)**: Understand how individual components can be configured and built.
