@@ -14,22 +14,13 @@
 
 </div>
 
-## 🚨 DEPRECATION NOTICE: `.meow` (BASH 3.2)
-
-### Status: End-of-Life
+## 🚨 Deprecation Notice
 
 The **`.meow` dotfile and environment management tool**, based on **BASH 3.2**, is officially deprecated and is no longer actively maintained.
 
 This decision stems from fundamental architectural limitations within BASH 3.2 (lack of reliable data structures, associative arrays, and testability), which prohibit achieving our goals of a clean, reliable, and testable system.
 
-### The New Path: meowctl
-
 Development has been fully rebooted on a modern architecture. We are migrating to **meowctl**, a new, statically compiled **configuration management tool**.
-
-**Key Benefits of meowctl:**
-* All complex configuration logic (YAML parsing, dependency sorting) is managed by a strictly typed **Go** core.
-* It remains a single binary, preserving the principle of not requiring a runtime (Python, Node.js) on the target machine.
-* BASH scripts are reduced to thin, reliable adapters for executing system commands (`apt`, `brew`, `sudo`).
 
 We invite you to follow the development of the new project.
 
