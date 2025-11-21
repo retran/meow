@@ -70,7 +70,7 @@ Let's say you want to create a `my-den` preset that is similar to `den-professio
 
 3.  **Install your new preset:**
 
-    You can now [`install`](./04-COMMAND-REFERENCE.md#meowctl-install) your custom preset just like any other:
+    You can now [`install`](./05-COMMAND-REFERENCE.md#meowctl-install) your custom preset just like any other:
 
     ```bash
     ./bin/meowctl install my-den
@@ -84,4 +84,4 @@ The framework will automatically handle the rest: it will pull in all the compon
 
 You now know how to choose and even create a preset. The next step is to use the `meowctl` command-line tool to manage them.
 
-➡️ **[View the Command Reference](./04-COMMAND-REFERENCE.md)** to learn how to `install`, `update`, and `uninstall` presets.
+➡️ **[View the Command Reference](./05-COMMAND-REFERENCE.md)** to learn how to `install`, `update`, and `uninstall` presets.

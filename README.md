@@ -13,7 +13,7 @@
 
 <img src="./assets/icon.png" alt=".meow Logo" width="200">
 
-[Full Documentation](./docs/README.md) • [Architecture](./docs/07-CONCEPTS-AND-ARCHITECTURE.md) • [Installation](./docs/01-INSTALLATION.md) • [Component Guide](./docs/08-COMPONENT-DEVELOPMENT.md) • [Contributing](https://github.com/retran/meow/pulls)
+[Full Documentation](./docs/README.md) • [Architecture](./docs/08-CONCEPTS-AND-ARCHITECTURE.md) • [Installation](./docs/01-INSTALLATION.md) • [Component Guide](./docs/09-COMPONENT-DEVELOPMENT.md) • [Contributing](https://github.com/retran/meow/pulls)
 
 </div>
 
@@ -31,10 +31,10 @@ Setting up a consistent and reproducible development environment is often a tedi
 
 ## ✨ Key Features
 
--   **🧩 Component-Based Architecture**: Build your environment from isolated, reusable [components](./docs/08-COMPONENT-DEVELOPMENT.md), each defined by a clear manifest and containing its own packages, configurations, and scripts.
+-   **🧩 Component-Based Architecture**: Build your environment from isolated, reusable [components](./docs/09-COMPONENT-DEVELOPMENT.md), each defined by a clear manifest and containing its own packages, configurations, and scripts.
 -   **📦 Universal Package Management**: Seamlessly handle package installations across macOS (Homebrew, mas) and Linux (apt, dnf, pacman, apk) through a unified abstraction layer.
 -   **📑 Presets (Den & Litterbox)**: Apply configurations called [Presets](./docs/03-PRESETS.md) to quickly deploy tailored setups.
--   **🔄 Idempotent Operations**: Run setup scripts multiple times safely; `.meow` ensures that actions are only taken if necessary, bringing your system to the desired state without unintended side effects, a core [principle](./docs/06-PRINCIPLES.md) of the framework.
+-   **🔄 Idempotent Operations**: Run setup scripts multiple times safely; `.meow` ensures that actions are only taken if necessary, bringing your system to the desired state without unintended side effects, a core [principle](./docs/07-PRINCIPLES.md) of the framework.
 -   **⚡ Zero Dependencies**: The core framework is written in pure Shell (Bash/Zsh) and requires only `git` and `curl` to bootstrap, ensuring maximum portability and minimal overhead. It is also compatible with Bash 3.2, which is the default on macOS, avoiding the common "chicken-and-egg" problem of needing a newer shell to install a newer shell.
 
 
@@ -53,7 +53,7 @@ cd ~/.meow
 
 ### 1. Select a Preset
 
-List available [presets](./docs/03-PRESETS.md) to find one that matches your needs using the [`list`](./docs/04-COMMAND-REFERENCE.md#meowctl-list) command:
+List available [presets](./docs/03-PRESETS.md) to find one that matches your needs using the [`list`](./docs/05-COMMAND-REFERENCE.md#meowctl-list) command:
 
 ```bash
 ./bin/meowctl list
@@ -61,7 +61,7 @@ List available [presets](./docs/03-PRESETS.md) to find one that matches your nee
 
 ### 2. Apply Configuration
 
-Install a preset with the [`install`](./docs/04-COMMAND-REFERENCE.md#meowctl-install) command. For a personal workstation (macOS/Linux), use [`den-personal`](./docs/03-PRESETS.md#the-den-host-configurations):
+Install a preset with the [`install`](./docs/05-COMMAND-REFERENCE.md#meowctl-install) command. For a personal workstation (macOS/Linux), use [`den-personal`](./docs/03-PRESETS.md#the-den-host-configurations):
 
 ```bash
 ./bin/meowctl install den-personal
