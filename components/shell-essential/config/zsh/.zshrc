@@ -2,6 +2,9 @@
 
 # config/shells/zsh configuration file for Meow
 
+autoload -Uz compinit
+compinit
+
 # Source component interactive shell scripts
 if [[ -d "${MEOW}/.installed/components" ]]; then
   # Use nullglob to avoid errors when no files match
@@ -27,4 +30,3 @@ fi
 if [[ -f "/opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]]; then
   source "/opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
 fi
-
