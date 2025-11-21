@@ -1,0 +1,90 @@
+#!/usr/bin/env bats
+# MIT License
+#
+# Copyright (c) 2025 Andrew Vasilyev <me@retran.me>
+#
+# Unit tests for lib/core/colors.sh
+
+load '../../test_helper'
+
+setup() {
+    setup_test_env
+    # MEOW is already set by test_helper, don't override it
+    # Disable colors for testing to get predictable output
+    export TERM=dumb
+}
+
+teardown() {
+    teardown_test_env
+}
+
+@test "colors.sh: sourcing sets _LIB_CORE_COLORS_SOURCED" {
+    source "${MEOW}/lib/core/colors.sh"
+    assert [ -n "${_LIB_CORE_COLORS_SOURCED}" ]
+}
+
+@test "colors.sh: sourcing twice doesn't cause errors" {
+    source "${MEOW}/lib/core/colors.sh"
+    source "${MEOW}/lib/core/colors.sh"
+    assert [ "${_LIB_CORE_COLORS_SOURCED}" = "1" ]
+}
+
+@test "colors.sh: defines NORMAL color variable" {
+    source "${MEOW}/lib/core/colors.sh"
+    [ -n "${NORMAL+x}" ]
+}
+
+@test "colors.sh: defines RED color variable" {
+    source "${MEOW}/lib/core/colors.sh"
+    assert [ -n "${RED+x}" ]
+}
+
+@test "colors.sh: defines GREEN color variable" {
+    source "${MEOW}/lib/core/colors.sh"
+    assert [ -n "${GREEN+x}" ]
+}
+
+@test "colors.sh: defines YELLOW color variable" {
+    source "${MEOW}/lib/core/colors.sh"
+    assert [ -n "${YELLOW+x}" ]
+}
+
+@test "colors.sh: defines BLUE color variable" {
+    source "${MEOW}/lib/core/colors.sh"
+    assert [ -n "${BLUE+x}" ]
+}
+
+@test "colors.sh: defines RESET color variable" {
+    source "${MEOW}/lib/core/colors.sh"
+    assert [ -n "${RESET+x}" ]
+}
+
+@test "colors.sh: defines semantic SUCCESS color" {
+    source "${MEOW}/lib/core/colors.sh"
+    assert [ -n "${SUCCESS+x}" ]
+}
+
+@test "colors.sh: defines semantic WARNING color" {
+    source "${MEOW}/lib/core/colors.sh"
+    assert [ -n "${WARNING+x}" ]
+}
+
+@test "colors.sh: defines semantic ERROR color" {
+    source "${MEOW}/lib/core/colors.sh"
+    assert [ -n "${ERROR+x}" ]
+}
+
+@test "colors.sh: defines semantic INFO color" {
+    source "${MEOW}/lib/core/colors.sh"
+    assert [ -n "${INFO+x}" ]
+}
+
+@test "colors.sh: tput support detection works" {
+    source "${MEOW}/lib/core/colors.sh"
+    [ "${MEOW_TPUT_SUPPORTED}" = "0" ] || [ "${MEOW_TPUT_SUPPORTED}" = "1" ]
+}
+
+@test "colors.sh: non-tty environment has empty color codes" {
+    run bash -c "source '${MEOW}/lib/core/colors.sh' && echo \"\${NORMAL}\" | cat"
+    assert_success
+}
