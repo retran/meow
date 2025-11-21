@@ -96,12 +96,39 @@ teardown() {
 }
 ```
 
+### Test Fixtures
+
+Test fixtures are pre-created test data stored in `test/fixtures/`:
+
+- `test/fixtures/components/`: Component YAML files for testing dependency resolution, installation, and lifecycle
+- `test/fixtures/presets/`: Preset YAML files for testing preset management and inheritance
+
+Use the helper functions to copy fixtures into test environments:
+
+```bash
+@test "example test using fixtures" {
+    setup_test_env
+    export MEOW_COMPONENTS_DIR="$TEST_TEMP_DIR/components"
+    mkdir -p "$MEOW_COMPONENTS_DIR"
+    
+    # Copy specific fixtures
+    copy_fixture_components simple base app
+    
+    # Test code using the fixtures
+    source "${MEOW}/lib/components/core.sh"
+    run is_component_available "simple"
+    assert_success
+}
+```
+
 ### Test Helpers
 
 The `test_helper.bash` file provides:
 
 - `setup_test_env()`: Creates temporary test directory
 - `teardown_test_env()`: Cleans up temporary files
+- `copy_fixture_components <comp1> [comp2...]`: Copies component fixtures to $MEOW_COMPONENTS_DIR
+- `copy_fixture_presets <preset1> [preset2...]`: Copies preset fixtures to $MEOW_PRESETS_DIR
 - `mock_command()`: Creates mock commands for testing
 - `skip_if_not_macos()`, `skip_if_not_linux()`: Platform-specific test skipping
 

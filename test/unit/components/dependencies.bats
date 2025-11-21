@@ -18,11 +18,7 @@ teardown() {
 @test "dependencies.sh: get_component_dependencies returns empty for component with no dependencies" {
     source "${MEOW}/lib/components/dependencies.sh"
     
-    mkdir -p "$MEOW_COMPONENTS_DIR/simple"
-    cat > "$MEOW_COMPONENTS_DIR/simple/component.yaml" <<EOF
-name: simple
-description: Simple component
-EOF
+    copy_fixture_components simple
     
     run get_component_dependencies "simple"
     assert_success
@@ -32,12 +28,7 @@ EOF
 @test "dependencies.sh: get_component_dependencies returns single dependency" {
     source "${MEOW}/lib/components/dependencies.sh"
     
-    mkdir -p "$MEOW_COMPONENTS_DIR/with_dep"
-    cat > "$MEOW_COMPONENTS_DIR/with_dep/component.yaml" <<EOF
-name: with_dep
-depends_on:
-  - components/base
-EOF
+    copy_fixture_components with_dep
     
     run get_component_dependencies "with_dep"
     assert_success
@@ -47,14 +38,7 @@ EOF
 @test "dependencies.sh: get_component_dependencies returns multiple dependencies" {
     source "${MEOW}/lib/components/dependencies.sh"
     
-    mkdir -p "$MEOW_COMPONENTS_DIR/multi_dep"
-    cat > "$MEOW_COMPONENTS_DIR/multi_dep/component.yaml" <<EOF
-name: multi_dep
-depends_on:
-  - components/base
-  - components/utils
-  - components/config
-EOF
+    copy_fixture_components multi_dep
     
     result=$(get_component_dependencies "multi_dep")
     echo "$result" | grep -q "base"

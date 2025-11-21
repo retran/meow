@@ -52,3 +52,45 @@ skip_if_not_linux() {
         skip "This test requires Linux"
     fi
 }
+
+copy_fixture_components() {
+    local components_dir="${1:-$MEOW_COMPONENTS_DIR}"
+    local fixtures_dir="${TEST_ROOT}/fixtures/components"
+    
+    if [ ! -d "$fixtures_dir" ]; then
+        echo "Fixture directory not found: $fixtures_dir" >&2
+        return 1
+    fi
+    
+    mkdir -p "$components_dir"
+    
+    for component in "$@"; do
+        if [ "$component" = "$components_dir" ]; then
+            continue
+        fi
+        if [ -d "$fixtures_dir/$component" ]; then
+            cp -r "$fixtures_dir/$component" "$components_dir/"
+        fi
+    done
+}
+
+copy_fixture_presets() {
+    local presets_dir="${1:-$MEOW_PRESETS_DIR}"
+    local fixtures_dir="${TEST_ROOT}/fixtures/presets"
+    
+    if [ ! -d "$fixtures_dir" ]; then
+        echo "Fixture directory not found: $fixtures_dir" >&2
+        return 1
+    fi
+    
+    mkdir -p "$presets_dir"
+    
+    for preset in "$@"; do
+        if [ "$preset" = "$presets_dir" ]; then
+            continue
+        fi
+        if [ -d "$fixtures_dir/$preset" ]; then
+            cp -r "$fixtures_dir/$preset" "$presets_dir/"
+        fi
+    done
+}

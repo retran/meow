@@ -1,0 +1,5 @@
+name: a
+extends:
+  - b
+required:
+  - a-component

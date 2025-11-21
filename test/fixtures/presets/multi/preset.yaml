@@ -1,0 +1,6 @@
+name: multi
+extends:
+  - base1
+  - base2
+required:
+  - multi-component
