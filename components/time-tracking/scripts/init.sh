@@ -31,6 +31,14 @@ if [ -n "${_COMPONENT_TOGGL_INIT_SOURCED:-}" ]; then
 fi
 _COMPONENT_TOGGL_INIT_SOURCED=1
 
+# Set up bash completion
+if [ -n "${BASH_VERSION:-}" ] && ! command -v _toggl >/dev/null 2>&1; then
+  _toggl() {
+    mapfile -t COMPREPLY < <(env COMP_WORDS="${COMP_WORDS[*]}" COMP_CWORD="$COMP_CWORD" _TOGGL_COMPLETE=complete-bash toggl)
+  }
+  complete -F _toggl toggl
+fi
+
 # Set up zsh completion
 if [ -n "${ZSH_VERSION:-}" ] && ! command -v _toggl >/dev/null 2>&1; then
   _toggl() {
@@ -38,7 +46,7 @@ if [ -n "${ZSH_VERSION:-}" ] && ! command -v _toggl >/dev/null 2>&1; then
     eval "$(env COMMANDLINE="${current_line}" _TOGGL_COMPLETE=complete-zsh toggl)"
   }
 
-  if command -v compdef >/dev/null 2>&1; then
+  if type compdef >/dev/null 2>&1; then
     compdef _toggl toggl
   fi
 fi
