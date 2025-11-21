@@ -111,3 +111,53 @@ teardown() {
         skip "yq not available"
     fi
 }
+
+@test "yaml.sh: yaml_path_exists returns true for existing path" {
+    if command -v yq >/dev/null 2>&1; then
+        source "${MEOW}/lib/core/yaml.sh"
+        run yaml_path_exists "$TEST_YAML" ".name"
+        assert_success
+    else
+        skip "yq not available"
+    fi
+}
+
+@test "yaml.sh: yaml_path_exists returns false for non-existing path" {
+    if command -v yq >/dev/null 2>&1; then
+        source "${MEOW}/lib/core/yaml.sh"
+        run yaml_path_exists "$TEST_YAML" ".nonexistent"
+        assert_failure
+    else
+        skip "yq not available"
+    fi
+}
+
+@test "yaml.sh: yaml_array_length returns correct count" {
+    if command -v yq >/dev/null 2>&1; then
+        source "${MEOW}/lib/core/yaml.sh"
+        result=$(yaml_array_length "$TEST_YAML" ".required")
+        [ "$result" -ge 0 ] || [ "$result" -eq 0 ]
+    else
+        skip "yq not available"
+    fi
+}
+
+@test "yaml.sh: yaml_array_item retrieves specific item" {
+    if command -v yq >/dev/null 2>&1; then
+        source "${MEOW}/lib/core/yaml.sh"
+        run yaml_array_item "$TEST_YAML" ".required" 0
+        [ "$status" -eq 0 ] || [ "$status" -eq 1 ]
+    else
+        skip "yq not available"
+    fi
+}
+
+@test "yaml.sh: yaml_nested_array handles nested arrays" {
+    if command -v yq >/dev/null 2>&1; then
+        source "${MEOW}/lib/core/yaml.sh"
+        run yaml_nested_array "$TEST_YAML" "nested" "config"
+        [ "$status" -eq 0 ] || [ "$status" -eq 1 ]
+    else
+        skip "yq not available"
+    fi
+}

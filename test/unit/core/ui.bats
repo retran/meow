@@ -175,3 +175,125 @@ teardown() {
     source "${MEOW}/lib/core/ui.sh"
     [ "${MEOW_WARNING_COUNT}" -eq 0 ]
 }
+
+@test "ui.sh: ui_content produces output" {
+    source "${MEOW}/lib/core/ui.sh"
+    run ui_content "content message"
+    assert_success
+    assert_output --partial "content message"
+}
+
+@test "ui.sh: ui_verbose_message respects MEOW_VERBOSE" {
+    export MEOW_VERBOSE=true
+    source "${MEOW}/lib/core/ui.sh"
+    run ui_verbose_message "verbose message"
+    assert_success
+}
+
+@test "ui.sh: ui_verbose_info produces output when verbose" {
+    export MEOW_VERBOSE=true
+    source "${MEOW}/lib/core/ui.sh"
+    run ui_verbose_info "verbose info"
+    assert_success
+}
+
+@test "ui.sh: ui_info_detail produces output" {
+    source "${MEOW}/lib/core/ui.sh"
+    run ui_info_detail "detail message"
+    assert_success
+}
+
+@test "ui.sh: ui_dependency produces output" {
+    source "${MEOW}/lib/core/ui.sh"
+    run ui_dependency "dependency name"
+    assert_success
+}
+
+@test "ui.sh: ui_verbose_action_start with verbose mode" {
+    export MEOW_VERBOSE=true
+    source "${MEOW}/lib/core/ui.sh"
+    run ui_verbose_action_start "action"
+    assert_success
+}
+
+@test "ui.sh: ui_verbose_action_success with verbose mode" {
+    export MEOW_VERBOSE=true
+    source "${MEOW}/lib/core/ui.sh"
+    run ui_verbose_action_success "action"
+    assert_success
+}
+
+@test "ui.sh: ui_component_updating produces output" {
+    source "${MEOW}/lib/core/ui.sh"
+    run ui_component_updating "component"
+    assert_success
+}
+
+@test "ui.sh: ui_component_uninstalling produces output" {
+    source "${MEOW}/lib/core/ui.sh"
+    run ui_component_uninstalling "component"
+    assert_success
+}
+
+@test "ui.sh: ui_package_manager_setup produces output" {
+    source "${MEOW}/lib/core/ui.sh"
+    run ui_package_manager_setup "apt"
+    assert_success
+}
+
+@test "ui.sh: ui_package_manager_ready produces output" {
+    source "${MEOW}/lib/core/ui.sh"
+    run ui_package_manager_ready
+    assert_success
+}
+
+@test "ui.sh: ui_package_manager_cleaning produces output" {
+    source "${MEOW}/lib/core/ui.sh"
+    run ui_package_manager_cleaning
+    assert_success
+}
+
+@test "ui.sh: reset_summary_counters resets error count" {
+    source "${MEOW}/lib/core/ui.sh"
+    MEOW_ERROR_COUNT=5
+    reset_summary_counters
+    [ "${MEOW_ERROR_COUNT}" -eq 0 ]
+}
+
+@test "ui.sh: reset_summary_counters resets warning count" {
+    source "${MEOW}/lib/core/ui.sh"
+    MEOW_WARNING_COUNT=3
+    reset_summary_counters
+    [ "${MEOW_WARNING_COUNT}" -eq 0 ]
+}
+
+@test "ui.sh: show_final_summary displays summary" {
+    source "${MEOW}/lib/core/ui.sh"
+    run show_final_summary
+    assert_success
+}
+
+@test "ui.sh: _meow_hide_cursor function exists" {
+    source "${MEOW}/lib/core/ui.sh"
+    declare -f _meow_hide_cursor > /dev/null
+}
+
+@test "ui.sh: _meow_show_cursor function exists" {
+    source "${MEOW}/lib/core/ui.sh"
+    declare -f _meow_show_cursor > /dev/null
+}
+
+@test "ui.sh: _meow_clear_line_sequence function exists" {
+    source "${MEOW}/lib/core/ui.sh"
+    declare -f _meow_clear_line_sequence > /dev/null
+}
+
+@test "ui.sh: _meow_spinner_color function exists" {
+    source "${MEOW}/lib/core/ui.sh"
+    declare -f _meow_spinner_color > /dev/null
+}
+
+@test "ui.sh: ui_confirm function exists" {
+    source "${MEOW}/lib/core/ui.sh"
+    declare -f ui_confirm > /dev/null
+}

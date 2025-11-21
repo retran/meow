@@ -93,3 +93,48 @@ teardown() {
     run check_bash_version "$current_major" 0
     assert_success
 }
+
+@test "bash.sh: check_bash_version with exact version match" {
+    source "${MEOW}/lib/core/bash.sh"
+    local major="${BASH_VERSION%%.*}"
+    local minor=$(echo "${BASH_VERSION}" | cut -d'.' -f2)
+    run check_bash_version "$major" "$minor"
+    assert_success
+}
+
+@test "bash.sh: check_bash_version fails with too high major version" {
+    source "${MEOW}/lib/core/bash.sh"
+    run check_bash_version 99 0
+    assert_failure
+}
+
+@test "bash.sh: check_bash_version fails with too high minor version" {
+    source "${MEOW}/lib/core/bash.sh"
+    local major="${BASH_VERSION%%.*}"
+    run check_bash_version "$major" 999
+    assert_failure
+}
+
+@test "bash.sh: show_bash_version_info contains version string" {
+    source "${MEOW}/lib/core/bash.sh"
+    result=$(show_bash_version_info 2>&1)
+    [[ "$result" == *"$BASH_VERSION"* ]]
+}
+
+@test "bash.sh: warn_bash_compatibility runs on any bash version" {
+    source "${MEOW}/lib/core/bash.sh"
+    run warn_bash_compatibility
+    assert_success
+}
+
+@test "bash.sh: get_bash_version_number is numeric" {
+    source "${MEOW}/lib/core/bash.sh"
+    result=$(get_bash_version_number)
+    [[ "$result" =~ ^[0-9]+$ ]]
+}
+
+@test "bash.sh: get_bash_version_number returns at least 302" {
+    source "${MEOW}/lib/core/bash.sh"
+    result=$(get_bash_version_number)
+    [ "$result" -ge 302 ]
+}

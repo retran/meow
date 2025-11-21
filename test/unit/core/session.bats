@@ -36,3 +36,20 @@ teardown() {
     source "${MEOW}/lib/core/session.sh"
     type _finalize_session | grep -q "function"
 }
+
+@test "session.sh: _initialize_session validates dependencies" {
+    source "${MEOW}/lib/core/session.sh"
+    [ -n "${_LIB_CORE_UI_SOURCED}" ]
+    [ -n "${_LIB_CORE_PLATFORM_SOURCED}" ]
+}
+
+@test "session.sh: _finalize_session validates dependencies" {
+    source "${MEOW}/lib/core/session.sh"
+    [ -n "${_LIB_CORE_UI_SOURCED}" ]
+}
+
+@test "session.sh: both functions are shell functions" {
+    source "${MEOW}/lib/core/session.sh"
+    type _initialize_session | grep -q "function"
+    type _finalize_session | grep -q "function"
+}

@@ -58,10 +58,10 @@ Tests focus on core functionality with comprehensive test coverage:
 
 ```
 test/unit/
-├── core/           # Tests for lib/core/*.sh (9 files, 120 tests)
-├── env/            # Tests for lib/env/*.sh (1 file, 12 tests)
-├── motd/           # Tests for lib/motd/*.sh (1 file, 18 tests)
-└── symlinks/       # Tests for lib/symlinks/*.sh (1 file, 15 tests)
+├── core/           # Tests for lib/core/*.sh (9 files, 199 tests)
+├── env/            # Tests for lib/env/*.sh (1 file, 22 tests)
+├── motd/           # Tests for lib/motd/*.sh (1 file, 29 tests)
+└── symlinks/       # Tests for lib/symlinks/*.sh (1 file, 23 tests)
 ```
 
 ## Writing Tests

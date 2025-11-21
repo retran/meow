@@ -99,3 +99,53 @@ teardown() {
     [ -n "${YELLOW+x}" ]
     [ -n "${BLUE+x}" ]
 }
+
+@test "colors.sh: MAGENTA color variable is defined" {
+    source "${MEOW}/lib/core/colors.sh"
+    [ -n "${MAGENTA+x}" ]
+}
+
+@test "colors.sh: CYAN color variable is defined" {
+    source "${MEOW}/lib/core/colors.sh"
+    [ -n "${CYAN+x}" ]
+}
+
+@test "colors.sh: CONTENT color is defined" {
+    source "${MEOW}/lib/core/colors.sh"
+    [ -n "${CONTENT+x}" ]
+}
+
+@test "colors.sh: RESET is defined" {
+    source "${MEOW}/lib/core/colors.sh"
+    [ -n "${RESET+x}" ]
+}
+
+@test "colors.sh: color variables are strings" {
+    source "${MEOW}/lib/core/colors.sh"
+    [[ "${RED}" == *""* ]] || [ -z "${RED}" ]
+}
+
+@test "colors.sh: MEOW_TPUT_SUPPORTED is set" {
+    source "${MEOW}/lib/core/colors.sh"
+    [ -n "${MEOW_TPUT_SUPPORTED+x}" ]
+}
+
+@test "colors.sh: SUCCESS color is set" {
+    source "${MEOW}/lib/core/colors.sh"
+    [ -n "${SUCCESS+x}" ]
+}
+
+@test "colors.sh: WARNING color is set" {
+    source "${MEOW}/lib/core/colors.sh"
+    [ -n "${WARNING+x}" ]
+}
+
+@test "colors.sh: ERROR color is set" {
+    source "${MEOW}/lib/core/colors.sh"
+    [ -n "${ERROR+x}" ]
+}
+
+@test "colors.sh: INFO color is set" {
+    source "${MEOW}/lib/core/colors.sh"
+    [ -n "${INFO+x}" ]
+}

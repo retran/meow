@@ -154,3 +154,61 @@ teardown() {
     source "${MEOW}/lib/core/platform.sh"
     declare -f get_platform > /dev/null
 }
+
+@test "platform.sh: IS_MACOS is boolean" {
+    source "${MEOW}/lib/core/platform.sh"
+    [ "$IS_MACOS" = "true" ] || [ "$IS_MACOS" = "false" ]
+}
+
+@test "platform.sh: IS_ALPINE is boolean" {
+    source "${MEOW}/lib/core/platform.sh"
+    [ "$IS_ALPINE" = "true" ] || [ "$IS_ALPINE" = "false" ]
+}
+
+@test "platform.sh: IS_ARCH is boolean" {
+    source "${MEOW}/lib/core/platform.sh"
+    [ "$IS_ARCH" = "true" ] || [ "$IS_ARCH" = "false" ]
+}
+
+@test "platform.sh: IS_RPM_BASED is boolean" {
+    source "${MEOW}/lib/core/platform.sh"
+    [ "$IS_RPM_BASED" = "true" ] || [ "$IS_RPM_BASED" = "false" ]
+}
+
+@test "platform.sh: MEOW_OS_ID is set" {
+    source "${MEOW}/lib/core/platform.sh"
+    [ -n "$MEOW_OS_ID" ]
+}
+
+@test "platform.sh: MEOW_OS_ID_LIKE is set or empty" {
+    source "${MEOW}/lib/core/platform.sh"
+    [ -n "$MEOW_OS_ID_LIKE" ] || [ -z "$MEOW_OS_ID_LIKE" ]
+}
+
+@test "platform.sh: get_platform returns one of expected values" {
+    source "${MEOW}/lib/core/platform.sh"
+    result=$(get_platform)
+    [[ "$result" =~ ^(macos|linux|unknown)$ ]]
+}
+
+@test "platform.sh: meow_os_is with current OS succeeds" {
+    source "${MEOW}/lib/core/platform.sh"
+    if [ -n "$MEOW_OS_ID" ]; then
+        run meow_os_is "$MEOW_OS_ID"
+        assert_success
+    else
+        skip "MEOW_OS_ID not set"
+    fi
+}
+
+@test "platform.sh: meow_os_is_like with empty string" {
+    source "${MEOW}/lib/core/platform.sh"
+    run meow_os_is_like ""
+    [ "$status" -eq 0 ] || [ "$status" -eq 1 ]
+}
+
+@test "platform.sh: meow_os_matches_any with multiple arguments" {
+    source "${MEOW}/lib/core/platform.sh"
+    run meow_os_matches_any "linux" "macos" "unknown"
+    [ "$status" -eq 0 ] || [ "$status" -eq 1 ]
+}

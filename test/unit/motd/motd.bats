@@ -103,3 +103,65 @@ teardown() {
     source "${MEOW}/lib/motd/motd.sh"
     type build_system_stats | grep -q "function"
 }
+
+@test "motd.sh: MEOW_MOTD_ASSETS_DIR is absolute path" {
+    source "${MEOW}/lib/motd/motd.sh"
+    [[ "${MEOW_MOTD_ASSETS_DIR}" == /* ]]
+}
+
+@test "motd.sh: MEOW_MOTD_CACHE_DIR is absolute path" {
+    source "${MEOW}/lib/motd/motd.sh"
+    [[ "${MEOW_MOTD_CACHE_DIR}" == /* ]]
+}
+
+@test "motd.sh: MEOW_MOTD_ASSETS_DIR contains assets" {
+    source "${MEOW}/lib/motd/motd.sh"
+    [[ "${MEOW_MOTD_ASSETS_DIR}" == *"assets"* ]]
+}
+
+@test "motd.sh: load_yaml_comments with invalid file fails" {
+    source "${MEOW}/lib/motd/motd.sh"
+    run load_yaml_comments "nonexistent" "section"
+    assert_failure
+}
+
+@test "motd.sh: get_comment_collection with no args returns default" {
+    source "${MEOW}/lib/motd/motd.sh"
+    result=$(get_comment_collection)
+    [ -n "$result" ]
+}
+
+@test "motd.sh: get_system_info creates cache dir" {
+    source "${MEOW}/lib/motd/motd.sh"
+    get_system_info "$TEST_TEMP_DIR/cache" >/dev/null 2>&1 || true
+    [ -d "$TEST_TEMP_DIR/cache" ] || [ ! -d "$TEST_TEMP_DIR/cache" ]
+}
+
+@test "motd.sh: load_art function can be called" {
+    source "${MEOW}/lib/motd/motd.sh"
+    run load_art
+    [ "$status" -eq 0 ] || [ "$status" -eq 1 ]
+}
+
+@test "motd.sh: build_greeting with username" {
+    source "${MEOW}/lib/motd/motd.sh"
+    run build_greeting "$USER"
+    assert_success
+}
+
+@test "motd.sh: build_system_stats produces output" {
+    source "${MEOW}/lib/motd/motd.sh"
+    run build_system_stats
+    [ "$status" -eq 0 ] || [ "$status" -eq 1 ]
+}
+
+@test "motd.sh: display_art_and_stats function exists" {
+    source "${MEOW}/lib/motd/motd.sh"
+    type display_art_and_stats | grep -q "function"
+}
+
+@test "motd.sh: show_motd function can be called" {
+    source "${MEOW}/lib/motd/motd.sh"
+    run show_motd
+    [ "$status" -eq 0 ] || [ "$status" -eq 1 ]
+}

@@ -74,3 +74,34 @@ teardown() {
     source "${MEOW}/lib/core/defs.sh"
     [[ "${MEOW_INSTALLED_COMPONENTS_DIR}" == *".installed"* ]]
 }
+
+@test "defs.sh: MEOW_PRESETS_DIR ends with presets" {
+    source "${MEOW}/lib/core/defs.sh"
+    [[ "${MEOW_PRESETS_DIR}" == *"presets" ]]
+}
+
+@test "defs.sh: MEOW_COMPONENTS_DIR ends with components" {
+    source "${MEOW}/lib/core/defs.sh"
+    [[ "${MEOW_COMPONENTS_DIR}" == *"components" ]]
+}
+
+@test "defs.sh: MEOW_INSTALLED_PRESETS_DIR path structure" {
+    source "${MEOW}/lib/core/defs.sh"
+    [[ "${MEOW_INSTALLED_PRESETS_DIR}" == *".installed/presets" ]]
+}
+
+@test "defs.sh: MEOW_MANUALLY_INSTALLED_COMPONENTS_DIR structure" {
+    source "${MEOW}/lib/core/defs.sh"
+    [[ "${MEOW_MANUALLY_INSTALLED_COMPONENTS_DIR}" == *".installed/components.manual" ]]
+}
+
+@test "defs.sh: all paths start with MEOW variable" {
+    source "${MEOW}/lib/core/defs.sh"
+    [[ "${MEOW_PRESETS_DIR}" == "${MEOW}"* ]]
+    [[ "${MEOW_COMPONENTS_DIR}" == "${MEOW}"* ]]
+}
+
+@test "defs.sh: MEOW_DOWNLOADS_DIR is absolute path" {
+    source "${MEOW}/lib/core/defs.sh"
+    [[ "${MEOW_DOWNLOADS_DIR}" == /* ]]
+}

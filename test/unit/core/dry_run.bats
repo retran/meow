@@ -104,3 +104,74 @@ teardown() {
     run dry_run_command_info "test command"
     assert_success
 }
+
+@test "dry_run.sh: is_dry_run with unset variable returns false" {
+    unset MEOW_DRY_RUN
+    source "${MEOW}/lib/core/dry_run.sh"
+    run is_dry_run
+    assert_failure
+}
+
+@test "dry_run.sh: is_dry_run with false string returns false" {
+    export MEOW_DRY_RUN=false
+    source "${MEOW}/lib/core/dry_run.sh"
+    run is_dry_run
+    assert_failure
+}
+
+@test "dry_run.sh: is_dry_run with empty string returns false" {
+    export MEOW_DRY_RUN=""
+    source "${MEOW}/lib/core/dry_run.sh"
+    run is_dry_run
+    assert_failure
+}
+
+@test "dry_run.sh: dry_run_file_operation with create operation" {
+    export MEOW_DRY_RUN=true
+    source "${MEOW}/lib/core/dry_run.sh"
+    run dry_run_file_operation "create" "/tmp/test"
+    assert_success
+}
+
+@test "dry_run.sh: dry_run_file_operation with delete operation" {
+    export MEOW_DRY_RUN=true
+    source "${MEOW}/lib/core/dry_run.sh"
+    run dry_run_file_operation "delete" "/tmp/test"
+    assert_success
+}
+
+@test "dry_run.sh: dry_run_package_operation with remove action" {
+    export MEOW_DRY_RUN=true
+    source "${MEOW}/lib/core/dry_run.sh"
+    run dry_run_package_operation "remove" "package-name"
+    assert_success
+}
+
+@test "dry_run.sh: dry_run_git_operation with pull action" {
+    export MEOW_DRY_RUN=true
+    source "${MEOW}/lib/core/dry_run.sh"
+    run dry_run_git_operation "pull" "repo-url"
+    assert_success
+}
+
+@test "dry_run.sh: dry_run_script_execution shows script name" {
+    export MEOW_DRY_RUN=true
+    source "${MEOW}/lib/core/dry_run.sh"
+    run dry_run_script_execution "test-script.sh"
+    assert_success
+}
+
+@test "dry_run.sh: dry_run_command in normal mode executes" {
+    export MEOW_DRY_RUN=false
+    source "${MEOW}/lib/core/dry_run.sh"
+    touch "$TEST_TEMP_DIR/test_file"
+    run dry_run_command "test" test -f "$TEST_TEMP_DIR/test_file"
+    assert_success
+}
+
+@test "dry_run.sh: dry_run_info displays message" {
+    export MEOW_DRY_RUN=true
+    source "${MEOW}/lib/core/dry_run.sh"
+    run dry_run_info "test message"
+    assert_success
+}

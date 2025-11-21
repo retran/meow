@@ -84,3 +84,63 @@ teardown() {
     source "${MEOW}/lib/env/env.sh"
     [[ "${LC_ALL}" == *"UTF-8"* ]]
 }
+
+@test "env.sh: MEOW is absolute path" {
+    unset _MEOW_CORE_ENV_SOURCED
+    source "${MEOW}/lib/env/env.sh"
+    [[ "${MEOW}" == /* ]]
+}
+
+@test "env.sh: XDG_CONFIG_HOME is absolute path" {
+    unset _MEOW_CORE_ENV_SOURCED
+    source "${MEOW}/lib/env/env.sh"
+    [[ "${XDG_CONFIG_HOME}" == /* ]]
+}
+
+@test "env.sh: XDG_CACHE_HOME is absolute path" {
+    unset _MEOW_CORE_ENV_SOURCED
+    source "${MEOW}/lib/env/env.sh"
+    [[ "${XDG_CACHE_HOME}" == /* ]]
+}
+
+@test "env.sh: XDG_DATA_HOME is absolute path" {
+    unset _MEOW_CORE_ENV_SOURCED
+    source "${MEOW}/lib/env/env.sh"
+    [[ "${XDG_DATA_HOME}" == /* ]]
+}
+
+@test "env.sh: XDG_STATE_HOME is absolute path" {
+    unset _MEOW_CORE_ENV_SOURCED
+    source "${MEOW}/lib/env/env.sh"
+    [[ "${XDG_STATE_HOME}" == /* ]]
+}
+
+@test "env.sh: XDG_CONFIG_HOME contains .config" {
+    unset _MEOW_CORE_ENV_SOURCED
+    source "${MEOW}/lib/env/env.sh"
+    [[ "${XDG_CONFIG_HOME}" == *".config"* ]]
+}
+
+@test "env.sh: XDG_CACHE_HOME contains .cache" {
+    unset _MEOW_CORE_ENV_SOURCED
+    source "${MEOW}/lib/env/env.sh"
+    [[ "${XDG_CACHE_HOME}" == *".cache"* ]]
+}
+
+@test "env.sh: XDG_DATA_HOME contains .local/share" {
+    unset _MEOW_CORE_ENV_SOURCED
+    source "${MEOW}/lib/env/env.sh"
+    [[ "${XDG_DATA_HOME}" == *".local/share"* ]]
+}
+
+@test "env.sh: LANG equals en_US.UTF-8" {
+    unset _MEOW_CORE_ENV_SOURCED
+    source "${MEOW}/lib/env/env.sh"
+    [ "${LANG}" = "en_US.UTF-8" ]
+}
+
+@test "env.sh: LC_ALL equals en_US.UTF-8" {
+    unset _MEOW_CORE_ENV_SOURCED
+    source "${MEOW}/lib/env/env.sh"
+    [ "${LC_ALL}" = "en_US.UTF-8" ]
+}

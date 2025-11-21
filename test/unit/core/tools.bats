@@ -114,3 +114,61 @@ teardown() {
     source "${MEOW}/lib/core/tools.sh"
     [[ "$YQ_VERSION" =~ ^v[0-9] ]]
 }
+
+@test "tools.sh: _detect_os on Darwin returns darwin" {
+    if [ "$(uname -s)" = "Darwin" ]; then
+        source "${MEOW}/lib/core/tools.sh"
+        result=$(_detect_os)
+        [ "$result" = "darwin" ]
+    else
+        skip "Not on Darwin/macOS"
+    fi
+}
+
+@test "tools.sh: _detect_arch on arm64 returns arm64" {
+    if [ "$(uname -m)" = "arm64" ]; then
+        source "${MEOW}/lib/core/tools.sh"
+        result=$(_detect_arch)
+        [ "$result" = "arm64" ]
+    else
+        skip "Not on arm64 architecture"
+    fi
+}
+
+@test "tools.sh: _detect_arch on aarch64 returns arm64" {
+    if [ "$(uname -m)" = "aarch64" ]; then
+        source "${MEOW}/lib/core/tools.sh"
+        result=$(_detect_arch)
+        [ "$result" = "arm64" ]
+    else
+        skip "Not on aarch64 architecture"
+    fi
+}
+
+@test "tools.sh: _get_install_dir returns path or empty" {
+    source "${MEOW}/lib/core/tools.sh"
+    result=$(_get_install_dir)
+    [ -z "$result" ] || [[ "$result" == /* ]]
+}
+
+@test "tools.sh: _verify_yq handles missing yq" {
+    source "${MEOW}/lib/core/tools.sh"
+    PATH="/nonexistent"
+    run _verify_yq
+    assert_failure
+}
+
+@test "tools.sh: YQ_VERSION has v prefix" {
+    source "${MEOW}/lib/core/tools.sh"
+    [[ "$YQ_VERSION" == v* ]]
+}
+
+@test "tools.sh: YQ_VERSION contains dot separators" {
+    source "${MEOW}/lib/core/tools.sh"
+    [[ "$YQ_VERSION" == *"."* ]]
+}
+
+@test "tools.sh: ensure_yq function is defined" {
+    source "${MEOW}/lib/core/tools.sh"
+    declare -f ensure_yq > /dev/null
+}
