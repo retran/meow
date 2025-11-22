@@ -126,23 +126,28 @@ is_component_available() {
     yq_cmd=$(command -v yq)
 
     local query='
-      def to_list(v): if (v | type) == "array" then v elif v == null then [] else [v] end;
-      def is_match(entry; platform; distro; version; likes):
-        if (entry | type) == "string" then
-          entry == platform
-        elif (entry | type) == "object" then
-          (if entry.match then entry.match else entry end) as $m
-          | ((to_list($m.platform) | length) == 0 or (to_list($m.platform) | contains([platform])))
-            and ((to_list($m.distro) | length) == 0 or (to_list($m.distro) | contains([distro])))
-            and ((to_list($m.version_id) | length) == 0 or (version != "" and (to_list($m.version_id) | contains([version]))))
-            and ((to_list($m.distro_like) | length) == 0 or ( (likes | split(",")) as $l | (to_list($m.distro_like) | .[] | select(. as $item | $l | contains([$item]))) | length > 0))
-        else
-          false
-        end;
-      (if (.|type) == "array" then .[] else . end) | select(is_match(.; strenv(platform); strenv(distro); strenv(version); strenv(likes))) | length > 0
+      [
+        ([.] | flatten | .[])
+        | select(tag == "!!str" and . == strenv(platform))
+      ] + [
+        ([.] | flatten | .[])
+        | select(tag == "!!map")
+        | . as $item
+        | (($item.match.platform // []) | ([.] | flatten)) as $p
+        | (($item.match.distro // []) | ([.] | flatten)) as $d
+        | (($item.match.version_id // []) | ([.] | flatten)) as $v
+        | (($item.match.distro_like // []) | ([.] | flatten)) as $dl
+        | select(
+            (($p | length) == 0 or ($p | contains([strenv(platform)]))) and
+            (($d | length) == 0 or (strenv(distro) != "" and ($d | contains([strenv(distro)])))) and
+            (($v | length) == 0 or (strenv(version) != "" and ($v | contains([strenv(version)])))) and
+            (($dl | length) == 0 or (strenv(likes) != "" and ( (strenv(likes) | split(",")) as $l | ([$dl | .[] | select(. as $item | $l | contains([$item]))] | length) > 0)))
+          )
+      ]
+      | length > 0
     '
     local match
-    match=$(echo "$platforms_json" | "$yq_cmd" --arg platform "$platform" --arg distro "${MEOW_OS_ID:-}" --arg version "${version:-}" --arg likes "$likes_csv" "$query")
+    match=$(echo "$platforms_json" | platform="$platform" distro="${MEOW_OS_ID:-}" version="${version:-}" likes="$likes_csv" "$yq_cmd" "$query")
 
     if [ "$match" != "true" ]; then
       return 1
