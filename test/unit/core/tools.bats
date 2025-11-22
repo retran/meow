@@ -96,8 +96,40 @@ teardown() {
     fi
 }
 
+@test "tools.sh: _verify_yq returns error when yq not available" {
+    source "${MEOW}/lib/core/tools.sh"
+    PATH="/nonexistent:$PATH"
+    run _verify_yq
+    assert_failure
+    source "${MEOW}/lib/core/tools.sh"
+    PATH="/nonexistent:$PATH"
+    run _verify_yq
+    assert_failure
+}
 
+@test "tools.sh: _verify_yq succeeds when yq is available and working" {
+    if command -v yq >/dev/null 2>&1; then
+        source "${MEOW}/lib/core/tools.sh"
+        run _verify_yq
+        assert_success
+    else
+        skip "yq not available"
+    fi
+    if command -v yq >/dev/null 2>&1; then
+        source "${MEOW}/lib/core/tools.sh"
+        run _verify_yq
+        assert_success
+    else
+        skip "yq not available"
+    fi
+}
 
+@test "tools.sh: YQ_VERSION is set to default" {
+    source "${MEOW}/lib/core/tools.sh"
+    [[ "$YQ_VERSION" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]
+    source "${MEOW}/lib/core/tools.sh"
+    [[ "$YQ_VERSION" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]
+}
 
 
 @test "tools.sh: _detect_os handles unknown OS gracefully" {
@@ -129,6 +161,12 @@ teardown() {
     [ -z "$result" ] || [ -n "$result" ]
 }
 
+@test "tools.sh: YQ_VERSION format is valid" {
+    source "${MEOW}/lib/core/tools.sh"
+    [[ "$YQ_VERSION" =~ ^v[0-9] ]]
+    source "${MEOW}/lib/core/tools.sh"
+    [[ "$YQ_VERSION" =~ ^v[0-9] ]]
+}
 
 @test "tools.sh: _detect_os on Darwin returns darwin" {
     if [ "$(uname -s)" = "Darwin" ]; then
@@ -190,8 +228,30 @@ teardown() {
     [ -z "$result" ] || [[ "$result" == /* ]]
 }
 
+@test "tools.sh: _verify_yq handles missing yq" {
+    source "${MEOW}/lib/core/tools.sh"
+    PATH="/nonexistent"
+    run _verify_yq
+    assert_failure
+    source "${MEOW}/lib/core/tools.sh"
+    PATH="/nonexistent"
+    run _verify_yq
+    assert_failure
+}
 
+@test "tools.sh: YQ_VERSION has v prefix" {
+    source "${MEOW}/lib/core/tools.sh"
+    [[ "$YQ_VERSION" == v* ]]
+    source "${MEOW}/lib/core/tools.sh"
+    [[ "$YQ_VERSION" == v* ]]
+}
 
+@test "tools.sh: YQ_VERSION contains dot separators" {
+    source "${MEOW}/lib/core/tools.sh"
+    [[ "$YQ_VERSION" == *"."* ]]
+    source "${MEOW}/lib/core/tools.sh"
+    [[ "$YQ_VERSION" == *"."* ]]
+}
 
 
 @test "tools.sh: _detect_os returns consistent result" {
@@ -214,9 +274,32 @@ teardown() {
     [ -z "$result" ] || [[ "$result" =~ ^/ ]]
 }
 
+@test "tools.sh: _verify_yq with yq available succeeds" {
+    if command -v yq >/dev/null 2>&1; then
+        source "${MEOW}/lib/core/tools.sh"
+        run _verify_yq
+        assert_success
+    else
+        skip "yq not available"
+    fi
+}
 
+@test "tools.sh: ensure_yq in dry-run mode" {
+    export MEOW_DRY_RUN=true
+    source "${MEOW}/lib/core/tools.sh"
+    run ensure_yq
+    assert_success
+}
 
+@test "tools.sh: YQ_VERSION starts with v" {
+    source "${MEOW}/lib/core/tools.sh"
+    [[ "$YQ_VERSION" =~ ^v[0-9] ]]
+}
 
+@test "tools.sh: YQ_VERSION has proper format" {
+    source "${MEOW}/lib/core/tools.sh"
+    [[ "$YQ_VERSION" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]
+}
 
 @test "tools.sh: _detect_os with modified uname" {
     source "${MEOW}/lib/core/tools.sh"

@@ -27,4 +27,3 @@ coverage/
 private/git/.gitconfig
 private/secrets/.secrets
 private/meow/.meowrc
-test/libs/

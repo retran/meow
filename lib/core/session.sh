@@ -50,6 +50,11 @@ _initialize_session() {
     ui_action_warning "No supported package manager found for this OS. Skipping system setup."
     return 1
   fi
+
+  if ! ensure_yq; then
+    ui_action_error "Failed to ensure yq installation."
+    return 1
+  fi
 }
 
 _finalize_session() {

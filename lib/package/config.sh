@@ -19,14 +19,7 @@ MEOW_DEFAULT_PRESET_FILE="${MEOW}/presets/base/preset.yaml"
 _meow_pkg_resolve_file() {
   local file="$1"
   [ -f "$file" ] || return 0
-  
-  # If yq is available, use it for JSON output
-  if command -v yq >/dev/null 2>&1; then
-    yq -o=json '.packages // []' "$file" 2>/dev/null
-  else
-    # Fallback: return empty array (no package filtering)
-    echo "[]"
-  fi
+  yq -o=json '.packages // []' "$file" 2>/dev/null
 }
 
 _meow_pkg_match_entry() {
@@ -41,13 +34,7 @@ _meow_pkg_match_entry() {
     return
   fi
 
-  # Check if yq is available
-  if ! command -v yq >/dev/null 2>&1; then
-    # Fallback: return empty array (no filtering without yq)
-    echo "[]"
-    return
-  fi
-  
+  _ensure_yq_available
   local yq_cmd
   yq_cmd=$(command -v yq)
 
@@ -88,13 +75,7 @@ _meow_pkg_merge_managers() {
     return
   fi
 
-  # Check if yq is available
-  if ! command -v yq >/dev/null 2>&1; then
-    # Fallback: return current managers (no merging without yq)
-    echo "$current"
-    return
-  fi
-  
+  _ensure_yq_available
   local yq_cmd
   yq_cmd=$(command -v yq)
 
@@ -129,12 +110,7 @@ _meow_pkg_collect_sources() {
     return
   fi
 
-  # Check if yq is available
-  if ! command -v yq >/dev/null 2>&1; then
-    # Fallback: no sources without yq
-    return
-  fi
-  
+  _ensure_yq_available
   local yq_cmd
   yq_cmd=$(command -v yq)
 
@@ -250,12 +226,6 @@ _meow_pkg_collect_from_preset_recursive() {
         return
     fi
 
-    # Check if yq is available
-    if [ -z "$yq_cmd" ] || ! command -v "$yq_cmd" >/dev/null 2>&1; then
-      echo "[]"
-      return
-    fi
-
     local data
     data=$("$yq_cmd" -o=json '.' "$preset_file" 2>/dev/null || echo "{}")
 
@@ -285,19 +255,15 @@ _meow_pkg_collect_from_preset_recursive() {
 _meow_pkg_collect_from_preset() {
   local preset_file="$1"
   [ -f "$preset_file" ] || { echo "[]"; return; }
+  _ensure_yq_available
 
-  # Check if yq is available
-  if ! command -v yq >/dev/null 2>&1; then
-    echo "[]"
-    return
+  local yq_cmd="/usr/local/bin/yq"
+  if [ ! -x "$yq_cmd" ]; then
+    yq_cmd="$(command -v yq 2>/dev/null || true)"
   fi
 
-  local yq_cmd
-  yq_cmd="$(command -v yq 2>/dev/null || true)"
-
   if [ -z "$yq_cmd" ]; then
-    echo "[]"
-    return
+    echo "[]" && return
   fi
 
   _meow_pkg_collect_from_preset_recursive "$preset_file" "$MEOW_PRESETS_DIR" "$yq_cmd" ""
