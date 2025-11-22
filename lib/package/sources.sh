@@ -62,19 +62,19 @@ _ps_collect_sources_from_file() {
   result="$json"
 
   # Manager filter
-  result=$(echo "$result" | manager="$manager" "$yq_cmd" eval -o=json '.[] | select(.manager == strenv(manager))' | "$yq_cmd" eval -s -o=json '.')
+  result=$(echo "$result" | manager="$manager" "$yq_cmd" eval -o=json '[.[] | select(.manager == strenv(manager))]')
 
   # Platform
-  result=$(echo "$result" | platform="$platform" "$yq_cmd" eval -o=json '.[] | select(.match.platform == null or .match.platform == strenv(platform) or (.match.platform | tag == "!!seq" and .match.platform | contains([strenv(platform)])))' | "$yq_cmd" eval -s -o=json '.')
+  result=$(echo "$result" | platform="$platform" "$yq_cmd" eval -o=json '[.[] | select(.match.platform == null or .match.platform == strenv(platform) or (.match.platform | tag == "!!seq" and .match.platform | contains([strenv(platform)])))]')
 
   # Distro
-  result=$(echo "$result" | distro="$distro" "$yq_cmd" eval -o=json '.[] | select(.match.distro == null or .match.distro == strenv(distro) or (.match.distro | tag == "!!seq" and .match.distro | contains([strenv(distro)])))' | "$yq_cmd" eval -s -o=json '.')
+  result=$(echo "$result" | distro="$distro" "$yq_cmd" eval -o=json '[.[] | select(.match.distro == null or .match.distro == strenv(distro) or (.match.distro | tag == "!!seq" and .match.distro | contains([strenv(distro)])))]')
 
   # Version
   if [ -n "$version" ]; then
-    result=$(echo "$result" | version="$version" "$yq_cmd" eval -o=json '.[] | select(.match.version_id == null or .match.version_id == strenv(version) or (.match.version_id | tag == "!!seq" and .match.version_id | contains([strenv(version)])))' | "$yq_cmd" eval -s -o=json '.')
+    result=$(echo "$result" | version="$version" "$yq_cmd" eval -o=json '[.[] | select(.match.version_id == null or .match.version_id == strenv(version) or (.match.version_id | tag == "!!seq" and .match.version_id | contains([strenv(version)])))]')
   else
-    result=$(echo "$result" | "$yq_cmd" eval -o=json '.[] | select(.match.version_id == null)' | "$yq_cmd" eval -s -o=json '.')
+    result=$(echo "$result" | "$yq_cmd" eval -o=json '[.[] | select(.match.version_id == null)]')
   fi
 
   # Likes
@@ -88,9 +88,9 @@ _ps_collect_sources_from_file() {
         likes_filter="${likes_filter}(.match.distro_like == \"$like\" or (.match.distro_like | tag == \"!!seq\" and .match.distro_like | contains([\"$like\"])))"
     done
 
-    result=$(echo "$result" | "$yq_cmd" eval -o=json ".[] | select(.match.distro_like == null or $likes_filter)" | "$yq_cmd" eval -s -o=json '.')
+    result=$(echo "$result" | "$yq_cmd" eval -o=json "[.[] | select(.match.distro_like == null or $likes_filter)]")
   else
-    result=$(echo "$result" | "$yq_cmd" eval -o=json '.[] | select(.match.distro_like == null)' | "$yq_cmd" eval -s -o=json '.')
+    result=$(echo "$result" | "$yq_cmd" eval -o=json '[.[] | select(.match.distro_like == null)]')
   fi
 
   # Templating and output

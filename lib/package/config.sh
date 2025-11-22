@@ -42,16 +42,16 @@ _meow_pkg_match_entry() {
   result="$json"
 
   # Platform
-  result=$(echo "$result" | platform="$platform" "$yq_cmd" eval -o=json '.[] | select(.match.platform == null or .match.platform == strenv(platform) or (.match.platform | tag == "!!seq" and .match.platform | contains([strenv(platform)])))' | "$yq_cmd" eval -s -o=json '.')
+  result=$(echo "$result" | platform="$platform" "$yq_cmd" eval -o=json '[.[] | select(.match.platform == null or .match.platform == strenv(platform) or (.match.platform | tag == "!!seq" and .match.platform | contains([strenv(platform)])))]')
 
   # Distro
-  result=$(echo "$result" | distro="$distro" "$yq_cmd" eval -o=json '.[] | select(.match.distro == null or .match.distro == strenv(distro) or (.match.distro | tag == "!!seq" and .match.distro | contains([strenv(distro)])))' | "$yq_cmd" eval -s -o=json '.')
+  result=$(echo "$result" | distro="$distro" "$yq_cmd" eval -o=json '[.[] | select(.match.distro == null or .match.distro == strenv(distro) or (.match.distro | tag == "!!seq" and .match.distro | contains([strenv(distro)])))]')
 
   # Version
   if [ -n "$version" ]; then
-    result=$(echo "$result" | version="$version" "$yq_cmd" eval -o=json '.[] | select(.match.version_id == null or .match.version_id == strenv(version) or (.match.version_id | tag == "!!seq" and .match.version_id | contains([strenv(version)])))' | "$yq_cmd" eval -s -o=json '.')
+    result=$(echo "$result" | version="$version" "$yq_cmd" eval -o=json '[.[] | select(.match.version_id == null or .match.version_id == strenv(version) or (.match.version_id | tag == "!!seq" and .match.version_id | contains([strenv(version)])))]')
   else
-    result=$(echo "$result" | "$yq_cmd" eval -o=json '.[] | select(.match.version_id == null)' | "$yq_cmd" eval -s -o=json '.')
+    result=$(echo "$result" | "$yq_cmd" eval -o=json '[.[] | select(.match.version_id == null)]')
   fi
 
   # Likes
@@ -65,9 +65,9 @@ _meow_pkg_match_entry() {
         likes_filter="${likes_filter}(.match.distro_like == \"$like\" or (.match.distro_like | tag == \"!!seq\" and .match.distro_like | contains([\"$like\"])))"
     done
 
-    result=$(echo "$result" | "$yq_cmd" eval -o=json ".[] | select(.match.distro_like == null or $likes_filter)" | "$yq_cmd" eval -s -o=json '.')
+    result=$(echo "$result" | "$yq_cmd" eval -o=json "[.[] | select(.match.distro_like == null or $likes_filter)]")
   else
-    result=$(echo "$result" | "$yq_cmd" eval -o=json '.[] | select(.match.distro_like == null)' | "$yq_cmd" eval -s -o=json '.')
+    result=$(echo "$result" | "$yq_cmd" eval -o=json '[.[] | select(.match.distro_like == null)]')
   fi
 
   echo "$result"
@@ -145,6 +145,10 @@ _meow_pkg_read_stack() {
   local component="$5"
   local result="[]"
 
+  _ensure_yq_available
+  local yq_cmd
+  yq_cmd=$(command -v yq)
+
   local preset_file=""
   if [ -n "$MEOW_ACTIVE_PRESET_FILE" ]; then
     preset_file="$MEOW_ACTIVE_PRESET_FILE"
@@ -155,7 +159,9 @@ _meow_pkg_read_stack() {
   if [ -n "$preset_file" ]; then
     local preset_entries
     preset_entries=$(_meow_pkg_collect_from_preset "$preset_file")
-    result=$(echo -e "$result\n$preset_entries" | yq eval -s -o=json 'add')
+    if [ -n "$preset_entries" ] && [ "$preset_entries" != "[]" ]; then
+      result=$(echo -e "$result\n$preset_entries" | "$yq_cmd" eval -s -o=json 'add // []')
+    fi
   fi
 
   local component_file="${MEOW_COMPONENTS_DIR}/${component}/component.yaml"
@@ -163,7 +169,9 @@ _meow_pkg_read_stack() {
   json=$(_meow_pkg_resolve_file "$component_file") || echo "[]"
   local matches
   matches=$(_meow_pkg_match_entry "$json" "$platform" "$distro" "$version" "$likes")
-  result=$(echo -e "$result\n$matches" | yq eval -s -o=json 'add')
+  if [ -n "$matches" ] && [ "$matches" != "[]" ]; then
+    result=$(echo -e "$result\n$matches" | "$yq_cmd" eval -s -o=json 'add // []')
+  fi
 
   echo "$result"
 }
@@ -246,14 +254,20 @@ _meow_pkg_collect_from_preset_recursive() {
             local parent_file="${base_dir}/${parent}/preset.yaml"
             local parent_packages
             parent_packages=$(_meow_pkg_collect_from_preset_recursive "$parent_file" "$base_dir" "$yq_cmd" "$new_visited_str")
-            parent_packages_list=$(echo -e "$parent_packages_list\n$parent_packages" | "$yq_cmd" eval -s -o=json 'add')
+            if [ -n "$parent_packages" ] && [ "$parent_packages" != "[]" ]; then
+              parent_packages_list=$(echo -e "$parent_packages_list\n$parent_packages" | "$yq_cmd" eval -s -o=json 'add // []')
+            fi
         done
-        result=$(echo -e "$result\n$parent_packages_list" | "$yq_cmd" eval -s -o=json 'add')
+        if [ -n "$parent_packages_list" ] && [ "$parent_packages_list" != "[]" ]; then
+          result=$(echo -e "$result\n$parent_packages_list" | "$yq_cmd" eval -s -o=json 'add // []')
+        fi
     fi
 
     local packages
     packages=$(echo "$data" | "$yq_cmd" eval -o=json '.packages // []' 2>/dev/null)
-    result=$(echo -e "$result\n$packages" | "$yq_cmd" eval -s -o=json 'add')
+    if [ -n "$packages" ] && [ "$packages" != "[]" ]; then
+      result=$(echo -e "$result\n$packages" | "$yq_cmd" eval -s -o=json 'add // []')
+    fi
 
     echo "$result"
 }
