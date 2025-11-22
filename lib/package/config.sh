@@ -90,7 +90,7 @@ _meow_pkg_merge_managers() {
   managers="$current"
 
   local includes
-  includes=$(echo "$json" | "$yq_cmd" -r '.[] | .managers.include[]?' | sed '/^null$/d' | sort -u)
+  includes=$(echo "$json" | "$yq_cmd" eval -r '.[] | .managers.include[]?' | sed '/^null$/d' | sort -u)
   for mgr in $includes; do
     if [[ ! " $managers " =~ " $mgr " ]]; then
       managers="$managers $mgr"
@@ -98,7 +98,7 @@ _meow_pkg_merge_managers() {
   done
 
   local excludes
-  excludes=$(echo "$json" | "$yq_cmd" -r '.[] | .managers.exclude[]?' | sed '/^null$/d' | sort -u)
+  excludes=$(echo "$json" | "$yq_cmd" eval -r '.[] | .managers.exclude[]?' | sed '/^null$/d' | sort -u)
   local new_managers=""
   for mgr in $managers; do
     if [[ -n "$mgr" && ! " $excludes " =~ " $mgr " ]]; then
@@ -121,7 +121,7 @@ _meow_pkg_collect_sources() {
   local yq_cmd
   yq_cmd=$(command -v yq)
 
-  echo "$json" | manager="$manager" "$yq_cmd" -r \
+  echo "$json" | manager="$manager" "$yq_cmd" eval -r \
     '.[] \
     | .sources[]? \
     | select(.manager == strenv(manager)) \
@@ -234,12 +234,12 @@ _meow_pkg_collect_from_preset_recursive() {
     fi
 
     local data
-    data=$("$yq_cmd" -o=json '.' "$preset_file" 2>/dev/null || echo "{}")
+    data=$("$yq_cmd" eval -o=json '.' "$preset_file" 2>/dev/null || echo "{}")
 
     local result="[]"
 
     local parents
-    parents=$(echo "$data" | "$yq_cmd" -r '.extends[]?' 2>/dev/null)
+    parents=$(echo "$data" | "$yq_cmd" eval -r '.extends[]?' 2>/dev/null)
     if [ -n "$parents" ]; then
         local parent_packages_list="[]"
         for parent in $parents; do

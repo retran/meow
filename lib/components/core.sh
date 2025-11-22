@@ -147,7 +147,7 @@ is_component_available() {
       | length > 0
     '
     local match
-    match=$(echo "$platforms_json" | platform="$platform" distro="${MEOW_OS_ID:-}" version="${version:-}" likes="$likes_csv" "$yq_cmd" "$query")
+    match=$(echo "$platforms_json" | platform="$platform" distro="${MEOW_OS_ID:-}" version="${version:-}" likes="$likes_csv" "$yq_cmd" eval "$query")
 
     if [ "$match" != "true" ]; then
       return 1

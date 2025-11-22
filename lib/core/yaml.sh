@@ -305,7 +305,7 @@ yaml_nested_array() {
   fi
 
   local result
-  result=$("$yq_cmd" -r ".${category}.${section}[]" "$yaml_file" 2>/dev/null || echo "")
+  result=$("$yq_cmd" eval -r ".${category}.${section}[]" "$yaml_file" 2>/dev/null || echo "")
 
   if [ -z "$result" ]; then
     return 1

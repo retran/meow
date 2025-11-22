@@ -94,7 +94,7 @@ _ps_collect_sources_from_file() {
   fi
 
   # Templating and output
-  echo "$result" | version="${version:-}" codename="${codename:-}" distro="${distro:-}" platform="${platform:-}" "$yq_cmd" -r \
+  echo "$result" | version="${version:-}" codename="${codename:-}" distro="${distro:-}" platform="${platform:-}" "$yq_cmd" eval -r \
     '
     .[]
     | [
