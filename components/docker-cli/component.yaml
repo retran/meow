@@ -1,8 +1,6 @@
 description: Docker CLI tools for remote container management from development environments
 platforms:
 - match:
-    platform: macos
-- match:
     platform: linux
 depends_on:
 - shell-essential

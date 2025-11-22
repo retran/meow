@@ -46,19 +46,14 @@ _ps_collect_sources_from_file() {
 
   [ -f "$file" ] || return 0
 
-  # Check if yq is available
-  if ! command -v yq >/dev/null 2>&1; then
-    # Fallback: no sources without yq
-    return 0
-  fi
-
   local json
-  json=$(yq -o=json '.package_sources // []' "$file" 2>/dev/null || echo "[]")
+  json=$(yq eval -o=json '.package_sources // []' "$file" 2>/dev/null || echo "[]")
 
   if [ -z "$json" ] || [ "$json" = "[]" ]; then
     return
   fi
 
+  _ensure_yq_available
   local yq_cmd
   yq_cmd=$(command -v yq)
 
@@ -67,36 +62,39 @@ _ps_collect_sources_from_file() {
   result="$json"
 
   # Manager filter
-  result=$(echo "$result" | "$yq_cmd" -o=json --arg manager "$manager" '.[] | select(.manager == $manager)' | "$yq_cmd" -s -o=json '.')
+  result=$(echo "$result" | manager="$manager" "$yq_cmd" eval -o=json '.[] | select(.manager == strenv(manager))' | "$yq_cmd" eval -s -o=json '.')
 
   # Platform
-  result=$(echo "$result" | "$yq_cmd" -o=json --arg platform "$platform" '.[] | select(.match.platform == null or .match.platform == $platform or (.match.platform | type == "array" and .match.platform | contains([$platform])))' | "$yq_cmd" -s -o=json '.')
+  result=$(echo "$result" | platform="$platform" "$yq_cmd" eval -o=json '.[] | select(.match.platform == null or .match.platform == strenv(platform) or (.match.platform | tag == "!!seq" and .match.platform | contains([strenv(platform)])))' | "$yq_cmd" eval -s -o=json '.')
 
   # Distro
-  result=$(echo "$result" | "$yq_cmd" -o=json --arg distro "$distro" '.[] | select(.match.distro == null or .match.distro == $distro or (.match.distro | type == "array" and .match.distro | contains([$distro])))' | "$yq_cmd" -s -o=json '.')
+  result=$(echo "$result" | distro="$distro" "$yq_cmd" eval -o=json '.[] | select(.match.distro == null or .match.distro == strenv(distro) or (.match.distro | tag == "!!seq" and .match.distro | contains([strenv(distro)])))' | "$yq_cmd" eval -s -o=json '.')
 
   # Version
   if [ -n "$version" ]; then
-    result=$(echo "$result" | "$yq_cmd" -o=json --arg version "$version" '.[] | select(.match.version_id == null or .match.version_id == $version or (.match.version_id | type == "array" and .match.version_id | contains([$version])))' | "$yq_cmd" -s -o=json '.')
+    result=$(echo "$result" | version="$version" "$yq_cmd" eval -o=json '.[] | select(.match.version_id == null or .match.version_id == strenv(version) or (.match.version_id | tag == "!!seq" and .match.version_id | contains([strenv(version)])))' | "$yq_cmd" eval -s -o=json '.')
   else
-    result=$(echo "$result" | "$yq_cmd" -o=json '.[] | select(.match.version_id == null)' | "$yq_cmd" -s -o=json '.')
+    result=$(echo "$result" | "$yq_cmd" eval -o=json '.[] | select(.match.version_id == null)' | "$yq_cmd" eval -s -o=json '.')
   fi
 
   # Likes
   if [ -n "$likes" ]; then
-    local likes_json
-    likes_json="[\"$(echo "$likes" | sed 's/,/","/g')\"]"
-    result=$(echo "$result" | "$yq_cmd" -o=json --argjson likes_json "$likes_json" '.[] | select(.match.distro_like == null or (([.match.distro_like] | flatten) as $dl | ($dl | .[] | select(. as $item | $likes_json | contains([$item]))) | length > 0))' | "$yq_cmd" -s -o=json '.')
+    local likes_filter=""
+    local IFS=','
+    for like in $likes; do
+        if [ -n "$likes_filter" ]; then
+            likes_filter="$likes_filter or "
+        fi
+        likes_filter="${likes_filter}(.match.distro_like == \"$like\" or (.match.distro_like | tag == \"!!seq\" and .match.distro_like | contains([\"$like\"])))"
+    done
+
+    result=$(echo "$result" | "$yq_cmd" eval -o=json ".[] | select(.match.distro_like == null or $likes_filter)" | "$yq_cmd" eval -s -o=json '.')
   else
-    result=$(echo "$result" | "$yq_cmd" -o=json '.[] | select(.match.distro_like == null)' | "$yq_cmd" -s -o=json '.')
+    result=$(echo "$result" | "$yq_cmd" eval -o=json '.[] | select(.match.distro_like == null)' | "$yq_cmd" eval -s -o=json '.')
   fi
 
   # Templating and output
-  echo "$result" | "$yq_cmd" -r \
-    --arg version "${version:-}" \
-    --arg codename "${codename:-}" \
-    --arg distro "${distro:-}" \
-    --arg platform "${platform:-}" \
+  echo "$result" | version="${version:-}" codename="${codename:-}" distro="${distro:-}" platform="${platform:-}" "$yq_cmd" -r \
     '
     .[]
     | [
@@ -108,11 +106,11 @@ _ps_collect_sources_from_file() {
       ]
     | map(
         tostring
-        | sub("{{VERSION_ID}}"; $version; "g")
-        | sub("{{VERSION_CODENAME}}"; $codename; "g")
-        | sub("{{DISTRO}}"; $distro; "g")
-        | sub("{{PLATFORM}}"; $platform; "g")
-        | sub("\t"; " "; "g")
+        | sub("{{VERSION_ID}}"; strenv(version))
+        | sub("{{VERSION_CODENAME}}"; strenv(codename))
+        | sub("{{DISTRO}}"; strenv(distro))
+        | sub("{{PLATFORM}}"; strenv(platform))
+        | sub("\t"; " ")
       )
     | @tsv
     '

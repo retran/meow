@@ -19,14 +19,7 @@ MEOW_DEFAULT_PRESET_FILE="${MEOW}/presets/base/preset.yaml"
 _meow_pkg_resolve_file() {
   local file="$1"
   [ -f "$file" ] || return 0
-  
-  # If yq is available, use it for JSON output
-  if command -v yq >/dev/null 2>&1; then
-    yq -o=json '.packages // []' "$file" 2>/dev/null
-  else
-    # Fallback: return empty array (no package filtering)
-    echo "[]"
-  fi
+  yq eval -o=json '.packages // []' "$file" 2>/dev/null
 }
 
 _meow_pkg_match_entry() {
@@ -41,13 +34,7 @@ _meow_pkg_match_entry() {
     return
   fi
 
-  # Check if yq is available
-  if ! command -v yq >/dev/null 2>&1; then
-    # Fallback: return empty array (no filtering without yq)
-    echo "[]"
-    return
-  fi
-  
+  _ensure_yq_available
   local yq_cmd
   yq_cmd=$(command -v yq)
 
@@ -55,25 +42,32 @@ _meow_pkg_match_entry() {
   result="$json"
 
   # Platform
-  result=$(echo "$result" | "$yq_cmd" -o=json --arg platform "$platform" '.[] | select(.match.platform == null or .match.platform == $platform or (.match.platform | type == "array" and .match.platform | contains([$platform])))' | "$yq_cmd" -s -o=json '.')
+  result=$(echo "$result" | platform="$platform" "$yq_cmd" eval -o=json '.[] | select(.match.platform == null or .match.platform == strenv(platform) or (.match.platform | tag == "!!seq" and .match.platform | contains([strenv(platform)])))' | "$yq_cmd" eval -s -o=json '.')
 
   # Distro
-  result=$(echo "$result" | "$yq_cmd" -o=json --arg distro "$distro" '.[] | select(.match.distro == null or .match.distro == $distro or (.match.distro | type == "array" and .match.distro | contains([$distro])))' | "$yq_cmd" -s -o=json '.')
+  result=$(echo "$result" | distro="$distro" "$yq_cmd" eval -o=json '.[] | select(.match.distro == null or .match.distro == strenv(distro) or (.match.distro | tag == "!!seq" and .match.distro | contains([strenv(distro)])))' | "$yq_cmd" eval -s -o=json '.')
 
   # Version
   if [ -n "$version" ]; then
-    result=$(echo "$result" | "$yq_cmd" -o=json --arg version "$version" '.[] | select(.match.version_id == null or .match.version_id == $version or (.match.version_id | type == "array" and .match.version_id | contains([$version])))' | "$yq_cmd" -s -o=json '.')
+    result=$(echo "$result" | version="$version" "$yq_cmd" eval -o=json '.[] | select(.match.version_id == null or .match.version_id == strenv(version) or (.match.version_id | tag == "!!seq" and .match.version_id | contains([strenv(version)])))' | "$yq_cmd" eval -s -o=json '.')
   else
-    result=$(echo "$result" | "$yq_cmd" -o=json '.[] | select(.match.version_id == null)' | "$yq_cmd" -s -o=json '.')
+    result=$(echo "$result" | "$yq_cmd" eval -o=json '.[] | select(.match.version_id == null)' | "$yq_cmd" eval -s -o=json '.')
   fi
 
   # Likes
   if [ -n "$likes" ]; then
-    local likes_json
-    likes_json="[\"$(echo "$likes" | sed 's/,/","/g')\"]"
-    result=$(echo "$result" | "$yq_cmd" -o=json --argjson likes_json "$likes_json" '.[] | select(.match.distro_like == null or (([.match.distro_like] | flatten) as $dl | ($dl | .[] | select(. as $item | $likes_json | contains([$item]))) | length > 0))' | "$yq_cmd" -s -o=json '.')
+    local likes_filter=""
+    local IFS=','
+    for like in $likes; do
+        if [ -n "$likes_filter" ]; then
+            likes_filter="$likes_filter or "
+        fi
+        likes_filter="${likes_filter}(.match.distro_like == \"$like\" or (.match.distro_like | tag == \"!!seq\" and .match.distro_like | contains([\"$like\"])))"
+    done
+
+    result=$(echo "$result" | "$yq_cmd" eval -o=json ".[] | select(.match.distro_like == null or $likes_filter)" | "$yq_cmd" eval -s -o=json '.')
   else
-    result=$(echo "$result" | "$yq_cmd" -o=json '.[] | select(.match.distro_like == null)' | "$yq_cmd" -s -o=json '.')
+    result=$(echo "$result" | "$yq_cmd" eval -o=json '.[] | select(.match.distro_like == null)' | "$yq_cmd" eval -s -o=json '.')
   fi
 
   echo "$result"
@@ -88,13 +82,7 @@ _meow_pkg_merge_managers() {
     return
   fi
 
-  # Check if yq is available
-  if ! command -v yq >/dev/null 2>&1; then
-    # Fallback: return current managers (no merging without yq)
-    echo "$current"
-    return
-  fi
-  
+  _ensure_yq_available
   local yq_cmd
   yq_cmd=$(command -v yq)
 
@@ -129,19 +117,14 @@ _meow_pkg_collect_sources() {
     return
   fi
 
-  # Check if yq is available
-  if ! command -v yq >/dev/null 2>&1; then
-    # Fallback: no sources without yq
-    return
-  fi
-  
+  _ensure_yq_available
   local yq_cmd
   yq_cmd=$(command -v yq)
 
-  echo "$json" | "$yq_cmd" -r --arg manager "$manager" \
+  echo "$json" | manager="$manager" "$yq_cmd" -r \
     '.[] \
     | .sources[]? \
-    | select(.manager == $manager) \
+    | select(.manager == strenv(manager)) \
     | [\
         .name // "",\
         .repo // "",\
@@ -149,7 +132,7 @@ _meow_pkg_collect_sources() {
         .key_url // "",\
         .gpg_key // ""\
       ] \
-    | map(tostring | sub("\t"; " "; "g")) \
+    | map(tostring | sub("\t"; " ")) \
     | @tsv
   '
 }
@@ -172,7 +155,7 @@ _meow_pkg_read_stack() {
   if [ -n "$preset_file" ]; then
     local preset_entries
     preset_entries=$(_meow_pkg_collect_from_preset "$preset_file")
-    result=$(echo -e "$result\n$preset_entries" | yq -s -o=json 'add')
+    result=$(echo -e "$result\n$preset_entries" | yq eval -s -o=json 'add')
   fi
 
   local component_file="${MEOW_COMPONENTS_DIR}/${component}/component.yaml"
@@ -180,7 +163,7 @@ _meow_pkg_read_stack() {
   json=$(_meow_pkg_resolve_file "$component_file") || echo "[]"
   local matches
   matches=$(_meow_pkg_match_entry "$json" "$platform" "$distro" "$version" "$likes")
-  result=$(echo -e "$result\n$matches" | yq -s -o=json 'add')
+  result=$(echo -e "$result\n$matches" | yq eval -s -o=json 'add')
 
   echo "$result"
 }
@@ -250,12 +233,6 @@ _meow_pkg_collect_from_preset_recursive() {
         return
     fi
 
-    # Check if yq is available
-    if [ -z "$yq_cmd" ] || ! command -v "$yq_cmd" >/dev/null 2>&1; then
-      echo "[]"
-      return
-    fi
-
     local data
     data=$("$yq_cmd" -o=json '.' "$preset_file" 2>/dev/null || echo "{}")
 
@@ -269,14 +246,14 @@ _meow_pkg_collect_from_preset_recursive() {
             local parent_file="${base_dir}/${parent}/preset.yaml"
             local parent_packages
             parent_packages=$(_meow_pkg_collect_from_preset_recursive "$parent_file" "$base_dir" "$yq_cmd" "$new_visited_str")
-            parent_packages_list=$(echo -e "$parent_packages_list\n$parent_packages" | "$yq_cmd" -s -o=json 'add')
+            parent_packages_list=$(echo -e "$parent_packages_list\n$parent_packages" | "$yq_cmd" eval -s -o=json 'add')
         done
-        result=$(echo -e "$result\n$parent_packages_list" | "$yq_cmd" -s -o=json 'add')
+        result=$(echo -e "$result\n$parent_packages_list" | "$yq_cmd" eval -s -o=json 'add')
     fi
-    
+
     local packages
-    packages=$(echo "$data" | "$yq_cmd" -o=json '.packages // []' 2>/dev/null)
-    result=$(echo -e "$result\n$packages" | "$yq_cmd" -s -o=json 'add')
+    packages=$(echo "$data" | "$yq_cmd" eval -o=json '.packages // []' 2>/dev/null)
+    result=$(echo -e "$result\n$packages" | "$yq_cmd" eval -s -o=json 'add')
 
     echo "$result"
 }
@@ -285,19 +262,15 @@ _meow_pkg_collect_from_preset_recursive() {
 _meow_pkg_collect_from_preset() {
   local preset_file="$1"
   [ -f "$preset_file" ] || { echo "[]"; return; }
+  _ensure_yq_available
 
-  # Check if yq is available
-  if ! command -v yq >/dev/null 2>&1; then
-    echo "[]"
-    return
+  local yq_cmd="/usr/local/bin/yq"
+  if [ ! -x "$yq_cmd" ]; then
+    yq_cmd="$(command -v yq 2>/dev/null || true)"
   fi
 
-  local yq_cmd
-  yq_cmd="$(command -v yq 2>/dev/null || true)"
-
   if [ -z "$yq_cmd" ]; then
-    echo "[]"
-    return
+    echo "[]" && return
   fi
 
   _meow_pkg_collect_from_preset_recursive "$preset_file" "$MEOW_PRESETS_DIR" "$yq_cmd" ""

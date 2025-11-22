@@ -116,33 +116,40 @@ is_component_available() {
   if yaml_path_exists "$component_file" ".platforms"; then
     local platform
     platform=$(get_platform)
-    local found_match=0
-    
-    # Try to parse platforms array and check for matches
-    # Most components have simple platform entries like:
-    # platforms:
-    #   - match:
-    #       platform: macos
-    #   - match:
-    #       platform: linux
-    
-    # Simple approach: check if there are any platform entries
-    # More complex matching (distro, version, etc.) requires yq
-    # For now, we'll consider the component available if platforms exist
-    # and we can't do complex matching (better to be permissive than restrictive)
-    
-    # Try to find simple platform matches in the YAML
-    if grep -q "platform: ${platform}" "$component_file" 2>/dev/null; then
-      found_match=1
-    elif grep -q "platform:" "$component_file" 2>/dev/null; then
-      # Platform entries exist but we couldn't find exact match
-      # This might be due to complex matching requirements
-      # For backward compatibility and to avoid breaking existing functionality,
-      # we'll be permissive and allow it
-      found_match=1
-    fi
-    
-    if [ "$found_match" -eq 0 ]; then
+    local likes_csv="${MEOW_OS_ID_LIKE// /,}"
+    local version="${MEOW_OS_VERSION_ID:-}"
+    local platforms_json
+    platforms_json=$(yq eval -o=json '.platforms' "$component_file" 2>/dev/null || echo "null")
+
+    _ensure_yq_available
+    local yq_cmd
+    yq_cmd=$(command -v yq)
+
+    local query='
+      [
+        ([.] | flatten | .[])
+        | select(tag == "!!str" and . == strenv(platform))
+      ] + [
+        ([.] | flatten | .[])
+        | select(tag == "!!map")
+        | . as $item
+        | (($item.match.platform // []) | ([.] | flatten)) as $p
+        | (($item.match.distro // []) | ([.] | flatten)) as $d
+        | (($item.match.version_id // []) | ([.] | flatten)) as $v
+        | (($item.match.distro_like // []) | ([.] | flatten)) as $dl
+        | select(
+            (($p | length) == 0 or ($p | contains([strenv(platform)]))) and
+            (($d | length) == 0 or (strenv(distro) != "" and ($d | contains([strenv(distro)])))) and
+            (($v | length) == 0 or (strenv(version) != "" and ($v | contains([strenv(version)])))) and
+            (($dl | length) == 0 or (strenv(likes) != "" and ( (strenv(likes) | split(",")) as $l | ([$dl | .[] | select(. as $item | $l | contains([$item]))] | length) > 0)))
+          )
+      ]
+      | length > 0
+    '
+    local match
+    match=$(echo "$platforms_json" | platform="$platform" distro="${MEOW_OS_ID:-}" version="${version:-}" likes="$likes_csv" "$yq_cmd" "$query")
+
+    if [ "$match" != "true" ]; then
       return 1
     fi
   fi
