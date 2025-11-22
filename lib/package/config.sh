@@ -160,7 +160,7 @@ _meow_pkg_read_stack() {
     local preset_entries
     preset_entries=$(_meow_pkg_collect_from_preset "$preset_file")
     if [ -n "$preset_entries" ] && [ "$preset_entries" != "[]" ]; then
-      result=$(echo -e "$result\n$preset_entries" | "$yq_cmd" eval -s -o=json 'add // []')
+      result=$(echo -e "$result\n---\n$preset_entries" | "$yq_cmd" ea -o json '. as $item ireduce ([]; . + $item)')
     fi
   fi
 
@@ -170,7 +170,7 @@ _meow_pkg_read_stack() {
   local matches
   matches=$(_meow_pkg_match_entry "$json" "$platform" "$distro" "$version" "$likes")
   if [ -n "$matches" ] && [ "$matches" != "[]" ]; then
-    result=$(echo -e "$result\n$matches" | "$yq_cmd" eval -s -o=json 'add // []')
+    result=$(echo -e "$result\n---\n$matches" | "$yq_cmd" ea -o json '. as $item ireduce ([]; . + $item)')
   fi
 
   echo "$result"
@@ -255,18 +255,18 @@ _meow_pkg_collect_from_preset_recursive() {
             local parent_packages
             parent_packages=$(_meow_pkg_collect_from_preset_recursive "$parent_file" "$base_dir" "$yq_cmd" "$new_visited_str")
             if [ -n "$parent_packages" ] && [ "$parent_packages" != "[]" ]; then
-              parent_packages_list=$(echo -e "$parent_packages_list\n$parent_packages" | "$yq_cmd" eval -s -o=json 'add // []')
+              parent_packages_list=$(echo -e "$parent_packages_list\n---\n$parent_packages" | "$yq_cmd" ea -o json '. as $item ireduce ([]; . + $item)')
             fi
         done
         if [ -n "$parent_packages_list" ] && [ "$parent_packages_list" != "[]" ]; then
-          result=$(echo -e "$result\n$parent_packages_list" | "$yq_cmd" eval -s -o=json 'add // []')
+          result=$(echo -e "$result\n---\n$parent_packages_list" | "$yq_cmd" ea -o json '. as $item ireduce ([]; . + $item)')
         fi
     fi
 
     local packages
     packages=$(echo "$data" | "$yq_cmd" eval -o=json '.packages // []' 2>/dev/null)
     if [ -n "$packages" ] && [ "$packages" != "[]" ]; then
-      result=$(echo -e "$result\n$packages" | "$yq_cmd" eval -s -o=json 'add // []')
+      result=$(echo -e "$result\n---\n$packages" | "$yq_cmd" ea -o json '. as $item ireduce ([]; . + $item)')
     fi
 
     echo "$result"
