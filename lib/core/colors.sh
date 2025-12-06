@@ -35,6 +35,7 @@ MEOW_TPUT_SUPPORTED=0
 if command -v tput >/dev/null 2>&1 && tput colors >/dev/null 2>&1; then
   MEOW_TPUT_SUPPORTED=1
 fi
+export MEOW_TPUT_SUPPORTED
 
 if [ -t 1 ]; then
   if [ "${COLORTERM:-}" = "truecolor" ] || [ "${COLORTERM:-}" = "24bit" ]; then

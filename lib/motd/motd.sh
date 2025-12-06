@@ -338,8 +338,10 @@ show_motd() {
   fi
 
   display_art_and_stats "$art_content" "$stats_content"
+
+  # Always ensure cursor is visible after MOTD display
   if [ "${MEOW_TPUT_SUPPORTED:-0}" -eq 1 ]; then
-    tput cnorm >/dev/null 2>&1 || true
+    tput cnorm 2>/dev/null || printf '\033[?25h'
   else
     printf '\033[?25h'
   fi
