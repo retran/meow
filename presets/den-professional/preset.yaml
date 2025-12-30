@@ -4,5 +4,3 @@ extends:
 - den-essential
 required:
 - docker-desktop
-- business-communication
-- productivity

@@ -33,9 +33,9 @@ family = "JetBrainsMono Nerd Font Mono"
 style = "SemiBold"
 
 [window]
-blur = true
+blur = false
 decorations = "full"
-opacity = 0.9
+opacity = 1.0
 title = "meow - Purr-fect Development Environment"
 option_as_alt  = "OnlyLeft"
 
