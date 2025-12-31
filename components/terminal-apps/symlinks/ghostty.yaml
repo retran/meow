@@ -20,9 +20,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #
-# @file: components/terminal-apps/symlinks/alacritty.yaml
-# @brief: (Deprecated) Alacritty symlink configuration. Kept for reference.
+# @file: components/terminal-apps/symlinks/ghostty.yaml
+# @brief: Symlink configuration for Ghostty terminal emulator.
 # @author: Andrew Vasilyev
 # @license: MIT
 #
-[]
+- source: "$MEOW/.installed/components/terminal-apps/config/ghostty/config"
+  target: "$HOME/.config/ghostty/config"

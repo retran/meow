@@ -1,0 +1,8 @@
+# Tealdeer configuration
+# Docs: https://tealdeer-rs.github.io/tealdeer/print.html#configuration
+
+[display]
+use_pager = true
+
+[updates]
+auto_update = true

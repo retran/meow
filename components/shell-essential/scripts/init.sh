@@ -99,7 +99,7 @@ export plugins
 
 # Set tmux autostart based on terminal detection (only if tmux is available)
 if command -v tmux >/dev/null 2>&1; then
-  if [ -n "$ALACRITTY_LOG" ] || [ "$TERM_PROGRAM" = "Alacritty" ] || [ -n "$ALACRITTY_WINDOW_ID" ]; then
+  if [ -n "$ALACRITTY_LOG" ] || [ "$TERM_PROGRAM" = "Alacritty" ] || [ -n "$ALACRITTY_WINDOW_ID" ] || [ "$TERM_PROGRAM" = "Ghostty" ] || [ "$TERM_PROGRAM" = "ghostty" ] || [ "${TERM:-}" = "xterm-ghostty" ] || [ "${TERM:-}" = "xterm-ghostty-256color" ]; then
     export ZSH_TMUX_AUTOSTART=true
   else
     export ZSH_TMUX_AUTOSTART=false
@@ -112,6 +112,12 @@ if [ -f "$HOME/.oh-my-zsh/oh-my-zsh.sh" ]; then
   else
     source "$HOME/.oh-my-zsh/oh-my-zsh.sh"
   fi
+fi
+
+# Ensure the real `duf` binary is reachable (oh-my-zsh may define `duf` alias).
+if command -v duf >/dev/null 2>&1; then
+  unalias duf >/dev/null 2>&1 || true
+  alias df='duf'
 fi
 
 if command -v nvim >/dev/null 2>&1; then

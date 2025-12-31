@@ -2,6 +2,9 @@ curl
 wget
 git
 git-lfs
+git-delta
+tealdeer
+duf
 nodejs
 npm
 python3-pip

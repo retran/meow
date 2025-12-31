@@ -31,10 +31,11 @@ local lastInputSource = nil
 local englishSource = "com.apple.keylayout.ABC"
 local neovideAppName = "Neovide"
 local alacrittyAppName = "Alacritty"
+local ghosttyAppName = "Ghostty"
 local DEBUG = false
 
 local function switchLayoutByTitle(window, appName)
-    if appName ~= neovideAppName and appName ~= alacrittyAppName then
+    if appName ~= neovideAppName and appName ~= alacrittyAppName and appName ~= ghosttyAppName then
         return
     end
 
@@ -60,7 +61,7 @@ local function switchLayoutByTitle(window, appName)
 end
 
 local function handleAppActivation(appName, eventType, app)
-    if appName ~= neovideAppName and appName ~= alacrittyAppName then
+    if appName ~= neovideAppName and appName ~= alacrittyAppName and appName ~= ghosttyAppName then
         return
     end
 
@@ -85,7 +86,7 @@ function meowvimKeyboardLayouts.init()
         meowvimKeyboardLayouts.appWatcher = nil
     end
 
-    meowvimKeyboardLayouts.titleWatcher = hs.window.filter.new({neovideAppName, alacrittyAppName})
+    meowvimKeyboardLayouts.titleWatcher = hs.window.filter.new({neovideAppName, alacrittyAppName, ghosttyAppName})
     meowvimKeyboardLayouts.titleWatcher:subscribe(hs.window.filter.windowTitleChanged, switchLayoutByTitle)
 
     meowvimKeyboardLayouts.appWatcher = hs.application.watcher.new(handleAppActivation)

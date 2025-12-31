@@ -20,9 +20,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #
-# @file: components/terminal-apps/symlinks/alacritty.yaml
-# @brief: (Deprecated) Alacritty symlink configuration. Kept for reference.
+# @file: components/shell-essential/symlinks/tealdeer.yaml
+# @brief: Symlink configuration for tealdeer (tldr) client.
 # @author: Andrew Vasilyev
 # @license: MIT
 #
-[]
+- source: "$MEOW/.installed/components/shell-essential/config/tealdeer/config.toml"
+  target: "$HOME/.config/tealdeer/config.toml"

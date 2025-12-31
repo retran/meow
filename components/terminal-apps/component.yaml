@@ -1,4 +1,4 @@
-description: Terminal emulator applications and configurations. Includes Alacritty
+description: Terminal emulator applications and configurations. Includes Ghostty
   with custom configurations.
 platforms:
 - match:
