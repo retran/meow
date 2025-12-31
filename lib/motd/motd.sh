@@ -102,7 +102,7 @@ get_system_info() {
   os_info=$(uname -srm)
 
   uptime_info=$(uptime | sed -E 's/^.*up *//; s/, *[0-9]+ user.*//; s/, *load average.*//; s/^[[:space:]]*//; s/[[:space:]]*$//')
-  home_disk_space=$(df -h "$HOME" | awk 'NR==2 {print $4 " free / " $5 " used"}')
+  home_disk_space=$(command df -h "$HOME" | awk 'NR==2 {print $4 " free / " $5 " used"}')
 
   if [ "${OSTYPE#darwin}" != "$OSTYPE" ]; then
     ram_stats=$(top -l 1 -n 0 | grep PhysMem: | awk '{print $2 " used, " $6 " unused"}')
