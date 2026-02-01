@@ -75,13 +75,13 @@ This document provides a detailed reference for all components available in the 
 **Dependencies:** `go-task`, `js-toolchain`, `neovim`
 **Packages:**
 
-- **APK:** `yamllint`, `httpie`
-- **APT:** `yamllint`, `httpie`
-- **DNF:** `yamllint`, `httpie`
+- **APK:** `httpie`
+- **APT:** `httpie`
+- **DNF:** `httpie`
 - **Homebrew:** `httpie`, `opencode`, `pre-commit`
-- **Pacman:** `yamllint`, `httpie`
+- **Pacman:** `httpie`
 - **NPM:** `prettier`, `jsonlint`
-- **Pipx:** `codespell`
+- **Pipx:** `codespell`, `yamllint`
   **Configuration:**
 - **Scripts:** `init.sh`
 
@@ -127,14 +127,16 @@ This document provides a detailed reference for all components available in the 
 ## dotnet-toolchain
 
 **Description:** .NET SDK installation sourced from Microsoft repositories across supported distributions.
-**Platforms:** macOS, Linux (Debian, RHEL, Alpine)
+**Platforms:** macOS, Linux (Debian, Ubuntu, RHEL, Fedora, Alpine)
 **Dependencies:** `development-essential`
-**Package Sources:** Defines Microsoft repositories for APT (Debian/Ubuntu).
+**Package Sources:** 
+- **APT (Ubuntu 22.04, 24.04):** dotnet-ubuntu-backports from ppa.launchpad.net/dotnet/backports
+- **APT (Ubuntu 16.04, 18.04, 20.04):** microsoft-dotnet-ubuntu from packages.microsoft.com
+- **APT (Debian):** microsoft-dotnet-debian from packages.microsoft.com
 **Configuration:**
 
 - **Scripts:**
   - `env.sh`: Sets `DOTNET_ROOT` and `PATH`.
-  - `preinstall.sh`: Installs Microsoft package repository (deb).
   - `setup.sh`: Installs .NET SDK via `dotnet-install.sh` script.
 
 ---
@@ -157,7 +159,7 @@ This document provides a detailed reference for all components available in the 
 **Dependencies:** `desktop-essential`, `development-essential`
 **Packages:**
 
-- **Homebrew:** `blender`
+- **Homebrew:** `blender`, `godot`
 - **VS Code:** `alfish.godot-files`, `geequlim.godot-tools`, `pollywoggames.pico8-ls`
 
 ---
@@ -180,7 +182,8 @@ This document provides a detailed reference for all components available in the 
 **Dependencies:** `go-toolchain`
 **Packages:**
 
-- **Go:** `dlv`, `staticcheck`, `golangci-lint`, `gofumpt`, `goimports`, `air`, `templ`, `swag`, `ginkgo`, `gotestsum`, `cobra-cli`, `cosign`, `syft`, `ko`
+- **Go:** `github.com/go-delve/delve/cmd/dlv`, `honnef.co/go/tools/cmd/staticcheck`, `github.com/golangci/golangci-lint/cmd/golangci-lint`, `mvdan.cc/gofumpt`, `golang.org/x/tools/cmd/goimports`, `github.com/air-verse/air`, `github.com/a-h/templ/cmd/templ`, `github.com/swaggo/swag/cmd/swag`, `github.com/onsi/ginkgo/v2/ginkgo`, `gotest.tools/gotestsum`, `github.com/spf13/cobra-cli`, `github.com/sigstore/cosign/v2/cmd/cosign`, `github.com/anchore/syft/cmd/syft`, `github.com/google/ko`
+- **Homebrew:** `golangci-lint`, `sqlc`
 - **VS Code:** `golang.go`
 
 ---
@@ -486,11 +489,7 @@ This document provides a detailed reference for all components available in the 
 **Dependencies:** `shell-essential`, `js-toolchain`
 **Packages:**
 
-- **APK:** `shellcheck`, `shfmt`
-- **APT:** `shellcheck`, `shfmt`
 - **Homebrew:** `powershell`
-- **Pacman:** `shellcheck`, `shfmt`
-- **Pipx:** `yamllint`
 - **VS Code:** `mads-hartmann.bash-ide-vscode`
 
 ---
@@ -514,14 +513,15 @@ This document provides a detailed reference for all components available in the 
 
 ## terminal-apps
 
-**Description:** Terminal emulator applications and configurations. Includes Alacritty with custom configurations.
+**Description:** Terminal emulator applications and configurations (Ghostty, Alacritty).
 **Platforms:** macOS
 **Dependencies:** `desktop-essential`
 **Packages:**
 
 - **Homebrew:** `ghostty`
   **Configuration:**
-- **Symlinks:** Links `alacritty.toml` to `~/.config/alacritty/alacritty.toml`.
+- **Config:** `alacritty/alacritty.toml`, `ghostty/config`
+- **Symlinks:** Links `alacritty.toml` to `~/.config/alacritty/alacritty.toml`, `ghostty/config` to `~/.config/ghostty/config`.
 
 ---
 
@@ -535,9 +535,10 @@ This document provides a detailed reference for all components available in the 
 - **APK:** `tmux`
 - **APT:** `tmux`
 - **DNF:** `tmux`
-- **Homebrew:** `tmux`
+- **Homebrew:** `tmux`, `reattach-to-user-namespace`
 - **Pacman:** `tmux`
   **Configuration:**
+- **Config:** `tmux/.tmux.conf`
 - **Symlinks:** Links `.tmux.conf` to `~/.tmux.conf`.
 
 ---
