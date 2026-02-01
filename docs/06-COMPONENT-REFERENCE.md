@@ -21,14 +21,14 @@ This document provides a detailed reference for all components available in the 
 
 ---
 
-## browsers
+## ai-tools
 
-**Description:** Web browsers and related tools. Includes Google Chrome and browser extensions.
-**Platforms:** macOS
-**Dependencies:** `desktop-essential`
+**Description:** AI-powered development tools including language models, code assistants, and AI CLI tools.
+**Platforms:** macOS, Linux
+**Dependencies:** `shell-essential`
 **Packages:**
 
-- **Homebrew:** _(File present but empty/comments only)_
+- **Homebrew:** `llama.cpp`, `gemini-cli`, `copilot-cli`
 
 ---
 
@@ -64,7 +64,7 @@ This document provides a detailed reference for all components available in the 
 **Dependencies:** `desktop-essential`
 **Packages:**
 
-- **Homebrew:** `keka`
+- **Homebrew:** `keka`, `maccy`, `appcleaner`, `shottr`, `displayplacer`, `hiddenbar`
 
 ---
 
@@ -78,7 +78,7 @@ This document provides a detailed reference for all components available in the 
 - **APK:** `yamllint`, `httpie`
 - **APT:** `yamllint`, `httpie`
 - **DNF:** `yamllint`, `httpie`
-- **Homebrew:** `yamllint`, `httpie`
+- **Homebrew:** `httpie`, `opencode`, `pre-commit`
 - **Pacman:** `yamllint`, `httpie`
 - **NPM:** `prettier`, `jsonlint`
 - **Pipx:** `codespell`
@@ -270,6 +270,7 @@ This document provides a detailed reference for all components available in the 
 **Dependencies:** `kotlin-toolchain`, `desktop-essential`
 **Packages:**
 
+- **Homebrew:** `gradle`
 - **VS Code:** `redhat.java`, `vscjava.vscode-java-debug`, `vscjava.vscode-java-dependency`, `vscjava.vscode-java-test`, `vscjava.vscode-maven`
 
 ---
@@ -322,6 +323,7 @@ This document provides a detailed reference for all components available in the 
 **Dependencies:** `development-essential`, `js-toolchain`
 **Packages:**
 
+- **Homebrew:** `pandoc`, `mactex-no-gui`
 - **NPM:** `markdownlint-cli`, `@mermaid-js/mermaid-cli`
 
 ---
@@ -374,7 +376,7 @@ This document provides a detailed reference for all components available in the 
 - **APK:** `neovim`
 - **APT:** `neovim`
 - **DNF:** `neovim`
-- **Homebrew:** `neovim`
+- **Homebrew:** `neovim`, `tree-sitter-cli`
 - **Pacman:** `neovim`
 
 ---
@@ -397,7 +399,7 @@ This document provides a detailed reference for all components available in the 
 **Dependencies:** `desktop-essential`
 **Packages:**
 
-- **Homebrew:** `linear-linear`, `notion`, `drawio`
+- **Homebrew:** `linear-linear`, `notion`, `drawio`, `canva`, `figma`
 - **Mac App Store:** `Kindle`
 
 ---
@@ -486,7 +488,7 @@ This document provides a detailed reference for all components available in the 
 
 - **APK:** `shellcheck`, `shfmt`
 - **APT:** `shellcheck`, `shfmt`
-- **Homebrew:** `shellcheck`, `shfmt`
+- **Homebrew:** `powershell`
 - **Pacman:** `shellcheck`, `shfmt`
 - **Pipx:** `yamllint`
 - **VS Code:** `mads-hartmann.bash-ide-vscode`
@@ -517,34 +519,9 @@ This document provides a detailed reference for all components available in the 
 **Dependencies:** `desktop-essential`
 **Packages:**
 
-- **Homebrew:** `alacritty`
+- **Homebrew:** `ghostty`
   **Configuration:**
 - **Symlinks:** Links `alacritty.toml` to `~/.config/alacritty/alacritty.toml`.
-
----
-
-## time-tracking
-
-**Description:** Time tracking desktop application. Includes Toggl Track desktop app for macOS.
-**Platforms:** macOS
-**Dependencies:** `desktop-essential`
-**Packages:**
-
-- **Mac App Store:** `Toggl Track`
-
----
-
-## time-tracking-cli
-
-**Description:** Time tracking command-line tools. Includes Toggl CLI for cross-platform time tracking.
-**Platforms:** macOS, Linux
-**Dependencies:** `shell-essential`
-**Packages:**
-
-- **Pipx:** `togglcli`, `toggl`
-  **Configuration:**
-- **Symlinks:** `.togglrc`
-- **Scripts:** `init.sh`, `cleanup.sh`.
 
 ---
 
