@@ -13,7 +13,7 @@
   "window.customTitleBarVisibility": "never",
   "window.commandCenter": false,
 
-  "workbench.colorTheme": "Catppuccin Mocha",
+  "workbench.colorTheme": "Catppuccin Macchiato",
   "workbench.layoutControl.enabled": false,
 
   "extensions.ignoreRecommendations": true,
@@ -24,5 +24,6 @@
     "editor.defaultFormatter": "yzhang.markdown-all-in-one"
   },
   "github.copilot.nextEditSuggestions.enabled": true,
-  "github.copilot.selectedCompletionModel": ""
+  "github.copilot.selectedCompletionModel": "",
+  "chat.viewSessions.enabled": false
 }

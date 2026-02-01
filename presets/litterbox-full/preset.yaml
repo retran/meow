@@ -28,7 +28,6 @@ required:
 - rust-toolchain
 - shell-development
 - shell-essential
-- time-tracking-cli
 - tmux
 - visual-studio-code-cli
 - web-development
