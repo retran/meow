@@ -1,0 +1,46 @@
+# ripgrep configuration file
+# See: https://github.com/BurntSushi/ripgrep/blob/master/GUIDE.md#configuration-file
+
+# Smart case: case-insensitive if pattern is all lowercase
+--smart-case
+
+# Show line numbers
+--line-number
+
+# Follow symbolic links
+--follow
+
+# Search hidden files and directories
+--hidden
+
+# Don't respect ignore files (.gitignore, .ignore, etc.)
+# Comment this out if you want to respect .gitignore
+# --no-ignore
+
+# Exclude directories
+--glob=!.git/
+--glob=!node_modules/
+--glob=!.npm/
+--glob=!.cache/
+--glob=!vendor/
+--glob=!dist/
+--glob=!build/
+--glob=!target/
+--glob=!__pycache__/
+--glob=!*.pyc
+--glob=!.DS_Store
+
+# Use colors when outputting to terminal
+--colors=path:fg:green
+--colors=path:style:bold
+--colors=line:fg:yellow
+--colors=match:fg:red
+--colors=match:style:bold
+
+# Set max columns for long lines (prevents hanging on minified files)
+--max-columns=500
+--max-columns-preview
+
+# Show context around matches (3 lines before and after)
+# Uncomment if you want context by default
+# --context=3

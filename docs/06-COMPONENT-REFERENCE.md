@@ -345,7 +345,7 @@ This document provides a detailed reference for all components available in the 
 
 ## meowvim
 
-**Description:** Neovim configuration with git repository management and IDE-like features.
+**Description:** Neovim configuration with git repository management, IDE-like features, and terminal title integration.
 **Platforms:** macOS, Linux
 **Dependencies:** `neovim`
 **Configuration:**
@@ -353,19 +353,30 @@ This document provides a detailed reference for all components available in the 
 - **Repository:** Clones `https://github.com/retran/meowvim` (branch: `dev`).
 - **Symlinks:** Links repository to `~/.config/nvim`.
 - **Scripts:** `cleanup.sh` (Cleans Neovim cache and state).
+- **Features:**
+  - Adaptive terminal title format (short in tmux, verbose outside)
+  - Title includes filename, modification status, and vim mode
+  - Integrates with Hammerspoon for keyboard layout switching
+  - Updates title on buffer changes, mode changes, and file saves
 
 ---
 
 ## meowvim-keyboard-layouts
 
-**Description:** Vim mode-based keyboard layout switching for Neovide and Alacritty.
+**Description:** Vim mode-based keyboard layout switching via Hammerspoon for terminal applications (Ghostty, Alacritty).
 **Type:** `hammerspoon`
 **Platforms:** macOS
 **Dependencies:** `meowvim`, `adaptive-keyboard-layouts`
 **Configuration:**
 
 - **Scripts:** `setup.sh` (Restarts Hammerspoon).
-- **Lua:** `config/init.lua` (Window title watcher for input switching).
+- **Lua:** `config/init.lua` (Window title watcher for input source switching based on vim mode).
+- **Features:**
+  - Detects vim mode from terminal window title (Normal, Insert, Visual, Command modes)
+  - Automatically switches to English layout in Normal mode
+  - Restores previous layout when entering Insert/Visual modes
+  - Works with both traditional and adaptive title formats from neovim
+  - Compatible with tmux sessions (short title format detection)
 
 ---
 
@@ -507,7 +518,17 @@ This document provides a detailed reference for all components available in the 
 - **Pacman:** (Similar comprehensive list)
   **Configuration:**
 - **Symlinks:** `zsh` configs, `starship.toml`, `eza` config, `.gitconfig`, `.meowrc`.
-- **Scripts:** `setup.sh` (Oh My Zsh, Tmux TPM), `init.sh`, `env.sh`, `cleanup.sh`.
+- **Scripts:** 
+  - `setup.sh` (Oh My Zsh, Tmux TPM)
+  - `init.sh` (Shell plugins, FZF with fd/bat integration, zoxide, starship)
+  - `env.sh` (Environment variables: FZF paths, NPM config, pipx paths, EDITOR/VISUAL/GIT_EDITOR)
+  - `cleanup.sh`
+- **Features:**
+  - Sets `EDITOR`, `VISUAL`, and `GIT_EDITOR` to `nvim` when available
+  - Configures FZF to use `fd` for file/directory searching (respects `.gitignore`)
+  - Enables bat-powered previews for FZF file selection (`Ctrl+T`)
+  - Enables eza-powered directory tree previews (`Alt+C`)
+  - Terminal title management with hooks for showing current directory
 
 ---
 
@@ -527,7 +548,7 @@ This document provides a detailed reference for all components available in the 
 
 ## tmux
 
-**Description:** Terminal multiplexer for advanced terminal session management.
+**Description:** Terminal multiplexer for advanced terminal session management with clipboard integration and vim-style key bindings.
 **Platforms:** macOS, Linux
 **Dependencies:** `shell-essential`
 **Packages:**
@@ -540,6 +561,15 @@ This document provides a detailed reference for all components available in the 
   **Configuration:**
 - **Config:** `tmux/.tmux.conf`
 - **Symlinks:** Links `.tmux.conf` to `~/.tmux.conf`.
+- **Plugins:** TPM, catppuccin theme, pain-control, tmux-yank, tmux-resurrect, tmux-continuum
+- **Features:**
+  - Platform-specific clipboard integration (pbcopy/pbpaste on macOS, xclip on Linux)
+  - Uses `reattach-to-user-namespace` for proper macOS clipboard access
+  - Vi-style copy mode with visual selection (`v`, `y`, `Enter`)
+  - Quick window selection with `Alt+1` through `Alt+9`
+  - Window navigation with `Alt+H` (previous) and `Alt+L` (next)
+  - Terminal title passthrough from nested applications (vim, shell)
+  - Mouse support enabled for scrolling and pane selection
 
 ---
 

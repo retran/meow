@@ -75,3 +75,26 @@ if [ -d "$HOME/.local/bin" ]; then
     fi
   fi
 fi
+
+# Set default editor to neovim if available
+if command -v nvim >/dev/null 2>&1; then
+  export EDITOR="nvim"
+  export VISUAL="nvim"
+  export GIT_EDITOR="nvim"
+fi
+
+# Configure ripgrep
+if command -v rg >/dev/null 2>&1; then
+  export RIPGREP_CONFIG_PATH="${MEOW}/components/shell-essential/config/ripgrep/.ripgreprc"
+fi
+
+# Configure bat theme
+if command -v bat >/dev/null 2>&1; then
+  export BAT_THEME="Catppuccin Mocha"
+  export BAT_STYLE="numbers,changes,header"
+fi
+
+# Configure eza
+if command -v eza >/dev/null 2>&1; then
+  export EZA_COLORS="da=1;34:gm=1;34"
+fi

@@ -128,6 +128,47 @@ if command -v nvim >/dev/null 2>&1; then
   alias vi='nvim'
 fi
 
+# Bat aliases for common use cases
+if command -v bat >/dev/null 2>&1; then
+  alias cat='bat --paging=never'
+  alias less='bat --paging=always'
+  alias bathelp='bat --plain --language=help'
+  # Usage: command --help | bathelp
+  help() {
+    "$@" --help 2>&1 | bathelp
+  }
+fi
+
+# Ripgrep aliases
+if command -v rg >/dev/null 2>&1; then
+  alias rgh='rg --hidden'              # Search hidden files
+  alias rgi='rg --no-ignore'           # Ignore .gitignore rules
+  alias rgf='rg --files'               # List files that would be searched
+  alias rgl='rg --files-with-matches'  # Only show filenames with matches
+fi
+
+# Eza aliases for better ls experience
+if command -v eza >/dev/null 2>&1; then
+  alias ls='eza'
+  alias l='eza -l'
+  alias la='eza -la'
+  alias ll='eza -l --git'
+  alias lt='eza --tree --level=2'
+  alias lta='eza --tree --level=2 -a'
+fi
+
+# Git aliases (if not using oh-my-zsh git plugin)
+if command -v git >/dev/null 2>&1; then
+  alias g='git'
+  alias gs='git status'
+  alias gd='git diff'
+  alias ga='git add'
+  alias gc='git commit'
+  alias gp='git push'
+  alias gl='git pull'
+  alias glog='git log --oneline --graph --decorate'
+fi
+
 if command -v fzf >/dev/null 2>&1; then
   if [ "${MEOW_VERBOSE:-false}" = "true" ]; then
     echo "INFO: sourcing fzf zsh completion"
@@ -137,6 +178,19 @@ if command -v fzf >/dev/null 2>&1; then
   else
     # shellcheck disable=SC1090
     source <(fzf --zsh)
+    
+    # Configure FZF to use fd for file search if available
+    if command -v fd >/dev/null 2>&1; then
+      export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
+      export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+      export FZF_ALT_C_COMMAND='fd --type d --hidden --follow --exclude .git'
+    fi
+    
+    # Configure FZF to use bat for file preview if available
+    if command -v bat >/dev/null 2>&1; then
+      export FZF_CTRL_T_OPTS="--preview 'bat --color=always --style=numbers --line-range=:500 {}'"
+      export FZF_ALT_C_OPTS="--preview 'eza --tree --level=2 --color=always {} 2>/dev/null || ls -1 {}'"
+    fi
   fi
 fi
 
@@ -148,6 +202,17 @@ if command -v zoxide >/dev/null 2>&1; then
     echo "DRY-RUN: evaluating zoxide init command"
   else
     eval "$(zoxide init zsh --cmd cd)"
+  fi
+fi
+
+if command -v direnv >/dev/null 2>&1; then
+  if [ "${MEOW_VERBOSE:-false}" = "true" ]; then
+    echo "INFO: initializing direnv"
+  fi
+  if [ "${MEOW_DRY_RUN:-false}" = "true" ]; then
+    echo "DRY-RUN: evaluating direnv hook command"
+  else
+    eval "$(direnv hook zsh)"
   fi
 fi
 
