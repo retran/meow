@@ -2,6 +2,14 @@
 
 # config/shells/zsh configuration file for Meow
 
+# Initialize variables to prevent nounset errors from plugins and tools
+# RPS1-4 are right-side prompts (main, continuation, secondary, debug)
+export RPS1="${RPS1:-}"
+export RPS2="${RPS2:-}"
+export RPS3="${RPS3:-}"
+export RPS4="${RPS4:-}"
+export STARSHIP_JOBS_COUNT="${STARSHIP_JOBS_COUNT:-0}"
+
 autoload -Uz compinit
 compinit
 

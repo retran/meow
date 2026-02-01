@@ -1,0 +1,409 @@
+#!/usr/bin/env bash
+# MIT License
+# Copyright (c) 2025 Andrew Vasilyev <me@retran.me>
+#
+# @file: components/shell-essential/scripts/meow-theme
+# @brief: Interactive theme manager with gum UI
+# @author: Andrew Vasilyev
+# @license: MIT
+
+set -euo pipefail
+
+# Configuration
+MEOW_CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/meow"
+MEOW_THEME_STATE="$MEOW_CONFIG_DIR/theme.state"
+THEME_DB="${MEOW:-$HOME/.meow}/components/shell-essential/config/themes/theme-db.sh"
+CONFIG_LIB="${MEOW:-$HOME/.meow}/lib/config/config.sh"
+
+# Colors for gum
+export GUM_CHOOSE_CURSOR_FOREGROUND="212"
+export GUM_CHOOSE_SELECTED_FOREGROUND="212"
+export GUM_FILTER_INDICATOR_FOREGROUND="212"
+
+# Ensure config directory exists
+mkdir -p "$MEOW_CONFIG_DIR"
+
+# Source theme database
+if [[ ! -f "$THEME_DB" ]]; then
+    echo "Error: Theme database not found at $THEME_DB"
+    exit 1
+fi
+
+source "$THEME_DB"
+
+# Source config library
+if [[ -f "$CONFIG_LIB" ]]; then
+    source "$CONFIG_LIB"
+else
+    echo "Warning: Config library not found at $CONFIG_LIB"
+fi
+
+# Check dependencies
+check_deps() {
+    local missing=()
+    
+    command -v gum >/dev/null 2>&1 || missing+=("gum")
+    
+    if [[ ${#missing[@]} -gt 0 ]]; then
+        echo "Missing dependencies: ${missing[*]}"
+        echo "Install with: brew install ${missing[*]}"
+        exit 1
+    fi
+}
+
+# Get current theme configuration
+get_current_config() {
+    local preset
+    local mode
+    
+    preset=$(meow_config_get "theme.preset" "catppuccin")
+    mode=$(meow_config_get "theme.mode" "night")
+    
+    echo "$preset|$mode"
+}
+
+# Save theme configuration
+save_config() {
+    local preset="$1"
+    local mode="$2"
+    
+    meow_config_set "theme.preset" "$preset"
+    meow_config_set "theme.mode" "$mode"
+}
+
+# Write theme state - Neovim will watch this file
+write_theme_state() {
+    local theme="$1"
+    local variant="$2"
+    local mode="$3"
+    
+    # Simple state file - Neovim watches and applies
+    cat > "$MEOW_THEME_STATE" <<EOF
+THEME=$theme
+VARIANT=$variant
+MODE=$mode
+TIMESTAMP=$(date +%s)
+EOF
+}
+
+# Apply theme to Ghostty (optional - only if Ghostty is installed)
+apply_ghostty() {
+    local preset="$1"
+    local mode="$2"
+    
+    # Skip if Ghostty not installed
+    if ! command -v ghostty >/dev/null 2>&1; then
+        return 0
+    fi
+    
+    # TODO: Ghostty theme support not yet implemented
+    # Ghostty would need theme files generated or config modifications
+    # For now, this is a no-op to prevent crashes
+    return 0
+}
+
+# Apply theme to Starship (optional - only if Starship is installed)
+apply_starship() {
+    local preset="$1"
+    local mode="$2"
+    
+    # Skip if Starship not installed
+    if ! command -v starship >/dev/null 2>&1; then
+        return 0
+    fi
+    
+    eval "${THEMES[$preset]}"
+    
+    local palette
+    if [[ "$starship_palette" == *"|"* ]]; then
+        IFS='|' read -r day_pal night_pal <<< "$starship_palette"
+        palette=$([[ "$mode" == "day" ]] && echo "$day_pal" || echo "$night_pal")
+    else
+        palette="$starship_palette"
+    fi
+    
+    local starship_config="${STARSHIP_CONFIG:-$HOME/.config/starship.toml}"
+    
+    # Resolve symlink if it is one
+    if [[ -L "$starship_config" ]]; then
+        starship_config=$(readlink "$starship_config")
+    fi
+    
+    if [[ -f "$starship_config" ]] && [[ ! -L "$starship_config" ]]; then
+        # Update palette line (macOS compatible sed)
+        if [[ "$OSTYPE" == "darwin"* ]]; then
+            sed -i '' "s/^palette = .*/palette = '$palette'/" "$starship_config" 2>/dev/null || true
+        else
+            sed -i "s/^palette = .*/palette = '$palette'/" "$starship_config" 2>/dev/null || true
+        fi
+    fi
+}
+
+# Apply theme to tmux (optional - only if tmux is running)
+apply_tmux() {
+    local preset="$1"
+    local mode="$2"
+    
+    # Skip if tmux not installed
+    if ! command -v tmux >/dev/null 2>&1; then
+        return 0
+    fi
+    
+    # Skip if no tmux sessions running
+    if ! tmux info &>/dev/null; then
+        return 0
+    fi
+    
+    eval "${THEMES[$preset]}"
+    
+    # Handle tmux_theme and tmux_flavor
+    local theme="${tmux_theme:-}"
+    local flavor="${tmux_flavor:-}"
+    
+    # If no tmux config, skip
+    if [[ -z "$theme" ]]; then
+        return 0
+    fi
+    
+    # For catppuccin, we can set the flavor dynamically
+    if [[ "$theme" == "catppuccin" ]] && [[ -n "$flavor" ]]; then
+        local target_flavor
+        if [[ "$flavor" == *"|"* ]]; then
+            IFS='|' read -r day_flavor night_flavor <<< "$flavor"
+            target_flavor=$([[ "$mode" == "day" ]] && echo "$day_flavor" || echo "$night_flavor")
+        else
+            target_flavor="$flavor"
+        fi
+        
+        # Update the catppuccin flavor for all tmux sessions
+        tmux set-option -g @catppuccin_flavor "$target_flavor" 2>/dev/null || true
+        
+        # Trigger plugin reload by sourcing the plugin
+        local plugin_path="$HOME/.tmux/plugins/catppuccin/tmux/catppuccin.tmux"
+        if [[ -f "$plugin_path" ]]; then
+            tmux run-shell "$plugin_path" 2>/dev/null || true
+        fi
+    fi
+    
+    # For other themes, we would need different implementations
+    # For now, just catppuccin is supported
+}
+
+# Apply theme to all applications
+apply_theme() {
+    local preset="$1"
+    local mode="$2"
+    
+    eval "${THEMES[$preset]}"
+    
+    # Get theme/variant for mode
+    local theme_name variant
+    if [[ "$mode" == "day" ]]; then
+        theme_name="$day_theme"
+        variant="$day_variant"
+    else
+        theme_name="$night_theme"
+        variant="$night_variant"
+    fi
+    
+    gum spin --spinner dot --title "Applying $name ($mode mode)..." -- sleep 1
+    
+    # Write state - watchers will pick it up
+    write_theme_state "$theme_name" "$variant" "$mode"
+    
+    # Apply to terminal applications (only if they exist)
+    [[ -f "${GHOSTTY_CONFIG_DIR:-$HOME/.config/ghostty/config}" ]] && apply_ghostty "$preset" "$mode"
+    [[ -f "${STARSHIP_CONFIG:-$HOME/.config/starship.toml}" ]] && apply_starship "$preset" "$mode"
+    apply_tmux "$preset" "$mode"
+    
+    # Save configuration
+    save_config "$preset" "$mode"
+    
+    gum style \
+        --foreground 212 --border-foreground 212 --border double \
+        --align center --width 50 --margin "1 2" --padding "1 2" \
+        "Theme Applied!" \
+        "" \
+        "Preset: $name" \
+        "Mode: $mode" \
+        "State file updated for watchers" \
+        "Neovim: $theme_name${variant:+ ($variant)}"
+}
+
+# Toggle between day and night
+toggle_mode() {
+    local config current_preset current_mode
+    config=$(get_current_config)
+    IFS='|' read -r current_preset current_mode <<< "$config"
+    
+    local new_mode
+    if [[ "$current_mode" == "day" ]]; then
+        new_mode="night"
+    else
+        new_mode="day"
+    fi
+    
+    apply_theme "$current_preset" "$new_mode"
+}
+
+# Interactive preset selection
+select_preset() {
+    local config current_preset current_mode
+    config=$(get_current_config)
+    IFS='|' read -r current_preset current_mode <<< "$config"
+    
+    # Build selection list
+    local choices=()
+    while IFS='|' read -r preset name mood; do
+        local indicator
+        [[ "$preset" == "$current_preset" ]] && indicator="● " || indicator="  "
+        choices+=("${indicator}${name} - ${mood}")
+    done < <(get_all_presets_formatted)
+    
+    # Show selection
+    local selected
+    selected=$(printf '%s\n' "${choices[@]}" | gum filter --placeholder "Search presets..." --height 20)
+    
+    if [[ -n "$selected" ]]; then
+        # Extract preset key from selection
+        local preset_key
+        for preset in $(get_preset_list); do
+            eval "${THEMES[$preset]}"
+            if [[ "$selected" == *"$name"* ]]; then
+                preset_key="$preset"
+                break
+            fi
+        done
+        
+        if [[ -n "$preset_key" ]]; then
+            # Ask for mode
+            local mode
+            mode=$(gum choose "day" "night" --header "Select mode:")
+            
+            if [[ -n "$mode" ]]; then
+                apply_theme "$preset_key" "$mode"
+            fi
+        fi
+    fi
+}
+
+# Show current theme info
+show_current() {
+    local config current_preset current_mode
+    config=$(get_current_config)
+    IFS='|' read -r current_preset current_mode <<< "$config"
+    
+    if [[ "$current_preset" == "manual" ]]; then
+        gum style --foreground 208 "No preset selected"
+        return
+    fi
+    
+    eval "${THEMES[$current_preset]}"
+    
+    local theme_name variant
+    if [[ "$current_mode" == "day" ]]; then
+        theme_name="$day_theme"
+        variant="$day_variant"
+    else
+        theme_name="$night_theme"
+        variant="$night_variant"
+    fi
+    
+    gum style \
+        --border double --border-foreground 212 \
+        --margin "1 2" --padding "1 2" \
+        "Current Theme" \
+        "" \
+        "Preset: $name" \
+        "Mood: $mood" \
+        "Mode: $current_mode" \
+        "Neovim: $theme_name${variant:+ ($variant)}"
+}
+
+# Main menu
+show_menu() {
+    local config current_preset current_mode
+    config=$(get_current_config)
+    IFS='|' read -r current_preset current_mode <<< "$config"
+    
+    local preset_display="$current_preset"
+    if [[ "$current_preset" != "manual" ]]; then
+        eval "${THEMES[$current_preset]}"
+        preset_display="$name"
+    fi
+    
+    local choice
+    choice=$(gum choose \
+        "Select Preset" \
+        "Toggle Day/Night (current: $current_mode)" \
+        "Show Current Theme" \
+        "Enable Auto-sync" \
+        "Quit" \
+        --header "Meow Theme Manager - Current: $preset_display")
+    
+    case "$choice" in
+        "Select Preset")
+            select_preset
+            ;;
+        "Toggle Day/Night"*)
+            toggle_mode
+            ;;
+        "Show Current Theme")
+            show_current
+            ;;
+        "Enable Auto-sync")
+            echo "Auto-sync will be started in background..."
+            # TODO: Start background watcher
+            ;;
+        "Quit"|"")
+            exit 0
+            ;;
+    esac
+}
+
+# Main function
+main() {
+    check_deps
+    
+    case "${1:-menu}" in
+        menu|"")
+            show_menu
+            ;;
+        select|choose)
+            select_preset
+            ;;
+        toggle)
+            toggle_mode
+            ;;
+        current|status)
+            show_current
+            ;;
+        apply)
+            if [[ $# -lt 3 ]]; then
+                echo "Usage: meow-theme apply <preset> <day|night>"
+                exit 1
+            fi
+            apply_theme "$2" "$3"
+            ;;
+        *)
+            cat <<EOF
+Usage: meow-theme [command]
+
+Commands:
+  menu          Interactive menu (default)
+  select        Select theme preset
+  toggle        Toggle day/night mode
+  current       Show current theme
+  apply <preset> <mode>  Apply specific preset
+
+Examples:
+  meow-theme                    # Interactive menu
+  meow-theme select             # Choose preset
+  meow-theme toggle             # Toggle day/night
+  meow-theme apply catppuccin night
+EOF
+            ;;
+    esac
+}
+
+main "$@"

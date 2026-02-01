@@ -34,6 +34,23 @@ source "${MEOW}/lib/package/homebrew.sh"
 source "${MEOW}/lib/package/apt.sh"
 source "${MEOW}/lib/core/ui.sh"
 
+# Create meow config directory for theme management
+setup_meow_config_dir() {
+  ui_step_header "Setting up meow config directory"
+  
+  CONFIG_DIR="${HOME}/.config/meow"
+  if [ ! -d "${CONFIG_DIR}" ]; then
+    if [ "${MEOW_DRY_RUN:-}" = "true" ]; then
+      ui_info "(dry-run) Would create config directory: ${CONFIG_DIR}"
+    else
+      mkdir -p "${CONFIG_DIR}"
+      ui_action_success "Created config directory: ${CONFIG_DIR}"
+    fi
+  else
+    ui_action_success "Config directory exists: ${CONFIG_DIR}"
+  fi
+}
+
 setup_tmux_plugin_manager() {
   if ! command -v tmux >/dev/null 2>&1; then
     ui_warning "tmux is not installed. Skipping Plugin Manager setup."
@@ -254,3 +271,9 @@ if command -v npm >/dev/null 2>&1; then
   fi
   configure_npm || true
 fi
+
+# Setup meow config directory for theme management
+if [ "$MEOW_VERBOSE" = "true" ]; then
+  ui_info "Setting up meow config directory"
+fi
+setup_meow_config_dir || true

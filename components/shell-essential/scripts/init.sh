@@ -31,6 +31,19 @@ if [ -n "${_COMPONENT_SHELL_ESSENTIAL_INIT_SOURCED:-}" ]; then
 fi
 _COMPONENT_SHELL_ESSENTIAL_INIT_SOURCED=1
 
+# Source config library for shell functions (used by meowctl)
+if [[ -f "${MEOW:-$HOME/.meow}/lib/config/config.sh" ]]; then
+    source "${MEOW:-$HOME/.meow}/lib/config/config.sh"
+fi
+
+# Initialize variables to prevent nounset errors
+# RPS1-4 are right-side prompts (main, continuation, secondary, debug)
+export RPS1="${RPS1:-}"
+export RPS2="${RPS2:-}"
+export RPS3="${RPS3:-}"
+export RPS4="${RPS4:-}"
+export STARSHIP_JOBS_COUNT="${STARSHIP_JOBS_COUNT:-0}"
+
 # Only set ZSH_THEME if starship is not available
 if ! command -v starship >/dev/null 2>&1; then
   export ZSH_THEME="robbyrussell"
@@ -99,7 +112,7 @@ export plugins
 
 # Set tmux autostart based on terminal detection (only if tmux is available)
 if command -v tmux >/dev/null 2>&1; then
-  if [ -n "$ALACRITTY_LOG" ] || [ "$TERM_PROGRAM" = "Alacritty" ] || [ -n "$ALACRITTY_WINDOW_ID" ] || [ "$TERM_PROGRAM" = "Ghostty" ] || [ "$TERM_PROGRAM" = "ghostty" ] || [ "${TERM:-}" = "xterm-ghostty" ] || [ "${TERM:-}" = "xterm-ghostty-256color" ]; then
+  if [ -n "${ALACRITTY_LOG:-}" ] || [ "${TERM_PROGRAM:-}" = "Alacritty" ] || [ -n "${ALACRITTY_WINDOW_ID:-}" ] || [ "${TERM_PROGRAM:-}" = "Ghostty" ] || [ "${TERM_PROGRAM:-}" = "ghostty" ] || [ "${TERM:-}" = "xterm-ghostty" ] || [ "${TERM:-}" = "xterm-ghostty-256color" ]; then
     export ZSH_TMUX_AUTOSTART=true
   else
     export ZSH_TMUX_AUTOSTART=false
@@ -110,7 +123,16 @@ if [ -f "$HOME/.oh-my-zsh/oh-my-zsh.sh" ]; then
   if [ "${MEOW_DRY_RUN:-false}" = "true" ]; then
     echo "DRY-RUN: sourcing $HOME/.oh-my-zsh/oh-my-zsh.sh"
   else
+    # Temporarily disable nounset for oh-my-zsh compatibility (if it was set)
+    # Save the state first
+    case $- in
+      *u*) local restore_nounset=1 ;;
+      *) local restore_nounset=0 ;;
+    esac
+    set +u 2>/dev/null || true
     source "$HOME/.oh-my-zsh/oh-my-zsh.sh"
+    # Restore nounset only if it was set before
+    [[ $restore_nounset -eq 1 ]] && set -u 2>/dev/null || true
   fi
 fi
 
