@@ -974,8 +974,6 @@ show_theme_help() {
 }
 
 main() {
-  warn_bash_compatibility 0
-
   # Handle global options and shift them away
   while [ $# -gt 0 ]; do
     case "$1" in
