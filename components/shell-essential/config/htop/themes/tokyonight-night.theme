@@ -1,0 +1,6 @@
+# Generated from themes.yaml
+# htop color scheme
+# Note: htop has limited theming - uses predefined color schemes
+color_scheme=5
+# htop has limited theming capabilities
+# Only basic color scheme selection is supported

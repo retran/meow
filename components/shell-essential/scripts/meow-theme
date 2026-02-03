@@ -317,6 +317,106 @@ apply_zsh() {
   cp "$theme_file" "$zsh_config"
 }
 
+apply_ripgrep() {
+  local preset="$1"
+  local variant="$2"
+
+  local preset_slug
+  local variant_slug
+  preset_slug=$(slugify "$preset")
+  variant_slug=$(slugify "$variant")
+
+  local theme_file="$MEOW_THEME_DIR/components/shell-essential/config/ripgrep/themes/${preset_slug}-${variant_slug}.rc"
+  local rg_config="$HOME/.ripgreprc"
+  
+  if [[ ! -f "$theme_file" ]]; then
+    echo "ripgrep theme not found: $theme_file" >&2
+    return 0
+  fi
+
+  # Read existing .ripgreprc if it exists
+  local temp_file
+  temp_file=$(mktemp)
+  
+  if [[ -f "$rg_config" ]]; then
+    # Remove existing color settings
+    grep -v "^--colors=" "$rg_config" > "$temp_file" || true
+  fi
+  
+  # Append new theme colors
+  cat "$theme_file" >> "$temp_file"
+  mv "$temp_file" "$rg_config"
+}
+
+apply_tealdeer() {
+  local preset="$1"
+  local variant="$2"
+
+  local preset_slug
+  local variant_slug
+  preset_slug=$(slugify "$preset")
+  variant_slug=$(slugify "$variant")
+
+  local theme_file="$MEOW_THEME_DIR/components/shell-essential/config/tealdeer/themes/${preset_slug}-${variant_slug}.toml"
+  local tealdeer_config="${XDG_CONFIG_HOME:-$HOME/.config}/tealdeer/config.toml"
+  
+  if [[ ! -f "$theme_file" ]]; then
+    echo "tealdeer theme not found: $theme_file" >&2
+    return 0
+  fi
+
+  # Read existing config if it exists and merge with theme
+  local temp_file
+  temp_file=$(mktemp)
+  
+  if [[ -f "$tealdeer_config" ]]; then
+    # Remove existing [style.*] sections
+    awk '
+      BEGIN { skip=0 }
+      /^\[style\./ { skip=1; next }
+      skip && /^\[/ && !/^\[style\./ { skip=0 }
+      !skip { print }
+    ' "$tealdeer_config" > "$temp_file"
+  fi
+  
+  # Append theme config
+  cat "$theme_file" >> "$temp_file"
+  mkdir -p "$(dirname "$tealdeer_config")"
+  mv "$temp_file" "$tealdeer_config"
+}
+
+apply_htop() {
+  local preset="$1"
+  local variant="$2"
+
+  local preset_slug
+  local variant_slug
+  preset_slug=$(slugify "$preset")
+  variant_slug=$(slugify "$variant")
+
+  local theme_file="$MEOW_THEME_DIR/components/shell-essential/config/htop/themes/${preset_slug}-${variant_slug}.theme"
+  local htop_config="${XDG_CONFIG_HOME:-$HOME/.config}/htop/htoprc"
+  
+  if [[ ! -f "$theme_file" ]]; then
+    echo "htop theme not found: $theme_file" >&2
+    return 0
+  fi
+
+  # Read existing htoprc if it exists
+  local temp_file
+  temp_file=$(mktemp)
+  
+  if [[ -f "$htop_config" ]]; then
+    # Remove existing color_scheme line
+    grep -v "^color_scheme=" "$htop_config" > "$temp_file" || true
+  fi
+  
+  # Append theme color scheme
+  cat "$theme_file" >> "$temp_file"
+  mkdir -p "$(dirname "$htop_config")"
+  mv "$temp_file" "$htop_config"
+}
+
 apply_theme() {
   local preset="$1"
   local variant="$2"
@@ -332,6 +432,9 @@ apply_theme() {
   apply_glow "$preset" "$variant"
   apply_eza "$preset" "$variant"
   apply_zsh "$preset" "$variant"
+  apply_ripgrep "$preset" "$variant"
+  apply_tealdeer "$preset" "$variant"
+  apply_htop "$preset" "$variant"
 
   # Source the environment files immediately to apply changes without shell restart
   if [[ -f "$MEOW_CONFIG_DIR/fzf/colors.sh" ]]; then

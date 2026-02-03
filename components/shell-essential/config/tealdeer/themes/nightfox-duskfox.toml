@@ -1,0 +1,30 @@
+# Generated from themes.yaml
+
+[style.command_name]
+foreground = "dim: "#4a869c"
+base: "#569fba"
+light: false
+bright: "#65b1cd"
+bold = true
+
+[style.description]
+foreground = "#e0def4"
+
+[style.example_text]
+foreground = "dim: "#7bb8c1"
+base: "#9ccfd8"
+light: false
+bright: "#a6dae3"
+
+[style.example_code]
+foreground = "dim: "#8aa872"
+base: "#a3be8c"
+light: false
+bright: "#b1d196"
+
+[style.example_variable]
+foreground = "dim: "#7bb8c1"
+base: "#9ccfd8"
+light: false
+bright: "#a6dae3"
+underline = true

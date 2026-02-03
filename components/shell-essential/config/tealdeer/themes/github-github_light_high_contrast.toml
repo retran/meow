@@ -1,0 +1,25 @@
+# Generated from themes.yaml
+
+[style.command_name]
+foreground = "base: "#0349b4"
+bright: "#1168e3"
+bold = true
+
+[style.description]
+foreground = "default: "#010409"
+subtle: "#66707b"
+muted: "#0e1116"
+on_emphasis: "#ffffff"
+
+[style.example_text]
+foreground = "base: "#1b7c83"
+bright: "#3192aa"
+
+[style.example_code]
+foreground = "base: "#024c1a"
+bright: "#055d20"
+
+[style.example_variable]
+foreground = "base: "#1b7c83"
+bright: "#3192aa"
+underline = true

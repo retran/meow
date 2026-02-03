@@ -1,0 +1,18 @@
+# Generated from themes.yaml
+
+[style.command_name]
+foreground = "#7BA2F7"
+bold = true
+
+[style.description]
+foreground = "#C0CAF5"
+
+[style.example_text]
+foreground = "#7BA2F7"
+
+[style.example_code]
+foreground = "#74DBCB"
+
+[style.example_variable]
+foreground = "#7BA2F7"
+underline = true

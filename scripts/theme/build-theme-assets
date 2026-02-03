@@ -24,8 +24,11 @@ FZF_OUT="$MEOW_ROOT/components/shell-essential/config/fzf/themes"
 GLOW_OUT="$MEOW_ROOT/components/shell-essential/config/glow/themes"
 EZA_OUT="$MEOW_ROOT/components/shell-essential/config/eza/themes"
 ZSH_OUT="$MEOW_ROOT/components/shell-essential/config/zsh/themes"
+RIPGREP_OUT="$MEOW_ROOT/components/shell-essential/config/ripgrep/themes"
+TEALDEER_OUT="$MEOW_ROOT/components/shell-essential/config/tealdeer/themes"
+HTOP_OUT="$MEOW_ROOT/components/shell-essential/config/htop/themes"
 
-mkdir -p "$GHOSTTY_OUT" "$TMUX_OUT" "$STARSHIP_OUT" "$BAT_OUT" "$LAZYGIT_OUT" "$DELTA_OUT" "$FZF_OUT" "$GLOW_OUT" "$EZA_OUT" "$ZSH_OUT"
+mkdir -p "$GHOSTTY_OUT" "$TMUX_OUT" "$STARSHIP_OUT" "$BAT_OUT" "$LAZYGIT_OUT" "$DELTA_OUT" "$FZF_OUT" "$GLOW_OUT" "$EZA_OUT" "$ZSH_OUT" "$RIPGREP_OUT" "$TEALDEER_OUT" "$HTOP_OUT"
 
 if [[ ! -f "$THEME_DB" ]]; then
   echo "Missing theme database at $THEME_DB" >&2
@@ -44,6 +47,23 @@ slugify() {
   value=$(echo "$value" | tr '[:upper:]' '[:lower:]')
   value=$(echo "$value" | sed 's/[^a-z0-9]/_/g; s/_\+/_/g; s/^_//; s/_$//')
   echo "$value"
+}
+
+hex_to_rgb() {
+  local hex="$1"
+  hex="${hex#\#}"
+  hex=$(echo "$hex" | tr '[:lower:]' '[:upper:]')
+  
+  # Validate hex length
+  if [[ ${#hex} -ne 6 ]]; then
+    return 1
+  fi
+  
+  local r g b
+  r=$((16#${hex:0:2}))
+  g=$((16#${hex:2:2}))
+  b=$((16#${hex:4:2}))
+  echo "${r},${g},${b}"
 }
 
 get_theme_list() {
@@ -658,6 +678,163 @@ write_starship_theme() {
   mv "$temp_file" "$out_file"
 }
 
+write_ripgrep_theme() {
+  local preset="$1"
+  local variant="$2"
+  local preset_slug
+  local variant_slug
+  preset_slug=$(slugify "$preset")
+  variant_slug=$(slugify "$variant")
+  local out_file="$RIPGREP_OUT/${preset_slug}-${variant_slug}.rc"
+  
+  # Get colors from theme
+  local path_color
+  local line_color
+  local match_color
+  local column_color
+  
+  path_color=$(theme_get_palette_color "$preset" "$variant" "green" || theme_get_palette_color "$preset" "$variant" "leaf" || theme_get_terminal_color "$preset" "$variant" "2" || true)
+  line_color=$(theme_get_palette_color "$preset" "$variant" "yellow" || theme_get_palette_color "$preset" "$variant" "wood" || theme_get_terminal_color "$preset" "$variant" "3" || true)
+  match_color=$(theme_get_palette_color "$preset" "$variant" "red" || theme_get_palette_color "$preset" "$variant" "rose" || theme_get_terminal_color "$preset" "$variant" "1" || true)
+  column_color=$(theme_get_palette_color "$preset" "$variant" "cyan" || theme_get_palette_color "$preset" "$variant" "water" || theme_get_terminal_color "$preset" "$variant" "6" || true)
+  
+  if [[ -z "$match_color" ]]; then
+    return
+  fi
+  
+  # Convert hex colors to RGB for ripgrep (format: R,G,B)
+  local path_rgb=""
+  local line_rgb=""
+  local match_rgb=""
+  local column_rgb=""
+  
+  if [[ -n "$path_color" ]]; then
+    path_rgb=$(hex_to_rgb "$path_color") || path_rgb=""
+  fi
+  
+  if [[ -n "$line_color" ]]; then
+    line_rgb=$(hex_to_rgb "$line_color") || line_rgb=""
+  fi
+  
+  if [[ -n "$match_color" ]]; then
+    match_rgb=$(hex_to_rgb "$match_color") || match_rgb=""
+  fi
+  
+  if [[ -n "$column_color" ]]; then
+    column_rgb=$(hex_to_rgb "$column_color") || column_rgb=""
+  fi
+  
+  # Write ripgrep color configuration
+  cat > "$out_file" <<EOF
+# Generated from themes.yaml
+# Ripgrep color configuration
+EOF
+  
+  if [[ -n "$path_rgb" ]]; then
+    echo "--colors=path:fg:${path_rgb}" >> "$out_file"
+    echo "--colors=path:style:bold" >> "$out_file"
+  fi
+  
+  if [[ -n "$line_rgb" ]]; then
+    echo "--colors=line:fg:${line_rgb}" >> "$out_file"
+  fi
+  
+  if [[ -n "$match_rgb" ]]; then
+    echo "--colors=match:fg:${match_rgb}" >> "$out_file"
+    echo "--colors=match:style:bold" >> "$out_file"
+  fi
+  
+  if [[ -n "$column_rgb" ]]; then
+    echo "--colors=column:fg:${column_rgb}" >> "$out_file"
+  fi
+}
+
+write_tealdeer_theme() {
+  local preset="$1"
+  local variant="$2"
+  local preset_slug
+  local variant_slug
+  preset_slug=$(slugify "$preset")
+  variant_slug=$(slugify "$variant")
+  local out_file="$TEALDEER_OUT/${preset_slug}-${variant_slug}.toml"
+  
+  # Get colors from theme
+  local title_color
+  local description_color
+  local command_color
+  local example_text_color
+  
+  title_color=$(theme_get_palette_color "$preset" "$variant" "blue" || theme_get_palette_color "$preset" "$variant" "water" || theme_get_terminal_color "$preset" "$variant" "4" || true)
+  description_color=$(theme_get_palette_color "$preset" "$variant" "fg" || theme_get_palette_color "$preset" "$variant" "fg1" || true)
+  command_color=$(theme_get_palette_color "$preset" "$variant" "green" || theme_get_palette_color "$preset" "$variant" "leaf" || theme_get_terminal_color "$preset" "$variant" "2" || true)
+  example_text_color=$(theme_get_palette_color "$preset" "$variant" "cyan" || theme_get_palette_color "$preset" "$variant" "water" || theme_get_terminal_color "$preset" "$variant" "6" || true)
+  
+  if [[ -z "$title_color" ]]; then
+    return
+  fi
+  
+  # Write tealdeer color configuration
+  cat > "$out_file" <<EOF
+# Generated from themes.yaml
+
+[style.command_name]
+foreground = "${title_color}"
+bold = true
+
+[style.description]
+foreground = "${description_color}"
+
+[style.example_text]
+foreground = "${example_text_color}"
+
+[style.example_code]
+foreground = "${command_color}"
+
+[style.example_variable]
+foreground = "${example_text_color}"
+underline = true
+EOF
+}
+
+write_htop_theme() {
+  local preset="$1"
+  local variant="$2"
+  local preset_slug
+  local variant_slug
+  preset_slug=$(slugify "$preset")
+  variant_slug=$(slugify "$variant")
+  local out_file="$HTOP_OUT/${preset_slug}-${variant_slug}.theme"
+  
+  # Get colors from theme
+  local bg_color
+  
+  bg_color=$(theme_get_palette_color "$preset" "$variant" "bg" || theme_get_palette_color "$preset" "$variant" "bg1" || true)
+  
+  if [[ -z "$bg_color" ]]; then
+    return
+  fi
+  
+  # Detect if dark or light theme (simple brightness check)
+  local color_scheme="5"  # Default to dark (black night)
+  if [[ -n "$bg_color" ]]; then
+    if [[ "$bg_color" =~ ^#[a-fA-F] || "$bg_color" =~ ^#[89] ]]; then
+      color_scheme="3"  # Light terminal
+    fi
+  fi
+  
+  # htop uses predefined color schemes (0-6)
+  # 0 = default, 1 = monochrome, 2 = black on white, 3 = light terminal
+  # 4 = MC, 5 = black night, 6 = broken gray
+  cat > "$out_file" <<EOF
+# Generated from themes.yaml
+# htop color scheme
+# Note: htop has limited theming - uses predefined color schemes
+color_scheme=${color_scheme}
+# htop has limited theming capabilities
+# Only basic color scheme selection is supported
+EOF
+}
+
 main() {
   if ! command -v yq >/dev/null 2>&1; then
     echo "yq is required to regenerate theme assets." >&2
@@ -704,6 +881,9 @@ main() {
       write_glow_theme "$preset" "$variant"
       write_eza_theme "$preset" "$variant"
       write_zsh_theme "$preset" "$variant"
+      write_ripgrep_theme "$preset" "$variant"
+      write_tealdeer_theme "$preset" "$variant"
+      write_htop_theme "$preset" "$variant"
     done <<< "$(get_variant_list "$preset")"
   done < <(get_theme_list)
 }

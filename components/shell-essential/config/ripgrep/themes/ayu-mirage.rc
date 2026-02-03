@@ -1,0 +1,8 @@
+# Generated from themes.yaml
+# Ripgrep color configuration
+--colors=path:fg:213,255,128
+--colors=path:style:bold
+--colors=line:fg:255,204,102
+--colors=match:fg:242,135,121
+--colors=match:style:bold
+--colors=column:fg:149,230,203
