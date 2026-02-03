@@ -350,6 +350,10 @@ _install_single_component() {
   install_component_symlink "$component"
 
   setup_component_symlinks "$component"
+  
+  # Generate themes for this component if it has theme generators
+  generate_component_themes "$component"
+  
   MEOW_LAST_COMPONENT_CHANGED="true"
 
   _icon_msg_core "${GREEN}✓ " "$(_f "Component installed: %s" "$component")"
@@ -675,6 +679,9 @@ _update_single_component() {
   setup_component "$component"
 
   setup_component_symlinks "$component"
+  
+  # Generate themes for this component if it has theme generators
+  generate_component_themes "$component"
 
   _icon_msg_core "${CYAN}✓ " "$(_f "Component updated: %s" "$component")"
 
@@ -1152,3 +1159,107 @@ _uninstall_single_component() {
     return 1
   fi
 }
+
+# Theme Generation
+# ================
+
+generate_component_themes() {
+  local component="$1"
+  local installed_component_dir="${MEOW}/.installed/components/${component}"
+  
+  # Check if component has any theme generators
+  local generators
+  generators=$(find -L "$installed_component_dir/scripts" -name "generate-theme-*" 2>/dev/null)
+  
+  if [[ -z "$generators" ]]; then
+    if [[ "$MEOW_VERBOSE" = "true" ]]; then
+      ui_verbose_info "$(_f "No theme generators found for component '%s'." "$component")"
+    fi
+    return 0
+  fi
+  
+  local generator_count
+  generator_count=$(echo "$generators" | wc -l | tr -d ' ')
+  
+  _icon_msg_core "${BLUE}➤ " "$(_f "Generating themes for %s (%d generator(s))..." "$component" "$generator_count")"
+  
+  # Set up environment for generators
+  export MEOW
+  export THEME_DB="${MEOW}/themes.yaml"
+  export THEME_LIB="${MEOW}/lib/theme/theme.sh"
+  
+  if [[ ! -f "$THEME_DB" ]]; then
+    ui_warning "$(_f "Theme database not found at %s. Skipping theme generation." "$THEME_DB")"
+    return 0
+  fi
+  
+  if [[ ! -f "$THEME_LIB" ]]; then
+    ui_warning "$(_f "Theme library not found at %s. Some generators may fail." "$THEME_LIB")"
+  fi
+  
+  # Source theme library functions for getting theme lists
+  if [[ -f "${MEOW}/lib/theme/theme-manager.sh" ]]; then
+    source "${MEOW}/lib/theme/theme-manager.sh"
+    theme_init >/dev/null 2>&1 || true
+  fi
+  
+  # Get list of all themes
+  local presets
+  if command -v theme_build_get_theme_list >/dev/null 2>&1; then
+    presets=$(theme_build_get_theme_list 2>/dev/null) || presets=""
+  fi
+  
+  if [[ -z "$presets" ]]; then
+    ui_warning "Could not read theme list. Skipping theme generation."
+    return 0
+  fi
+  
+  local total_generated=0
+  local total_failed=0
+  
+  # For each preset
+  while IFS= read -r preset; do
+    [[ -z "$preset" ]] && continue
+    
+    # Get variants for this preset
+    local variants
+    if command -v theme_build_get_variant_list >/dev/null 2>&1; then
+      variants=$(theme_build_get_variant_list "$preset" 2>/dev/null) || continue
+    else
+      continue
+    fi
+    
+    # For each variant
+    while IFS= read -r variant; do
+      [[ -z "$variant" ]] && continue
+      
+      # Call each generator
+      while IFS= read -r generator; do
+        [[ -z "$generator" ]] && continue
+        
+        if [[ ! -x "$generator" ]]; then
+          continue
+        fi
+        
+        # Run generator silently
+        if "$generator" "$preset" "$variant" >/dev/null 2>&1; then
+          ((total_generated++))
+        else
+          ((total_failed++))
+        fi
+      done <<< "$generators"
+      
+    done <<< "$variants"
+  done <<< "$presets"
+  
+  if [[ $total_generated -gt 0 ]]; then
+    ui_action_success "$(_f "Generated %d theme file(s) for component '%s'." "$total_generated" "$component")"
+  fi
+  
+  if [[ $total_failed -gt 0 ]]; then
+    ui_warning "$(_f "%d theme generation(s) failed for component '%s'." "$total_failed" "$component")"
+  fi
+  
+  return 0
+}
+

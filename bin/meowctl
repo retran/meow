@@ -44,6 +44,11 @@ if [ -f "${MEOW}/lib/config/config.sh" ]; then
   source "${MEOW}/lib/config/config.sh"
 fi
 
+# Source theme library if available
+if [ -f "${MEOW}/lib/theme/theme-manager.sh" ]; then
+  source "${MEOW}/lib/theme/theme-manager.sh"
+fi
+
 show_main_help() {
   ui_title "meowctl - Unified meow control"
   ui_message "Manage your meow dotfiles and development environment."
@@ -920,15 +925,61 @@ cmd_config() {
 }
 
 cmd_theme() {
-  # Check if meow-theme script exists
-  local theme_script="${MEOW}/components/shell-essential/scripts/meow-theme"
-
-  if [ ! -f "$theme_script" ]; then
-    ui_error "Theme script not found. Please ensure shell-essential component is installed."
+  # Check if theme library is loaded
+  if ! command -v theme_init >/dev/null 2>&1; then
+    ui_error "Theme library not found. Please ensure the meow installation is complete."
     exit 1
   fi
-
-  exec "$theme_script" "$@"
+  
+  # Initialize theme system
+  theme_init || exit 1
+  
+  # Parse subcommand
+  local subcommand="${1:-apply}"
+  shift || true
+  
+  case "$subcommand" in
+    build)
+      # Build theme assets for all components
+      theme_build_all "$@"
+      ;;
+    apply|"")
+      ensure_theme_defaults
+      apply_current
+      ;;
+    toggle)
+      ensure_theme_defaults
+      toggle_mode
+      ;;
+    preset)
+      if [[ $# -lt 2 ]]; then
+        ui_error "Usage: meowctl theme preset <preset> <variant> [light|dark]"
+        exit 1
+      fi
+      ensure_theme_defaults
+      apply_preset "$1" "$2" "${3:-}"
+      ;;
+    auto)
+      ensure_theme_defaults
+      enable_auto_mode
+      ;;
+    manual)
+      ensure_theme_defaults
+      enable_manual_mode
+      ;;
+    status)
+      ensure_theme_defaults
+      show_status
+      ;;
+    help|--help|-h)
+      show_theme_help
+      ;;
+    *)
+      ui_error "Unknown theme command: $subcommand"
+      ui_message "Run 'meowctl theme help' for usage information."
+      exit 1
+      ;;
+  esac
 }
 
 show_config_help() {
@@ -955,21 +1006,27 @@ show_config_help() {
 
 show_theme_help() {
   ui_title "meowctl theme"
-  ui_message "Apply the unified theme across the terminal environment."
+  ui_message "Manage and apply themes across the terminal environment."
   ui_message ""
   ui_message "Usage: $0 theme [command]"
   ui_message ""
   ui_message "Commands:"
-  ui_message "  apply                         Apply the current theme (default)"
-  ui_message "  toggle                        Toggle light/dark mode"
-  ui_message "  preset <preset> <variant>     Apply preset for current mode"
+  ui_message "  build [--preset P] [--variant V]  Generate theme files for all components"
+  ui_message "  apply                              Apply the current theme (default)"
+  ui_message "  toggle                             Toggle light/dark mode"
+  ui_message "  preset <preset> <variant>          Apply preset for current mode"
   ui_message "  preset <preset> <variant> <light|dark>"
+  ui_message "  auto                               Enable auto mode (follow system)"
+  ui_message "  manual                             Enable manual mode"
+  ui_message "  status                             Show current theme status"
   ui_message ""
   ui_message "Examples:"
-  ui_message "  $0 theme"
-  ui_message "  $0 theme toggle"
-  ui_message "  $0 theme preset tokyonight moon"
-  ui_message "  $0 theme preset catppuccin latte light"
+  ui_message "  $0 theme build                       # Generate all themes"
+  ui_message "  $0 theme build --preset catppuccin   # Generate specific preset"
+  ui_message "  $0 theme apply                       # Apply current theme"
+  ui_message "  $0 theme toggle                      # Toggle light/dark"
+  ui_message "  $0 theme preset tokyonight moon      # Set preset"
+  ui_message "  $0 theme status                      # Show status"
   ui_message ""
 }
 

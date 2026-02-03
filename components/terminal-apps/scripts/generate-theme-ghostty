@@ -1,0 +1,132 @@
+#!/usr/bin/env bash
+# MIT License
+# Copyright (c) 2025 Andrew Vasilyev <me@retran.me>
+#
+# @file: components/terminal-apps/scripts/generate-theme-ghostty
+# @brief: Generate Ghostty theme files from themes.yaml
+# @author: Andrew Vasilyev
+# @license: MIT
+
+set -euo pipefail
+
+# Script interface:
+# Input: $1=preset, $2=variant
+# Environment: $MEOW, $THEME_DB, $THEME_LIB
+# Output: Writes to $MEOW/components/terminal-apps/config/ghostty/themes/
+
+PRESET="${1:-}"
+VARIANT="${2:-}"
+
+if [[ -z "$PRESET" || -z "$VARIANT" ]]; then
+  echo "Usage: $0 <preset> <variant>" >&2
+  exit 1
+fi
+
+MEOW_ROOT="${MEOW:-$HOME/.meow}"
+THEME_DB="${THEME_DB:-$MEOW_ROOT/themes.yaml}"
+THEME_LIB="${THEME_LIB:-$MEOW_ROOT/lib/theme/theme.sh}"
+OUTPUT_DIR="$MEOW_ROOT/components/terminal-apps/config/ghostty/themes"
+
+if [[ ! -f "$THEME_DB" ]]; then
+  echo "Theme database not found: $THEME_DB" >&2
+  exit 1
+fi
+
+if [[ ! -f "$THEME_LIB" ]]; then
+  echo "Theme library not found: $THEME_LIB" >&2
+  exit 1
+fi
+
+source "$THEME_LIB"
+
+slugify() {
+  local value="$1"
+  value=$(echo "$value" | tr '[:upper:]' '[:lower:]')
+  value=$(echo "$value" | sed 's/[^a-z0-9]/_/g; s/_\+/_/g; s/^_//; s/_$//')
+  echo "$value"
+}
+
+mkdir -p "$OUTPUT_DIR"
+
+preset_slug=$(slugify "$PRESET")
+variant_slug=$(slugify "$VARIANT")
+out_file="$OUTPUT_DIR/${preset_slug}-${variant_slug}.conf"
+
+# Build color palette
+colors=()
+has_terminal=1
+
+# Try to get terminal colors (0-15)
+if [[ -n "$(theme_get_terminal_color "$PRESET" "$VARIANT" "0" 2>/dev/null)" ]]; then
+  for idx in {0..15}; do
+    color=$(theme_get_terminal_color "$PRESET" "$VARIANT" "$idx") || color=""
+    colors+=("$color")
+  done
+else
+  # Fallback to named colors
+  order=(black red green yellow blue magenta cyan white black_bright red_bright green_bright yellow_bright blue_bright magenta_bright cyan_bright white_bright)
+  for name in "${order[@]}"; do
+    color=$(theme_get_terminal_named_color "$PRESET" "$VARIANT" "$name") || color=""
+    colors+=("$color")
+  done
+  if [[ -z "${colors[0]}" ]]; then
+    has_terminal=0
+  fi
+fi
+
+# If no terminal colors, construct from palette
+if [[ $has_terminal -eq 0 ]]; then
+  base=$(theme_get_palette_color "$PRESET" "$VARIANT" "bg" || true)
+  text=$(theme_get_palette_color "$PRESET" "$VARIANT" "fg" || true)
+  red=$(theme_get_palette_color "$PRESET" "$VARIANT" "red" || true)
+  green=$(theme_get_palette_color "$PRESET" "$VARIANT" "green" || true)
+  yellow=$(theme_get_palette_color "$PRESET" "$VARIANT" "yellow" || true)
+  blue=$(theme_get_palette_color "$PRESET" "$VARIANT" "blue" || true)
+  magenta=$(theme_get_palette_color "$PRESET" "$VARIANT" "purple" || true)
+  cyan=$(theme_get_palette_color "$PRESET" "$VARIANT" "cyan" || true)
+  overlay=$(theme_get_palette_color "$PRESET" "$VARIANT" "surface0" || theme_get_palette_color "$PRESET" "$VARIANT" "surface1" || true)
+
+  colors=(
+    "$base" "$red" "$green" "$yellow" "$blue" "$magenta" "$cyan" "$text"
+    "$overlay" "$red" "$green" "$yellow" "$blue" "$magenta" "$cyan" "$text"
+  )
+fi
+
+# Exit if no colors available
+if [[ -z "${colors[0]}" ]]; then
+  echo "No colors found for $PRESET/$VARIANT" >&2
+  exit 1
+fi
+
+# Get background and foreground
+background=$(theme_get_palette_color "$PRESET" "$VARIANT" "bg" || theme_get_palette_color "$PRESET" "$VARIANT" "bg1" || true)
+foreground=$(theme_get_palette_color "$PRESET" "$VARIANT" "fg" || theme_get_palette_color "$PRESET" "$VARIANT" "fg1" || true)
+
+# Generate theme file
+{
+  echo "# Generated from themes.yaml"
+  if [[ -n "$background" ]]; then
+    echo "background = \"$background\""
+    echo "selection-foreground = \"$background\""
+  fi
+  if [[ -n "$foreground" ]]; then
+    echo "foreground = \"$foreground\""
+    echo "selection-background = \"$foreground\""
+  fi
+  
+  # Cursor color
+  cursor=$(theme_get_palette_color "$PRESET" "$VARIANT" "highlight" || theme_get_palette_color "$PRESET" "$VARIANT" "accent" || theme_get_palette_color "$PRESET" "$VARIANT" "orange" || true)
+  if [[ -n "$cursor" ]]; then
+    echo "cursor-color = \"$cursor\""
+    if [[ -n "$background" ]]; then
+      echo "cursor-text = \"$background\""
+    fi
+  fi
+  
+  # Palette entries
+  for idx in {0..15}; do
+    echo "palette = $idx=${colors[$idx]}"
+  done
+} > "$out_file"
+
+echo "Generated: $out_file"

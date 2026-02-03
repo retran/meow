@@ -41,6 +41,7 @@ window-height = 40
 # Match Alacritty's `option_as_alt = "OnlyLeft"`.
 macos-option-as-alt = left
 
-# theme: meow
-# palette entries are managed by meowctl theme
-# endtheme: meow
+# Theme configuration
+# Dynamic theme colors are managed by meow-theme and stored separately
+# This allows the static config to remain symlinked while theme changes dynamically
+config-file = ~/.config/meow/ghostty/theme.conf
