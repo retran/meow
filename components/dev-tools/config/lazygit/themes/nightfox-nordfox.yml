@@ -1,0 +1,37 @@
+# Generated from themes.yaml
+gui:
+  theme:
+    activeBorderColor:
+      - "dim: "#668aab"
+base: "#81a1c1"
+light: false
+bright: "#8cafd2"
+      - bold
+    inactiveBorderColor:
+      - "#cdcecf"
+    optionsTextColor:
+      - "dim: "#668aab"
+base: "#81a1c1"
+light: false
+bright: "#8cafd2"
+    selectedLineBgColor:
+      - ""
+    selectedRangeBgColor:
+      - ""
+    cherryPickedCommitBgColor:
+      - "dim: "#69a7ba"
+base: "#88c0d0"
+light: false
+bright: "#93ccdc"
+    cherryPickedCommitFgColor:
+      - "dim: "#668aab"
+base: "#81a1c1"
+light: false
+bright: "#8cafd2"
+    unTrackedFileBgColor:
+      - "dim: "#a54e56"
+base: "#bf616a"
+light: false
+bright: "#d06f79"
+    defaultFgColor:
+      - "#cdcecf"

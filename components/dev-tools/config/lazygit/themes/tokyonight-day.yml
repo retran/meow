@@ -1,0 +1,22 @@
+# Generated from themes.yaml
+gui:
+  theme:
+    activeBorderColor:
+      - "#2e7de9"
+      - bold
+    inactiveBorderColor:
+      - "#3760bf"
+    optionsTextColor:
+      - "#2e7de9"
+    selectedLineBgColor:
+      - "#c4c8da"
+    selectedRangeBgColor:
+      - "#c4c8da"
+    cherryPickedCommitBgColor:
+      - "#007197"
+    cherryPickedCommitFgColor:
+      - "#2e7de9"
+    unTrackedFileBgColor:
+      - "#f52a65"
+    defaultFgColor:
+      - "#3760bf"

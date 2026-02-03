@@ -155,6 +155,168 @@ apply_tmux() {
   fi
 }
 
+apply_bat() {
+  local preset="$1"
+  local variant="$2"
+
+  local preset_slug
+  local variant_slug
+  preset_slug=$(slugify "$preset")
+  variant_slug=$(slugify "$variant")
+
+  local theme_file="$MEOW_THEME_DIR/components/shell-essential/config/bat/themes/${preset_slug}-${variant_slug}.conf"
+  local bat_config="${XDG_CONFIG_HOME:-$HOME/.config}/bat/config"
+  
+  if [[ ! -f "$theme_file" ]]; then
+    echo "bat theme not found: $theme_file" >&2
+    return 0
+  fi
+
+  mkdir -p "$(dirname "$bat_config")"
+  cp "$theme_file" "$bat_config"
+}
+
+apply_lazygit() {
+  local preset="$1"
+  local variant="$2"
+
+  local preset_slug
+  local variant_slug
+  preset_slug=$(slugify "$preset")
+  variant_slug=$(slugify "$variant")
+
+  local theme_file="$MEOW_THEME_DIR/components/dev-tools/config/lazygit/themes/${preset_slug}-${variant_slug}.yml"
+  local lazygit_config="${XDG_CONFIG_HOME:-$HOME/.config}/lazygit/config.yml"
+  
+  if [[ ! -f "$theme_file" ]]; then
+    echo "lazygit theme not found: $theme_file" >&2
+    return 0
+  fi
+
+  mkdir -p "$(dirname "$lazygit_config")"
+  cp "$theme_file" "$lazygit_config"
+}
+
+apply_delta() {
+  local preset="$1"
+  local variant="$2"
+
+  local preset_slug
+  local variant_slug
+  preset_slug=$(slugify "$preset")
+  variant_slug=$(slugify "$variant")
+
+  local theme_file="$MEOW_THEME_DIR/components/shell-essential/config/delta/themes/${preset_slug}-${variant_slug}.conf"
+  local gitconfig="$HOME/.gitconfig"
+  
+  if [[ ! -f "$theme_file" ]]; then
+    echo "delta theme not found: $theme_file" >&2
+    return 0
+  fi
+  
+  if [[ ! -f "$gitconfig" ]]; then
+    return 0
+  fi
+
+  # Remove existing [delta] section and append new one
+  local temp_file
+  temp_file=$(mktemp)
+  
+  awk '
+    BEGIN { in_delta=0 }
+    /^\[delta\]/ { in_delta=1; next }
+    in_delta && /^\[/ { in_delta=0 }
+    !in_delta { print }
+  ' "$gitconfig" > "$temp_file"
+  
+  cat "$theme_file" >> "$temp_file"
+  mv "$temp_file" "$gitconfig"
+}
+
+apply_fzf() {
+  local preset="$1"
+  local variant="$2"
+
+  local preset_slug
+  local variant_slug
+  preset_slug=$(slugify "$preset")
+  variant_slug=$(slugify "$variant")
+
+  local theme_file="$MEOW_THEME_DIR/components/shell-essential/config/fzf/themes/${preset_slug}-${variant_slug}.sh"
+  local fzf_config="$MEOW_CONFIG_DIR/fzf/colors.sh"
+  
+  if [[ ! -f "$theme_file" ]]; then
+    echo "fzf theme not found: $theme_file" >&2
+    return 0
+  fi
+
+  mkdir -p "$(dirname "$fzf_config")"
+  cp "$theme_file" "$fzf_config"
+}
+
+apply_glow() {
+  local preset="$1"
+  local variant="$2"
+
+  local preset_slug
+  local variant_slug
+  preset_slug=$(slugify "$preset")
+  variant_slug=$(slugify "$variant")
+
+  local theme_file="$MEOW_THEME_DIR/components/shell-essential/config/glow/themes/${preset_slug}-${variant_slug}.yml"
+  local glow_config="${XDG_CONFIG_HOME:-$HOME/.config}/glow/glow.yml"
+  
+  if [[ ! -f "$theme_file" ]]; then
+    echo "glow theme not found: $theme_file" >&2
+    return 0
+  fi
+
+  mkdir -p "$(dirname "$glow_config")"
+  cp "$theme_file" "$glow_config"
+}
+
+apply_eza() {
+  local preset="$1"
+  local variant="$2"
+
+  local preset_slug
+  local variant_slug
+  preset_slug=$(slugify "$preset")
+  variant_slug=$(slugify "$variant")
+
+  local theme_file="$MEOW_THEME_DIR/components/shell-essential/config/eza/themes/${preset_slug}-${variant_slug}.sh"
+  local eza_config="$MEOW_CONFIG_DIR/eza/colors.sh"
+  
+  if [[ ! -f "$theme_file" ]]; then
+    echo "eza theme not found: $theme_file" >&2
+    return 0
+  fi
+
+  mkdir -p "$(dirname "$eza_config")"
+  cp "$theme_file" "$eza_config"
+}
+
+apply_zsh() {
+  local preset="$1"
+  local variant="$2"
+
+  local preset_slug
+  local variant_slug
+  preset_slug=$(slugify "$preset")
+  variant_slug=$(slugify "$variant")
+
+  local theme_file="$MEOW_THEME_DIR/components/shell-essential/config/zsh/themes/${preset_slug}-${variant_slug}.sh"
+  local zsh_config="$MEOW_CONFIG_DIR/zsh/colors.sh"
+  
+  if [[ ! -f "$theme_file" ]]; then
+    echo "zsh theme not found: $theme_file" >&2
+    return 0
+  fi
+
+  mkdir -p "$(dirname "$zsh_config")"
+  cp "$theme_file" "$zsh_config"
+}
+
 apply_theme() {
   local preset="$1"
   local variant="$2"
@@ -163,6 +325,26 @@ apply_theme() {
   apply_ghostty "$preset" "$variant"
   apply_starship "$preset" "$variant"
   apply_tmux "$preset" "$variant"
+  apply_bat "$preset" "$variant"
+  apply_lazygit "$preset" "$variant"
+  apply_delta "$preset" "$variant"
+  apply_fzf "$preset" "$variant"
+  apply_glow "$preset" "$variant"
+  apply_eza "$preset" "$variant"
+  apply_zsh "$preset" "$variant"
+
+  # Source the environment files immediately to apply changes without shell restart
+  if [[ -f "$MEOW_CONFIG_DIR/fzf/colors.sh" ]]; then
+    source "$MEOW_CONFIG_DIR/fzf/colors.sh"
+  fi
+  
+  if [[ -f "$MEOW_CONFIG_DIR/eza/colors.sh" ]]; then
+    source "$MEOW_CONFIG_DIR/eza/colors.sh"
+  fi
+  
+  if [[ -f "$MEOW_CONFIG_DIR/zsh/colors.sh" ]]; then
+    source "$MEOW_CONFIG_DIR/zsh/colors.sh"
+  fi
 
   if command -v gum >/dev/null 2>&1; then
     gum style \

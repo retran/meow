@@ -762,25 +762,6 @@ when = '[ "${STARSHIP_COCKPIT_KEYBOARD_LAYOUT_ENABLED:-false}" = "true" ]'
 shell = "sh"
 disabled = false
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 [palettes.meow_zenbones_tokyobones]
 color_ok = '#74DBCB'
 color_danger = '#F77890'

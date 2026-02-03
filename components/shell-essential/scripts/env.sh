@@ -88,13 +88,20 @@ if command -v rg >/dev/null 2>&1; then
   export RIPGREP_CONFIG_PATH="${MEOW}/components/shell-essential/config/ripgrep/.ripgreprc"
 fi
 
-# Configure bat theme
-if command -v bat >/dev/null 2>&1; then
-  export BAT_THEME="Catppuccin Mocha"
-  export BAT_STYLE="numbers,changes,header"
+# Load theme-generated configurations
+MEOW_CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/meow"
+
+# Source FZF colors if available
+if [[ -f "$MEOW_CONFIG_DIR/fzf/colors.sh" ]]; then
+  source "$MEOW_CONFIG_DIR/fzf/colors.sh"
 fi
 
-# Configure eza
-if command -v eza >/dev/null 2>&1; then
-  export EZA_COLORS="da=1;34:gm=1;34"
+# Source eza colors if available
+if [[ -f "$MEOW_CONFIG_DIR/eza/colors.sh" ]]; then
+  source "$MEOW_CONFIG_DIR/eza/colors.sh"
+fi
+
+# Source zsh/LS_COLORS if available
+if [[ -f "$MEOW_CONFIG_DIR/zsh/colors.sh" ]]; then
+  source "$MEOW_CONFIG_DIR/zsh/colors.sh"
 fi

@@ -762,25 +762,6 @@ when = '[ "${STARSHIP_COCKPIT_KEYBOARD_LAYOUT_ENABLED:-false}" = "true" ]'
 shell = "sh"
 disabled = false
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 [palettes.meow_tokyonight_day]
 color_ok = '#587539'
 color_danger = '#f52a65'

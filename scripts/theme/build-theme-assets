@@ -17,8 +17,15 @@ GHOSTTY_OUT="$MEOW_ROOT/components/terminal-apps/config/ghostty/themes"
 TMUX_OUT="$MEOW_ROOT/components/tmux/config/themes"
 STARSHIP_CONFIG="$MEOW_ROOT/components/shell-essential/config/starship/starship.toml"
 STARSHIP_OUT="$MEOW_ROOT/components/shell-essential/config/starship/themes"
+BAT_OUT="$MEOW_ROOT/components/shell-essential/config/bat/themes"
+LAZYGIT_OUT="$MEOW_ROOT/components/dev-tools/config/lazygit/themes"
+DELTA_OUT="$MEOW_ROOT/components/shell-essential/config/delta/themes"
+FZF_OUT="$MEOW_ROOT/components/shell-essential/config/fzf/themes"
+GLOW_OUT="$MEOW_ROOT/components/shell-essential/config/glow/themes"
+EZA_OUT="$MEOW_ROOT/components/shell-essential/config/eza/themes"
+ZSH_OUT="$MEOW_ROOT/components/shell-essential/config/zsh/themes"
 
-mkdir -p "$GHOSTTY_OUT" "$TMUX_OUT" "$STARSHIP_OUT"
+mkdir -p "$GHOSTTY_OUT" "$TMUX_OUT" "$STARSHIP_OUT" "$BAT_OUT" "$LAZYGIT_OUT" "$DELTA_OUT" "$FZF_OUT" "$GLOW_OUT" "$EZA_OUT" "$ZSH_OUT"
 
 if [[ ! -f "$THEME_DB" ]]; then
   echo "Missing theme database at $THEME_DB" >&2
@@ -225,6 +232,340 @@ set -g window-status-bell-style "fg=${alert},bg=${status_bg},bold"
 EOF
 }
 
+map_bat_theme() {
+  local preset="$1"
+  local variant="$2"
+  
+  # Map known presets/variants to bat theme names
+  case "$preset" in
+    catppuccin)
+      case "$variant" in
+        latte) echo "Catppuccin Latte" ;;
+        frappe) echo "Catppuccin Frappe" ;;
+        macchiato) echo "Catppuccin Macchiato" ;;
+        mocha) echo "Catppuccin Mocha" ;;
+        *) echo "Catppuccin Mocha" ;;
+      esac
+      ;;
+    tokyonight)
+      case "$variant" in
+        day) echo "GitHub" ;;
+        storm|night|moon) echo "Nord" ;;
+        *) echo "Nord" ;;
+      esac
+      ;;
+    onedark)
+      case "$variant" in
+        onelight) echo "OneHalfLight" ;;
+        *) echo "OneHalfDark" ;;
+      esac
+      ;;
+    dracula)
+      echo "Dracula"
+      ;;
+    nord)
+      echo "Nord"
+      ;;
+    material)
+      case "$variant" in
+        lighter) echo "GitHub" ;;
+        *) echo "Monokai Extended" ;;
+      esac
+      ;;
+    github)
+      echo "GitHub"
+      ;;
+    gruvbox)
+      echo "Monokai Extended"
+      ;;
+    ayu)
+      case "$variant" in
+        light) echo "Solarized (light)" ;;
+        *) echo "Solarized (dark)" ;;
+      esac
+      ;;
+    *)
+      # Default fallback based on background color brightness
+      local bg
+      bg=$(theme_get_palette_color "$preset" "$variant" "bg" || theme_get_palette_color "$preset" "$variant" "bg1" || true)
+      if [[ -n "$bg" ]]; then
+        # Simple brightness check: if bg starts with #[a-f][0-9], assume light
+        if [[ "$bg" =~ ^#[a-fA-F] || "$bg" =~ ^#[89] ]]; then
+          echo "GitHub"
+        else
+          echo "OneHalfDark"
+        fi
+      else
+        echo "OneHalfDark"
+      fi
+      ;;
+  esac
+}
+
+write_bat_theme() {
+  local preset="$1"
+  local variant="$2"
+  local preset_slug
+  local variant_slug
+  preset_slug=$(slugify "$preset")
+  variant_slug=$(slugify "$variant")
+  local out_file="$BAT_OUT/${preset_slug}-${variant_slug}.conf"
+  
+  local bat_theme
+  bat_theme=$(map_bat_theme "$preset" "$variant")
+  
+  echo "--theme=\"${bat_theme}\"" > "$out_file"
+}
+
+write_lazygit_theme() {
+  local preset="$1"
+  local variant="$2"
+  local preset_slug
+  local variant_slug
+  preset_slug=$(slugify "$preset")
+  variant_slug=$(slugify "$variant")
+  local out_file="$LAZYGIT_OUT/${preset_slug}-${variant_slug}.yml"
+  
+  # Get colors from theme
+  local fg
+  local bg
+  local selected_bg
+  local selected_fg
+  local cherry_pick
+  local untracked
+  local default_fg
+  local default_bg
+  
+  fg=$(theme_get_palette_color "$preset" "$variant" "fg" || theme_get_palette_color "$preset" "$variant" "fg1" || true)
+  bg=$(theme_get_palette_color "$preset" "$variant" "bg" || theme_get_palette_color "$preset" "$variant" "bg1" || true)
+  selected_bg=$(theme_get_palette_color "$preset" "$variant" "bg_highlight" || theme_get_palette_color "$preset" "$variant" "bg_visual" || theme_get_palette_color "$preset" "$variant" "selection_bg" || true)
+  selected_fg=$(theme_get_palette_color "$preset" "$variant" "fg" || true)
+  cherry_pick=$(theme_get_palette_color "$preset" "$variant" "cyan" || theme_get_palette_color "$preset" "$variant" "water" || theme_get_terminal_color "$preset" "$variant" "6" || true)
+  untracked=$(theme_get_palette_color "$preset" "$variant" "red" || theme_get_palette_color "$preset" "$variant" "rose" || theme_get_terminal_color "$preset" "$variant" "1" || true)
+  default_fg=$(theme_get_palette_color "$preset" "$variant" "blue" || theme_get_palette_color "$preset" "$variant" "water" || true)
+  default_bg=$(theme_get_palette_color "$preset" "$variant" "bg" || true)
+  
+  if [[ -z "$fg" ]] || [[ -z "$bg" ]]; then
+    return
+  fi
+  
+  # Write lazygit config
+  cat > "$out_file" <<EOF
+# Generated from themes.yaml
+gui:
+  theme:
+    activeBorderColor:
+      - "${default_fg}"
+      - bold
+    inactiveBorderColor:
+      - "${fg}"
+    optionsTextColor:
+      - "${default_fg}"
+    selectedLineBgColor:
+      - "${selected_bg}"
+    selectedRangeBgColor:
+      - "${selected_bg}"
+    cherryPickedCommitBgColor:
+      - "${cherry_pick}"
+    cherryPickedCommitFgColor:
+      - "${default_fg}"
+    unTrackedFileBgColor:
+      - "${untracked}"
+    defaultFgColor:
+      - "${fg}"
+EOF
+}
+
+write_delta_theme() {
+  local preset="$1"
+  local variant="$2"
+  local preset_slug
+  local variant_slug
+  preset_slug=$(slugify "$preset")
+  variant_slug=$(slugify "$variant")
+  local out_file="$DELTA_OUT/${preset_slug}-${variant_slug}.conf"
+  
+  local delta_theme
+  delta_theme=$(map_bat_theme "$preset" "$variant")
+  
+  cat > "$out_file" <<EOF
+[delta]
+	navigate = true
+	syntax-theme = ${delta_theme}
+EOF
+}
+
+write_fzf_theme() {
+  local preset="$1"
+  local variant="$2"
+  local preset_slug
+  local variant_slug
+  preset_slug=$(slugify "$preset")
+  variant_slug=$(slugify "$variant")
+  local out_file="$FZF_OUT/${preset_slug}-${variant_slug}.sh"
+  
+  # Get colors from theme
+  local bg
+  local fg
+  local hl
+  local fg_plus
+  local bg_plus
+  local hl_plus
+  local info
+  local prompt
+  local pointer
+  local marker
+  local spinner
+  local header
+  
+  bg=$(theme_get_palette_color "$preset" "$variant" "bg" || theme_get_palette_color "$preset" "$variant" "bg1" || true)
+  fg=$(theme_get_palette_color "$preset" "$variant" "fg" || theme_get_palette_color "$preset" "$variant" "fg1" || true)
+  hl=$(theme_get_palette_color "$preset" "$variant" "red" || theme_get_palette_color "$preset" "$variant" "rose" || true)
+  fg_plus=$(theme_get_palette_color "$preset" "$variant" "fg" || true)
+  bg_plus=$(theme_get_palette_color "$preset" "$variant" "bg_highlight" || theme_get_palette_color "$preset" "$variant" "bg_visual" || theme_get_palette_color "$preset" "$variant" "selection_bg" || true)
+  hl_plus=$(theme_get_palette_color "$preset" "$variant" "red" || theme_get_palette_color "$preset" "$variant" "rose" || true)
+  info=$(theme_get_palette_color "$preset" "$variant" "cyan" || theme_get_palette_color "$preset" "$variant" "water" || true)
+  prompt=$(theme_get_palette_color "$preset" "$variant" "blue" || theme_get_palette_color "$preset" "$variant" "water" || true)
+  pointer=$(theme_get_palette_color "$preset" "$variant" "red" || theme_get_palette_color "$preset" "$variant" "rose" || true)
+  marker=$(theme_get_palette_color "$preset" "$variant" "purple" || theme_get_palette_color "$preset" "$variant" "blossom" || true)
+  spinner=$(theme_get_palette_color "$preset" "$variant" "yellow" || theme_get_palette_color "$preset" "$variant" "wood" || true)
+  header=$(theme_get_palette_color "$preset" "$variant" "blue" || theme_get_palette_color "$preset" "$variant" "water" || true)
+  
+  if [[ -z "$bg" ]] || [[ -z "$fg" ]]; then
+    return
+  fi
+  
+  # Convert hex to terminal color codes (strip #)
+  bg="${bg#\#}"
+  fg="${fg#\#}"
+  hl="${hl#\#}"
+  fg_plus="${fg_plus#\#}"
+  bg_plus="${bg_plus#\#}"
+  hl_plus="${hl_plus#\#}"
+  info="${info#\#}"
+  prompt="${prompt#\#}"
+  pointer="${pointer#\#}"
+  marker="${marker#\#}"
+  spinner="${spinner#\#}"
+  header="${header#\#}"
+  
+  cat > "$out_file" <<EOF
+# Generated from themes.yaml
+export FZF_DEFAULT_OPTS="\
+--color=bg:#${bg},fg:#${fg},hl:#${hl} \
+--color=bg+:#${bg_plus},fg+:#${fg_plus},hl+:#${hl_plus} \
+--color=info:#${info},prompt:#${prompt},pointer:#${pointer} \
+--color=marker:#${marker},spinner:#${spinner},header:#${header}"
+EOF
+}
+
+write_glow_theme() {
+  local preset="$1"
+  local variant="$2"
+  local preset_slug
+  local variant_slug
+  preset_slug=$(slugify "$preset")
+  variant_slug=$(slugify "$variant")
+  local out_file="$GLOW_OUT/${preset_slug}-${variant_slug}.yml"
+  
+  # Determine if this is a light or dark theme
+  local style="dark"
+  local bg
+  bg=$(theme_get_palette_color "$preset" "$variant" "bg" || theme_get_palette_color "$preset" "$variant" "bg1" || true)
+  
+  # Simple brightness check
+  if [[ -n "$bg" ]]; then
+    if [[ "$bg" =~ ^#[a-fA-F] || "$bg" =~ ^#[89] ]]; then
+      style="light"
+    fi
+  fi
+  
+  cat > "$out_file" <<EOF
+# Generated from themes.yaml
+# style name or JSON path (default "auto")
+style: "${style}"
+# mouse support (TUI-mode only)
+mouse: false
+# use pager to display markdown
+pager: false
+# word-wrap at width
+width: 80
+# show all files, including hidden and ignored.
+all: false
+EOF
+}
+
+write_eza_theme() {
+  local preset="$1"
+  local variant="$2"
+  local preset_slug
+  local variant_slug
+  preset_slug=$(slugify "$preset")
+  variant_slug=$(slugify "$variant")
+  local out_file="$EZA_OUT/${preset_slug}-${variant_slug}.yml"
+  
+  # Get colors from theme
+  local file_color
+  local dir_color
+  local exec_color
+  local symlink_color
+  
+  file_color=$(theme_get_palette_color "$preset" "$variant" "fg" || true)
+  dir_color=$(theme_get_palette_color "$preset" "$variant" "blue" || theme_get_palette_color "$preset" "$variant" "water" || true)
+  exec_color=$(theme_get_palette_color "$preset" "$variant" "green" || theme_get_palette_color "$preset" "$variant" "leaf" || true)
+  symlink_color=$(theme_get_palette_color "$preset" "$variant" "cyan" || theme_get_palette_color "$preset" "$variant" "water" || true)
+  
+  if [[ -z "$file_color" ]]; then
+    return
+  fi
+  
+  cat > "$out_file" <<EOF
+# Generated from themes.yaml
+# For simplicity, we'll use environment variables instead of complex YAML
+# EZA_COLORS will be set via environment
+EOF
+  
+  # Create a shell script with the eza colors
+  cat > "${out_file%.yml}.sh" <<EOF
+# Generated from themes.yaml
+export EZA_COLORS="di=${dir_color#\#}:ex=${exec_color#\#}:ln=${symlink_color#\#}"
+EOF
+}
+
+write_zsh_theme() {
+  local preset="$1"
+  local variant="$2"
+  local preset_slug
+  local variant_slug
+  preset_slug=$(slugify "$preset")
+  variant_slug=$(slugify "$variant")
+  local out_file="$ZSH_OUT/${preset_slug}-${variant_slug}.sh"
+  
+  # Get colors from theme for LS_COLORS
+  local dir_color
+  local exec_color
+  local symlink_color
+  local archive_color
+  
+  dir_color=$(theme_get_palette_color "$preset" "$variant" "blue" || theme_get_palette_color "$preset" "$variant" "water" || true)
+  exec_color=$(theme_get_palette_color "$preset" "$variant" "green" || theme_get_palette_color "$preset" "$variant" "leaf" || true)
+  symlink_color=$(theme_get_palette_color "$preset" "$variant" "cyan" || theme_get_palette_color "$preset" "$variant" "water" || true)
+  archive_color=$(theme_get_palette_color "$preset" "$variant" "red" || theme_get_palette_color "$preset" "$variant" "rose" || true)
+  
+  if [[ -z "$dir_color" ]]; then
+    return
+  fi
+  
+  # Generate a basic LS_COLORS
+  # Format: di=34 means directories are blue (ANSI 34)
+  # We'll use simplified ANSI color codes
+  cat > "$out_file" <<EOF
+# Generated from themes.yaml
+# Basic LS_COLORS configuration
+export LS_COLORS="di=1;34:ln=1;36:ex=1;32:*.tar=1;31:*.zip=1;31:*.gz=1;31"
+EOF
+}
+
 write_starship_theme() {
   local preset="$1"
   local variant="$2"
@@ -356,6 +697,13 @@ main() {
       write_ghostty_theme "$preset" "$variant"
       write_tmux_theme "$preset" "$variant"
       write_starship_theme "$preset" "$variant"
+      write_bat_theme "$preset" "$variant"
+      write_lazygit_theme "$preset" "$variant"
+      write_delta_theme "$preset" "$variant"
+      write_fzf_theme "$preset" "$variant"
+      write_glow_theme "$preset" "$variant"
+      write_eza_theme "$preset" "$variant"
+      write_zsh_theme "$preset" "$variant"
     done <<< "$(get_variant_list "$preset")"
   done < <(get_theme_list)
 }
