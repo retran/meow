@@ -84,9 +84,8 @@ if command -v nvim >/dev/null 2>&1; then
 fi
 
 # Configure ripgrep
-if command -v rg >/dev/null 2>&1; then
-  export RIPGREP_CONFIG_PATH="${MEOW}/components/shell-essential/config/ripgrep/.ripgreprc"
-fi
+# Ripgrep config is managed by meow-theme and symlinked from ~/.ripgreprc
+# The base config with theme colors is applied via 'meow-theme apply'
 
 # Load theme-generated configurations
 MEOW_CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/meow"

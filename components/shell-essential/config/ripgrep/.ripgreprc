@@ -30,12 +30,8 @@
 --glob=!*.pyc
 --glob=!.DS_Store
 
-# Use colors when outputting to terminal
---colors=path:fg:green
---colors=path:style:bold
---colors=line:fg:yellow
---colors=match:fg:red
---colors=match:style:bold
+# Colors are managed by meow-theme
+# Run 'meow-theme apply' to set colors for your current theme
 
 # Set max columns for long lines (prevents hanging on minified files)
 --max-columns=500

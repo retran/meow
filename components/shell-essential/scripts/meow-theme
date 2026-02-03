@@ -327,6 +327,7 @@ apply_ripgrep() {
   variant_slug=$(slugify "$variant")
 
   local theme_file="$MEOW_THEME_DIR/components/shell-essential/config/ripgrep/themes/${preset_slug}-${variant_slug}.rc"
+  local base_config="$MEOW_THEME_DIR/components/shell-essential/config/ripgrep/.ripgreprc"
   local rg_config="$HOME/.ripgreprc"
   
   if [[ ! -f "$theme_file" ]]; then
@@ -334,16 +335,19 @@ apply_ripgrep() {
     return 0
   fi
 
-  # Read existing .ripgreprc if it exists
+  if [[ ! -f "$base_config" ]]; then
+    echo "ripgrep base config not found: $base_config" >&2
+    return 0
+  fi
+
+  # Start with base config (without colors)
   local temp_file
   temp_file=$(mktemp)
   
-  if [[ -f "$rg_config" ]]; then
-    # Remove existing color settings
-    grep -v "^--colors=" "$rg_config" > "$temp_file" || true
-  fi
+  # Copy base config, removing any color settings
+  grep -v "^--colors=" "$base_config" > "$temp_file" || true
   
-  # Append new theme colors
+  # Append theme colors
   cat "$theme_file" >> "$temp_file"
   mv "$temp_file" "$rg_config"
 }
