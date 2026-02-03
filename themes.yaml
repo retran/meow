@@ -937,7 +937,7 @@ themes:
             warning: "#FFCB6B"
             info: "#B0C9FF"
             hint: "#C792EA"
-      "deep ocean":
+      deep_ocean:
         terminal:
           "1": "#FF5555"
           "10": "#69FF94"
