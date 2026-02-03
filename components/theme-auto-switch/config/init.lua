@@ -114,29 +114,47 @@ function themeAutoSwitch.init()
   end
   
   local mode = getThemeMode()
-  local lastAppearance = getSystemAppearance()
+  themeAutoSwitch.lastAppearance = getSystemAppearance()
   
   log(string.format(
     "[theme-auto-switch] Starting appearance watcher (current: %s, mode: %s)",
-    lastAppearance,
+    themeAutoSwitch.lastAppearance,
     mode
   ))
   
-  -- Poll every 2 seconds for appearance changes
-  themeAutoSwitch.timer = hs.timer.doEvery(2, function()
+  -- Create timer function
+  local pollCount = 0
+  local function timerCallback()
+    pollCount = pollCount + 1
     local currentAppearance = getSystemAppearance()
     
-    if currentAppearance ~= lastAppearance then
+    -- Log heartbeat every 60 polls (1 minute)
+    if pollCount % 60 == 0 then
+      log(string.format("[theme-auto-switch] Heartbeat: still watching (current: %s, polls: %d)", currentAppearance, pollCount))
+    end
+    
+    if currentAppearance ~= themeAutoSwitch.lastAppearance then
       log(string.format(
         "[theme-auto-switch] Appearance changed: %s -> %s",
-        lastAppearance,
+        themeAutoSwitch.lastAppearance,
         currentAppearance
       ))
       
-      lastAppearance = currentAppearance
+      themeAutoSwitch.lastAppearance = currentAppearance
       applyTheme()
     end
-  end)
+  end
+  
+  -- Create and start timer (1 second interval)
+  themeAutoSwitch.timer = hs.timer.new(1, timerCallback, true)
+  themeAutoSwitch.timer:start()
+  
+  -- Verify timer is running
+  if not themeAutoSwitch.timer:running() then
+    log("[theme-auto-switch] ERROR: Timer failed to start!")
+  else
+    log("[theme-auto-switch] Timer started successfully")
+  end
   
   hs.alert.show("🎨 Theme auto-switch ready (" .. mode .. " mode)", 2)
 end
