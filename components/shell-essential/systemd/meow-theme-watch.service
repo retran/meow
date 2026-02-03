@@ -1,0 +1,15 @@
+[Unit]
+Description=Meow Theme Watcher - Automatic system theme detection
+After=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=%h/.meow/components/shell-essential/scripts/meow-theme-watch
+Restart=always
+RestartSec=3
+StandardOutput=append:/tmp/meow-theme-watch.log
+StandardError=append:/tmp/meow-theme-watch.error.log
+Environment="MEOW=%h/.meow"
+
+[Install]
+WantedBy=default.target

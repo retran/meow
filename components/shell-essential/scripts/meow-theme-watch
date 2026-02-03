@@ -1,0 +1,194 @@
+#!/usr/bin/env bash
+# MIT License
+# Copyright (c) 2025 Andrew Vasilyev <me@retran.me>
+#
+# @file: components/shell-essential/scripts/meow-theme-watch
+# @brief: Background watcher for system theme changes (macOS and Linux)
+# @author: Andrew Vasilyev
+# @license: MIT
+
+set -euo pipefail
+
+MEOW_ROOT="${MEOW:-$HOME/.meow}"
+MEOW_THEME_SCRIPT="$MEOW_ROOT/components/shell-essential/scripts/meow-theme"
+CONFIG_LIB="$MEOW_ROOT/lib/config/config.sh"
+
+if [[ -f "$CONFIG_LIB" ]]; then
+  source "$CONFIG_LIB"
+else
+  echo "Error: Config library not found at $CONFIG_LIB" >&2
+  exit 1
+fi
+
+detect_system_theme() {
+  # Detect system appearance (light/dark) across different platforms
+  local appearance=""
+  
+  # macOS detection
+  if [[ "$OSTYPE" == "darwin"* ]]; then
+    appearance=$(defaults read -g AppleInterfaceStyle 2>/dev/null)
+    if [[ "$appearance" == "Dark" ]]; then
+      echo "dark"
+      return
+    else
+      echo "light"
+      return
+    fi
+  fi
+  
+  # Linux detection - try multiple methods
+  if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    # GNOME/GTK (most common)
+    if command -v gsettings >/dev/null 2>&1; then
+      appearance=$(gsettings get org.gnome.desktop.interface color-scheme 2>/dev/null)
+      if [[ "$appearance" == *"dark"* ]]; then
+        echo "dark"
+        return
+      elif [[ "$appearance" == *"light"* ]]; then
+        echo "light"
+        return
+      fi
+      
+      # Fallback: check GTK theme name
+      appearance=$(gsettings get org.gnome.desktop.interface gtk-theme 2>/dev/null)
+      if [[ "$appearance" == *"dark"* ]] || [[ "$appearance" == *"Dark"* ]]; then
+        echo "dark"
+        return
+      fi
+    fi
+    
+    # KDE Plasma
+    if command -v kreadconfig5 >/dev/null 2>&1; then
+      appearance=$(kreadconfig5 --group General --key ColorScheme 2>/dev/null)
+      if [[ "$appearance" == *"Dark"* ]] || [[ "$appearance" == *"dark"* ]]; then
+        echo "dark"
+        return
+      fi
+    fi
+    
+    # Check environment variable (some DEs set this)
+    if [[ -n "${GTK_THEME:-}" ]]; then
+      if [[ "$GTK_THEME" == *"dark"* ]] || [[ "$GTK_THEME" == *"Dark"* ]]; then
+        echo "dark"
+        return
+      fi
+    fi
+  fi
+  
+  # Default fallback
+  echo "dark"
+}
+
+watch_macos() {
+  local last_theme
+  last_theme=$(detect_system_theme)
+  
+  echo "Starting macOS theme watcher (current: $last_theme)..."
+  
+  while true; do
+    sleep 2
+    local current_theme
+    current_theme=$(detect_system_theme)
+    
+    if [[ "$current_theme" != "$last_theme" ]]; then
+      echo "System theme changed: $last_theme -> $current_theme"
+      
+      # Check if auto mode is enabled
+      local mode
+      mode=$(meow_config_get "theme.mode" "auto")
+      
+      if [[ "$mode" == "auto" ]]; then
+        echo "Auto mode enabled, applying theme..."
+        "$MEOW_THEME_SCRIPT" apply
+      else
+        echo "Auto mode disabled, skipping theme change"
+      fi
+      
+      last_theme="$current_theme"
+    fi
+  done
+}
+
+watch_linux() {
+  local last_theme
+  last_theme=$(detect_system_theme)
+  
+  echo "Starting Linux theme watcher (current: $last_theme)..."
+  
+  # Try to use dbus-monitor for GNOME if available
+  if command -v dbus-monitor >/dev/null 2>&1 && command -v gsettings >/dev/null 2>&1; then
+    echo "Using dbus-monitor for efficient watching..."
+    dbus-monitor --session "type='signal',interface='org.freedesktop.portal.Settings',member='SettingChanged'" 2>/dev/null | \
+    while read -r line; do
+      if [[ "$line" == *"color-scheme"* ]] || [[ "$line" == *"gtk-theme"* ]]; then
+        sleep 1  # Debounce
+        local current_theme
+        current_theme=$(detect_system_theme)
+        
+        if [[ "$current_theme" != "$last_theme" ]]; then
+          echo "System theme changed: $last_theme -> $current_theme"
+          
+          local mode
+          mode=$(meow_config_get "theme.mode" "auto")
+          
+          if [[ "$mode" == "auto" ]]; then
+            echo "Auto mode enabled, applying theme..."
+            "$MEOW_THEME_SCRIPT" apply
+          else
+            echo "Auto mode disabled, skipping theme change"
+          fi
+          
+          last_theme="$current_theme"
+        fi
+      fi
+    done
+  else
+    # Fallback to polling
+    echo "Using polling method (dbus-monitor not available)..."
+    while true; do
+      sleep 5
+      local current_theme
+      current_theme=$(detect_system_theme)
+      
+      if [[ "$current_theme" != "$last_theme" ]]; then
+        echo "System theme changed: $last_theme -> $current_theme"
+        
+        local mode
+        mode=$(meow_config_get "theme.mode" "auto")
+        
+        if [[ "$mode" == "auto" ]]; then
+          echo "Auto mode enabled, applying theme..."
+          "$MEOW_THEME_SCRIPT" apply
+        else
+          echo "Auto mode disabled, skipping theme change"
+        fi
+        
+        last_theme="$current_theme"
+      fi
+    done
+  fi
+}
+
+main() {
+  # Check if theme script exists
+  if [[ ! -f "$MEOW_THEME_SCRIPT" ]]; then
+    echo "Error: Theme script not found at $MEOW_THEME_SCRIPT" >&2
+    exit 1
+  fi
+  
+  echo "Meow Theme Watcher - Monitoring system appearance changes"
+  echo "Press Ctrl+C to stop"
+  echo ""
+  
+  # Detect platform and use appropriate watcher
+  if [[ "$OSTYPE" == "darwin"* ]]; then
+    watch_macos
+  elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    watch_linux
+  else
+    echo "Unsupported platform: $OSTYPE" >&2
+    exit 1
+  fi
+}
+
+main "$@"

@@ -53,6 +53,65 @@ slugify() {
   echo "$value"
 }
 
+detect_system_theme() {
+  # Detect system appearance (light/dark) across different platforms
+  local appearance=""
+  
+  # macOS detection
+  if [[ "$OSTYPE" == "darwin"* ]]; then
+    appearance=$(defaults read -g AppleInterfaceStyle 2>/dev/null)
+    if [[ "$appearance" == "Dark" ]]; then
+      echo "dark"
+      return
+    else
+      echo "light"
+      return
+    fi
+  fi
+  
+  # Linux detection - try multiple methods
+  if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    # GNOME/GTK (most common)
+    if command -v gsettings >/dev/null 2>&1; then
+      appearance=$(gsettings get org.gnome.desktop.interface color-scheme 2>/dev/null)
+      if [[ "$appearance" == *"dark"* ]]; then
+        echo "dark"
+        return
+      elif [[ "$appearance" == *"light"* ]]; then
+        echo "light"
+        return
+      fi
+      
+      # Fallback: check GTK theme name
+      appearance=$(gsettings get org.gnome.desktop.interface gtk-theme 2>/dev/null)
+      if [[ "$appearance" == *"dark"* ]] || [[ "$appearance" == *"Dark"* ]]; then
+        echo "dark"
+        return
+      fi
+    fi
+    
+    # KDE Plasma
+    if command -v kreadconfig5 >/dev/null 2>&1; then
+      appearance=$(kreadconfig5 --group General --key ColorScheme 2>/dev/null)
+      if [[ "$appearance" == *"Dark"* ]] || [[ "$appearance" == *"dark"* ]]; then
+        echo "dark"
+        return
+      fi
+    fi
+    
+    # Check environment variable (some DEs set this)
+    if [[ -n "${GTK_THEME:-}" ]]; then
+      if [[ "$GTK_THEME" == *"dark"* ]] || [[ "$GTK_THEME" == *"Dark"* ]]; then
+        echo "dark"
+        return
+      fi
+    fi
+  fi
+  
+  # Default fallback
+  echo "dark"
+}
+
 ensure_real_file() {
   local file="$1"
   if [[ -L "$file" ]]; then
@@ -511,13 +570,67 @@ apply_preset() {
 }
 
 apply_current() {
+  local mode
+  mode=$(meow_config_get "theme.mode" "auto")
+  
   local current
-  current=$(meow_config_get "theme.current" "dark")
+  if [[ "$mode" == "auto" ]]; then
+    # Auto mode: detect system theme
+    current=$(detect_system_theme)
+    meow_config_set "theme.current" "$current"
+  else
+    # Manual mode: use saved preference
+    current=$(meow_config_get "theme.current" "dark")
+  fi
+  
   local preset
   local variant
   preset=$(meow_config_get "theme.${current}.preset" "catppuccin")
   variant=$(meow_config_get "theme.${current}.variant" "mocha")
   apply_theme "$preset" "$variant" "$current"
+}
+
+show_status() {
+  local mode
+  local current
+  local detected
+  local preset
+  local variant
+  
+  mode=$(meow_config_get "theme.mode" "auto")
+  current=$(meow_config_get "theme.current" "dark")
+  detected=$(detect_system_theme)
+  preset=$(meow_config_get "theme.${current}.preset" "catppuccin")
+  variant=$(meow_config_get "theme.${current}.variant" "mocha")
+  
+  echo "Theme Status:"
+  echo "  Mode: $mode"
+  echo "  Current: $current ($preset/$variant)"
+  echo "  System: $detected"
+  
+  if [[ "$mode" == "auto" ]]; then
+    echo ""
+    echo "Auto mode is enabled. Theme will automatically"
+    echo "switch when system appearance changes."
+  else
+    echo ""
+    echo "Manual mode is enabled. Use 'meow-theme toggle'"
+    echo "to switch or 'meow-theme auto' to enable auto mode."
+  fi
+}
+
+enable_auto_mode() {
+  meow_config_set "theme.mode" "auto"
+  echo "Auto mode enabled. Theme will follow system appearance."
+  echo "Applying current system theme..."
+  apply_current
+}
+
+enable_manual_mode() {
+  meow_config_set "theme.mode" "manual"
+  local current
+  current=$(meow_config_get "theme.current" "dark")
+  echo "Manual mode enabled. Current theme locked to: $current"
 }
 
 main() {
@@ -537,6 +650,15 @@ main() {
       fi
       apply_preset "$2" "$3" "${4:-}"
       ;;
+    auto)
+      enable_auto_mode
+      ;;
+    manual)
+      enable_manual_mode
+      ;;
+    status)
+      show_status
+      ;;
     *)
       cat <<EOF
 Usage: meow-theme [command]
@@ -546,6 +668,9 @@ Commands:
   toggle                       Toggle light/dark mode
   preset <preset> <variant>    Apply a preset/variant to current mode
   preset <preset> <variant> <light|dark>
+  auto                         Enable auto mode (follow system appearance)
+  manual                       Enable manual mode (lock current theme)
+  status                       Show current theme status
 
 Examples:
   meow-theme
@@ -553,6 +678,9 @@ Examples:
   meow-theme toggle
   meow-theme preset tokyonight moon
   meow-theme preset catppuccin latte light
+  meow-theme auto
+  meow-theme manual
+  meow-theme status
 EOF
       exit 1
       ;;
