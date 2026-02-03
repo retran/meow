@@ -70,7 +70,7 @@ set_macos_keyboard_layouts() {
   esac
 
   local is_russian_selected=0
-  if defaults read com.apple.HIToolbox AppleSelectedInputSources | rg -q "$russian_layout_name"; then
+  if defaults read com.apple.HIToolbox AppleSelectedInputSources | grep -q "$russian_layout_name"; then
     is_russian_selected=1
   fi
 

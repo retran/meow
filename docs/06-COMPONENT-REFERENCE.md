@@ -517,7 +517,7 @@ This document provides a detailed reference for all components available in the 
 - **Homebrew:** (Similar comprehensive list)
 - **Pacman:** (Similar comprehensive list)
   **Configuration:**
-- **Symlinks:** `zsh` configs, `starship.toml`, `eza` config, `.gitconfig`, `.meowrc`.
+- **Symlinks:** `zsh` configs, `starship.toml`, `eza` config, `.gitconfig`, `config.yaml`.
 - **Scripts:** 
   - `setup.sh` (Oh My Zsh, Tmux TPM)
   - `init.sh` (Shell plugins, FZF with fd/bat integration, zoxide, starship)

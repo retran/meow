@@ -69,7 +69,7 @@ Before installing a preset, set up your personal configuration. This ensures you
 
 ```bash
 # Global settings
-cp private/meow/.meowrc.example private/meow/.meowrc
+cp private/meow/config.yaml.example private/meow/config.yaml
 
 # Git identity (Name, Email)
 cp private/git/.gitconfig.example private/git/.gitconfig
@@ -115,4 +115,3 @@ Apply the chosen configuration.
 [⭐ Star us on GitHub](https://github.com/retran/meow) • [🐛 Report Bug](https://github.com/retran/meow/issues) • [💡 Request Feature](https://github.com/retran/meow/issues) • [🔀 Contribute](https://github.com/retran/meow/pulls)
 
 </div>
-

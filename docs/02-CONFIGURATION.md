@@ -2,30 +2,40 @@
 
 The `.meow` framework can be customized through a combination of environment variables and configuration files located in the `private/` directory.
 
-## The `.meowrc` File
+## The `config.yaml` File
 
-The `.meowrc` file is the primary way to configure the behavior of `.meow`. This file is sourced by the `meowctl` script and can be used to set environment variables that control various features.
+The `config.yaml` file is the primary way to configure the behavior of `.meow`. This file is used by `meowctl` and shared by components to coordinate theme settings.
 
 To get started, copy the example file:
 
 ```bash
-cp private/meow/.meowrc.example private/meow/.meowrc
+cp private/meow/config.yaml.example private/meow/config.yaml
 ```
 
-Then, edit `private/meow/.meowrc` to suit your preferences.
+Then, edit `private/meow/config.yaml` to suit your preferences. The personal preset also ships an example at `presets/den-personal/config.yaml`.
 
-### Available Options
+### Theme Options
 
-- `MEOW_ENABLE_MAS`: Set to `"true"` to enable package management from the Mac App Store using the `mas` command. Defaults to `"true"` on macOS.
+- `theme.mode`: `manual` or `auto`
+- `theme.current`: `light` or `dark`
+- `theme.light`: `preset` and `variant` for light mode
+- `theme.dark`: `preset` and `variant` for dark mode
 
-**Example `.meowrc`:**
+**Example `config.yaml`:**
 
-```bash
-# Enable/disable Mac App Store (mas) package management
-export MEOW_ENABLE_MAS="true"
+```yaml
+theme:
+  mode: auto
+  current: dark
+  light:
+    preset: catppuccin
+    variant: latte
+  dark:
+    preset: catppuccin
+    variant: mocha
 ```
 
-**Note on `.meowrc` Variables:** Variables defined in your `.meowrc` file are loaded into your Zsh shell session during startup (via `config/zsh/.zprofile`) and by `meowctl` when it executes. Changes to `.meowrc` require either a **shell restart** (opening a new terminal session) or manual sourcing (e.g., `source ~/.meowrc`) to take effect in your current shell environment. The `meowctl` utility will automatically load the updated settings when invoked.
+**Note on `config.yaml`:** Changes to `config.yaml` require either a new terminal session or running `meowctl theme apply` to update active components.
 
 ## Secrets Management
 

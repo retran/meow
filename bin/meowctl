@@ -34,10 +34,6 @@ fi
 
 source "${MEOW}/lib/env/env.sh"
 
-# Source user settings from .meowrc if it exists
-if [ -f "$HOME/.meowrc" ]; then
-  source "$HOME/.meowrc"
-fi
 
 source "${MEOW}/lib/core/bash.sh"
 source "${MEOW}/lib/core/ui.sh"
@@ -926,13 +922,12 @@ cmd_config() {
 cmd_theme() {
   # Check if meow-theme script exists
   local theme_script="${MEOW}/components/shell-essential/scripts/meow-theme"
-  
+
   if [ ! -f "$theme_script" ]; then
     ui_error "Theme script not found. Please ensure shell-essential component is installed."
     exit 1
   fi
-  
-  # Execute meow-theme with all arguments
+
   exec "$theme_script" "$@"
 }
 
@@ -952,30 +947,29 @@ show_config_help() {
   ui_message ""
   ui_message "Examples:"
   ui_message "  $0 config show"
-  ui_message "  $0 config get theme.preset"
-  ui_message "  $0 config set theme.mode night"
-  ui_message "  $0 config unset theme.auto_sync"
+  ui_message "  $0 config get theme.mode"
+  ui_message "  $0 config set theme.current dark"
+  ui_message "  $0 config set theme.mode auto"
   ui_message ""
 }
 
 show_theme_help() {
   ui_title "meowctl theme"
-  ui_message "Manage themes across terminal environment."
+  ui_message "Apply the unified theme across the terminal environment."
   ui_message ""
   ui_message "Usage: $0 theme [command]"
   ui_message ""
   ui_message "Commands:"
-  ui_message "  menu          Interactive menu (default)"
-  ui_message "  select        Select theme preset"
-  ui_message "  toggle        Toggle day/night mode"
-  ui_message "  current       Show current theme"
-  ui_message "  apply <preset> <mode>  Apply specific preset"
+  ui_message "  apply                         Apply the current theme (default)"
+  ui_message "  toggle                        Toggle light/dark mode"
+  ui_message "  preset <preset> <variant>     Apply preset for current mode"
+  ui_message "  preset <preset> <variant> <light|dark>"
   ui_message ""
   ui_message "Examples:"
-  ui_message "  $0 theme                    # Interactive menu"
-  ui_message "  $0 theme select             # Choose preset"
-  ui_message "  $0 theme toggle             # Toggle day/night"
-  ui_message "  $0 theme apply catppuccin night"
+  ui_message "  $0 theme"
+  ui_message "  $0 theme toggle"
+  ui_message "  $0 theme preset tokyonight moon"
+  ui_message "  $0 theme preset catppuccin latte light"
   ui_message ""
 }
 

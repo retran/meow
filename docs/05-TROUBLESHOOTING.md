@@ -43,7 +43,7 @@ This happens because `.meow` is a Git-based tool. To prevent losing your local m
 
 ### Configuration Issues
 
-If you suspect that your configuration in `.meowrc` is not being loaded correctly, check for syntax errors in the file. A common sign of this is that environment variables you have set are not being reflected in the behavior of `meowctl`. The shell will often print syntax errors to your terminal when it tries to source the file, which can help you diagnose the problem.
+If you suspect that your configuration in `config.yaml` is not being loaded correctly, check the file for formatting errors or invalid YAML syntax. A common sign is that your theme settings are not being reflected in `meowctl` output.
 
 ## Debugging Techniques
 

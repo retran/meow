@@ -25,5 +25,5 @@
 # @author: Andrew Vasilyev
 # @license: MIT
 #
-- source: "$MEOW/private/meow/.meowrc"
-  target: "$HOME/.meowrc"
+- source: "$MEOW/private/meow/config.yaml"
+  target: "$HOME/.config/meow/config.yaml"

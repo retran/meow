@@ -2,8 +2,14 @@
 
 # Source meow config variables
 
-if [[ -f "$HOME/.meowrc" ]]; then
-  . "$HOME/.meowrc"
+MEOW_CONFIG_FILE="${XDG_CONFIG_HOME:-$HOME/.config}/meow/config.yaml"
+if [[ -f "$MEOW_CONFIG_FILE" ]]; then
+  export MEOW_CONFIG_FILE
+fi
+
+MEOW_STARSHIP_CONFIG="${XDG_CONFIG_HOME:-$HOME/.config}/meow/starship.toml"
+if [[ -f "$MEOW_STARSHIP_CONFIG" ]]; then
+  export STARSHIP_CONFIG="$MEOW_STARSHIP_CONFIG"
 fi
 
 # Source core meow environment setup

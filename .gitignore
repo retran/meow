@@ -26,4 +26,4 @@ coverage/
 # Secrets
 private/git/.gitconfig
 private/secrets/.secrets
-private/meow/.meowrc
+private/meow/config.yaml

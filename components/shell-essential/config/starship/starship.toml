@@ -142,6 +142,318 @@ color_vimcmd_ok = '#689d6a'
 color_vimcmd_replace = '#b16286'
 color_vimcmd_visual = '#d79921'
 
+# Tokyo Night Storm
+[palettes.tokyonight_storm]
+
+color_ok = '#73daca'
+color_danger = '#f7768e'
+color_caution = '#e0af68'
+
+color_os = '#f7768e'
+color_username = '#f7768e'
+color_directory = '#e0af68'
+color_git = '#7dcfff'
+color_git_added = '#73daca'
+color_git_deleted = '#f7768e'
+color_env = '#7aa2f7'
+color_kubernetes = '#bb9af7'
+color_docker = '#7aa2f7'
+color_shell = '#a9b1d6'
+color_container = '#f7768e'
+color_other = '#a9b1d6'
+color_time = '#a9b1d6'
+color_duration = '#a9b1d6'
+
+color_vimcmd_ok = '#73daca'
+color_vimcmd_replace = '#bb9af7'
+color_vimcmd_visual = '#e0af68'
+
+# Tokyo Night Night (darker)
+[palettes.tokyonight_night]
+
+color_ok = '#73daca'
+color_danger = '#f7768e'
+color_caution = '#e0af68'
+
+color_os = '#f7768e'
+color_username = '#f7768e'
+color_directory = '#e0af68'
+color_git = '#7dcfff'
+color_git_added = '#73daca'
+color_git_deleted = '#f7768e'
+color_env = '#7aa2f7'
+color_kubernetes = '#bb9af7'
+color_docker = '#7aa2f7'
+color_shell = '#a9b1d6'
+color_container = '#f7768e'
+color_other = '#c0caf5'
+color_time = '#c0caf5'
+color_duration = '#c0caf5'
+
+color_vimcmd_ok = '#73daca'
+color_vimcmd_replace = '#bb9af7'
+color_vimcmd_visual = '#e0af68'
+
+# Tokyo Night Moon
+[palettes.tokyonight_moon]
+
+color_ok = '#73daca'
+color_danger = '#f7768e'
+color_caution = '#e0af68'
+
+color_os = '#f7768e'
+color_username = '#f7768e'
+color_directory = '#ffc777'
+color_git = '#86e1fc'
+color_git_added = '#73daca'
+color_git_deleted = '#f7768e'
+color_env = '#82aaff'
+color_kubernetes = '#c099ff'
+color_docker = '#82aaff'
+color_shell = '#a9b1d6'
+color_container = '#f7768e'
+color_other = '#c8d3f5'
+color_time = '#c8d3f5'
+color_duration = '#c8d3f5'
+
+color_vimcmd_ok = '#73daca'
+color_vimcmd_replace = '#c099ff'
+color_vimcmd_visual = '#ffc777'
+
+# Tokyo Night Day
+[palettes.tokyonight_day]
+
+color_ok = '#33635c'
+color_danger = '#8c4351'
+color_caution = '#8f5e15'
+
+color_os = '#8c4351'
+color_username = '#8c4351'
+color_directory = '#8f5e15'
+color_git = '#0f4b6e'
+color_git_added = '#33635c'
+color_git_deleted = '#8c4351'
+color_env = '#34548a'
+color_kubernetes = '#5a4a78'
+color_docker = '#34548a'
+color_shell = '#343b58'
+color_container = '#8c4351'
+color_other = '#343b58'
+color_time = '#343b58'
+color_duration = '#343b58'
+
+color_vimcmd_ok = '#33635c'
+color_vimcmd_replace = '#5a4a78'
+color_vimcmd_visual = '#8f5e15'
+
+# Catppuccin Mocha
+[palettes.catppuccin_mocha]
+
+color_ok = '#a6e3a1'
+color_danger = '#f38ba8'
+color_caution = '#f9e2af'
+
+color_os = '#f38ba8'
+color_username = '#f38ba8'
+color_directory = '#f9e2af'
+color_git = '#89dceb'
+color_git_added = '#a6e3a1'
+color_git_deleted = '#f38ba8'
+color_env = '#89b4fa'
+color_kubernetes = '#cba6f7'
+color_docker = '#89b4fa'
+color_shell = '#cdd6f4'
+color_container = '#f38ba8'
+color_other = '#bac2de'
+color_time = '#cdd6f4'
+color_duration = '#cdd6f4'
+
+color_vimcmd_ok = '#a6e3a1'
+color_vimcmd_replace = '#cba6f7'
+color_vimcmd_visual = '#f9e2af'
+
+# Catppuccin Latte (light)
+[palettes.catppuccin_latte]
+
+color_ok = '#40a02b'
+color_danger = '#d20f39'
+color_caution = '#df8e1d'
+
+color_os = '#d20f39'
+color_username = '#d20f39'
+color_directory = '#df8e1d'
+color_git = '#04a5e5'
+color_git_added = '#40a02b'
+color_git_deleted = '#d20f39'
+color_env = '#1e66f5'
+color_kubernetes = '#8839ef'
+color_docker = '#1e66f5'
+color_shell = '#4c4f69'
+color_container = '#d20f39'
+color_other = '#5c5f77'
+color_time = '#4c4f69'
+color_duration = '#4c4f69'
+
+color_vimcmd_ok = '#40a02b'
+color_vimcmd_replace = '#8839ef'
+color_vimcmd_visual = '#df8e1d'
+
+# Catppuccin Frappe
+[palettes.catppuccin_frappe]
+
+color_ok = '#a6d189'
+color_danger = '#e78284'
+color_caution = '#e5c890'
+
+color_os = '#e78284'
+color_username = '#e78284'
+color_directory = '#e5c890'
+color_git = '#81c8be'
+color_git_added = '#a6d189'
+color_git_deleted = '#e78284'
+color_env = '#8caaee'
+color_kubernetes = '#ca9ee6'
+color_docker = '#8caaee'
+color_shell = '#c6d0f5'
+color_container = '#e78284'
+color_other = '#b5bfe2'
+color_time = '#c6d0f5'
+color_duration = '#c6d0f5'
+
+color_vimcmd_ok = '#a6d189'
+color_vimcmd_replace = '#ca9ee6'
+color_vimcmd_visual = '#e5c890'
+
+# Catppuccin Macchiato
+[palettes.catppuccin_macchiato]
+
+color_ok = '#a6da95'
+color_danger = '#ed8796'
+color_caution = '#eed49f'
+
+color_os = '#ed8796'
+color_username = '#ed8796'
+color_directory = '#eed49f'
+color_git = '#91d7e3'
+color_git_added = '#a6da95'
+color_git_deleted = '#ed8796'
+color_env = '#8aadf4'
+color_kubernetes = '#c6a0f6'
+color_docker = '#8aadf4'
+color_shell = '#cad3f5'
+color_container = '#ed8796'
+color_other = '#b8c0e0'
+color_time = '#cad3f5'
+color_duration = '#cad3f5'
+
+color_vimcmd_ok = '#a6da95'
+color_vimcmd_replace = '#c6a0f6'
+color_vimcmd_visual = '#eed49f'
+
+# Rose Pine Main
+[palettes.rosepine_main]
+
+color_ok = '#9ccfd8'
+color_danger = '#eb6f92'
+color_caution = '#f6c177'
+
+color_os = '#eb6f92'
+color_username = '#eb6f92'
+color_directory = '#f6c177'
+color_git = '#9ccfd8'
+color_git_added = '#9ccfd8'
+color_git_deleted = '#eb6f92'
+color_env = '#31748f'
+color_kubernetes = '#c4a7e7'
+color_docker = '#31748f'
+color_shell = '#e0def4'
+color_container = '#eb6f92'
+color_other = '#908caa'
+color_time = '#e0def4'
+color_duration = '#e0def4'
+
+color_vimcmd_ok = '#9ccfd8'
+color_vimcmd_replace = '#c4a7e7'
+color_vimcmd_visual = '#f6c177'
+
+# Rose Pine Dawn (light)
+[palettes.rosepine_dawn]
+
+color_ok = '#56949f'
+color_danger = '#b4637a'
+color_caution = '#ea9d34'
+
+color_os = '#b4637a'
+color_username = '#b4637a'
+color_directory = '#ea9d34'
+color_git = '#56949f'
+color_git_added = '#56949f'
+color_git_deleted = '#b4637a'
+color_env = '#286983'
+color_kubernetes = '#907aa9'
+color_docker = '#286983'
+color_shell = '#575279'
+color_container = '#b4637a'
+color_other = '#6e6a86'
+color_time = '#575279'
+color_duration = '#575279'
+
+color_vimcmd_ok = '#56949f'
+color_vimcmd_replace = '#907aa9'
+color_vimcmd_visual = '#ea9d34'
+
+# Kanagawa Wave
+[palettes.kanagawa_wave]
+
+color_ok = '#76946a'
+color_danger = '#c34043'
+color_caution = '#e6c384'
+
+color_os = '#c34043'
+color_username = '#c34043'
+color_directory = '#e6c384'
+color_git = '#7e9cd8'
+color_git_added = '#76946a'
+color_git_deleted = '#c34043'
+color_env = '#7fb4ca'
+color_kubernetes = '#957fb8'
+color_docker = '#7fb4ca'
+color_shell = '#dcd7ba'
+color_container = '#c34043'
+color_other = '#c8c093'
+color_time = '#dcd7ba'
+color_duration = '#dcd7ba'
+
+color_vimcmd_ok = '#76946a'
+color_vimcmd_replace = '#957fb8'
+color_vimcmd_visual = '#e6c384'
+
+# Kanagawa Lotus (light)
+[palettes.kanagawa_lotus]
+
+color_ok = '#6f894e'
+color_danger = '#c84053'
+color_caution = '#77713f'
+
+color_os = '#c84053'
+color_username = '#c84053'
+color_directory = '#77713f'
+color_git = '#4d699b'
+color_git_added = '#6f894e'
+color_git_deleted = '#c84053'
+color_env = '#5a7785'
+color_kubernetes = '#624c83'
+color_docker = '#5a7785'
+color_shell = '#545464'
+color_container = '#c84053'
+color_other = '#8a8980'
+color_time = '#545464'
+color_duration = '#545464'
+
+color_vimcmd_ok = '#6f894e'
+color_vimcmd_replace = '#624c83'
+color_vimcmd_visual = '#77713f'
+
 [os]
 disabled = false
 style = "fg:color_os"
