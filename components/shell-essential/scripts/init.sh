@@ -249,44 +249,28 @@ if command -v starship >/dev/null 2>&1; then
   fi
 fi
 
-# Source theme color configurations
+# Theme color configuration
 MEOW_CONFIG_DIR="${MEOW_CONFIG_DIR:-${XDG_CONFIG_HOME:-$HOME/.config}/meow}"
 
-# Create meow-theme wrapper function that can update current shell
+_meow_source_theme_colors() {
+  [[ -f "$MEOW_CONFIG_DIR/fzf/colors.sh" ]] && source "$MEOW_CONFIG_DIR/fzf/colors.sh" 2>/dev/null || true
+  [[ -f "$MEOW_CONFIG_DIR/eza/colors.sh" ]] && source "$MEOW_CONFIG_DIR/eza/colors.sh" 2>/dev/null || true
+  [[ -f "$MEOW_CONFIG_DIR/zsh/colors.sh" ]] && source "$MEOW_CONFIG_DIR/zsh/colors.sh" 2>/dev/null || true
+}
+
 meow-theme() {
-  local cmd="${1:-apply}"
-  
-  # Run the meow-theme script
   "${MEOW:-$HOME/.meow}/components/shell-essential/scripts/meow-theme" "$@"
   local exit_code=$?
   
-  # After running, reload environment variables in current shell for commands that modify theme
-  if [[ "$cmd" == "toggle" || "$cmd" == "apply" || "$cmd" == "preset" || "$cmd" == "auto" || "$cmd" == "" ]]; then
-    if [[ -f "$MEOW_CONFIG_DIR/fzf/colors.sh" ]]; then
-      source "$MEOW_CONFIG_DIR/fzf/colors.sh" 2>/dev/null || true
-    fi
-    
-    if [[ -f "$MEOW_CONFIG_DIR/eza/colors.sh" ]]; then
-      source "$MEOW_CONFIG_DIR/eza/colors.sh" 2>/dev/null || true
-    fi
-    
-    if [[ -f "$MEOW_CONFIG_DIR/zsh/colors.sh" ]]; then
-      source "$MEOW_CONFIG_DIR/zsh/colors.sh" 2>/dev/null || true
-    fi
-  fi
+  # Reload environment variables after theme changes
+  case "${1:-apply}" in
+    toggle|apply|preset|auto|"")
+      _meow_source_theme_colors
+      ;;
+  esac
   
   return $exit_code
 }
 
-# Legacy: keep the old color sourcing for initial shell startup
-if [[ -f "$MEOW_CONFIG_DIR/fzf/colors.sh" ]]; then
-  source "$MEOW_CONFIG_DIR/fzf/colors.sh"
-fi
-
-if [[ -f "$MEOW_CONFIG_DIR/eza/colors.sh" ]]; then
-  source "$MEOW_CONFIG_DIR/eza/colors.sh"
-fi
-
-if [[ -f "$MEOW_CONFIG_DIR/zsh/colors.sh" ]]; then
-  source "$MEOW_CONFIG_DIR/zsh/colors.sh"
-fi
+# Source theme colors on shell initialization
+_meow_source_theme_colors

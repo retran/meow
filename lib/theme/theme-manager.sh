@@ -559,18 +559,8 @@ apply_theme() {
     echo "  Failed: $total_failed"
   fi
   
-  # Source the environment files immediately to apply changes without shell restart
-  if [[ -f "$MEOW_CONFIG_DIR/fzf/colors.sh" ]]; then
-    source "$MEOW_CONFIG_DIR/fzf/colors.sh"
-  fi
-  
-  if [[ -f "$MEOW_CONFIG_DIR/eza/colors.sh" ]]; then
-    source "$MEOW_CONFIG_DIR/eza/colors.sh"
-  fi
-  
-  if [[ -f "$MEOW_CONFIG_DIR/zsh/colors.sh" ]]; then
-    source "$MEOW_CONFIG_DIR/zsh/colors.sh"
-  fi
+  # Note: Environment variables are sourced by meowctl or meow-theme wrapper functions
+  # Sourcing here only affects this subshell, not the parent shell
 
   if command -v gum >/dev/null 2>&1; then
     gum style \
