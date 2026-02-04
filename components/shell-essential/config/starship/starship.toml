@@ -21,10 +21,9 @@
 # THE SOFTWARE.
 #
 # @file: components/shell-essential/config/starship/starship.toml
-# @brief: Configuration file for application settings.
+# @brief: Starship prompt configuration
 # @author: Andrew Vasilyev
 # @license: MIT
-#
 "$schema" = 'https://starship.rs/config-schema.json'
 
 add_newline = true
@@ -646,19 +645,16 @@ symbol_threshold = 1
 number_threshold = 1
 
 # ============================================================================
-# COCKPIT FEATURES (Optional System Monitoring in Prompt)
+# COCKPIT FEATURES (Optional System Monitoring)
 # ============================================================================
-# These custom modules provide optional system monitoring in the shell prompt.
-# They are disabled by default to avoid duplication with tmux status bar.
+# Custom modules for optional system monitoring in the prompt.
+# Disabled by default to avoid duplication with tmux status bar.
 #
 # Enable via environment variables:
 #   export STARSHIP_COCKPIT_MEMORY_USAGE_ENABLED=true
 #   export STARSHIP_COCKPIT_BATTERY_ENABLED=true
-#   export STARSHIP_COCKPIT_BATTERY_THRESHOLD=20        # Show when battery ≤20%
+#   export STARSHIP_COCKPIT_BATTERY_THRESHOLD=20
 #   export STARSHIP_COCKPIT_KEYBOARD_LAYOUT_ENABLED=true
-#
-# Note: Since tmux status bar already shows CPU, memory, battery, and weather,
-# these prompt modules are typically only useful when not running tmux.
 # ============================================================================
 
 [custom.memory_usage]
@@ -668,7 +664,6 @@ shell = "sh"
 format = "( $output )"
 disabled = false
 
-# Built-in memory_usage module (disabled in favor of custom wrapper above)
 [memory_usage]
 threshold = 0
 symbol = "󰓅"
@@ -691,7 +686,6 @@ shell = "sh"
 format = "( $output )"
 disabled = false
 
-# Built-in battery module (disabled in favor of custom wrapper above)
 [battery]
 full_symbol = "󰁹"
 charging_symbol = "󰂄"
@@ -713,7 +707,6 @@ style = "fg:color_caution"
 threshold = 100
 style = "fg:color_other"
 
-# Time module (disabled - tmux status bar already shows date/time)
 [time]
 disabled = true
 time_format = "%R"
@@ -755,13 +748,9 @@ vimcmd_visual_symbol = '[❮](bold fg:color_vimcmd_visual)'
 
 [custom.keyboard_layout]
 command = """
-
-# Set env variables if you want to use layout aliases (in uppercase)
-#     export STARSHIP_COCKPIT_KEYBOARD_LAYOUT_ABC=ENG
-#     export STARSHIP_COCKPIT_KEYBOARD_LAYOUT_UKRAINIAN=UKR
-#
-# Implementations:
-#     macOS
+# Set env variables for layout aliases (in uppercase):
+#   export STARSHIP_COCKPIT_KEYBOARD_LAYOUT_ABC=ENG
+#   export STARSHIP_COCKPIT_KEYBOARD_LAYOUT_UKRAINIAN=UKR
 
 if [ "$(uname -s)" = "Darwin" ]; then
         input_source=$(defaults read ~/Library/Preferences/com.apple.HIToolbox.plist AppleCurrentKeyboardLayoutInputSourceID)
@@ -769,7 +758,6 @@ if [ "$(uname -s)" = "Darwin" ]; then
         layout=$(printenv "STARSHIP_COCKPIT_KEYBOARD_LAYOUT_$(echo "$layout_id" | tr '[:lower:]' '[:upper:]')")
         echo "$layout" || echo "$layout_id"
 fi
-
 """
 symbol = "󰌌"
 style = "fg:color_other"
