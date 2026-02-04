@@ -26,4 +26,8 @@ coverage/
 # Secrets
 private/git/.gitconfig
 private/secrets/.secrets
-private/meow/.meowrc
+private/meow/config.yaml
+
+# Generated theme files (auto-generated on install/update)
+components/*/config/themes/
+components/*/config/*/themes/

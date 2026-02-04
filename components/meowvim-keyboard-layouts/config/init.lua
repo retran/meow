@@ -40,12 +40,19 @@ local function switchLayoutByTitle(window, appName)
     end
 
     local title = window:title()
-    if not string.find(title, "meowvim") then
+    -- Check for both old format "meowvim" and new shorter format
+    -- New format: "filename [I]" or "filename+ [N]"
+    -- Old format: "meowvim | filename [I] -- user@host"
+    local isMeowvim = string.find(title, "meowvim") or 
+                      (string.find(title, "%[%a+%]") or string.find(title, "%[%a%-%a%]"))
+    
+    if not isMeowvim then
         return
     end
 
     local currentSource = hs.keycodes.currentSourceID()
 
+    -- Check for Insert mode: [I]
     if string.find(title, "%[I%]") then
         if lastInputSource ~= nil and currentSource ~= lastInputSource then
             if DEBUG then hs.console.printStyledtext("Switching to: " .. tostring(lastInputSource)) end

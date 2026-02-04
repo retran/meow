@@ -34,12 +34,12 @@ You can then execute the `meowctl` command directly from this directory:
 
 Before installing any presets, you **must** configure your environment. This ensures that your personal settings, secrets, and Git credentials are correctly linked during installation.
 
-1.  **Global Settings (`.meowrc`)**:
-    Copy the example configuration and customize it (e.g., to enable App Store support).
+1.  **Global Settings (`config.yaml`)**:
+    Copy the example configuration and customize it (theme settings, mode, presets).
 
     ```bash
-    cp private/meow/.meowrc.example private/meow/.meowrc
-    nano private/meow/.meowrc
+    cp private/meow/config.yaml.example private/meow/config.yaml
+    nano private/meow/config.yaml
     ```
 
 2.  **Git Identity**:
@@ -58,7 +58,7 @@ Before installing any presets, you **must** configure your environment. This ens
     nano private/secrets/.secrets
     ```
 
-> **Note**: Configuration files like `.gitconfig` and `.meowrc` only become active and linked into your system after the `shell-essential` component is installed (which creates the necessary symlinks). For a deep dive into all configuration options, see the **[Configuration Guide](./02-CONFIGURATION.md)**.
+> **Note**: Configuration files like `.gitconfig` and `config.yaml` only become active and linked into your system after the `shell-essential` component is installed (which creates the necessary symlinks). For a deep dive into all configuration options, see the **[Configuration Guide](./02-CONFIGURATION.md)**.
 
 ## First Steps: Installing a Preset
 

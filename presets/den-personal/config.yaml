@@ -1,0 +1,9 @@
+theme:
+  mode: auto
+  current: dark
+  light:
+    preset: catppuccin
+    variant: latte
+  dark:
+    preset: catppuccin
+    variant: mocha

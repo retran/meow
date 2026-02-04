@@ -1,0 +1,68 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+PRESET="${1:-}"
+VARIANT="${2:-}"
+
+if [[ -z "$PRESET" || -z "$VARIANT" ]]; then
+  echo "Usage: $0 <preset> <variant>" >&2
+  exit 1
+fi
+
+slugify() {
+  local value="$1"
+  echo "$value" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/_/g; s/_\+/_/g; s/^_//; s/_$//'
+}
+
+ensure_real_file() {
+  local file="$1"
+  if [[ -L "$file" ]]; then
+    local temp
+    temp=$(mktemp)
+    cp -L "$file" "$temp"
+    rm "$file"
+    mv "$temp" "$file"
+  fi
+}
+
+MEOW_ROOT="${MEOW:-$HOME/.meow}"
+preset_slug=$(slugify "$PRESET")
+variant_slug=$(slugify "$VARIANT")
+
+theme_file="$MEOW_ROOT/components/terminal-apps/config/ghostty/themes/${preset_slug}-${variant_slug}.conf"
+
+if [[ ! -f "$theme_file" ]]; then
+  echo "Ghostty theme not found: $theme_file" >&2
+  exit 1
+fi
+
+ghostty_config="${GHOSTTY_CONFIG_DIR:-$HOME/.config/ghostty}/config"
+
+if [[ ! -f "$ghostty_config" ]]; then
+  echo "Ghostty config not found: $ghostty_config" >&2
+  exit 0
+fi
+
+ensure_real_file "$ghostty_config"
+
+temp_file=$(mktemp)
+awk '
+    BEGIN { skip=0 }
+    /^# theme: meow/ { skip=1; next }
+    /^# endtheme: meow/ { skip=0; next }
+    { if (!skip) print }
+' "$ghostty_config" > "$temp_file"
+
+{
+  echo "# theme: meow"
+  cat "$theme_file"
+  echo "# endtheme: meow"
+} >> "$temp_file"
+
+mv "$temp_file" "$ghostty_config"
+
+if command -v pkill >/dev/null 2>&1; then
+  pkill -SIGUSR2 ghostty >/dev/null 2>&1 || true
+fi
+
+echo "Applied Ghostty theme: $PRESET/$VARIANT"

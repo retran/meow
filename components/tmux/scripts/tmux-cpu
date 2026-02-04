@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+# MIT License
+# Copyright (c) 2025 Andrew Vasilyev <me@retran.me>
+#
+# @file: components/tmux/scripts/tmux-cpu
+# @brief: Get CPU usage for tmux status bar
+# @author: Andrew Vasilyev
+# @license: MIT
+
+set -euo pipefail
+
+# Check if running on macOS
+if [[ "$(uname -s)" == "Darwin" ]]; then
+  # macOS CPU usage - use top command to get system-wide percentage
+  cpu_usage=$(top -l 1 | grep "CPU usage" | awk '{print $3}' | sed 's/%//' | awk '{printf "%.0f", $1}')
+  cpu_sys=$(top -l 1 | grep "CPU usage" | awk '{print $5}' | sed 's/%//' | awk '{printf "%.0f", $1}')
+  cpu_total=$((cpu_usage + cpu_sys))
+else
+  # Linux CPU usage
+  cpu_usage=$(top -bn1 | grep "Cpu(s)" | sed "s/.*, *\([0-9.]*\)%* id.*/\1/" | awk '{printf "%.0f", 100 - $1}')
+  cpu_total=$cpu_usage
+fi
+
+# Select icon based on usage
+if [[ $cpu_total -ge 80 ]]; then
+  icon="󰻠"  # High CPU
+elif [[ $cpu_total -ge 50 ]]; then
+  icon="󰻟"  # Medium CPU
+else
+  icon="󰻞"  # Low CPU
+fi
+
+echo "$icon ${cpu_total}%"

@@ -31,6 +31,19 @@ if [ -n "${_COMPONENT_SHELL_ESSENTIAL_INIT_SOURCED:-}" ]; then
 fi
 _COMPONENT_SHELL_ESSENTIAL_INIT_SOURCED=1
 
+# Source config library for shell functions (used by meowctl)
+if [[ -f "${MEOW:-$HOME/.meow}/lib/config/config.sh" ]]; then
+    source "${MEOW:-$HOME/.meow}/lib/config/config.sh"
+fi
+
+# Initialize variables to prevent nounset errors
+# RPS1-4 are right-side prompts (main, continuation, secondary, debug)
+export RPS1="${RPS1:-}"
+export RPS2="${RPS2:-}"
+export RPS3="${RPS3:-}"
+export RPS4="${RPS4:-}"
+export STARSHIP_JOBS_COUNT="${STARSHIP_JOBS_COUNT:-0}"
+
 # Only set ZSH_THEME if starship is not available
 if ! command -v starship >/dev/null 2>&1; then
   export ZSH_THEME="robbyrussell"
@@ -99,7 +112,7 @@ export plugins
 
 # Set tmux autostart based on terminal detection (only if tmux is available)
 if command -v tmux >/dev/null 2>&1; then
-  if [ -n "$ALACRITTY_LOG" ] || [ "$TERM_PROGRAM" = "Alacritty" ] || [ -n "$ALACRITTY_WINDOW_ID" ] || [ "$TERM_PROGRAM" = "Ghostty" ] || [ "$TERM_PROGRAM" = "ghostty" ] || [ "${TERM:-}" = "xterm-ghostty" ] || [ "${TERM:-}" = "xterm-ghostty-256color" ]; then
+  if [ -n "${ALACRITTY_LOG:-}" ] || [ "${TERM_PROGRAM:-}" = "Alacritty" ] || [ -n "${ALACRITTY_WINDOW_ID:-}" ] || [ "${TERM_PROGRAM:-}" = "Ghostty" ] || [ "${TERM_PROGRAM:-}" = "ghostty" ] || [ "${TERM:-}" = "xterm-ghostty" ] || [ "${TERM:-}" = "xterm-ghostty-256color" ]; then
     export ZSH_TMUX_AUTOSTART=true
   else
     export ZSH_TMUX_AUTOSTART=false
@@ -110,7 +123,16 @@ if [ -f "$HOME/.oh-my-zsh/oh-my-zsh.sh" ]; then
   if [ "${MEOW_DRY_RUN:-false}" = "true" ]; then
     echo "DRY-RUN: sourcing $HOME/.oh-my-zsh/oh-my-zsh.sh"
   else
+    # Temporarily disable nounset for oh-my-zsh compatibility (if it was set)
+    # Save the state first
+    case $- in
+      *u*) local restore_nounset=1 ;;
+      *) local restore_nounset=0 ;;
+    esac
+    set +u 2>/dev/null || true
     source "$HOME/.oh-my-zsh/oh-my-zsh.sh"
+    # Restore nounset only if it was set before
+    [[ $restore_nounset -eq 1 ]] && set -u 2>/dev/null || true
   fi
 fi
 
@@ -128,6 +150,47 @@ if command -v nvim >/dev/null 2>&1; then
   alias vi='nvim'
 fi
 
+# Bat aliases for common use cases
+if command -v bat >/dev/null 2>&1; then
+  alias cat='bat --paging=never'
+  alias less='bat --paging=always'
+  alias bathelp='bat --plain --language=help'
+  # Usage: command --help | bathelp
+  help() {
+    "$@" --help 2>&1 | bathelp
+  }
+fi
+
+# Ripgrep aliases
+if command -v rg >/dev/null 2>&1; then
+  alias rgh='rg --hidden'              # Search hidden files
+  alias rgi='rg --no-ignore'           # Ignore .gitignore rules
+  alias rgf='rg --files'               # List files that would be searched
+  alias rgl='rg --files-with-matches'  # Only show filenames with matches
+fi
+
+# Eza aliases for better ls experience
+if command -v eza >/dev/null 2>&1; then
+  alias ls='eza'
+  alias l='eza -l'
+  alias la='eza -la'
+  alias ll='eza -l --git'
+  alias lt='eza --tree --level=2'
+  alias lta='eza --tree --level=2 -a'
+fi
+
+# Git aliases (if not using oh-my-zsh git plugin)
+if command -v git >/dev/null 2>&1; then
+  alias g='git'
+  alias gs='git status'
+  alias gd='git diff'
+  alias ga='git add'
+  alias gc='git commit'
+  alias gp='git push'
+  alias gl='git pull'
+  alias glog='git log --oneline --graph --decorate'
+fi
+
 if command -v fzf >/dev/null 2>&1; then
   if [ "${MEOW_VERBOSE:-false}" = "true" ]; then
     echo "INFO: sourcing fzf zsh completion"
@@ -137,6 +200,19 @@ if command -v fzf >/dev/null 2>&1; then
   else
     # shellcheck disable=SC1090
     source <(fzf --zsh)
+    
+    # Configure FZF to use fd for file search if available
+    if command -v fd >/dev/null 2>&1; then
+      export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
+      export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+      export FZF_ALT_C_COMMAND='fd --type d --hidden --follow --exclude .git'
+    fi
+    
+    # Configure FZF to use bat for file preview if available
+    if command -v bat >/dev/null 2>&1; then
+      export FZF_CTRL_T_OPTS="--preview 'bat --color=always --style=numbers --line-range=:500 {}'"
+      export FZF_ALT_C_OPTS="--preview 'eza --tree --level=2 --color=always {} 2>/dev/null || ls -1 {}'"
+    fi
   fi
 fi
 
@@ -151,6 +227,17 @@ if command -v zoxide >/dev/null 2>&1; then
   fi
 fi
 
+if command -v direnv >/dev/null 2>&1; then
+  if [ "${MEOW_VERBOSE:-false}" = "true" ]; then
+    echo "INFO: initializing direnv"
+  fi
+  if [ "${MEOW_DRY_RUN:-false}" = "true" ]; then
+    echo "DRY-RUN: evaluating direnv hook command"
+  else
+    eval "$(direnv hook zsh)"
+  fi
+fi
+
 if command -v starship >/dev/null 2>&1; then
   if [ "${MEOW_VERBOSE:-false}" = "true" ]; then
     echo "INFO: initializing starship"
@@ -161,3 +248,29 @@ if command -v starship >/dev/null 2>&1; then
     eval "$(starship init zsh)"
   fi
 fi
+
+# Theme color configuration
+MEOW_CONFIG_DIR="${MEOW_CONFIG_DIR:-${XDG_CONFIG_HOME:-$HOME/.config}/meow}"
+
+_meow_source_theme_colors() {
+  [[ -f "$MEOW_CONFIG_DIR/fzf/colors.sh" ]] && source "$MEOW_CONFIG_DIR/fzf/colors.sh" 2>/dev/null || true
+  [[ -f "$MEOW_CONFIG_DIR/eza/colors.sh" ]] && source "$MEOW_CONFIG_DIR/eza/colors.sh" 2>/dev/null || true
+  [[ -f "$MEOW_CONFIG_DIR/zsh/colors.sh" ]] && source "$MEOW_CONFIG_DIR/zsh/colors.sh" 2>/dev/null || true
+}
+
+meow-theme() {
+  "${MEOW:-$HOME/.meow}/components/shell-essential/scripts/meow-theme" "$@"
+  local exit_code=$?
+  
+  # Reload environment variables after theme changes
+  case "${1:-apply}" in
+    toggle|apply|preset|auto|"")
+      _meow_source_theme_colors
+      ;;
+  esac
+  
+  return $exit_code
+}
+
+# Source theme colors on shell initialization
+_meow_source_theme_colors

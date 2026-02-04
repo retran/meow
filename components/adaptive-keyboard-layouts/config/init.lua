@@ -39,12 +39,13 @@ keyboardLayouts.config = {
 }
 
 local function runScript(scriptPath, description)
-  local basePath = "~/.meow/.installed/components/adaptive-keyboard-layouts/scripts/"
-  local task = hs.task.new(basePath .. scriptPath, function(exitCode, stdOut, stdErr)
+  local basePath = os.getenv("HOME") .. "/.meow/.installed/components/adaptive-keyboard-layouts/scripts/"
+  local scriptFullPath = basePath .. scriptPath
+  local task = hs.task.new("/bin/bash", function(exitCode, stdOut, stdErr)
     if exitCode ~= 0 then
       hs.alert.show(scriptPath .. " failed", 2)
     end
-  end)
+  end, {scriptFullPath})
   if not task then
     hs.alert.show("Failed to execute script", 2)
     return
@@ -98,6 +99,12 @@ function keyboardLayouts.init()
   keyboardLayouts.usbWatcher:start()
 
   setKeyboardLayoutForCurrentState(true)
+  hs.timer.doAfter(2, function()
+    setKeyboardLayoutForCurrentState(false)
+  end)
+  hs.timer.doAfter(5, function()
+    setKeyboardLayoutForCurrentState(false)
+  end)
 
   hs.alert.show("⌨️ Adaptive keyboard layouts ready", 2)
 end

@@ -1,9 +1,0 @@
-description: Time tracking command-line tools. Includes Toggl CLI for cross-platform
-  time tracking.
-platforms:
-- match:
-    platform: macos
-- match:
-    platform: linux
-depends_on:
-- shell-essential

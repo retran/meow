@@ -75,3 +75,32 @@ if [ -d "$HOME/.local/bin" ]; then
     fi
   fi
 fi
+
+# Set default editor to neovim if available
+if command -v nvim >/dev/null 2>&1; then
+  export EDITOR="nvim"
+  export VISUAL="nvim"
+  export GIT_EDITOR="nvim"
+fi
+
+# Configure ripgrep
+# Ripgrep config is managed by meow-theme and symlinked from ~/.ripgreprc
+# The base config with theme colors is applied via 'meow-theme apply'
+
+# Load theme-generated configurations
+MEOW_CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/meow"
+
+# Source FZF colors if available
+if [[ -f "$MEOW_CONFIG_DIR/fzf/colors.sh" ]]; then
+  source "$MEOW_CONFIG_DIR/fzf/colors.sh"
+fi
+
+# Source eza colors if available
+if [[ -f "$MEOW_CONFIG_DIR/eza/colors.sh" ]]; then
+  source "$MEOW_CONFIG_DIR/eza/colors.sh"
+fi
+
+# Source zsh/LS_COLORS if available
+if [[ -f "$MEOW_CONFIG_DIR/zsh/colors.sh" ]]; then
+  source "$MEOW_CONFIG_DIR/zsh/colors.sh"
+fi

@@ -43,7 +43,7 @@ This happens because `.meow` is a Git-based tool. To prevent losing your local m
 
 ### Configuration Issues
 
-If you suspect that your configuration in `.meowrc` is not being loaded correctly, check for syntax errors in the file. A common sign of this is that environment variables you have set are not being reflected in the behavior of `meowctl`. The shell will often print syntax errors to your terminal when it tries to source the file, which can help you diagnose the problem.
+If you suspect that your configuration in `config.yaml` is not being loaded correctly, check the file for formatting errors or invalid YAML syntax. A common sign is that your theme settings are not being reflected in `meowctl` output.
 
 ## Debugging Techniques
 
@@ -92,6 +92,38 @@ These caches store:
 - `~/.sources`: Cached package source configurations
 
 After clearing these caches, restart your shell or re-run `meowctl` commands. The framework will rebuild the caches with fresh data.
+
+### Pipx Package Update Failures
+
+When your Python version changes (e.g., upgrading from 3.13 to 3.14), pipx-managed packages may break with errors like:
+
+```
+✗ Failed to update Pipx codespell!
+Error: /path/to/python: No module named pip
+```
+
+**Automatic Recovery (Built-in):**
+
+As of recent updates, `.meow` automatically detects and fixes broken pipx virtual environments during `meowctl update` operations. When it encounters a "No module named pip" error, it will:
+
+1. Detect the broken virtual environment
+2. Automatically run `pipx reinstall <package>`
+3. Continue with the update process
+
+You don't need to take any manual action; the system handles this transparently.
+
+**Manual Fix (if needed):**
+
+If you encounter this issue outside of the update process, you can manually reinstall the affected package:
+
+```bash
+pipx reinstall <package-name>
+# Example: pipx reinstall codespell
+```
+
+**Root Cause:**
+
+This issue occurs when the Python interpreter version changes. Pipx creates virtual environments tied to specific Python versions, and when that version is no longer available, the virtual environment becomes unusable. The auto-recovery feature ensures your development tools remain functional after Python upgrades.
 
 ## Getting Help
 

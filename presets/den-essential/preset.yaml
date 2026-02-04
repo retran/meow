@@ -6,7 +6,6 @@ required:
 - tmux
 - desktop-essential
 - desktop-utilities
-- browsers
 - terminal-apps
 - neovim
 - visual-studio-code

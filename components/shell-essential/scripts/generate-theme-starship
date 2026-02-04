@@ -1,0 +1,123 @@
+#!/usr/bin/env bash
+# MIT License
+# Copyright (c) 2025 Andrew Vasilyev <me@retran.me>
+#
+# @file: components/shell-essential/scripts/generate-theme-starship
+# @brief: Generate Starship theme files from themes.yaml
+# @author: Andrew Vasilyev
+# @license: MIT
+
+set -euo pipefail
+
+# Script interface:
+# Input: $1=preset, $2=variant
+# Environment: $MEOW, $THEME_DB, $THEME_LIB
+# Output: Writes to $MEOW/components/shell-essential/config/starship/themes/
+
+PRESET="${1:-}"
+VARIANT="${2:-}"
+
+if [[ -z "$PRESET" || -z "$VARIANT" ]]; then
+  echo "Usage: $0 <preset> <variant>" >&2
+  exit 1
+fi
+
+MEOW_ROOT="${MEOW:-$HOME/.meow}"
+THEME_DB="${THEME_DB:-$MEOW_ROOT/themes.yaml}"
+THEME_LIB="${THEME_LIB:-$MEOW_ROOT/lib/theme/theme.sh}"
+OUTPUT_DIR="$MEOW_ROOT/components/shell-essential/config/starship/themes"
+STARSHIP_CONFIG="$MEOW_ROOT/components/shell-essential/config/starship/starship.toml"
+
+if [[ ! -f "$THEME_DB" ]]; then
+  echo "Theme database not found: $THEME_DB" >&2
+  exit 1
+fi
+
+if [[ ! -f "$THEME_LIB" ]]; then
+  echo "Theme library not found: $THEME_LIB" >&2
+  exit 1
+fi
+
+if [[ ! -f "$STARSHIP_CONFIG" ]]; then
+  echo "Starship config not found: $STARSHIP_CONFIG" >&2
+  exit 1
+fi
+
+source "$THEME_LIB"
+
+slugify() {
+  local value="$1"
+  value=$(echo "$value" | tr '[:upper:]' '[:lower:]')
+  value=$(echo "$value" | sed 's/[^a-z0-9]/_/g; s/_\+/_/g; s/^_//; s/_$//')
+  echo "$value"
+}
+
+mkdir -p "$OUTPUT_DIR"
+
+preset_slug=$(slugify "$PRESET")
+variant_slug=$(slugify "$VARIANT")
+palette_name="meow_${preset_slug}_${variant_slug}"
+out_file="$OUTPUT_DIR/${preset_slug}-${variant_slug}.toml"
+
+# Create temp file for processing starship config
+temp_file=$(mktemp)
+
+# Strip out old palette definitions and update palette reference
+awk -v palette="$palette_name" '
+    BEGIN { skip=0 }
+    /^\[palettes\.meow_/ { skip=1; next }
+    skip && /^\[/ { skip=0 }
+    skip { next }
+    /^palette = / { print "palette = '\''" palette "'\''"; next }
+    { if (!skip) print }
+' "$STARSHIP_CONFIG" > "$temp_file"
+
+# Get theme colors
+ok=$(theme_get_palette_color "$PRESET" "$VARIANT" "green" || theme_get_palette_color "$PRESET" "$VARIANT" "leaf" || theme_get_terminal_color "$PRESET" "$VARIANT" "2" || theme_get_terminal_named_color "$PRESET" "$VARIANT" "green" || true)
+danger=$(theme_get_palette_color "$PRESET" "$VARIANT" "red" || theme_get_palette_color "$PRESET" "$VARIANT" "rose" || theme_get_terminal_color "$PRESET" "$VARIANT" "1" || theme_get_terminal_named_color "$PRESET" "$VARIANT" "red" || true)
+caution=$(theme_get_palette_color "$PRESET" "$VARIANT" "yellow" || theme_get_palette_color "$PRESET" "$VARIANT" "wood" || theme_get_terminal_color "$PRESET" "$VARIANT" "3" || theme_get_terminal_named_color "$PRESET" "$VARIANT" "yellow" || true)
+git=$(theme_get_palette_color "$PRESET" "$VARIANT" "cyan" || theme_get_palette_color "$PRESET" "$VARIANT" "water" || theme_get_terminal_color "$PRESET" "$VARIANT" "6" || theme_get_terminal_named_color "$PRESET" "$VARIANT" "cyan" || true)
+dir=$(theme_get_palette_color "$PRESET" "$VARIANT" "blue" || theme_get_palette_color "$PRESET" "$VARIANT" "blue1" || theme_get_palette_color "$PRESET" "$VARIANT" "blue0" || theme_get_terminal_color "$PRESET" "$VARIANT" "4" || theme_get_terminal_named_color "$PRESET" "$VARIANT" "blue" || true)
+env=$(theme_get_palette_color "$PRESET" "$VARIANT" "purple" || theme_get_palette_color "$PRESET" "$VARIANT" "blossom" || theme_get_terminal_color "$PRESET" "$VARIANT" "5" || theme_get_terminal_named_color "$PRESET" "$VARIANT" "magenta" || true)
+fg=$(theme_get_palette_color "$PRESET" "$VARIANT" "fg" || theme_get_palette_color "$PRESET" "$VARIANT" "fg1" || true)
+
+os="$danger"
+kube="$env"
+docker="$dir"
+shell="$fg"
+container="$danger"
+other="$fg"
+time="$fg"
+duration="$fg"
+vim_ok="$ok"
+vim_replace="$env"
+vim_visual="$caution"
+
+# Append palette definition
+{
+  echo ""
+  echo "[palettes.${palette_name}]"
+  [[ -n "$ok" ]] && echo "color_ok = '${ok}'"
+  [[ -n "$danger" ]] && echo "color_danger = '${danger}'"
+  [[ -n "$caution" ]] && echo "color_caution = '${caution}'"
+  [[ -n "$git" ]] && echo "color_git = '${git}'"
+  [[ -n "$dir" ]] && echo "color_directory = '${dir}'"
+  [[ -n "$env" ]] && echo "color_env = '${env}'"
+  [[ -n "$os" ]] && echo "color_os = '${os}'"
+  [[ -n "$os" ]] && echo "color_username = '${os}'"
+  [[ -n "$git" ]] && echo "color_git_added = '${ok}'"
+  [[ -n "$git" ]] && echo "color_git_deleted = '${danger}'"
+  [[ -n "$kube" ]] && echo "color_kubernetes = '${kube}'"
+  [[ -n "$docker" ]] && echo "color_docker = '${docker}'"
+  [[ -n "$shell" ]] && echo "color_shell = '${shell}'"
+  [[ -n "$container" ]] && echo "color_container = '${container}'"
+  [[ -n "$other" ]] && echo "color_other = '${other}'"
+  [[ -n "$time" ]] && echo "color_time = '${time}'"
+  [[ -n "$duration" ]] && echo "color_duration = '${duration}'"
+  [[ -n "$vim_ok" ]] && echo "color_vimcmd_ok = '${vim_ok}'"
+  [[ -n "$vim_replace" ]] && echo "color_vimcmd_replace = '${vim_replace}'"
+  [[ -n "$vim_visual" ]] && echo "color_vimcmd_visual = '${vim_visual}'"
+} >> "$temp_file"
+
+mv "$temp_file" "$out_file"
+echo "Generated: $out_file"

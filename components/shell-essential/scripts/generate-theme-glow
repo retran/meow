@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+PRESET="${1:-}"
+VARIANT="${2:-}"
+
+if [[ -z "$PRESET" || -z "$VARIANT" ]]; then
+  echo "Usage: $0 <preset> <variant>" >&2
+  exit 1
+fi
+
+MEOW_ROOT="${MEOW:-$HOME/.meow}"
+THEME_DB="${THEME_DB:-$MEOW_ROOT/themes.yaml}"
+THEME_LIB="${THEME_LIB:-$MEOW_ROOT/lib/theme/theme.sh}"
+OUTPUT_DIR="$MEOW_ROOT/components/shell-essential/config/glow/themes"
+
+source "$THEME_LIB"
+
+slugify() {
+  local value="$1"
+  echo "$value" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/_/g; s/_\+/_/g; s/^_//; s/_$//'
+}
+
+mkdir -p "$OUTPUT_DIR"
+preset_slug=$(slugify "$PRESET")
+variant_slug=$(slugify "$VARIANT")
+out_file="$OUTPUT_DIR/${preset_slug}-${variant_slug}.yml"
+
+# Determine if this is a light or dark theme
+style="dark"
+bg=$(theme_get_palette_color "$PRESET" "$VARIANT" "bg" || theme_get_palette_color "$PRESET" "$VARIANT" "bg1" || true)
+
+# Simple brightness check
+if [[ -n "$bg" ]]; then
+  if [[ "$bg" =~ ^#[a-fA-F] || "$bg" =~ ^#[89] ]]; then
+    style="light"
+  fi
+fi
+
+cat > "$out_file" <<EOF
+# Generated from themes.yaml
+# style name or JSON path (default "auto")
+style: "${style}"
+# mouse support (TUI-mode only)
+mouse: false
+# use pager to display markdown
+pager: false
+# word-wrap at width
+width: 80
+# show all files, including hidden and ignored.
+all: false
+EOF
+
+echo "Generated: $out_file"

@@ -1,0 +1,8 @@
+description: AI-powered development tools including language models, code assistants, and AI CLI tools
+platforms:
+- match:
+    platform: macos
+- match:
+    platform: linux
+depends_on:
+- shell-essential

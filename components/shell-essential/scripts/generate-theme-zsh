@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+PRESET="${1:-}"
+VARIANT="${2:-}"
+
+if [[ -z "$PRESET" || -z "$VARIANT" ]]; then
+  echo "Usage: $0 <preset> <variant>" >&2
+  exit 1
+fi
+
+MEOW_ROOT="${MEOW:-$HOME/.meow}"
+THEME_DB="${THEME_DB:-$MEOW_ROOT/themes.yaml}"
+THEME_LIB="${THEME_LIB:-$MEOW_ROOT/lib/theme/theme.sh}"
+OUTPUT_DIR="$MEOW_ROOT/components/shell-essential/config/zsh/themes"
+
+source "$THEME_LIB"
+
+slugify() {
+  local value="$1"
+  echo "$value" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/_/g; s/_\+/_/g; s/^_//; s/_$//'
+}
+
+mkdir -p "$OUTPUT_DIR"
+preset_slug=$(slugify "$PRESET")
+variant_slug=$(slugify "$VARIANT")
+out_file="$OUTPUT_DIR/${preset_slug}-${variant_slug}.sh"
+
+# Generate a basic LS_COLORS
+# Format: di=34 means directories are blue (ANSI 34)
+# We'll use simplified ANSI color codes
+cat > "$out_file" <<EOF
+# Generated from themes.yaml
+# Basic LS_COLORS configuration
+export LS_COLORS="di=1;34:ln=1;36:ex=1;32:*.tar=1;31:*.zip=1;31:*.gz=1;31"
+EOF
+
+echo "Generated: $out_file"

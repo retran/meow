@@ -2,30 +2,90 @@
 
 The `.meow` framework can be customized through a combination of environment variables and configuration files located in the `private/` directory.
 
-## The `.meowrc` File
+## The `config.yaml` File
 
-The `.meowrc` file is the primary way to configure the behavior of `.meow`. This file is sourced by the `meowctl` script and can be used to set environment variables that control various features.
+The `config.yaml` file is the primary way to configure the behavior of `.meow`. This file is used by `meowctl` and shared by components to coordinate theme settings.
 
 To get started, copy the example file:
 
 ```bash
-cp private/meow/.meowrc.example private/meow/.meowrc
+cp private/meow/config.yaml.example private/meow/config.yaml
 ```
 
-Then, edit `private/meow/.meowrc` to suit your preferences.
+Then, edit `private/meow/config.yaml` to suit your preferences. The personal preset also ships an example at `presets/den-personal/config.yaml`.
 
-### Available Options
+### Theme Options
 
-- `MEOW_ENABLE_MAS`: Set to `"true"` to enable package management from the Mac App Store using the `mas` command. Defaults to `"true"` on macOS.
+- `theme.mode`: `manual` or `auto`
+- `theme.current`: `light` or `dark`
+- `theme.light`: `preset` and `variant` for light mode
+- `theme.dark`: `preset` and `variant` for dark mode
 
-**Example `.meowrc`:**
+**Example `config.yaml`:**
+
+```yaml
+theme:
+  mode: auto
+  current: dark
+  light:
+    preset: catppuccin
+    variant: latte
+  dark:
+    preset: catppuccin
+    variant: mocha
+```
+
+**Note on `config.yaml`:** Changes to `config.yaml` require either a new terminal session or running `meowctl theme apply` to update active components.
+
+## Theme System Architecture
+
+`.meow` features a component-based theme system that automatically generates and applies consistent color schemes across 13+ CLI tools and terminal applications.
+
+### Supported Applications
+
+The theme system supports the following tools with automatic theme generation:
+
+- **Terminal Emulators:** Ghostty, Tmux
+- **CLI Tools:** bat, delta, eza, fzf, glow, htop, lazygit, ripgrep, starship, tealdeer
+- **Shell:** zsh (via prompt integration)
+
+### How Theme Generation Works
+
+The theme system uses a three-stage pipeline:
+
+1. **Theme Definition** (`themes.yaml`): Central color palette definitions with variants (light/dark)
+2. **Theme Generators** (`components/*/scripts/generate-theme-*`): Component-specific scripts that read `themes.yaml` and generate themed configuration files
+3. **Theme Appliers** (`components/*/scripts/apply-theme-*`): Scripts that inject generated themes into active application configs
+
+**Workflow Example:**
 
 ```bash
-# Enable/disable Mac App Store (mas) package management
-export MEOW_ENABLE_MAS="true"
+themes.yaml → generate-theme-tmux → ~/.config/meow/tmux/theme.conf → apply-theme-tmux → ~/.tmux.conf
 ```
 
-**Note on `.meowrc` Variables:** Variables defined in your `.meowrc` file are loaded into your Zsh shell session during startup (via `config/zsh/.zprofile`) and by `meowctl` when it executes. Changes to `.meowrc` require either a **shell restart** (opening a new terminal session) or manual sourcing (e.g., `source ~/.meowrc`) to take effect in your current shell environment. The `meowctl` utility will automatically load the updated settings when invoked.
+### Automatic Theme Switching
+
+- **macOS:** Uses Hammerspoon to detect system appearance changes and automatically applies themes
+- **Linux:** Uses system detection scripts to determine the current theme mode
+
+When your system switches between light and dark modes, `.meow` automatically regenerates and applies the appropriate theme variant across all supported applications.
+
+### Adding Custom Themes
+
+To add your own theme presets:
+
+1. Edit `private/meow/themes.yaml` (copy from `themes.yaml` if it doesn't exist)
+2. Define your color palette following the existing structure
+3. Run `meowctl theme generate` to generate configurations
+4. Run `meowctl theme apply` to activate the theme
+
+### Theme Configuration Options
+
+Refer to the [Theme Options](#theme-options) section above for details on configuring:
+- `theme.mode`: Manual or automatic theme switching
+- `theme.current`: Current active theme (light/dark)
+- `theme.light`: Light mode preset and variant
+- `theme.dark`: Dark mode preset and variant
 
 ## Secrets Management
 

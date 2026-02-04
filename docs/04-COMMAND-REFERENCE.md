@@ -194,6 +194,54 @@ Restores a specific dotfile from a backup file.
 
 ---
 
+## `meowctl config`
+
+Manages the `config.yaml` settings.
+
+### Usage
+
+```bash
+meowctl config <subcommand> [arguments]
+```
+
+### Examples
+
+```bash
+meowctl config get theme.mode
+meowctl config set theme.current dark
+meowctl config set theme.mode auto
+```
+
+---
+
+## `meowctl theme`
+
+Applies the unified theme across Ghostty, Zsh/Oh My Zsh, Starship, and tmux.
+
+### Usage
+
+```bash
+meowctl theme [command]
+```
+
+### Commands
+
+- `apply`: Apply the current theme (default)
+- `toggle`: Toggle light/dark mode
+- `preset <preset> <variant>`: Apply preset/variant to current mode
+- `preset <preset> <variant> <light|dark>`: Apply preset/variant to specific mode
+
+### Examples
+
+```bash
+meowctl theme
+meowctl theme toggle
+meowctl theme preset tokyonight moon
+meowctl theme preset catppuccin latte light
+```
+
+---
+
 ## `meowctl help`
 
 Shows help information for `meowctl` or a specific command.

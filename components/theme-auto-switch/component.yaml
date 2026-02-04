@@ -1,0 +1,8 @@
+description: Automatic theme switching based on system appearance (dark/light mode)
+type: hammerspoon
+platforms:
+- match:
+    platform: macos
+depends_on:
+- hammerspoon
+- shell-essential

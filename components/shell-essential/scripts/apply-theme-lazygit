@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+# MIT License
+# Copyright (c) 2025 Andrew Vasilyev <me@retran.me>
+
+set -euo pipefail
+
+PRESET="${1:-}"
+VARIANT="${2:-}"
+
+if [[ -z "$PRESET" || -z "$VARIANT" ]]; then
+  echo "Usage: $0 <preset> <variant>" >&2
+  exit 1
+fi
+
+MEOW_ROOT="${MEOW:-$HOME/.meow}"
+MEOW_CONFIG_DIR="${MEOW_CONFIG_DIR:-$HOME/.config/meow}"
+
+slugify() {
+  local value="$1"
+  echo "$value" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/_/g; s/_\+/_/g; s/^_//; s/_$//'
+}
+
+preset_slug=$(slugify "$PRESET")
+variant_slug=$(slugify "$VARIANT")
+
+theme_file="$MEOW_ROOT/components/shell-essential/config/lazygit/themes/${preset_slug}-${variant_slug}.yml"
+lazygit_config="${XDG_CONFIG_HOME:-$HOME/.config}/lazygit/config.yml"
+
+if [[ ! -f "$theme_file" ]]; then
+  echo "lazygit theme not found: $theme_file" >&2
+  exit 1
+fi
+
+mkdir -p "$(dirname "$lazygit_config")"
+cp "$theme_file" "$lazygit_config"
+
+echo "Applied lazygit theme: $PRESET/$VARIANT"

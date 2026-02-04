@@ -1,0 +1,135 @@
+#!/usr/bin/env bash
+# MIT License
+# Copyright (c) 2025 Andrew Vasilyev <me@retran.me>
+#
+# @file: components/tmux/scripts/generate-theme-tmux
+# @brief: Generate Tmux theme files from themes.yaml
+# @author: Andrew Vasilyev
+# @license: MIT
+
+set -euo pipefail
+
+PRESET="${1:-}"
+VARIANT="${2:-}"
+
+if [[ -z "$PRESET" || -z "$VARIANT" ]]; then
+  echo "Usage: $0 <preset> <variant>" >&2
+  exit 1
+fi
+
+MEOW_ROOT="${MEOW:-$HOME/.meow}"
+THEME_DB="${THEME_DB:-$MEOW_ROOT/themes.yaml}"
+THEME_LIB="${THEME_LIB:-$MEOW_ROOT/lib/theme/theme.sh}"
+OUTPUT_DIR="$MEOW_ROOT/components/tmux/config/themes"
+
+if [[ ! -f "$THEME_DB" ]]; then
+  echo "Theme database not found: $THEME_DB" >&2
+  exit 1
+fi
+
+if [[ ! -f "$THEME_LIB" ]]; then
+  echo "Theme library not found: $THEME_LIB" >&2
+  exit 1
+fi
+
+source "$THEME_LIB"
+
+slugify() {
+  local value="$1"
+  value=$(echo "$value" | tr '[:upper:]' '[:lower:]')
+  value=$(echo "$value" | sed 's/[^a-z0-9]/_/g; s/_\+/_/g; s/^_//; s/_$//')
+  echo "$value"
+}
+
+mkdir -p "$OUTPUT_DIR"
+
+preset_slug=$(slugify "$PRESET")
+variant_slug=$(slugify "$VARIANT")
+out_file="$OUTPUT_DIR/${preset_slug}-${variant_slug}.conf"
+
+# Get colors with fallback chains
+bg=$(theme_get_palette_color "$PRESET" "$VARIANT" "bg" || \
+     theme_get_palette_color "$PRESET" "$VARIANT" "bg1" || \
+     theme_get_terminal_color "$PRESET" "$VARIANT" "0" || \
+     echo "000000")
+
+fg=$(theme_get_palette_color "$PRESET" "$VARIANT" "fg" || \
+     theme_get_palette_color "$PRESET" "$VARIANT" "fg1" || \
+     theme_get_terminal_color "$PRESET" "$VARIANT" "7" || \
+     echo "ffffff")
+
+accent=$(theme_get_palette_color "$PRESET" "$VARIANT" "blue" || \
+         theme_get_palette_color "$PRESET" "$VARIANT" "blue1" || \
+         theme_get_palette_color "$PRESET" "$VARIANT" "blue0" || \
+         theme_get_palette_color "$PRESET" "$VARIANT" "water" || \
+         theme_get_terminal_color "$PRESET" "$VARIANT" "4" || \
+         theme_get_terminal_named_color "$PRESET" "$VARIANT" "blue" || \
+         echo "0000ff")
+
+border=$(theme_get_palette_color "$PRESET" "$VARIANT" "border" || \
+         theme_get_palette_color "$PRESET" "$VARIANT" "gray" || \
+         theme_get_palette_color "$PRESET" "$VARIANT" "fg1" || \
+         theme_get_terminal_color "$PRESET" "$VARIANT" "8" || \
+         echo "888888")
+
+alert=$(theme_get_palette_color "$PRESET" "$VARIANT" "red" || \
+        theme_get_palette_color "$PRESET" "$VARIANT" "rose" || \
+        theme_get_terminal_color "$PRESET" "$VARIANT" "1" || \
+        theme_get_terminal_named_color "$PRESET" "$VARIANT" "red" || \
+        echo "ff0000")
+
+ok=$(theme_get_palette_color "$PRESET" "$VARIANT" "green" || \
+     theme_get_palette_color "$PRESET" "$VARIANT" "leaf" || \
+     theme_get_terminal_color "$PRESET" "$VARIANT" "2" || \
+     theme_get_terminal_named_color "$PRESET" "$VARIANT" "green" || \
+     echo "00ff00")
+
+weather=$(theme_get_palette_color "$PRESET" "$VARIANT" "surface1" || \
+          theme_get_palette_color "$PRESET" "$VARIANT" "surface0" || \
+          theme_get_palette_color "$PRESET" "$VARIANT" "mantle" || \
+          theme_get_palette_color "$PRESET" "$VARIANT" "bg_warm" || \
+          theme_get_palette_color "$PRESET" "$VARIANT" "bg_highlight" || \
+          theme_get_palette_color "$PRESET" "$VARIANT" "bg1" || \
+          theme_get_terminal_color "$PRESET" "$VARIANT" "8" || \
+          echo "444444")
+
+status_bg=$(theme_get_palette_color "$PRESET" "$VARIANT" "bg_statusline" || \
+            theme_get_palette_color "$PRESET" "$VARIANT" "bg_dark" || \
+            theme_get_palette_color "$PRESET" "$VARIANT" "bg" || \
+            theme_get_terminal_color "$PRESET" "$VARIANT" "0" || \
+            echo "000000")
+
+status_fg=$(theme_get_palette_color "$PRESET" "$VARIANT" "fg" || \
+            theme_get_palette_color "$PRESET" "$VARIANT" "fg_sidebar" || \
+            theme_get_palette_color "$PRESET" "$VARIANT" "fg1" || \
+            theme_get_terminal_color "$PRESET" "$VARIANT" "7" || \
+            echo "ffffff")
+
+message_bg=$(theme_get_palette_color "$PRESET" "$VARIANT" "bg_highlight" || \
+             theme_get_palette_color "$PRESET" "$VARIANT" "bg_visual" || \
+             theme_get_terminal_color "$PRESET" "$VARIANT" "8" || \
+             echo "444444")
+
+# Icons
+calendar_icon=$(printf '\uf073')
+clock_icon=$(printf '\uf017')
+
+cat > "$out_file" <<EOF
+set -g status-style "bg=${status_bg},fg=${status_fg}"
+set -g status-left-style NONE
+set -g status-right-style NONE
+set -g message-style "bg=${message_bg},fg=${status_fg}"
+set -g message-command-style "bg=${status_bg},fg=${status_fg}"
+set -g pane-border-style "fg=${border}"
+set -g pane-active-border-style "fg=${accent}"
+set -g window-status-activity-style "fg=${status_fg},bg=${status_bg}"
+set -g window-status-style "fg=${status_fg},bg=${status_bg}"
+set -g window-status-current-format "#[fg=${status_bg},bg=${accent},bold] #I #[fg=${status_fg},bg=${status_bg}] #W #F "
+set -g window-status-format "#[fg=${status_fg},bg=${status_bg}] #I #[fg=${status_fg},bg=${status_bg}] #W #F "
+set -g status-left "#[fg=${status_bg},bg=${accent},bold] #S #[fg=${accent},bg=${status_bg}]"
+set -g status-right "#[fg=${status_fg},bg=${status_bg}]#(~/.meow/components/tmux/scripts/tmux-cpu)  #[fg=${status_fg},bg=${status_bg}]#(~/.meow/components/tmux/scripts/tmux-memory)  #[fg=${status_fg},bg=${status_bg}]#(~/.meow/components/tmux/scripts/tmux-battery)  #[fg=${status_fg},bg=${status_bg}]#(~/.meow/components/tmux/scripts/tmux-weather)  #[fg=${status_fg},bg=${status_bg}]${calendar_icon} %a %-d %b  #[fg=${status_fg},bg=${status_bg}]${clock_icon} %H:%M "
+set -g mode-style "fg=${ok},bg=${status_bg}"
+set -g window-status-bell-style "fg=${alert},bg=${status_bg},bold"
+EOF
+
+echo "Generated: $out_file"

@@ -19,7 +19,7 @@ The documents are designed to be read in order, but are also interlinked to allo
 
 ### Customization & Development
 
-- **[02 - Configuration](./02-CONFIGURATION.md)**: An explanation of how to customize `.meow` using `.meowrc`, secrets, and environment variables.
+- **[02 - Configuration](./02-CONFIGURATION.md)**: An explanation of how to customize `.meow` using `config.yaml`, secrets, and environment variables.
 - **[07 - Package Configuration](./07-PACKAGE-CONFIGURATION.md)**: Learn how the framework resolves package managers, matches OS versions, and configures custom package sources.
 - **[08 - Preset Development](./08-PRESET-DEVELOPMENT.md)**: A guide to creating custom presets, inheriting from existing ones, and defining environment roles.
 - **[09 - Component Development](./09-COMPONENT-DEVELOPMENT.md)**: A comprehensive guide on how to create new components, from their structure to their lifecycle scripts.
