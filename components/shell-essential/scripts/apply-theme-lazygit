@@ -23,15 +23,15 @@ slugify() {
 preset_slug=$(slugify "$PRESET")
 variant_slug=$(slugify "$VARIANT")
 
-theme_file="$MEOW_ROOT/components/dev-tools/config/lazygit/themes/${preset_slug}-${variant_slug}.yml"
-target_file="$MEOW_CONFIG_DIR/lazygit/theme.yml"
+theme_file="$MEOW_ROOT/components/shell-essential/config/lazygit/themes/${preset_slug}-${variant_slug}.yml"
+lazygit_config="${XDG_CONFIG_HOME:-$HOME/.config}/lazygit/config.yml"
 
 if [[ ! -f "$theme_file" ]]; then
-  echo "Lazygit theme not found: $theme_file" >&2
+  echo "lazygit theme not found: $theme_file" >&2
   exit 1
 fi
 
-mkdir -p "$(dirname "$target_file")"
-cp "$theme_file" "$target_file"
+mkdir -p "$(dirname "$lazygit_config")"
+cp "$theme_file" "$lazygit_config"
 
 echo "Applied lazygit theme: $PRESET/$VARIANT"
