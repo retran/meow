@@ -25,24 +25,160 @@
 # @author: Andrew Vasilyev
 # @license: MIT
 #
+
+# ============================================================================
+# FONT CONFIGURATION
+# ============================================================================
 font-family = "JetBrainsMono Nerd Font Mono"
 font-style = "SemiBold"
 font-size = 14
 
-# cursor/selection colors will be derived from theme
+# Font features and rendering
+font-feature = -calt  # Disable ligatures (optional - remove if you want ligatures)
+adjust-cell-width = 0
+adjust-cell-height = 0
 
-background-opacity = 1.0
-
-title = "meow - Purr-fect Development Environment"
-
+# ============================================================================
+# WINDOW CONFIGURATION
+# ============================================================================
 window-width = 120
 window-height = 40
+window-padding-x = 4
+window-padding-y = 4
 
-# Match Alacritty's `option_as_alt = "OnlyLeft"`.
+# Window behavior
+window-save-state = always
+window-vsync = true
+window-inherit-working-directory = true
+window-inherit-font-size = true
+
+# Window decoration (macOS-specific)
+macos-titlebar-style = tabs
+macos-non-native-fullscreen = false
+
+# ============================================================================
+# VISUAL SETTINGS
+# ============================================================================
+background-opacity = 1.0
+background-blur-radius = 0
+
+# Cursor
+cursor-style = block
+cursor-style-blink = false
+
+# ============================================================================
+# SHELL INTEGRATION
+# ============================================================================
+# Shell integration - enables enhanced features:
+# - Prompt marking for quick navigation
+# - Current working directory tracking  
+# - Command tracking and semantic operations
+# - Accurate window titles
+shell-integration = zsh
+shell-integration-features = cursor,sudo,title
+
+# ============================================================================
+# CLIPBOARD & SELECTION
+# ============================================================================
+clipboard-read = allow
+clipboard-write = allow
+clipboard-paste-protection = true
+clipboard-paste-bracketed-safe = true
+
+# Copy on select (like terminal.app)
+copy-on-select = false
+
+# ============================================================================
+# MOUSE & TOUCHPAD
+# ============================================================================
+mouse-hide-while-typing = true
+mouse-scroll-multiplier = 1.0
+
+# ============================================================================
+# KEYBOARD
+# ============================================================================
+# Match Alacritty's `option_as_alt = "OnlyLeft"`
 macos-option-as-alt = left
 
-# Theme configuration
+# Key repeat
+macos-auto-repeat = true
+macos-auto-repeat-delay = 15
+macos-auto-repeat-rate = 2
+
+# ============================================================================
+# PERFORMANCE
+# ============================================================================
+# Scrollback
+scrollback-limit = 50000  # Match tmux history-limit
+
+# FPS limit (0 = unlimited, sync with refresh rate)
+max-fps = 120
+
+# ============================================================================
+# TERMINAL FEATURES
+# ============================================================================
+# Terminal emulation
+term = xterm-ghostty
+
+# Bold and italic
+bold-is-bright = false
+resize-overlay = always
+
+# ============================================================================
+# WORKING DIRECTORY & INITIAL COMMAND
+# ============================================================================
+# initial-command = tmux  # Uncomment to auto-start tmux
+# working-directory = ~   # Default working directory
+
+# ============================================================================
+# QUICK TERMINAL (Dropdown/Hotkey Terminal)
+# ============================================================================
+# Enable quick terminal (dropdown terminal, Quake-style)
+# Accessible via global hotkey
+# quick-terminal-enabled = true
+# quick-terminal-animation-duration = 0.2
+# quick-terminal-position = top
+# quick-terminal-screen = main
+# quick-terminal-height = 50%  # 50% of screen height
+
+# ============================================================================
+# KEYBINDINGS (Ghostty-specific actions)
+# ============================================================================
+# Note: Most terminal keybindings work out of the box
+# These are Ghostty-specific window/tab management
+
+# Tabs
+keybind = cmd+t=new_tab
+keybind = cmd+w=close_surface
+keybind = cmd+shift+[=previous_tab
+keybind = cmd+shift+]=next_tab
+
+# Windows
+keybind = cmd+n=new_window
+keybind = cmd+shift+n=new_tab
+
+# Font size
+keybind = cmd+plus=increase_font_size:1
+keybind = cmd+minus=decrease_font_size:1
+keybind = cmd+0=reset_font_size
+
+# Splits (Ghostty native splits - you might prefer tmux for this)
+# keybind = cmd+d=new_split:right
+# keybind = cmd+shift+d=new_split:down
+
+# Copy/Paste
+keybind = cmd+c=copy_to_clipboard
+keybind = cmd+v=paste_from_clipboard
+
+# Search
+keybind = cmd+f=toggle_quick_terminal
+
+# ============================================================================
+# THEME CONFIGURATION
+# ============================================================================
 # Dynamic theme colors are managed by meow-theme and injected below between markers
+# title: meow - Purr-fect Development Environment
+
 # theme: meow
 # Theme will be injected here by apply-theme-ghostty
 # endtheme: meow
