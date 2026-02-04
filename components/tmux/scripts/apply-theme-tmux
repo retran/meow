@@ -43,7 +43,8 @@ cp "$theme_file" "$target_file"
 
 # Reload tmux if running
 if command -v tmux >/dev/null 2>&1 && tmux list-sessions >/dev/null 2>&1; then
-  tmux source-file ~/.config/meow/tmux/tmux.conf 2>/dev/null || true
+  # Just reload the theme file - the main config doesn't need reloading
+  tmux source-file "$target_file" 2>/dev/null || true
 fi
 
 echo "Applied tmux theme: $PRESET/$VARIANT"

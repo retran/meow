@@ -581,9 +581,22 @@ apply_theme() {
       "Preset: $preset" \
       "Variant: $variant" \
       "Mode: $mode_label"
+    
+    echo ""
+    echo "  To see changes:"
+    echo "  • Ghostty: Updated immediately"
+    echo "  • tmux: Reloaded automatically"
+    echo "  • Shell tools (fzf/eza): Open new tab/window"
+    echo "  • TUI apps (lazygit/htop): Restart app"
   else
     echo ""
     echo "Theme applied: ${preset} (${variant}, ${mode_label})"
+    echo ""
+    echo "To see changes:"
+    echo "  • Ghostty: Updated immediately"
+    echo "  • tmux: Reloaded automatically"
+    echo "  • Shell tools (fzf/eza): Open new tab/window"
+    echo "  • TUI apps (lazygit/htop): Restart app"
   fi
 }
 
