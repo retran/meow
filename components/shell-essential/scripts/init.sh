@@ -252,6 +252,33 @@ fi
 # Source theme color configurations
 MEOW_CONFIG_DIR="${MEOW_CONFIG_DIR:-${XDG_CONFIG_HOME:-$HOME/.config}/meow}"
 
+# Create meow-theme wrapper function that can update current shell
+meow-theme() {
+  local cmd="${1:-apply}"
+  
+  # Run the meow-theme script
+  "${MEOW:-$HOME/.meow}/components/shell-essential/scripts/meow-theme" "$@"
+  local exit_code=$?
+  
+  # After running, reload environment variables in current shell for commands that modify theme
+  if [[ "$cmd" == "toggle" || "$cmd" == "apply" || "$cmd" == "preset" || "$cmd" == "auto" || "$cmd" == "" ]]; then
+    if [[ -f "$MEOW_CONFIG_DIR/fzf/colors.sh" ]]; then
+      source "$MEOW_CONFIG_DIR/fzf/colors.sh" 2>/dev/null || true
+    fi
+    
+    if [[ -f "$MEOW_CONFIG_DIR/eza/colors.sh" ]]; then
+      source "$MEOW_CONFIG_DIR/eza/colors.sh" 2>/dev/null || true
+    fi
+    
+    if [[ -f "$MEOW_CONFIG_DIR/zsh/colors.sh" ]]; then
+      source "$MEOW_CONFIG_DIR/zsh/colors.sh" 2>/dev/null || true
+    fi
+  fi
+  
+  return $exit_code
+}
+
+# Legacy: keep the old color sourcing for initial shell startup
 if [[ -f "$MEOW_CONFIG_DIR/fzf/colors.sh" ]]; then
   source "$MEOW_CONFIG_DIR/fzf/colors.sh"
 fi

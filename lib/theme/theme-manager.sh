@@ -586,7 +586,7 @@ apply_theme() {
     echo "  To see changes:"
     echo "  • Ghostty: Updated immediately"
     echo "  • tmux: Reloaded automatically"
-    echo "  • Shell tools (fzf/eza): Open new tab/window"
+    echo "  • Shell tools (fzf/eza): Updated in current shell"
     echo "  • TUI apps (lazygit/htop): Restart app"
   else
     echo ""
@@ -595,7 +595,7 @@ apply_theme() {
     echo "To see changes:"
     echo "  • Ghostty: Updated immediately"
     echo "  • tmux: Reloaded automatically"
-    echo "  • Shell tools (fzf/eza): Open new tab/window"
+    echo "  • Shell tools (fzf/eza): Updated in current shell"
     echo "  • TUI apps (lazygit/htop): Restart app"
   fi
 }
