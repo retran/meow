@@ -84,6 +84,11 @@ This document provides a detailed reference for all components available in the 
 - **Pipx:** `codespell`, `yamllint`
   **Configuration:**
 - **Scripts:** `init.sh`
+- **Pipx Auto-Recovery:**
+  - Automatically detects broken pipx virtual environments (e.g., after Python version upgrades)
+  - Runs `pipx reinstall` for packages with "No module named pip" errors
+  - Maintains package functionality across Python version changes
+  - Transparent recovery during `meowctl update` operations
 
 ---
 
@@ -529,6 +534,11 @@ This document provides a detailed reference for all components available in the 
   - Enables bat-powered previews for FZF file selection (`Ctrl+T`)
   - Enables eza-powered directory tree previews (`Alt+C`)
   - Terminal title management with hooks for showing current directory
+- **Starship Prompt Configuration:**
+  - Optimized with 3-second command timeout for responsiveness
+  - Optional "cockpit features" (battery, memory) disabled by default (use tmux status bar instead)
+  - Focused on development context: git status, language versions, execution time
+  - Streamlined format string removes redundant disabled modules
 
 ---
 
@@ -543,12 +553,20 @@ This document provides a detailed reference for all components available in the 
   **Configuration:**
 - **Config:** `alacritty/alacritty.toml`, `ghostty/config`
 - **Symlinks:** Links `alacritty.toml` to `~/.config/alacritty/alacritty.toml`, `ghostty/config` to `~/.config/ghostty/config`.
+- **Ghostty Features:**
+  - Full shell integration (cursor, sudo, title features)
+  - 50,000 line scrollback buffer (matching tmux)
+  - Comprehensive clipboard settings
+  - Window padding and state persistence
+  - macOS-specific optimizations
+  - Complete keybinding configuration
+  - Theme support via auto-generation from `themes.yaml`
 
 ---
 
 ## tmux
 
-**Description:** Terminal multiplexer for advanced terminal session management with clipboard integration and vim-style key bindings.
+**Description:** Terminal multiplexer for advanced terminal session management with clipboard integration, vim-aware navigation, and system monitoring.
 **Platforms:** macOS, Linux
 **Dependencies:** `shell-essential`
 **Packages:**
@@ -556,20 +574,40 @@ This document provides a detailed reference for all components available in the 
 - **APK:** `tmux`
 - **APT:** `tmux`
 - **DNF:** `tmux`
-- **Homebrew:** `tmux`, `reattach-to-user-namespace`
+- **Homebrew:** `tmux`
 - **Pacman:** `tmux`
   **Configuration:**
 - **Config:** `tmux/.tmux.conf`
 - **Symlinks:** Links `.tmux.conf` to `~/.tmux.conf`.
-- **Plugins:** TPM, catppuccin theme, pain-control, tmux-yank, tmux-resurrect, tmux-continuum
+- **Plugins:** TPM, catppuccin theme, tmux-yank, tmux-resurrect, tmux-continuum, tmux-fingers, tmux-open, tmux-fzf
+- **Status Bar Monitoring Scripts:**
+  - `scripts/tmux-cpu`: System-wide CPU usage monitoring
+  - `scripts/tmux-memory`: Active memory usage display
+  - `scripts/tmux-battery`: Battery status with charging indicators
+  - `scripts/tmux-weather`: Weather data via wttr.in (15-minute cache)
+  - `scripts/generate-theme-tmux`: Generates themed status bar configuration
 - **Features:**
-  - Platform-specific clipboard integration (pbcopy/pbpaste on macOS, xclip on Linux)
-  - Uses `reattach-to-user-namespace` for proper macOS clipboard access
-  - Vi-style copy mode with visual selection (`v`, `y`, `Enter`)
-  - Quick window selection with `Alt+1` through `Alt+9`
-  - Window navigation with `Alt+H` (previous) and `Alt+L` (next)
-  - Terminal title passthrough from nested applications (vim, shell)
-  - Mouse support enabled for scrolling and pane selection
+  - **Vim-Aware Pane Navigation**: Seamless `C-h/j/k/l` navigation between vim windows and tmux panes
+  - **System Monitoring**: macOS-style status bar with CPU, memory, battery, weather, date, and time
+  - **Performance**: 50,000 line history buffer, RGB color support, undercurl
+  - **Modern Clipboard**: Direct `pbcopy`/`pbpaste` integration (removed outdated `reattach-to-user-namespace`)
+  - **Productivity Keybindings:**
+    - `prefix + |/−`: Intuitive pane splitting
+    - `prefix + >/<`: Pane swapping
+    - `prefix + S`: Toggle status bar
+    - `prefix + F`: tmux-fingers (fast link/path copying)
+    - `prefix + o`: tmux-open (open files/URLs)
+    - `prefix + C-f`: tmux-fzf (fuzzy finder)
+    - `M-j/k`: Session navigation
+    - `C-S-Left/Right`: Window movement
+    - `Alt+1` through `Alt+9`: Quick window selection
+    - `Alt+H/L`: Window navigation
+  - **Copy Mode Enhancements:**
+    - Vi-style visual selection (`v`, `y`, `Enter`)
+    - `C-u/d`: Half-page scrolling
+  - **Theme Support:** Auto-generation from `themes.yaml` via component scripts
+  - Terminal title passthrough from nested applications
+  - Mouse support for scrolling and pane selection
 
 ---
 

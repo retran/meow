@@ -37,6 +37,56 @@ theme:
 
 **Note on `config.yaml`:** Changes to `config.yaml` require either a new terminal session or running `meowctl theme apply` to update active components.
 
+## Theme System Architecture
+
+`.meow` features a component-based theme system that automatically generates and applies consistent color schemes across 13+ CLI tools and terminal applications.
+
+### Supported Applications
+
+The theme system supports the following tools with automatic theme generation:
+
+- **Terminal Emulators:** Ghostty, Tmux
+- **CLI Tools:** bat, delta, eza, fzf, glow, htop, lazygit, ripgrep, starship, tealdeer
+- **Shell:** zsh (via prompt integration)
+
+### How Theme Generation Works
+
+The theme system uses a three-stage pipeline:
+
+1. **Theme Definition** (`themes.yaml`): Central color palette definitions with variants (light/dark)
+2. **Theme Generators** (`components/*/scripts/generate-theme-*`): Component-specific scripts that read `themes.yaml` and generate themed configuration files
+3. **Theme Appliers** (`components/*/scripts/apply-theme-*`): Scripts that inject generated themes into active application configs
+
+**Workflow Example:**
+
+```bash
+themes.yaml → generate-theme-tmux → ~/.config/meow/tmux/theme.conf → apply-theme-tmux → ~/.tmux.conf
+```
+
+### Automatic Theme Switching
+
+- **macOS:** Uses Hammerspoon to detect system appearance changes and automatically applies themes
+- **Linux:** Uses system detection scripts to determine the current theme mode
+
+When your system switches between light and dark modes, `.meow` automatically regenerates and applies the appropriate theme variant across all supported applications.
+
+### Adding Custom Themes
+
+To add your own theme presets:
+
+1. Edit `private/meow/themes.yaml` (copy from `themes.yaml` if it doesn't exist)
+2. Define your color palette following the existing structure
+3. Run `meowctl theme generate` to generate configurations
+4. Run `meowctl theme apply` to activate the theme
+
+### Theme Configuration Options
+
+Refer to the [Theme Options](#theme-options) section above for details on configuring:
+- `theme.mode`: Manual or automatic theme switching
+- `theme.current`: Current active theme (light/dark)
+- `theme.light`: Light mode preset and variant
+- `theme.dark`: Dark mode preset and variant
+
 ## Secrets Management
 
 `.meow` provides a simple mechanism for managing secrets, such as API keys and tokens, that you might need for your development tools. These secrets are stored in the `private/secrets/` directory, which is ignored by Git to prevent accidental commits.
