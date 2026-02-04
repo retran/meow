@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+PRESET="${1:-}"
+VARIANT="${2:-}"
+
+if [[ -z "$PRESET" || -z "$VARIANT" ]]; then
+  echo "Usage: $0 <preset> <variant>" >&2
+  exit 1
+fi
+
+MEOW_ROOT="${MEOW:-$HOME/.meow}"
+THEME_DB="${THEME_DB:-$MEOW_ROOT/themes.yaml}"
+THEME_LIB="${THEME_LIB:-$MEOW_ROOT/lib/theme/theme.sh}"
+OUTPUT_DIR="$MEOW_ROOT/components/shell-essential/config/tealdeer/themes"
+
+source "$THEME_LIB"
+
+slugify() {
+  local value="$1"
+  echo "$value" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/_/g; s/_\+/_/g; s/^_//; s/_$//'
+}
+
+mkdir -p "$OUTPUT_DIR"
+preset_slug=$(slugify "$PRESET")
+variant_slug=$(slugify "$VARIANT")
+out_file="$OUTPUT_DIR/${preset_slug}-${variant_slug}.toml"
+
+# Get colors from theme
+title_color=$(theme_get_palette_color "$PRESET" "$VARIANT" "blue" || theme_get_palette_color "$PRESET" "$VARIANT" "water" || theme_get_terminal_color "$PRESET" "$VARIANT" "4" || true)
+description_color=$(theme_get_palette_color "$PRESET" "$VARIANT" "fg" || theme_get_palette_color "$PRESET" "$VARIANT" "fg1" || true)
+command_color=$(theme_get_palette_color "$PRESET" "$VARIANT" "green" || theme_get_palette_color "$PRESET" "$VARIANT" "leaf" || theme_get_terminal_color "$PRESET" "$VARIANT" "2" || true)
+example_text_color=$(theme_get_palette_color "$PRESET" "$VARIANT" "cyan" || theme_get_palette_color "$PRESET" "$VARIANT" "water" || theme_get_terminal_color "$PRESET" "$VARIANT" "6" || true)
+
+if [[ -z "$title_color" ]]; then
+  echo "Could not extract required colors for tealdeer theme" >&2
+  exit 1
+fi
+
+# Write tealdeer color configuration
+cat > "$out_file" <<EOF
+# Generated from themes.yaml
+
+[style.command_name]
+foreground = "${title_color}"
+bold = true
+
+[style.description]
+foreground = "${description_color}"
+
+[style.example_text]
+foreground = "${example_text_color}"
+
+[style.example_code]
+foreground = "${command_color}"
+
+[style.example_variable]
+foreground = "${example_text_color}"
+underline = true
+EOF
+
+echo "Generated: $out_file"

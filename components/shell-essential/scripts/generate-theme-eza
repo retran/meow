@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+PRESET="${1:-}"
+VARIANT="${2:-}"
+
+if [[ -z "$PRESET" || -z "$VARIANT" ]]; then
+  echo "Usage: $0 <preset> <variant>" >&2
+  exit 1
+fi
+
+MEOW_ROOT="${MEOW:-$HOME/.meow}"
+THEME_DB="${THEME_DB:-$MEOW_ROOT/themes.yaml}"
+THEME_LIB="${THEME_LIB:-$MEOW_ROOT/lib/theme/theme.sh}"
+OUTPUT_DIR="$MEOW_ROOT/components/shell-essential/config/eza/themes"
+
+source "$THEME_LIB"
+
+slugify() {
+  local value="$1"
+  echo "$value" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/_/g; s/_\+/_/g; s/^_//; s/_$//'
+}
+
+mkdir -p "$OUTPUT_DIR"
+preset_slug=$(slugify "$PRESET")
+variant_slug=$(slugify "$VARIANT")
+out_file="$OUTPUT_DIR/${preset_slug}-${variant_slug}.yml"
+
+# Get colors from theme
+file_color=$(theme_get_palette_color "$PRESET" "$VARIANT" "fg" || true)
+dir_color=$(theme_get_palette_color "$PRESET" "$VARIANT" "blue" || theme_get_palette_color "$PRESET" "$VARIANT" "water" || true)
+exec_color=$(theme_get_palette_color "$PRESET" "$VARIANT" "green" || theme_get_palette_color "$PRESET" "$VARIANT" "leaf" || true)
+symlink_color=$(theme_get_palette_color "$PRESET" "$VARIANT" "cyan" || theme_get_palette_color "$PRESET" "$VARIANT" "water" || true)
+
+if [[ -z "$file_color" ]]; then
+  echo "Could not extract required colors for eza theme" >&2
+  exit 1
+fi
+
+cat > "$out_file" <<EOF
+# Generated from themes.yaml
+# For simplicity, we'll use environment variables instead of complex YAML
+# EZA_COLORS will be set via environment
+EOF
+
+# Create a shell script with the eza colors
+cat > "${out_file%.yml}.sh" <<EOF
+# Generated from themes.yaml
+export EZA_COLORS="di=${dir_color#\#}:ex=${exec_color#\#}:ln=${symlink_color#\#}"
+EOF
+
+echo "Generated: $out_file and ${out_file%.yml}.sh"

@@ -1,0 +1,107 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+PRESET="${1:-}"
+VARIANT="${2:-}"
+
+if [[ -z "$PRESET" || -z "$VARIANT" ]]; then
+  echo "Usage: $0 <preset> <variant>" >&2
+  exit 1
+fi
+
+MEOW_ROOT="${MEOW:-$HOME/.meow}"
+THEME_DB="${THEME_DB:-$MEOW_ROOT/themes.yaml}"
+THEME_LIB="${THEME_LIB:-$MEOW_ROOT/lib/theme/theme.sh}"
+OUTPUT_DIR="$MEOW_ROOT/components/shell-essential/config/delta/themes"
+
+source "$THEME_LIB"
+
+slugify() {
+  local value="$1"
+  echo "$value" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/_/g; s/_\+/_/g; s/^_//; s/_$//'
+}
+
+map_bat_theme() {
+  local preset="$1"
+  local variant="$2"
+  
+  # Map known presets/variants to bat theme names
+  case "$preset" in
+    catppuccin)
+      case "$variant" in
+        latte) echo "Catppuccin Latte" ;;
+        frappe) echo "Catppuccin Frappe" ;;
+        macchiato) echo "Catppuccin Macchiato" ;;
+        mocha) echo "Catppuccin Mocha" ;;
+        *) echo "Catppuccin Mocha" ;;
+      esac
+      ;;
+    tokyonight)
+      case "$variant" in
+        day) echo "GitHub" ;;
+        storm|night|moon) echo "Nord" ;;
+        *) echo "Nord" ;;
+      esac
+      ;;
+    onedark)
+      case "$variant" in
+        onelight) echo "OneHalfLight" ;;
+        *) echo "OneHalfDark" ;;
+      esac
+      ;;
+    dracula)
+      echo "Dracula"
+      ;;
+    nord)
+      echo "Nord"
+      ;;
+    material)
+      case "$variant" in
+        lighter) echo "GitHub" ;;
+        *) echo "Monokai Extended" ;;
+      esac
+      ;;
+    github)
+      echo "GitHub"
+      ;;
+    gruvbox)
+      echo "Monokai Extended"
+      ;;
+    ayu)
+      case "$variant" in
+        light) echo "Solarized (light)" ;;
+        *) echo "Solarized (dark)" ;;
+      esac
+      ;;
+    *)
+      # Default fallback based on background color brightness
+      local bg
+      bg=$(theme_get_palette_color "$preset" "$variant" "bg" || theme_get_palette_color "$preset" "$variant" "bg1" || true)
+      if [[ -n "$bg" ]]; then
+        # Simple brightness check: if bg starts with #[a-f][0-9], assume light
+        if [[ "$bg" =~ ^#[a-fA-F] || "$bg" =~ ^#[89] ]]; then
+          echo "GitHub"
+        else
+          echo "OneHalfDark"
+        fi
+      else
+        echo "OneHalfDark"
+      fi
+      ;;
+  esac
+}
+
+mkdir -p "$OUTPUT_DIR"
+preset_slug=$(slugify "$PRESET")
+variant_slug=$(slugify "$VARIANT")
+out_file="$OUTPUT_DIR/${preset_slug}-${variant_slug}.conf"
+
+delta_theme=$(map_bat_theme "$PRESET" "$VARIANT")
+
+cat > "$out_file" <<EOF
+[delta]
+	navigate = true
+	syntax-theme = ${delta_theme}
+EOF
+
+echo "Generated: $out_file"

@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+PRESET="${1:-}"
+VARIANT="${2:-}"
+
+if [[ -z "$PRESET" || -z "$VARIANT" ]]; then
+  echo "Usage: $0 <preset> <variant>" >&2
+  exit 1
+fi
+
+MEOW_ROOT="${MEOW:-$HOME/.meow}"
+
+slugify() {
+  local value="$1"
+  echo "$value" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/_/g; s/_\+/_/g; s/^_//; s/_$//'
+}
+
+preset_slug=$(slugify "$PRESET")
+variant_slug=$(slugify "$VARIANT")
+
+theme_file="$MEOW_ROOT/components/shell-essential/config/delta/themes/${preset_slug}-${variant_slug}.conf"
+gitconfig="$HOME/.gitconfig"
+
+if [[ ! -f "$theme_file" ]]; then
+  echo "delta theme not found: $theme_file" >&2
+  exit 1
+fi
+
+if [[ ! -f "$gitconfig" ]]; then
+  # Create basic gitconfig if it doesn't exist
+  touch "$gitconfig"
+fi
+
+# Remove existing [delta] section and append new one
+temp_file=$(mktemp)
+
+awk '
+  BEGIN { in_delta=0 }
+  /^\[delta\]/ { in_delta=1; next }
+  in_delta && /^\[/ { in_delta=0 }
+  !in_delta { print }
+' "$gitconfig" > "$temp_file"
+
+cat "$theme_file" >> "$temp_file"
+mv "$temp_file" "$gitconfig"
+
+echo "Applied delta theme: $PRESET/$VARIANT"

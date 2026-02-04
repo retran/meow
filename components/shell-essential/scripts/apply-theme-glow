@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+PRESET="${1:-}"
+VARIANT="${2:-}"
+
+if [[ -z "$PRESET" || -z "$VARIANT" ]]; then
+  echo "Usage: $0 <preset> <variant>" >&2
+  exit 1
+fi
+
+MEOW_ROOT="${MEOW:-$HOME/.meow}"
+
+slugify() {
+  local value="$1"
+  echo "$value" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/_/g; s/_\+/_/g; s/^_//; s/_$//'
+}
+
+preset_slug=$(slugify "$PRESET")
+variant_slug=$(slugify "$VARIANT")
+
+theme_file="$MEOW_ROOT/components/shell-essential/config/glow/themes/${preset_slug}-${variant_slug}.yml"
+glow_config="${XDG_CONFIG_HOME:-$HOME/.config}/glow/glow.yml"
+
+if [[ ! -f "$theme_file" ]]; then
+  echo "glow theme not found: $theme_file" >&2
+  exit 1
+fi
+
+mkdir -p "$(dirname "$glow_config")"
+cp "$theme_file" "$glow_config"
+
+echo "Applied glow theme: $PRESET/$VARIANT"

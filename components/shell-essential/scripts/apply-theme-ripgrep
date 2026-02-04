@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+PRESET="${1:-}"
+VARIANT="${2:-}"
+
+if [[ -z "$PRESET" || -z "$VARIANT" ]]; then
+  echo "Usage: $0 <preset> <variant>" >&2
+  exit 1
+fi
+
+MEOW_ROOT="${MEOW:-$HOME/.meow}"
+
+slugify() {
+  local value="$1"
+  echo "$value" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/_/g; s/_\+/_/g; s/^_//; s/_$//'
+}
+
+preset_slug=$(slugify "$PRESET")
+variant_slug=$(slugify "$VARIANT")
+
+theme_file="$MEOW_ROOT/components/shell-essential/config/ripgrep/themes/${preset_slug}-${variant_slug}.rc"
+base_config="$MEOW_ROOT/components/shell-essential/config/ripgrep/.ripgreprc"
+rg_config="$HOME/.ripgreprc"
+
+if [[ ! -f "$theme_file" ]]; then
+  echo "ripgrep theme not found: $theme_file" >&2
+  exit 1
+fi
+
+# Start with base config if it exists, otherwise start empty
+temp_file=$(mktemp)
+
+if [[ -f "$base_config" ]]; then
+  # Copy base config, removing any color settings
+  grep -v "^--colors=" "$base_config" > "$temp_file" 2>/dev/null || true
+fi
+
+# Append theme colors
+cat "$theme_file" >> "$temp_file"
+mv "$temp_file" "$rg_config"
+
+echo "Applied ripgrep theme: $PRESET/$VARIANT"

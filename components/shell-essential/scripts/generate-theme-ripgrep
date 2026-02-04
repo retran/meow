@@ -1,0 +1,103 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+PRESET="${1:-}"
+VARIANT="${2:-}"
+
+if [[ -z "$PRESET" || -z "$VARIANT" ]]; then
+  echo "Usage: $0 <preset> <variant>" >&2
+  exit 1
+fi
+
+MEOW_ROOT="${MEOW:-$HOME/.meow}"
+THEME_DB="${THEME_DB:-$MEOW_ROOT/themes.yaml}"
+THEME_LIB="${THEME_LIB:-$MEOW_ROOT/lib/theme/theme.sh}"
+OUTPUT_DIR="$MEOW_ROOT/components/shell-essential/config/ripgrep/themes"
+
+source "$THEME_LIB"
+
+slugify() {
+  local value="$1"
+  echo "$value" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/_/g; s/_\+/_/g; s/^_//; s/_$//'
+}
+
+hex_to_rgb() {
+  local hex="$1"
+  hex="${hex#\#}"
+  hex=$(echo "$hex" | tr '[:lower:]' '[:upper:]')
+  
+  # Validate hex length
+  if [[ ${#hex} -ne 6 ]]; then
+    return 1
+  fi
+  
+  local r g b
+  r=$((16#${hex:0:2}))
+  g=$((16#${hex:2:2}))
+  b=$((16#${hex:4:2}))
+  echo "${r},${g},${b}"
+}
+
+mkdir -p "$OUTPUT_DIR"
+preset_slug=$(slugify "$PRESET")
+variant_slug=$(slugify "$VARIANT")
+out_file="$OUTPUT_DIR/${preset_slug}-${variant_slug}.rc"
+
+# Get colors from theme
+path_color=$(theme_get_palette_color "$PRESET" "$VARIANT" "green" || theme_get_palette_color "$PRESET" "$VARIANT" "leaf" || theme_get_terminal_color "$PRESET" "$VARIANT" "2" || true)
+line_color=$(theme_get_palette_color "$PRESET" "$VARIANT" "yellow" || theme_get_palette_color "$PRESET" "$VARIANT" "wood" || theme_get_terminal_color "$PRESET" "$VARIANT" "3" || true)
+match_color=$(theme_get_palette_color "$PRESET" "$VARIANT" "red" || theme_get_palette_color "$PRESET" "$VARIANT" "rose" || theme_get_terminal_color "$PRESET" "$VARIANT" "1" || true)
+column_color=$(theme_get_palette_color "$PRESET" "$VARIANT" "cyan" || theme_get_palette_color "$PRESET" "$VARIANT" "water" || theme_get_terminal_color "$PRESET" "$VARIANT" "6" || true)
+
+if [[ -z "$match_color" ]]; then
+  echo "Could not extract required colors for ripgrep theme" >&2
+  exit 1
+fi
+
+# Convert hex colors to RGB for ripgrep (format: R,G,B)
+path_rgb=""
+line_rgb=""
+match_rgb=""
+column_rgb=""
+
+if [[ -n "$path_color" ]]; then
+  path_rgb=$(hex_to_rgb "$path_color") || path_rgb=""
+fi
+
+if [[ -n "$line_color" ]]; then
+  line_rgb=$(hex_to_rgb "$line_color") || line_rgb=""
+fi
+
+if [[ -n "$match_color" ]]; then
+  match_rgb=$(hex_to_rgb "$match_color") || match_rgb=""
+fi
+
+if [[ -n "$column_color" ]]; then
+  column_rgb=$(hex_to_rgb "$column_color") || column_rgb=""
+fi
+
+# Write ripgrep color configuration
+cat > "$out_file" <<EOF
+# Generated from themes.yaml
+# Ripgrep color configuration
+EOF
+
+if [[ -n "$path_rgb" ]]; then
+  echo "--colors=path:fg:${path_rgb}" >> "$out_file"
+  echo "--colors=path:style:bold" >> "$out_file"
+fi
+
+if [[ -n "$line_rgb" ]]; then
+  echo "--colors=line:fg:${line_rgb}" >> "$out_file"
+fi
+
+if [[ -n "$match_rgb" ]]; then
+  echo "--colors=match:fg:${match_rgb}" >> "$out_file"
+  echo "--colors=match:style:bold" >> "$out_file"
+fi
+
+if [[ -n "$column_rgb" ]]; then
+  echo "--colors=column:fg:${column_rgb}" >> "$out_file"
+fi
+
+echo "Generated: $out_file"

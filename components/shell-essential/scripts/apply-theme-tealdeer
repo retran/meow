@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+PRESET="${1:-}"
+VARIANT="${2:-}"
+
+if [[ -z "$PRESET" || -z "$VARIANT" ]]; then
+  echo "Usage: $0 <preset> <variant>" >&2
+  exit 1
+fi
+
+MEOW_ROOT="${MEOW:-$HOME/.meow}"
+
+slugify() {
+  local value="$1"
+  echo "$value" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/_/g; s/_\+/_/g; s/^_//; s/_$//'
+}
+
+preset_slug=$(slugify "$PRESET")
+variant_slug=$(slugify "$VARIANT")
+
+theme_file="$MEOW_ROOT/components/shell-essential/config/tealdeer/themes/${preset_slug}-${variant_slug}.toml"
+tealdeer_config="${XDG_CONFIG_HOME:-$HOME/.config}/tealdeer/config.toml"
+
+if [[ ! -f "$theme_file" ]]; then
+  echo "tealdeer theme not found: $theme_file" >&2
+  exit 1
+fi
+
+# Read existing config if it exists and merge with theme
+temp_file=$(mktemp)
+
+if [[ -f "$tealdeer_config" ]]; then
+  # Remove existing [style.*] sections
+  awk '
+    BEGIN { skip=0 }
+    /^\[style\./ { skip=1; next }
+    skip && /^\[/ && !/^\[style\./ { skip=0 }
+    !skip { print }
+  ' "$tealdeer_config" > "$temp_file"
+fi
+
+# Append theme config
+cat "$theme_file" >> "$temp_file"
+mkdir -p "$(dirname "$tealdeer_config")"
+mv "$temp_file" "$tealdeer_config"
+
+echo "Applied tealdeer theme: $PRESET/$VARIANT"

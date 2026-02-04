@@ -1,0 +1,71 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+PRESET="${1:-}"
+VARIANT="${2:-}"
+
+if [[ -z "$PRESET" || -z "$VARIANT" ]]; then
+  echo "Usage: $0 <preset> <variant>" >&2
+  exit 1
+fi
+
+MEOW_ROOT="${MEOW:-$HOME/.meow}"
+THEME_DB="${THEME_DB:-$MEOW_ROOT/themes.yaml}"
+THEME_LIB="${THEME_LIB:-$MEOW_ROOT/lib/theme/theme.sh}"
+OUTPUT_DIR="$MEOW_ROOT/components/shell-essential/config/fzf/themes"
+
+source "$THEME_LIB"
+
+slugify() {
+  local value="$1"
+  echo "$value" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/_/g; s/_\+/_/g; s/^_//; s/_$//'
+}
+
+mkdir -p "$OUTPUT_DIR"
+preset_slug=$(slugify "$PRESET")
+variant_slug=$(slugify "$VARIANT")
+out_file="$OUTPUT_DIR/${preset_slug}-${variant_slug}.sh"
+
+# Get colors from theme
+bg=$(theme_get_palette_color "$PRESET" "$VARIANT" "bg" || theme_get_palette_color "$PRESET" "$VARIANT" "bg1" || true)
+fg=$(theme_get_palette_color "$PRESET" "$VARIANT" "fg" || theme_get_palette_color "$PRESET" "$VARIANT" "fg1" || true)
+hl=$(theme_get_palette_color "$PRESET" "$VARIANT" "red" || theme_get_palette_color "$PRESET" "$VARIANT" "rose" || true)
+fg_plus=$(theme_get_palette_color "$PRESET" "$VARIANT" "fg" || true)
+bg_plus=$(theme_get_palette_color "$PRESET" "$VARIANT" "bg_highlight" || theme_get_palette_color "$PRESET" "$VARIANT" "bg_visual" || theme_get_palette_color "$PRESET" "$VARIANT" "selection_bg" || true)
+hl_plus=$(theme_get_palette_color "$PRESET" "$VARIANT" "red" || theme_get_palette_color "$PRESET" "$VARIANT" "rose" || true)
+info=$(theme_get_palette_color "$PRESET" "$VARIANT" "cyan" || theme_get_palette_color "$PRESET" "$VARIANT" "water" || true)
+prompt=$(theme_get_palette_color "$PRESET" "$VARIANT" "blue" || theme_get_palette_color "$PRESET" "$VARIANT" "water" || true)
+pointer=$(theme_get_palette_color "$PRESET" "$VARIANT" "red" || theme_get_palette_color "$PRESET" "$VARIANT" "rose" || true)
+marker=$(theme_get_palette_color "$PRESET" "$VARIANT" "purple" || theme_get_palette_color "$PRESET" "$VARIANT" "blossom" || true)
+spinner=$(theme_get_palette_color "$PRESET" "$VARIANT" "yellow" || theme_get_palette_color "$PRESET" "$VARIANT" "wood" || true)
+header=$(theme_get_palette_color "$PRESET" "$VARIANT" "blue" || theme_get_palette_color "$PRESET" "$VARIANT" "water" || true)
+
+if [[ -z "$bg" ]] || [[ -z "$fg" ]]; then
+  echo "Could not extract required colors for fzf theme" >&2
+  exit 1
+fi
+
+# Convert hex to terminal color codes (strip #)
+bg="${bg#\#}"
+fg="${fg#\#}"
+hl="${hl#\#}"
+fg_plus="${fg_plus#\#}"
+bg_plus="${bg_plus#\#}"
+hl_plus="${hl_plus#\#}"
+info="${info#\#}"
+prompt="${prompt#\#}"
+pointer="${pointer#\#}"
+marker="${marker#\#}"
+spinner="${spinner#\#}"
+header="${header#\#}"
+
+cat > "$out_file" <<EOF
+# Generated from themes.yaml
+export FZF_DEFAULT_OPTS="\
+--color=bg:#${bg},fg:#${fg},hl:#${hl} \
+--color=bg+:#${bg_plus},fg+:#${fg_plus},hl+:#${hl_plus} \
+--color=info:#${info},prompt:#${prompt},pointer:#${pointer} \
+--color=marker:#${marker},spinner:#${spinner},header:#${header}"
+EOF
+
+echo "Generated: $out_file"
