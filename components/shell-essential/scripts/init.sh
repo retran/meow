@@ -248,3 +248,18 @@ if command -v starship >/dev/null 2>&1; then
     eval "$(starship init zsh)"
   fi
 fi
+
+# Source theme color configurations
+MEOW_CONFIG_DIR="${MEOW_CONFIG_DIR:-${XDG_CONFIG_HOME:-$HOME/.config}/meow}"
+
+if [[ -f "$MEOW_CONFIG_DIR/fzf/colors.sh" ]]; then
+  source "$MEOW_CONFIG_DIR/fzf/colors.sh"
+fi
+
+if [[ -f "$MEOW_CONFIG_DIR/eza/colors.sh" ]]; then
+  source "$MEOW_CONFIG_DIR/eza/colors.sh"
+fi
+
+if [[ -f "$MEOW_CONFIG_DIR/zsh/colors.sh" ]]; then
+  source "$MEOW_CONFIG_DIR/zsh/colors.sh"
+fi
