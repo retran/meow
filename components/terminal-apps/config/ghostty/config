@@ -77,9 +77,6 @@ copy-on-select = false
 # INPUT
 # ============================================================================
 macos-option-as-alt = left
-macos-auto-repeat = true
-macos-auto-repeat-delay = 15
-macos-auto-repeat-rate = 2
 
 mouse-hide-while-typing = true
 mouse-scroll-multiplier = 1.0
@@ -88,7 +85,6 @@ mouse-scroll-multiplier = 1.0
 # PERFORMANCE
 # ============================================================================
 scrollback-limit = 50000
-max-fps = 120
 
 # ============================================================================
 # TERMINAL
