@@ -31,14 +31,14 @@ preset_slug=$(slugify "$PRESET")
 variant_slug=$(slugify "$VARIANT")
 
 theme_file="$MEOW_ROOT/components/shell-essential/config/bat/themes/${preset_slug}-${variant_slug}.conf"
-target_file="$MEOW_CONFIG_DIR/bat/config"
+bat_config="${XDG_CONFIG_HOME:-$HOME/.config}/bat/config"
 
 if [[ ! -f "$theme_file" ]]; then
-  echo "Bat theme not found: $theme_file" >&2
+  echo "bat theme not found: $theme_file" >&2
   exit 1
 fi
 
-mkdir -p "$(dirname "$target_file")"
-cp "$theme_file" "$target_file"
+mkdir -p "$(dirname "$bat_config")"
+cp "$theme_file" "$bat_config"
 
 echo "Applied bat theme: $PRESET/$VARIANT"
