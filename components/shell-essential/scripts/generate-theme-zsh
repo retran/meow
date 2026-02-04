@@ -26,17 +26,6 @@ preset_slug=$(slugify "$PRESET")
 variant_slug=$(slugify "$VARIANT")
 out_file="$OUTPUT_DIR/${preset_slug}-${variant_slug}.sh"
 
-# Get colors from theme for LS_COLORS
-dir_color=$(theme_get_palette_color "$PRESET" "$VARIANT" "blue" || theme_get_palette_color "$PRESET" "$VARIANT" "water" || true)
-exec_color=$(theme_get_palette_color "$PRESET" "$VARIANT" "green" || theme_get_palette_color "$PRESET" "$VARIANT" "leaf" || true)
-symlink_color=$(theme_get_palette_color "$PRESET" "$VARIANT" "cyan" || theme_get_palette_color "$PRESET" "$VARIANT" "water" || true)
-archive_color=$(theme_get_palette_color "$PRESET" "$VARIANT" "red" || theme_get_palette_color "$PRESET" "$VARIANT" "rose" || true)
-
-if [[ -z "$dir_color" ]]; then
-  echo "Could not extract required colors for zsh theme" >&2
-  exit 1
-fi
-
 # Generate a basic LS_COLORS
 # Format: di=34 means directories are blue (ANSI 34)
 # We'll use simplified ANSI color codes
