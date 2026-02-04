@@ -26,16 +26,10 @@ preset_slug=$(slugify "$PRESET")
 variant_slug=$(slugify "$VARIANT")
 out_file="$OUTPUT_DIR/${preset_slug}-${variant_slug}.yml"
 
-# Get colors from theme
-file_color=$(theme_get_palette_color "$PRESET" "$VARIANT" "fg" || true)
-dir_color=$(theme_get_palette_color "$PRESET" "$VARIANT" "blue" || theme_get_palette_color "$PRESET" "$VARIANT" "water" || true)
-exec_color=$(theme_get_palette_color "$PRESET" "$VARIANT" "green" || theme_get_palette_color "$PRESET" "$VARIANT" "leaf" || true)
-symlink_color=$(theme_get_palette_color "$PRESET" "$VARIANT" "cyan" || theme_get_palette_color "$PRESET" "$VARIANT" "water" || true)
-
-if [[ -z "$file_color" ]]; then
-  echo "Could not extract required colors for eza theme" >&2
-  exit 1
-fi
+# Get colors from theme with fallbacks to terminal colors and defaults
+dir_color=$(theme_get_palette_color "$PRESET" "$VARIANT" "blue" || theme_get_palette_color "$PRESET" "$VARIANT" "water" || theme_get_terminal_color "$PRESET" "$VARIANT" "4" || echo "34")
+exec_color=$(theme_get_palette_color "$PRESET" "$VARIANT" "green" || theme_get_palette_color "$PRESET" "$VARIANT" "leaf" || theme_get_terminal_color "$PRESET" "$VARIANT" "2" || echo "32")
+symlink_color=$(theme_get_palette_color "$PRESET" "$VARIANT" "cyan" || theme_get_palette_color "$PRESET" "$VARIANT" "water" || theme_get_terminal_color "$PRESET" "$VARIANT" "6" || echo "36")
 
 cat > "$out_file" <<EOF
 # Generated from themes.yaml

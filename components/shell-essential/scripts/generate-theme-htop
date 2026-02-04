@@ -26,13 +26,11 @@ preset_slug=$(slugify "$PRESET")
 variant_slug=$(slugify "$VARIANT")
 out_file="$OUTPUT_DIR/${preset_slug}-${variant_slug}.theme"
 
-# Get background color from theme
-bg_color=$(theme_get_palette_color "$PRESET" "$VARIANT" "bg" || theme_get_palette_color "$PRESET" "$VARIANT" "bg1" || true)
-
-if [[ -z "$bg_color" ]]; then
-  echo "Could not extract required colors for htop theme" >&2
-  exit 1
-fi
+# Get background color from theme with fallback chain
+bg_color=$(theme_get_palette_color "$PRESET" "$VARIANT" "bg" || \
+           theme_get_palette_color "$PRESET" "$VARIANT" "bg1" || \
+           theme_get_terminal_color "$PRESET" "$VARIANT" "0" || \
+           echo "000000")
 
 # Detect if dark or light theme (simple brightness check)
 color_scheme="5"  # Default to dark (black night)

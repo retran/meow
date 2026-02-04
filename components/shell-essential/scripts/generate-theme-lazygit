@@ -15,7 +15,7 @@ fi
 MEOW_ROOT="${MEOW:-$HOME/.meow}"
 THEME_DB="${THEME_DB:-$MEOW_ROOT/themes.yaml}"
 THEME_LIB="${THEME_LIB:-$MEOW_ROOT/lib/theme/theme.sh}"
-OUTPUT_DIR="$MEOW_ROOT/components/dev-tools/config/lazygit/themes"
+OUTPUT_DIR="$MEOW_ROOT/components/shell-essential/config/lazygit/themes"
 
 if [[ ! -f "$THEME_DB" ]] || [[ ! -f "$THEME_LIB" ]]; then
   echo "Theme files not found" >&2
@@ -35,18 +35,37 @@ preset_slug=$(slugify "$PRESET")
 variant_slug=$(slugify "$VARIANT")
 out_file="$OUTPUT_DIR/${preset_slug}-${variant_slug}.yml"
 
-# Get colors
-fg=$(theme_get_palette_color "$PRESET" "$VARIANT" "fg" || theme_get_palette_color "$PRESET" "$VARIANT" "fg1" || true)
-bg=$(theme_get_palette_color "$PRESET" "$VARIANT" "bg" || theme_get_palette_color "$PRESET" "$VARIANT" "bg1" || true)
-selected_bg=$(theme_get_palette_color "$PRESET" "$VARIANT" "bg_highlight" || theme_get_palette_color "$PRESET" "$VARIANT" "bg_visual" || theme_get_palette_color "$PRESET" "$VARIANT" "selection_bg" || true)
-cherry_pick=$(theme_get_palette_color "$PRESET" "$VARIANT" "cyan" || theme_get_palette_color "$PRESET" "$VARIANT" "water" || theme_get_terminal_color "$PRESET" "$VARIANT" "6" || true)
-untracked=$(theme_get_palette_color "$PRESET" "$VARIANT" "red" || theme_get_palette_color "$PRESET" "$VARIANT" "rose" || theme_get_terminal_color "$PRESET" "$VARIANT" "1" || true)
-default_fg=$(theme_get_palette_color "$PRESET" "$VARIANT" "blue" || theme_get_palette_color "$PRESET" "$VARIANT" "water" || true)
+# Get colors with fallback chains
+fg=$(theme_get_palette_color "$PRESET" "$VARIANT" "fg" || \
+     theme_get_palette_color "$PRESET" "$VARIANT" "fg1" || \
+     theme_get_terminal_color "$PRESET" "$VARIANT" "7" || \
+     echo "ffffff")
 
-if [[ -z "$fg" ]] || [[ -z "$bg" ]]; then
-  echo "Missing required colors" >&2
-  exit 1
-fi
+bg=$(theme_get_palette_color "$PRESET" "$VARIANT" "bg" || \
+     theme_get_palette_color "$PRESET" "$VARIANT" "bg1" || \
+     theme_get_terminal_color "$PRESET" "$VARIANT" "0" || \
+     echo "000000")
+
+selected_bg=$(theme_get_palette_color "$PRESET" "$VARIANT" "bg_highlight" || \
+              theme_get_palette_color "$PRESET" "$VARIANT" "bg_visual" || \
+              theme_get_palette_color "$PRESET" "$VARIANT" "selection_bg" || \
+              theme_get_terminal_color "$PRESET" "$VARIANT" "8" || \
+              echo "444444")
+
+cherry_pick=$(theme_get_palette_color "$PRESET" "$VARIANT" "cyan" || \
+              theme_get_palette_color "$PRESET" "$VARIANT" "water" || \
+              theme_get_terminal_color "$PRESET" "$VARIANT" "6" || \
+              echo "00ffff")
+
+untracked=$(theme_get_palette_color "$PRESET" "$VARIANT" "red" || \
+            theme_get_palette_color "$PRESET" "$VARIANT" "rose" || \
+            theme_get_terminal_color "$PRESET" "$VARIANT" "1" || \
+            echo "ff0000")
+
+default_fg=$(theme_get_palette_color "$PRESET" "$VARIANT" "blue" || \
+             theme_get_palette_color "$PRESET" "$VARIANT" "water" || \
+             theme_get_terminal_color "$PRESET" "$VARIANT" "4" || \
+             echo "0000ff")
 
 cat > "$out_file" <<EOF
 # Generated from themes.yaml
