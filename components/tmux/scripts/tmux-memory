@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+# MIT License
+# Copyright (c) 2025 Andrew Vasilyev <me@retran.me>
+#
+# @file: components/tmux/scripts/tmux-memory
+# @brief: Get memory usage for tmux status bar
+# @author: Andrew Vasilyev
+# @license: MIT
+
+set -euo pipefail
+
+# Check if running on macOS
+if [[ "$(uname -s)" == "Darwin" ]]; then
+  # macOS memory usage - active + wired (what's actually used)
+  page_size=$(vm_stat | grep "page size" | awk '{print $8}')
+  pages_active=$(vm_stat | grep "Pages active" | awk '{print $3}' | sed 's/\.//')
+  pages_wired=$(vm_stat | grep "Pages wired down" | awk '{print $4}' | sed 's/\.//')
+  
+  mem_used_bytes=$(echo "($pages_active + $pages_wired) * $page_size" | bc)
+  mem_used_gb=$(echo "scale=1; $mem_used_bytes / 1073741824" | bc)
+  
+  # Get total memory
+  mem_total=$(sysctl -n hw.memsize)
+  mem_total_gb=$(echo "scale=1; $mem_total / 1073741824" | bc)
+  
+  mem_percent=$(echo "scale=0; $mem_used_gb * 100 / $mem_total_gb" | bc)
+else
+  # Linux memory usage
+  mem_info=$(free -m | awk 'NR==2{printf "%d %.1f", $3*100/$2, $3/1024}')
+  mem_percent=$(echo "$mem_info" | awk '{print $1}')
+  mem_used_gb=$(echo "$mem_info" | awk '{print $2}')
+fi
+
+# Select icon based on usage
+if [[ $mem_percent -ge 80 ]]; then
+  icon="󰍛"  # High memory
+elif [[ $mem_percent -ge 50 ]]; then
+  icon="󰍛"  # Medium memory
+else
+  icon="󰍛"  # Low memory
+fi
+
+echo "$icon ${mem_used_gb}G"

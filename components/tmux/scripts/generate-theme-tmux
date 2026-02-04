@@ -84,6 +84,15 @@ ok=$(theme_get_palette_color "$PRESET" "$VARIANT" "green" || \
      theme_get_terminal_named_color "$PRESET" "$VARIANT" "green" || \
      echo "00ff00")
 
+weather=$(theme_get_palette_color "$PRESET" "$VARIANT" "surface1" || \
+          theme_get_palette_color "$PRESET" "$VARIANT" "surface0" || \
+          theme_get_palette_color "$PRESET" "$VARIANT" "mantle" || \
+          theme_get_palette_color "$PRESET" "$VARIANT" "bg_warm" || \
+          theme_get_palette_color "$PRESET" "$VARIANT" "bg_highlight" || \
+          theme_get_palette_color "$PRESET" "$VARIANT" "bg1" || \
+          theme_get_terminal_color "$PRESET" "$VARIANT" "8" || \
+          echo "444444")
+
 status_bg=$(theme_get_palette_color "$PRESET" "$VARIANT" "bg_statusline" || \
             theme_get_palette_color "$PRESET" "$VARIANT" "bg_dark" || \
             theme_get_palette_color "$PRESET" "$VARIANT" "bg" || \
@@ -101,6 +110,10 @@ message_bg=$(theme_get_palette_color "$PRESET" "$VARIANT" "bg_highlight" || \
              theme_get_terminal_color "$PRESET" "$VARIANT" "8" || \
              echo "444444")
 
+# Icons
+calendar_icon=$(printf '\uf073')
+clock_icon=$(printf '\uf017')
+
 cat > "$out_file" <<EOF
 set -g status-style "bg=${status_bg},fg=${status_fg}"
 set -g status-left-style NONE
@@ -114,7 +127,7 @@ set -g window-status-style "fg=${status_fg},bg=${status_bg}"
 set -g window-status-current-format "#[fg=${status_bg},bg=${accent},bold] #I #[fg=${status_fg},bg=${status_bg}] #W #F "
 set -g window-status-format "#[fg=${status_fg},bg=${status_bg}] #I #[fg=${status_fg},bg=${status_bg}] #W #F "
 set -g status-left "#[fg=${status_bg},bg=${accent},bold] #S #[fg=${accent},bg=${status_bg}]"
-set -g status-right "#[fg=${ok},bg=${status_bg}] %Y-%m-%d #[fg=${accent},bg=${status_bg}]  #[fg=${status_bg},bg=${accent},bold] %H:%M "
+set -g status-right "#[fg=${status_fg},bg=${status_bg}]#(~/.meow/components/tmux/scripts/tmux-cpu)  #[fg=${status_fg},bg=${status_bg}]#(~/.meow/components/tmux/scripts/tmux-memory)  #[fg=${status_fg},bg=${status_bg}]#(~/.meow/components/tmux/scripts/tmux-battery)  #[fg=${status_fg},bg=${status_bg}]#(~/.meow/components/tmux/scripts/tmux-weather)  #[fg=${status_fg},bg=${status_bg}]${calendar_icon} %a %-d %b  #[fg=${status_fg},bg=${status_bg}]${clock_icon} %H:%M "
 set -g mode-style "fg=${ok},bg=${status_bg}"
 set -g window-status-bell-style "fg=${alert},bg=${status_bg},bold"
 EOF
