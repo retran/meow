@@ -29,4 +29,5 @@ private/secrets/.secrets
 private/meow/config.yaml
 
 # Generated theme files (auto-generated on install/update)
+components/*/config/themes/
 components/*/config/*/themes/
