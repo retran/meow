@@ -42,6 +42,7 @@ window-height = 40
 macos-option-as-alt = left
 
 # Theme configuration
-# Dynamic theme colors are managed by meow-theme and stored separately
-# This allows the static config to remain symlinked while theme changes dynamically
-config-file = ~/.config/meow/ghostty/theme.conf
+# Dynamic theme colors are managed by meow-theme and injected below between markers
+# theme: meow
+# Theme will be injected here by apply-theme-ghostty
+# endtheme: meow
