@@ -60,7 +60,7 @@ end
 local function getThemeMode()
   local configLib = os.getenv("HOME") .. "/.meow/lib/config/config.sh"
   local result = hs.execute(
-    string.format('source "%s" 2>/dev/null && meow_config_get "theme.mode" "auto" 2>/dev/null', configLib),
+    string.format('export MEOW="${MEOW:-$HOME/.meow}" && source "%s" 2>/dev/null && meow_config_get "theme.mode" "auto" 2>/dev/null', configLib),
     true
   )
   
@@ -94,16 +94,21 @@ local function applyTheme()
   print("[theme-auto-switch] System appearance: " .. appearance)
   print("[theme-auto-switch] Auto mode enabled, applying theme...")
   
-  local meowThemeScript = os.getenv("HOME") .. "/.meow/components/shell-essential/scripts/meow-theme"
+  local home = os.getenv("HOME")
+  local meowThemeScript = home .. "/.meow/components/shell-essential/scripts/meow-theme"
   
-  -- Run meow-theme apply in background
-  hs.task.new("/bin/bash", function(exitCode, stdOut, stdErr)
-    if exitCode == 0 then
-      print("[theme-auto-switch] Theme applied successfully")
-    else
-      print("[theme-auto-switch] Failed to apply theme: " .. (stdErr or ""))
-    end
-  end, {"-c", meowThemeScript .. " apply"}):start()
+  -- Run meow-theme apply synchronously with proper environment
+  local cmd = string.format(
+    'export HOME="%s" MEOW="%s/.meow" && "%s" apply 2>&1',
+    home, home, meowThemeScript
+  )
+  
+  local output, status = hs.execute(cmd, true)
+  if status then
+    print("[theme-auto-switch] Theme applied successfully")
+  else
+    print("[theme-auto-switch] Failed to apply theme: " .. (output or ""))
+  end
 end
 
 function themeAutoSwitch.init()
