@@ -533,6 +533,35 @@ This document provides a detailed reference for all components available in the 
 
 ---
 
+## tool-installers
+
+**Description:** Core tool installer infrastructure including mise (polyglot version manager), pipx (Python tool installer), and cargo-binstall (Rust binary installer).
+**Platforms:** macOS, Linux
+**Dependencies:** `shell-essential`
+**Packages:**
+
+- **Homebrew:** `mise`, `pipx`, `cargo-binstall`
+- **APT:** `python3-pip`, `pipx`
+- **DNF:** `python3-pip`, `pipx`
+- **Pacman:** `python-pip`, `python-pipx`
+- **APK:** `py3-pip`, `py3-pipx`
+
+**Environment Variables:**
+- `PIPX_HOME`: Set to `$HOME/.local/pipx`
+- `PIPX_BIN_DIR`: Set to `$HOME/.local/bin`
+
+**PATH Additions:**
+- `$HOME/.local/bin` (mise shims and pipx binaries)
+- `$HOME/.cargo/bin` (cargo installed tools)
+
+**Initialization:**
+- Activates mise for current shell (zsh/bash)
+- Enables mise shims for all installed runtimes
+
+**Note:** This component is a dependency for all `*-runtime` components and must be installed first.
+
+---
+
 ## tmux
 
 **Description:** Terminal multiplexer for advanced terminal session management with clipboard integration, vim-aware navigation, and system monitoring.

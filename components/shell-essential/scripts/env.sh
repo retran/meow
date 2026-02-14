@@ -46,22 +46,6 @@ for fzf_path in "/opt/homebrew/opt/fzf/bin" "/usr/local/opt/fzf/bin" "/usr/share
   fi
 done
 
-# Configure npm global package path
-export NPM_CONFIG_PREFIX="${HOME}/.npm-global"
-
-if [ -d "$NPM_CONFIG_PREFIX/bin" ]; then
-  if [[ ":$PATH:" != *":$NPM_CONFIG_PREFIX/bin:"* ]]; then
-    if [ "${MEOW_VERBOSE:-false}" = "true" ]; then
-      echo "INFO: Adding $NPM_CONFIG_PREFIX/bin to PATH" >&2
-    fi
-    if [ "${MEOW_DRY_RUN:-false}" != "true" ]; then
-      export PATH="$NPM_CONFIG_PREFIX/bin:$PATH"
-    else
-      echo "DRY-RUN: Would add $NPM_CONFIG_PREFIX/bin to PATH" >&2
-    fi
-  fi
-fi
-
 # Set default editor to neovim if available
 if command -v nvim >/dev/null 2>&1; then
   export EDITOR="nvim"
