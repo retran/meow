@@ -63,6 +63,15 @@ setup_pipx() {
     return 0
   fi
 
+  # Add mise shims to PATH if mise is available but pipx/python is not
+  if ! command -v pipx >/dev/null 2>&1 && command -v mise >/dev/null 2>&1; then
+    local mise_shims_dir="$HOME/.local/share/mise/shims"
+    if [ -d "$mise_shims_dir" ] && [ -f "$mise_shims_dir/python" ]; then
+      export PATH="$mise_shims_dir:$PATH"
+      ui_verbose_info "Added mise shims to PATH for pipx access."
+    fi
+  fi
+
   if ! command -v pipx >/dev/null 2>&1; then
     ui_action_error "pipx not found. Please install pipx."
     return 1
@@ -71,6 +80,14 @@ setup_pipx() {
 }
 
 install_pipx_packages() {
+  # Add mise shims to PATH if mise is available but pipx/python is not in PATH
+  if ! command -v pipx >/dev/null 2>&1 && command -v mise >/dev/null 2>&1; then
+    local mise_shims_dir="$HOME/.local/share/mise/shims"
+    if [ -d "$mise_shims_dir" ] && [ -f "$mise_shims_dir/python" ]; then
+      export PATH="$mise_shims_dir:$PATH"
+    fi
+  fi
+  
   install_packages_generic "$1" "pipx" "pipx install" "is_pipx_package_installed"
 }
 

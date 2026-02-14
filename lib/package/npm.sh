@@ -63,6 +63,15 @@ setup_npm() {
     return 0
   fi
 
+  # Add mise shims to PATH if mise is available but npm is not
+  if ! command -v npm >/dev/null 2>&1 && command -v mise >/dev/null 2>&1; then
+    local mise_shims_dir="$HOME/.local/share/mise/shims"
+    if [ -d "$mise_shims_dir" ] && [ -f "$mise_shims_dir/npm" ]; then
+      export PATH="$mise_shims_dir:$PATH"
+      ui_verbose_info "Added mise shims to PATH for npm access."
+    fi
+  fi
+
   if ! command -v npm >/dev/null 2>&1; then
     ui_action_error "npm command not found. Please install npm (e.g., via Node.js installer) to proceed."
     return 1
@@ -71,6 +80,14 @@ setup_npm() {
 }
 
 install_npm_packages() {
+  # Add mise shims to PATH if mise is available but npm is not in PATH
+  if ! command -v npm >/dev/null 2>&1 && command -v mise >/dev/null 2>&1; then
+    local mise_shims_dir="$HOME/.local/share/mise/shims"
+    if [ -d "$mise_shims_dir" ] && [ -f "$mise_shims_dir/npm" ]; then
+      export PATH="$mise_shims_dir:$PATH"
+    fi
+  fi
+  
   install_packages_generic "$1" "npm" "npm install -g" "is_npm_package_installed"
 }
 
