@@ -286,3 +286,30 @@ meow-theme() {
 
 # Source theme colors on shell initialization
 _meow_source_theme_colors
+
+# Load shell completions for meowctl and meow-theme
+if [ -n "$ZSH_VERSION" ]; then
+  # Zsh completion
+  fpath=("$MEOW/completions/zsh" $fpath)
+  
+  # Force reload of completion system
+  autoload -Uz compinit
+  compinit -i
+  
+  if [ "${MEOW_VERBOSE:-false}" = "true" ]; then
+    echo "INFO: Loaded zsh completions for meowctl and meow-theme"
+  fi
+elif [ -n "$BASH_VERSION" ]; then
+  # Bash completion
+  if [ -f "$MEOW/completions/bash/meowctl-completion.bash" ]; then
+    source "$MEOW/completions/bash/meowctl-completion.bash"
+  fi
+  
+  if [ -f "$MEOW/completions/bash/meow-theme-completion.bash" ]; then
+    source "$MEOW/completions/bash/meow-theme-completion.bash"
+  fi
+  
+  if [ "${MEOW_VERBOSE:-false}" = "true" ]; then
+    echo "INFO: Loaded bash completions for meowctl and meow-theme"
+  fi
+fi
