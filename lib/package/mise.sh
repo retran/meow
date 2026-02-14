@@ -197,7 +197,7 @@ update_mise_packages() {
     return 0
   fi
 
-  ui_step_header "$(printf "Updating %s packages for '%s'" "$(ui_format_package_manager_name "$manager_name")" "$component")"
+  ui_step_header "$(printf "Updating mise packages for '%s'" "$component")"
 
   if is_dry_run; then
     dry_run_ui_info "Would update mise packages from: $list_file"
@@ -245,12 +245,7 @@ update_mise_packages() {
     fi
   done < "$list_file"
 
-  # Summary
-  ui_action_info "$(printf "mise: %d updated, %d up-to-date" "$updated_count" "$up_to_date_count")"
-  
-  if [ $failed_count -gt 0 ]; then
-    ui_action_warning "$(printf "mise: %d failed" "$failed_count")"
-  fi
+  # Summary - don't print anything here, it's handled by the generic summary in packages.sh
 
   # Clear cache after updates
   unset _MISE_INSTALLED_TOOLS
