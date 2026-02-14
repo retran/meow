@@ -38,6 +38,26 @@ source "${MEOW}/lib/core/dry_run.sh"
 
 is_go_package_installed() {
   local pkg="$1"
+  
+  # Add mise shims to PATH if mise is available but binaries might be in mise's go bin
+  if command -v mise >/dev/null 2>&1; then
+    local mise_go_path="$HOME/.local/share/mise/installs/go"
+    if [ -d "$mise_go_path" ]; then
+      # Find the latest Go version directory
+      local latest_go_dir
+      latest_go_dir=$(find "$mise_go_path" -maxdepth 1 -type d -name "*.*.*" | sort -V | tail -1)
+      if [ -n "$latest_go_dir" ] && [ -d "$latest_go_dir/bin" ]; then
+        export PATH="$latest_go_dir/bin:$PATH"
+      fi
+    fi
+    
+    # Also add mise shims
+    local mise_shims_dir="$HOME/.local/share/mise/shims"
+    if [ -d "$mise_shims_dir" ]; then
+      export PATH="$mise_shims_dir:$PATH"
+    fi
+  fi
+  
   local bin
   bin="$(basename "$pkg" | sed 's/@.*//')"
   command -v "$bin" >/dev/null 2>&1
