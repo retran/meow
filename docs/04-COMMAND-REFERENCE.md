@@ -216,7 +216,7 @@ meowctl config set theme.mode auto
 
 ## `meowctl theme`
 
-Applies the unified theme across Ghostty, Zsh/Oh My Zsh, Starship, and tmux.
+Applies the unified theme across Ghostty, Zsh/Oh My Zsh, Starship, tmux, and all shell tools.
 
 ### Usage
 
@@ -227,18 +227,51 @@ meowctl theme [command]
 ### Commands
 
 - `apply`: Apply the current theme (default)
-- `toggle`: Toggle light/dark mode
-- `preset <preset> <variant>`: Apply preset/variant to current mode
-- `preset <preset> <variant> <light|dark>`: Apply preset/variant to specific mode
+- `toggle`: Toggle between light and dark mode
+- `preset <preset> <variant> [mode]`: Apply a specific theme preset
+- `auto`: Enable auto mode (follow system appearance)
+- `manual`: Enable manual mode (lock current theme)
+- `status`: Show current theme status
+- `preview <preset> <variant>`: Preview a theme without applying it
+- `list`: List all available themes with their variants
 
 ### Examples
 
 ```bash
+# Apply current theme
 meowctl theme
+meowctl theme apply
+
+# Toggle between light and dark
 meowctl theme toggle
+
+# Apply specific themes
 meowctl theme preset tokyonight moon
 meowctl theme preset catppuccin latte light
+
+# Preview a theme before applying
+meowctl theme preview tokyonight storm
+
+# List all available themes
+meowctl theme list
+
+# Check current status
+meowctl theme status
+
+# Enable/disable auto mode
+meowctl theme auto
+meowctl theme manual
 ```
+
+### Theme Tools Supported
+
+The theme system applies consistent colors across:
+- **Terminal:** Ghostty
+- **Shell:** Zsh with Oh My Zsh
+- **Prompt:** Starship
+- **Multiplexer:** tmux
+- **File tools:** bat, delta, eza, ripgrep
+- **TUI apps:** lazygit, htop, glow, tealdeer, fzf
 
 ---
 
