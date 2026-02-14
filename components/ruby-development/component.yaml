@@ -1,0 +1,8 @@
+description: Ruby developer tooling (gems, language servers, VS Code extensions)
+platforms:
+- match:
+    platform: macos
+- match:
+    platform: linux
+depends_on:
+- ruby-runtime

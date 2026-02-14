@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+# MIT License
+# Copyright (c) 2025 Andrew Vasilyev <me@retran.me>
+#
+# @file: scripts/theme/regenerate-component-themes
+# @brief: Regenerate theme files for all installed components
+# @author: Andrew Vasilyev
+# @license: MIT
+
+set -euo pipefail
+
+MEOW_ROOT="${MEOW:-$HOME/.meow}"
+
+# Source required libraries
+source "$MEOW_ROOT/lib/core/ui.sh"
+source "$MEOW_ROOT/lib/components/operations.sh"
+
+ui_title "Regenerating themes for all components"
+
+# Get list of installed components
+if [[ ! -d "$MEOW_ROOT/.installed/components" ]]; then
+  ui_error "No components installed."
+  exit 1
+fi
+
+# Find components with theme generators
+components_with_generators=()
+for component_dir in "$MEOW_ROOT/.installed/components"/*; do
+  [[ ! -d "$component_dir" ]] && continue
+  component=$(basename "$component_dir")
+  
+  # Check if component has theme generators
+  if find -L "$component_dir/scripts" -name "generate-theme-*" 2>/dev/null | grep -q .; then
+    components_with_generators+=("$component")
+  fi
+done
+
+if [[ ${#components_with_generators[@]} -eq 0 ]]; then
+  ui_info "No components with theme generators found."
+  exit 0
+fi
+
+ui_info "Found ${#components_with_generators[@]} component(s) with theme generators."
+echo
+
+# Regenerate themes for each component (force=true)
+for component in "${components_with_generators[@]}"; do
+  generate_component_themes "$component" "true"
+done
+
+echo
+ui_success "Theme regeneration completed for ${#components_with_generators[@]} component(s)."

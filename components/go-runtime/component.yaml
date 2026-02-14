@@ -1,0 +1,8 @@
+description: Go runtime managed by mise
+depends_on:
+  - tool-installers
+platforms:
+- match:
+    platform: macos
+- match:
+    platform: linux

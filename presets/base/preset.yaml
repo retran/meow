@@ -8,6 +8,7 @@ packages:
     include:
     - homebrew
     - mas
+    - mise
     - pipx
     - npm
     - go
@@ -17,6 +18,7 @@ packages:
     platform: linux
   managers:
     include:
+    - mise
     - pipx
     - npm
     - go

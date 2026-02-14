@@ -1,8 +1,8 @@
-description: Cargo extensions, debugging helpers, and VS Code integration layered on rust-toolchain
+description: Cargo extensions, debugging helpers, and VS Code integration layered on rust-runtime
 platforms:
 - match:
     platform: macos
 - match:
     platform: linux
 depends_on:
-- rust-toolchain
+- rust-runtime

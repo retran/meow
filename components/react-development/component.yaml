@@ -5,4 +5,4 @@ platforms:
 - match:
     platform: linux
 depends_on:
-- js-development
+- node-development

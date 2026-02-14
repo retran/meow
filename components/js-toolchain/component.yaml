@@ -1,8 +1,0 @@
-description: Node.js runtime, npm CLI, and JavaScript tooling prerequisites
-platforms:
-- match:
-    platform: macos
-- match:
-    platform: linux
-depends_on:
-- shell-essential

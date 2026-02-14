@@ -63,6 +63,15 @@ setup_cargo() {
     return 0
   fi
 
+  # Add mise shims to PATH if mise is available but cargo is not
+  if ! command -v cargo >/dev/null 2>&1 && command -v mise >/dev/null 2>&1; then
+    local mise_shims_dir="$HOME/.local/share/mise/shims"
+    if [ -d "$mise_shims_dir" ] && [ -f "$mise_shims_dir/cargo" ]; then
+      export PATH="$mise_shims_dir:$PATH"
+      ui_verbose_info "Added mise shims to PATH for cargo access."
+    fi
+  fi
+
   if ! command -v cargo >/dev/null 2>&1; then
     ui_action_error "Cargo not found. Please install Rust and Cargo."
     return 1
@@ -71,6 +80,14 @@ setup_cargo() {
 }
 
 install_cargo_packages() {
+  # Add mise shims to PATH if mise is available but cargo is not in PATH
+  if ! command -v cargo >/dev/null 2>&1 && command -v mise >/dev/null 2>&1; then
+    local mise_shims_dir="$HOME/.local/share/mise/shims"
+    if [ -d "$mise_shims_dir" ] && [ -f "$mise_shims_dir/cargo" ]; then
+      export PATH="$mise_shims_dir:$PATH"
+    fi
+  fi
+  
   local component="$1"
   local manager_name="cargo"
   local install_cmd=("cargo" "install")

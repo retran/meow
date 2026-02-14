@@ -1,5 +1,0 @@
-build-base
-pkgconf
-openssl-dev
-libssh2-dev
-curl-dev

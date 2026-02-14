@@ -1,8 +1,0 @@
-description: Go runtime, GOPATH configuration, and compiler installation via system package managers
-platforms:
-- match:
-    platform: macos
-- match:
-    platform: linux
-depends_on:
-- development-essential

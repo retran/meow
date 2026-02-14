@@ -72,7 +72,7 @@ This document provides a detailed reference for all components available in the 
 
 **Description:** Cross-language development tools for version control, project management, and code collaboration.
 **Platforms:** macOS, Linux
-**Dependencies:** `go-task`, `js-toolchain`, `neovim`
+**Dependencies:** `go-task`, `node-development`, `neovim`
 **Packages:**
 
 - **APK:** `httpie`
@@ -120,7 +120,7 @@ This document provides a detailed reference for all components available in the 
 
 **Description:** PowerShell tooling and VS Code enhancements for .NET developers.
 **Platforms:** macOS, Linux
-**Dependencies:** `dotnet-toolchain`
+**Dependencies:** `dotnet-runtime`
 **Packages:**
 
 - **VS Code:** `ms-dotnettools.csdevkit`, `ms-dotnettools.csharp`, `ms-dotnettools.vscode-dotnet-runtime`, `ms-vscode.powershell`
@@ -129,20 +129,14 @@ This document provides a detailed reference for all components available in the 
 
 ---
 
-## dotnet-toolchain
+## dotnet-runtime
 
-**Description:** .NET SDK installation sourced from Microsoft repositories across supported distributions.
-**Platforms:** macOS, Linux (Debian, Ubuntu, RHEL, Fedora, Alpine)
-**Dependencies:** `development-essential`
-**Package Sources:** 
-- **APT (Ubuntu 22.04, 24.04):** dotnet-ubuntu-backports from ppa.launchpad.net/dotnet/backports
-- **APT (Ubuntu 16.04, 18.04, 20.04):** microsoft-dotnet-ubuntu from packages.microsoft.com
-- **APT (Debian):** microsoft-dotnet-debian from packages.microsoft.com
-**Configuration:**
+**Description:** .NET runtime managed by mise.
+**Platforms:** macOS, Linux
+**Dependencies:** `tool-installers`
+**Packages:**
 
-- **Scripts:**
-  - `env.sh`: Sets `DOTNET_ROOT` and `PATH`.
-  - `setup.sh`: Installs .NET SDK via `dotnet-install.sh` script.
+- **Mise:** `dotnet@10`
 
 ---
 
@@ -182,9 +176,9 @@ This document provides a detailed reference for all components available in the 
 
 ## go-development
 
-**Description:** Go language servers, debugging tools, and workflow utilities layered on the go-toolchain.
+**Description:** Go language servers, debugging tools, and workflow utilities layered on the go-runtime.
 **Platforms:** macOS, Linux
-**Dependencies:** `go-toolchain`
+**Dependencies:** `go-runtime`
 **Packages:**
 
 - **Go:** `github.com/go-delve/delve/cmd/dlv`, `honnef.co/go/tools/cmd/staticcheck`, `github.com/golangci/golangci-lint/cmd/golangci-lint`, `mvdan.cc/gofumpt`, `golang.org/x/tools/cmd/goimports`, `github.com/air-verse/air`, `github.com/a-h/templ/cmd/templ`, `github.com/swaggo/swag/cmd/swag`, `github.com/onsi/ginkgo/v2/ginkgo`, `gotest.tools/gotestsum`, `github.com/spf13/cobra-cli`, `github.com/sigstore/cosign/v2/cmd/cosign`, `github.com/anchore/syft/cmd/syft`, `github.com/google/ko`
@@ -211,20 +205,14 @@ This document provides a detailed reference for all components available in the 
 
 ---
 
-## go-toolchain
+## go-runtime
 
-**Description:** Go runtime, GOPATH configuration, and compiler installation via system package managers.
+**Description:** Go runtime managed by mise.
 **Platforms:** macOS, Linux
-**Dependencies:** `development-essential`
+**Dependencies:** `tool-installers`
 **Packages:**
 
-- **APK:** `go`
-- **APT:** `golang-go`
-- **DNF:** `golang`
-- **Homebrew:** `go`
-- **Pacman:** `go`
-  **Configuration:**
-- **Scripts:** `env.sh` (Configures GOPATH and PATH)
+- **Mise:** `go@1.25`
 
 ---
 
@@ -242,11 +230,11 @@ This document provides a detailed reference for all components available in the 
 
 ---
 
-## js-development
+## node-development
 
-**Description:** JavaScript/TypeScript language servers and developer tooling on top of the Node.js toolchain.
+**Description:** JavaScript/TypeScript language servers and developer tooling on top of the Node.js runtime.
 **Platforms:** macOS, Linux
-**Dependencies:** `js-toolchain`
+**Dependencies:** `node-runtime`
 **Packages:**
 
 - **NPM:** `typescript`, `ts-node`, `eslint`, `npm-check-updates`
@@ -256,18 +244,14 @@ This document provides a detailed reference for all components available in the 
 
 ---
 
-## js-toolchain
+## node-runtime
 
-**Description:** Node.js runtime, npm CLI, and JavaScript tooling prerequisites.
+**Description:** Node.js runtime managed by mise.
 **Platforms:** macOS, Linux
-**Dependencies:** `shell-essential`
+**Dependencies:** `tool-installers`
 **Packages:**
 
-- **APK:** `nodejs`, `npm`
-- **APT:** `nodejs`, `npm`
-- **DNF:** `nodejs`, `npm`
-- **Homebrew:** `node`
-- **Pacman:** `nodejs`, `npm`
+- **Mise:** `node@lts`
 
 ---
 
@@ -287,14 +271,14 @@ This document provides a detailed reference for all components available in the 
 
 **Description:** JVM runtime and Kotlin compiler toolchain for command-line development.
 **Platforms:** macOS, Linux
-**Dependencies:** `development-essential`
+**Dependencies:** `development-essential`, `java-runtime`
 **Packages:**
 
-- **APK:** `openjdk21`, `kotlin`
-- **APT:** `openjdk-21-jdk`, `kotlin`
-- **DNF:** `java-21-openjdk`, `kotlin`
-- **Homebrew:** `openjdk@21`, `kotlin`
-- **Pacman:** `jdk-openjdk`, `kotlin`
+- **APK:** `kotlin`
+- **APT:** `kotlin`
+- **DNF:** `kotlin`
+- **Homebrew:** `kotlin`
+- **Pacman:** `kotlin`
 
 ---
 
@@ -328,7 +312,7 @@ This document provides a detailed reference for all components available in the 
 
 **Description:** Technical writing and documentation tools with linting and static site generation.
 **Platforms:** macOS, Linux
-**Dependencies:** `development-essential`, `js-toolchain`
+**Dependencies:** `development-essential`, `node-development`
 **Packages:**
 
 - **Homebrew:** `pandoc`, `mactex-no-gui`
@@ -427,30 +411,22 @@ This document provides a detailed reference for all components available in the 
 
 **Description:** Python developer tooling (pipx apps, language servers, VS Code extensions).
 **Platforms:** macOS, Linux
-**Dependencies:** `python-toolchain`
+**Dependencies:** `python-runtime`
 **Packages:**
 
-- **Pipx:** `poetry`, `pipenv`
+- **Pipx:** `poetry`, `pipenv`, `rye`
 - **VS Code:** `ms-python.debugpy`, `ms-python.python`, `ms-python.vscode-pylance`
 
 ---
 
-## python-toolchain
+## python-runtime
 
-**Description:** Python runtime, pip/pipx tooling, virtualenv support, and Rye installer.
+**Description:** Python runtime managed by mise.
 **Platforms:** macOS, Linux
-**Dependencies:** `development-essential`
+**Dependencies:** `tool-installers`
 **Packages:**
 
-- **APK:** `python3`, `py3-pip`, `py3-virtualenv`, `py3-wheel`
-- **APT:** `python3`, `python3-pip`, `python3-venv`, `python3-virtualenv`, `python3-dev`, `cython3`, `pipx`
-- **DNF:** `python3`, `python3-pip`, `python3-virtualenv`, `python3-devel`, `pipx`
-- **Homebrew:** `python`, `pipx`, `pyenv`
-- **Pacman:** `python`, `python-pip`, `python-virtualenv`, `python-pipx`
-  **Configuration:**
-- **Scripts:**
-  - `env.sh`: Adds Rye shims to PATH.
-  - `setup.sh`: Installs Rye.
+- **Mise:** `python@3`
 
 ---
 
@@ -458,7 +434,7 @@ This document provides a detailed reference for all components available in the 
 
 **Description:** React framework tools, testing utilities, and development scaffolding.
 **Platforms:** macOS, Linux
-**Dependencies:** `js-development`
+**Dependencies:** `node-development`
 **Packages:**
 
 - **NPM:** `create-react-app`, `create-next-app`, `eslint-plugin-react`, `eslint-plugin-react-hooks`
@@ -468,9 +444,9 @@ This document provides a detailed reference for all components available in the 
 
 ## rust-development
 
-**Description:** Cargo extensions, debugging helpers, and VS Code integration layered on rust-toolchain.
+**Description:** Cargo extensions, debugging helpers, and VS Code integration layered on rust-runtime.
 **Platforms:** macOS, Linux
-**Dependencies:** `rust-toolchain`
+**Dependencies:** `rust-runtime`
 **Packages:**
 
 - **Cargo:** `cargo-watch`, `cargo-edit`, `cargo-expand`, `cargo-outdated`, `cargo-audit`, `cargo-deny`
@@ -480,21 +456,14 @@ This document provides a detailed reference for all components available in the 
 
 ---
 
-## rust-toolchain
+## rust-runtime
 
-**Description:** Rust toolchain bootstrap with rustup, clippy, and required system libraries.
+**Description:** Rust runtime managed by mise.
 **Platforms:** macOS, Linux
-**Dependencies:** `development-essential`
+**Dependencies:** `tool-installers`
 **Packages:**
 
-- **APK:** `build-base`, `pkgconf`, `openssl-dev`, `libssh2-dev`, `curl-dev`
-- **APT:** `build-essential`, `pkg-config`, `libssl-dev`, `libssh2-1-dev`, `libcurl4-openssl-dev`
-- **DNF:** `pkgconf-pkg-config`, `openssl-devel`, `libssh2-devel`, `libcurl-devel`, `gcc`, `gcc-c++`, `make`
-- **Pacman:** `base-devel`, `pkgconf`, `openssl`, `libssh2`, `curl`
-  **Configuration:**
-- **Scripts:**
-  - `env.sh`: Configures Cargo environment.
-  - `setup.sh`: Installs `rustup` and default toolchain.
+- **Mise:** `rust@stable`
 
 ---
 
@@ -502,7 +471,7 @@ This document provides a detailed reference for all components available in the 
 
 **Description:** Shell scripting tools including linting, formatting, and language server support.
 **Platforms:** macOS, Linux
-**Dependencies:** `shell-essential`, `js-toolchain`
+**Dependencies:** `shell-essential`, `node-development`
 **Packages:**
 
 - **Homebrew:** `powershell`
@@ -512,11 +481,11 @@ This document provides a detailed reference for all components available in the 
 
 ## shell-essential
 
-**Description:** Essential shell tools and development foundation for all environments. Includes git, node, bash/zsh, file navigation tools, and system monitoring utilities.
+**Description:** Essential shell tools and development foundation for all environments. Includes git, bash/zsh, file navigation tools, and system monitoring utilities.
 **Platforms:** macOS, Linux
 **Packages:**
 
-- **APK:** `curl`, `wget`, `git`, `git-lfs`, `nodejs`, `npm`, `py3-pip`, `py3-pipx`, `bash`, `zsh`, `coreutils`, `direnv`, `bat`, `fzf`, `ripgrep`, `zoxide`, `htop`, `findutils`, `watch`, `zsh-autosuggestions`, `zsh-syntax-highlighting`, `starship`
+- **APK:** `curl`, `wget`, `git`, `git-lfs`, `bash`, `zsh`, `coreutils`, `direnv`, `bat`, `fzf`, `ripgrep`, `zoxide`, `htop`, `findutils`, `watch`, `zsh-autosuggestions`, `zsh-syntax-highlighting`, `starship`
 - **APT:** (Similar comprehensive list + `apt-transport-https`, `ca-certificates`, `gnupg`)
 - **DNF:** (Similar comprehensive list + `eza`, `glow`, `procps` equivalent)
 - **Homebrew:** (Similar comprehensive list)
@@ -561,6 +530,35 @@ This document provides a detailed reference for all components available in the 
   - macOS-specific optimizations
   - Complete keybinding configuration
   - Theme support via auto-generation from `themes.yaml`
+
+---
+
+## tool-installers
+
+**Description:** Core tool installer infrastructure including mise (polyglot version manager), pipx (Python tool installer), and cargo-binstall (Rust binary installer).
+**Platforms:** macOS, Linux
+**Dependencies:** `shell-essential`
+**Packages:**
+
+- **Homebrew:** `mise`, `pipx`, `cargo-binstall`
+- **APT:** `python3-pip`, `pipx`
+- **DNF:** `python3-pip`, `pipx`
+- **Pacman:** `python-pip`, `python-pipx`
+- **APK:** `py3-pip`, `py3-pipx`
+
+**Environment Variables:**
+- `PIPX_HOME`: Set to `$HOME/.local/pipx`
+- `PIPX_BIN_DIR`: Set to `$HOME/.local/bin`
+
+**PATH Additions:**
+- `$HOME/.local/bin` (mise shims and pipx binaries)
+- `$HOME/.cargo/bin` (cargo installed tools)
+
+**Initialization:**
+- Activates mise for current shell (zsh/bash)
+- Enables mise shims for all installed runtimes
+
+**Note:** This component is a dependency for all `*-runtime` components and must be installed first.
 
 ---
 
@@ -640,7 +638,7 @@ This document provides a detailed reference for all components available in the 
 
 **Description:** Web development stack with CSS frameworks, build tools, and deployment utilities.
 **Platforms:** macOS, Linux
-**Dependencies:** `js-development`
+**Dependencies:** `node-development`
 **Packages:**
 
 - **NPM:** `sass`, `tailwindcss`, `lighthouse`, `netlify-cli`

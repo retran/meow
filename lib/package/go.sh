@@ -55,6 +55,15 @@ setup_go() {
     return 0
   fi
 
+  # Add mise shims to PATH if mise is available but go is not
+  if ! command -v go >/dev/null 2>&1 && command -v mise >/dev/null 2>&1; then
+    local mise_shims_dir="$HOME/.local/share/mise/shims"
+    if [ -d "$mise_shims_dir" ] && [ -f "$mise_shims_dir/go" ]; then
+      export PATH="$mise_shims_dir:$PATH"
+      ui_verbose_info "Added mise shims to PATH for go access."
+    fi
+  fi
+
   if ! command -v go >/dev/null 2>&1; then
     ui_action_error "Go command not found in PATH."
     return 1
@@ -64,6 +73,14 @@ setup_go() {
 }
 
 install_go_packages() {
+  # Add mise shims to PATH if mise is available but go is not in PATH
+  if ! command -v go >/dev/null 2>&1 && command -v mise >/dev/null 2>&1; then
+    local mise_shims_dir="$HOME/.local/share/mise/shims"
+    if [ -d "$mise_shims_dir" ] && [ -f "$mise_shims_dir/go" ]; then
+      export PATH="$mise_shims_dir:$PATH"
+    fi
+  fi
+  
   install_packages_generic "$1" "go" "go install" "is_go_package_installed"
 }
 
