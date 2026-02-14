@@ -145,6 +145,7 @@ install_packages_generic() {
   local manager_display_name
   case "$manager_name" in
     "homebrew") manager_display_name="Homebrew" ;;
+    "mise") manager_display_name="Mise" ;;
     "npm") manager_display_name="NPM" ;;
     "pipx") manager_display_name="Pipx" ;;
     "vscode") manager_display_name="VS Code" ;;
@@ -240,6 +241,7 @@ update_packages_generic() {
   local manager_display_name
   case "$manager_name" in
     "homebrew") manager_display_name="Homebrew" ;;
+    "mise") manager_display_name="Mise" ;;
     "npm") manager_display_name="NPM" ;;
     "pipx") manager_display_name="Pipx" ;;
     "vscode") manager_display_name="VS Code" ;;
@@ -413,6 +415,7 @@ uninstall_packages_generic() {
   local manager_display_name
   case "$manager_name" in
     "homebrew") manager_display_name="Homebrew" ;;
+    "mise") manager_display_name="Mise" ;;
     "npm") manager_display_name="NPM" ;;
     "pipx") manager_display_name="Pipx" ;;
     "vscode") manager_display_name="VS Code" ;;

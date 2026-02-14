@@ -45,6 +45,7 @@ source "${MEOW}/lib/package/apt.sh"
 source "${MEOW}/lib/package/apk.sh"
 source "${MEOW}/lib/package/pacman.sh"
 source "${MEOW}/lib/package/dnf.sh"
+source "${MEOW}/lib/package/mise.sh"
 source "${MEOW}/lib/package/pipx.sh"
 source "${MEOW}/lib/package/npm.sh"
 source "${MEOW}/lib/package/go.sh"
@@ -199,7 +200,7 @@ install_component_packages() {
     fi
   fi
 
-  for mgr in pipx npm go cargo vscode snap; do
+  for mgr in mise pipx npm go cargo vscode snap; do
     if meow_pm_should_use_manager "$active_managers" "$mgr" && [ -f "${packages_dir}/${mgr}.list" ]; then
       if _install_packages_for_component_manager "$component" "$mgr"; then
         has_packages=true
@@ -272,7 +273,7 @@ uninstall_component_packages() {
     fi
   fi
 
-  for mgr in pipx npm go cargo vscode snap; do
+  for mgr in mise pipx npm go cargo vscode snap; do
     if meow_pm_should_use_manager "$active_managers" "$mgr"; then
       _uninstall_packages_for_component_manager "$component" "$mgr"
     fi
@@ -443,7 +444,7 @@ update_component_packages() {
     fi
   fi
 
-  for mgr in pipx npm go cargo vscode snap; do
+  for mgr in mise pipx npm go cargo vscode snap; do
     if ! meow_pm_should_use_manager "$active_managers" "$mgr"; then
       continue
     fi

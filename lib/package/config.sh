@@ -189,9 +189,9 @@ meow_pm_resolve_for_component() {
   managers=$(_meow_pkg_merge_managers "$managers" "$entries")
   if [ -z "$managers" ]; then
     if [ "$IS_MACOS" = "true" ]; then
-      managers="homebrew mas pipx npm go cargo vscode"
+      managers="homebrew mas mise pipx npm go cargo vscode"
     else
-      managers="pipx npm go cargo vscode apt dnf apk pacman snap"
+      managers="mise pipx npm go cargo vscode apt dnf apk pacman snap"
     fi
   fi
   echo "$managers"

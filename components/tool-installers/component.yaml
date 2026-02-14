@@ -1,0 +1,8 @@
+description: Universal CLI tool installers (mise, pipx, cargo) for managing development tools across all languages
+depends:
+  - shell-essential
+platforms:
+- match:
+    platform: macos
+- match:
+    platform: linux
