@@ -11,14 +11,12 @@ fi
 
 MEOW_ROOT="${MEOW:-$HOME/.meow}"
 MEOW_CONFIG_DIR="${MEOW_CONFIG_DIR:-$HOME/.config/meow}"
+THEME_UTILS="${THEME_UTILS:-$MEOW_ROOT/lib/theme/theme-utils.sh}"
 
-slugify() {
-  local value="$1"
-  echo "$value" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/_/g; s/_\+/_/g; s/^_//; s/_$//'
-}
+source "$THEME_UTILS"
 
-preset_slug=$(slugify "$PRESET")
-variant_slug=$(slugify "$VARIANT")
+preset_slug=$(theme_slugify "$PRESET")
+variant_slug=$(theme_slugify "$VARIANT")
 
 theme_file="$MEOW_ROOT/components/shell-essential/config/fzf/themes/${preset_slug}-${variant_slug}.sh"
 fzf_config="$MEOW_CONFIG_DIR/fzf/colors.sh"

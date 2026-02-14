@@ -17,6 +17,19 @@ source "${MEOW:-$HOME/.meow}/lib/core/tools.sh"
 source "${MEOW:-$HOME/.meow}/lib/core/yaml.sh"
 source "${MEOW:-$HOME/.meow}/lib/config/config.sh"
 
+# Theme database cache
+declare -A MEOW_THEME_CACHE
+
+# Clear theme cache
+theme_cache_clear() {
+  MEOW_THEME_CACHE=()
+}
+
+# Get cache key
+theme_cache_key() {
+  echo "${MEOW_THEME_DB}:$1"
+}
+
 theme_yaml_path() {
   local key="$1"
   if [[ "$key" == .* ]]; then
@@ -28,6 +41,15 @@ theme_yaml_path() {
 
 theme_db_get() {
   local path="$1"
+  local cache_key
+  cache_key=$(theme_cache_key "$path")
+  
+  # Check cache first
+  if [[ -n "${MEOW_THEME_CACHE[$cache_key]:-}" ]]; then
+    echo "${MEOW_THEME_CACHE[$cache_key]}"
+    return 0
+  fi
+  
   if [[ ! -f "$MEOW_THEME_DB" ]]; then
     echo ""
     return 1
@@ -35,7 +57,13 @@ theme_db_get() {
 
   local yaml_path
   yaml_path=$(theme_yaml_path "$path")
-  read_yaml_value "$MEOW_THEME_DB" "$yaml_path"
+  local value
+  value=$(read_yaml_value "$MEOW_THEME_DB" "$yaml_path")
+  
+  # Cache the result
+  MEOW_THEME_CACHE[$cache_key]="$value"
+  
+  echo "$value"
 }
 
 theme_strip_quotes() {
