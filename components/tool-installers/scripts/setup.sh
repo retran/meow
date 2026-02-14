@@ -57,9 +57,6 @@ auto_install = true
 # Use verbose output for debugging
 # verbose = true
 
-# Disable telemetry
-disable_telemetry = true
-
 # Global tools
 # Uncomment and add versions as needed
 # [tools]
