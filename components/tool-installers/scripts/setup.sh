@@ -15,7 +15,7 @@ source "$MEOW/lib/core/ui.sh"
 
 # Main setup function
 main() {
-  ui_section "Tool Installers (tool-installers) Setup"
+  ui_step_header "Tool Installers (tool-installers) Setup"
   
   # Setup mise
   setup_mise
@@ -23,7 +23,7 @@ main() {
   # Setup pipx
   setup_pipx_directories
   
-  ui_success "Tool installers setup completed."
+  ui_action_success "Tool installers setup completed."
 }
 
 # Setup mise configuration
