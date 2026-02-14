@@ -1165,7 +1165,16 @@ _uninstall_single_component() {
 
 generate_component_themes() {
   local component="$1"
+  local force="${2:-false}"
   local installed_component_dir="${MEOW}/.installed/components/${component}"
+  
+  # Skip theme generation if explicitly disabled (unless forced)
+  if [[ "${MEOW_SKIP_THEME_GENERATION:-false}" = "true" && "$force" != "true" ]]; then
+    if [[ "$MEOW_VERBOSE" = "true" ]]; then
+      ui_verbose_info "$(_f "Skipping theme generation for component '%s' (MEOW_SKIP_THEME_GENERATION=true)." "$component")"
+    fi
+    return 0
+  fi
   
   # Check if component has any theme generators
   local generators
@@ -1176,6 +1185,32 @@ generate_component_themes() {
       ui_verbose_info "$(_f "No theme generators found for component '%s'." "$component")"
     fi
     return 0
+  fi
+  
+  # Check if themes need regeneration (based on themes.yaml checksum)
+  if [[ "$force" != "true" ]]; then
+    local checksum_file="${MEOW}/.installed/components/${component}/.theme-checksum"
+    local current_checksum=""
+    
+    if [[ -f "${MEOW}/themes.yaml" ]]; then
+      if command -v sha256sum >/dev/null 2>&1; then
+        current_checksum=$(sha256sum "${MEOW}/themes.yaml" 2>/dev/null | awk '{print $1}')
+      elif command -v shasum >/dev/null 2>&1; then
+        current_checksum=$(shasum -a 256 "${MEOW}/themes.yaml" 2>/dev/null | awk '{print $1}')
+      fi
+    fi
+    
+    if [[ -n "$current_checksum" && -f "$checksum_file" ]]; then
+      local stored_checksum
+      stored_checksum=$(cat "$checksum_file" 2>/dev/null)
+      
+      if [[ "$current_checksum" = "$stored_checksum" ]]; then
+        if [[ "$MEOW_VERBOSE" = "true" ]]; then
+          ui_verbose_info "$(_f "Theme files up-to-date for component '%s', skipping generation." "$component")"
+        fi
+        return 0
+      fi
+    fi
   fi
   
   local generator_count
@@ -1254,6 +1289,16 @@ generate_component_themes() {
   
   if [[ $total_generated -gt 0 ]]; then
     ui_action_success "$(_f "Generated %d theme file(s) for component '%s'." "$total_generated" "$component")"
+    
+    # Save checksum for future reference
+    if [[ -f "${MEOW}/themes.yaml" ]]; then
+      local checksum_file="${MEOW}/.installed/components/${component}/.theme-checksum"
+      if command -v sha256sum >/dev/null 2>&1; then
+        sha256sum "${MEOW}/themes.yaml" 2>/dev/null | awk '{print $1}' > "$checksum_file"
+      elif command -v shasum >/dev/null 2>&1; then
+        shasum -a 256 "${MEOW}/themes.yaml" 2>/dev/null | awk '{print $1}' > "$checksum_file"
+      fi
+    fi
   fi
   
   if [[ $total_failed -gt 0 ]]; then

@@ -32,6 +32,11 @@ if [ -f "./config/env/env.sh" ] && [ -d "./presets" ]; then
   MEOW="$(pwd)"
 fi
 
+# Skip theme generation by default during component install/update for performance
+# Theme files are only regenerated when themes.yaml changes or when explicitly requested
+# To regenerate themes: scripts/theme/regenerate-component-themes
+export MEOW_SKIP_THEME_GENERATION="${MEOW_SKIP_THEME_GENERATION:-true}"
+
 source "${MEOW}/lib/env/env.sh"
 
 
