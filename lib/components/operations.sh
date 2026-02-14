@@ -1205,8 +1205,8 @@ generate_component_themes() {
   
   # Get list of all themes
   local presets
-  if command -v theme_build_get_theme_list >/dev/null 2>&1; then
-    presets=$(theme_build_get_theme_list 2>/dev/null) || presets=""
+  if command -v theme_list_presets >/dev/null 2>&1; then
+    presets=$(theme_list_presets 2>/dev/null) || presets=""
   fi
   
   if [[ -z "$presets" ]]; then
@@ -1223,8 +1223,8 @@ generate_component_themes() {
     
     # Get variants for this preset
     local variants
-    if command -v theme_build_get_variant_list >/dev/null 2>&1; then
-      variants=$(theme_build_get_variant_list "$preset" 2>/dev/null) || continue
+    if command -v theme_list_variants >/dev/null 2>&1; then
+      variants=$(theme_list_variants "$preset" 2>/dev/null) || continue
     else
       continue
     fi
