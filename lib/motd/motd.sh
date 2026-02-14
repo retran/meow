@@ -114,15 +114,16 @@ get_system_info() {
     local brew_cache_file="${cache_dir}/brew_outdated"
     local current_time_s
     current_time_s=$(date +%s)
-    local file_mod_time_s
+    local file_mod_time_s=""
 
-    if [ "${OSTYPE#darwin}" != "$OSTYPE" ]; then
-      file_mod_time_s=$(stat -f %m "$brew_cache_file" 2>/dev/null)
-    else
-      file_mod_time_s=$(stat -c %Y "$brew_cache_file" 2>/dev/null)
+    # Try to get file modification time, detecting stat format
+    if [ -f "$brew_cache_file" ]; then
+      # Try BSD stat first (macOS), then GNU stat (Linux)
+      file_mod_time_s=$(stat -f %m "$brew_cache_file" 2>/dev/null || stat -c %Y "$brew_cache_file" 2>/dev/null || echo "")
     fi
 
-    if [ -f "$brew_cache_file" ] && [ "$((current_time_s - file_mod_time_s))" -lt 600 ]; then
+    # Only use cache if we got a valid modification time and it's recent
+    if [ -n "$file_mod_time_s" ] && [ "$file_mod_time_s" -eq "$file_mod_time_s" ] 2>/dev/null && [ "$((current_time_s - file_mod_time_s))" -lt 600 ]; then
       outdated_packages=$(cat "$brew_cache_file")
     else
       outdated_packages=$(brew outdated | wc -l | tr -d ' ')
