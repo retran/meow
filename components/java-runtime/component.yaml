@@ -1,5 +1,5 @@
 description: Java runtime managed by mise
-depends:
+depends_on:
   - tool-installers
 platforms:
 - match:

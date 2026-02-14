@@ -1,5 +1,5 @@
 description: Python runtime managed by mise with pip support
-depends:
+depends_on:
   - tool-installers
 platforms:
 - match:
