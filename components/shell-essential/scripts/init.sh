@@ -31,6 +31,17 @@ if [ -n "${_COMPONENT_SHELL_ESSENTIAL_INIT_SOURCED:-}" ]; then
 fi
 _COMPONENT_SHELL_ESSENTIAL_INIT_SOURCED=1
 
+# Add GNU coreutils and findutils to PATH on macOS (for cross-platform compatibility)
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  # Prefer GNU versions over BSD versions for consistent behavior across platforms
+  if [[ -d "/opt/homebrew/opt/coreutils/libexec/gnubin" ]]; then
+    export PATH="/opt/homebrew/opt/coreutils/libexec/gnubin:$PATH"
+  fi
+  if [[ -d "/opt/homebrew/opt/findutils/libexec/gnubin" ]]; then
+    export PATH="/opt/homebrew/opt/findutils/libexec/gnubin:$PATH"
+  fi
+fi
+
 # Source config library for shell functions (used by meowctl)
 if [[ -f "${MEOW:-$HOME/.meow}/lib/config/config.sh" ]]; then
     source "${MEOW:-$HOME/.meow}/lib/config/config.sh"
@@ -175,6 +186,7 @@ if command -v eza >/dev/null 2>&1; then
   alias l='eza -l'
   alias la='eza -la'
   alias ll='eza -l --git'
+  alias tree='eza --tree'
   alias lt='eza --tree --level=2'
   alias lta='eza --tree --level=2 -a'
 fi
