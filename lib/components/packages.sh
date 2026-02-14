@@ -200,7 +200,7 @@ install_component_packages() {
     fi
   fi
 
-  for mgr in mise pipx npm go cargo vscode snap; do
+  for mgr in mise pipx npm go cargo gem vscode snap; do
     if meow_pm_should_use_manager "$active_managers" "$mgr" && [ -f "${packages_dir}/${mgr}.list" ]; then
       if _install_packages_for_component_manager "$component" "$mgr"; then
         has_packages=true

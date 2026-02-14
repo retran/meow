@@ -82,6 +82,10 @@ install_component_symlink() {
       ui_error "$(_f "Failed to create manually installed components directory.")"
       return 1
     }
+    # Remove existing symlink if it exists before creating new one
+    if [ -e "${MEOW_MANUALLY_INSTALLED_COMPONENTS_DIR}/${component}" ]; then
+      rm -f "${MEOW_MANUALLY_INSTALLED_COMPONENTS_DIR}/${component}"
+    fi
     ln -s "${MEOW_COMPONENTS_DIR}/${component}" "${MEOW_MANUALLY_INSTALLED_COMPONENTS_DIR}/${component}" || {
       ui_error "$(_f "Failed to mark component '%s' as manually installed." "$component")"
       return 1

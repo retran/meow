@@ -148,6 +148,7 @@ install_packages_generic() {
     "mise") manager_display_name="Mise" ;;
     "npm") manager_display_name="NPM" ;;
     "pipx") manager_display_name="Pipx" ;;
+    "gem") manager_display_name="Gem" ;;
     "vscode") manager_display_name="VS Code" ;;
     "mas") manager_display_name="App Store" ;;
     "go") manager_display_name="Go" ;;
@@ -244,6 +245,7 @@ update_packages_generic() {
     "mise") manager_display_name="Mise" ;;
     "npm") manager_display_name="NPM" ;;
     "pipx") manager_display_name="Pipx" ;;
+    "gem") manager_display_name="Gem" ;;
     "vscode") manager_display_name="VS Code" ;;
     "mas") manager_display_name="App Store" ;;
     "go") manager_display_name="Go" ;;
@@ -418,6 +420,7 @@ uninstall_packages_generic() {
     "mise") manager_display_name="Mise" ;;
     "npm") manager_display_name="NPM" ;;
     "pipx") manager_display_name="Pipx" ;;
+    "gem") manager_display_name="Gem" ;;
     "vscode") manager_display_name="VS Code" ;;
     "mas") manager_display_name="App Store" ;;
     "go") manager_display_name="Go" ;;
