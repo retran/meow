@@ -3,5 +3,5 @@ extends:
 - base
 - litterbox-essential
 required:
-- go-toolchain
+- go-runtime
 - go-development

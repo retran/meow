@@ -5,4 +5,4 @@ platforms:
 - match:
     platform: linux
 depends_on:
-- python-toolchain
+- python-runtime

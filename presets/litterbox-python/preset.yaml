@@ -3,5 +3,5 @@ extends:
 - base
 - litterbox-essential
 required:
-- python-toolchain
+- python-runtime
 - python-development

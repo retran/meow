@@ -1,0 +1,8 @@
+description: JavaScript/TypeScript language servers and developer tooling on top of the Node.js runtime
+platforms:
+- match:
+    platform: macos
+- match:
+    platform: linux
+depends_on:
+- node-runtime

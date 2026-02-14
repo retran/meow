@@ -62,20 +62,6 @@ if [ -d "$NPM_CONFIG_PREFIX/bin" ]; then
   fi
 fi
 
-# Configure pipx binary path
-if [ -d "$HOME/.local/bin" ]; then
-  if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
-    if [ "${MEOW_VERBOSE:-false}" = "true" ]; then
-      echo "INFO: Adding $HOME/.local/bin to PATH" >&2
-    fi
-    if [ "${MEOW_DRY_RUN:-false}" != "true" ]; then
-      export PATH="$HOME/.local/bin:$PATH"
-    else
-      echo "DRY-RUN: Would add $HOME/.local/bin to PATH" >&2
-    fi
-  fi
-fi
-
 # Set default editor to neovim if available
 if command -v nvim >/dev/null 2>&1; then
   export EDITOR="nvim"

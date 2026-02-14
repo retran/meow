@@ -1,8 +1,8 @@
-description: Go language servers, debugging tools, and workflow utilities layered on the go-toolchain
+description: Go language servers, debugging tools, and workflow utilities layered on the go-runtime
 platforms:
 - match:
     platform: macos
 - match:
     platform: linux
 depends_on:
-- go-toolchain
+- go-runtime

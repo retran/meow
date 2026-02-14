@@ -1,8 +1,0 @@
-description: Python runtime, pip/pipx tooling, virtualenv support, and Rye installer
-platforms:
-- match:
-    platform: macos
-- match:
-    platform: linux
-depends_on:
-- development-essential

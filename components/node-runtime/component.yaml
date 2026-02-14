@@ -1,0 +1,8 @@
+description: Node.js runtime managed by mise
+depends:
+  - tool-installers
+platforms:
+- match:
+    platform: macos
+- match:
+    platform: linux

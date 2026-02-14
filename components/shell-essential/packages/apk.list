@@ -5,10 +5,6 @@ git-lfs
 git-delta
 tealdeer
 duf
-nodejs
-npm
-py3-pip
-py3-pipx
 bash
 zsh
 coreutils

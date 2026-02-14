@@ -145,6 +145,46 @@ install_mise_packages() {
 
   # Clear cache after installation
   unset _MISE_INSTALLED_TOOLS
+
+  if [[ "$component" == *"-runtime" ]]; then
+    mise_use_global_from_list "$component"
+  fi
+}
+
+# Set global defaults for tools in a mise.list file
+mise_use_global_from_list() {
+  local component="$1"
+  local list_file="${MEOW}/components/${component}/packages/mise.list"
+
+  if [ ! -f "$list_file" ]; then
+    return 0
+  fi
+
+  ui_step_header "Setting global mise defaults for '${component}'"
+
+  if is_dry_run; then
+    dry_run_ui_info "Would set global mise defaults from: $list_file"
+    return 0
+  fi
+
+  if ! command -v mise >/dev/null 2>&1; then
+    ui_action_error "mise not found. Cannot set global defaults."
+    return 1
+  fi
+
+  while IFS= read -r line || [ -n "$line" ]; do
+    [[ -z "$line" || "$line" =~ ^[[:space:]]*# ]] && continue
+
+    local tool_spec
+    tool_spec=$(echo "$line" | xargs)
+
+    ui_action_start "Setting global default for $tool_spec..."
+    if mise use -g "$tool_spec" >/dev/null 2>&1; then
+      ui_action_success "$(printf "%-40s %s" "$tool_spec" "✓ global")"
+    else
+      ui_action_error "$(printf "%-40s %s" "$tool_spec" "✗ failed")"
+    fi
+  done < "$list_file"
 }
 
 # Update mise tools for a component

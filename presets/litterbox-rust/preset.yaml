@@ -3,5 +3,5 @@ extends:
 - base
 - litterbox-essential
 required:
-- rust-toolchain
+- rust-runtime
 - rust-development

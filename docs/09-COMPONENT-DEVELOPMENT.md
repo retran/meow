@@ -204,7 +204,7 @@ Follow these guidelines to create robust, maintainable components. These practic
 - **Use `set -e`**: Start all your shell scripts with `set -e` to ensure they fail fast.
 - **Use the `ui.sh` SDK**: Funnel all script output through the UI library to ensure [transparency](https://www.google.com/search?q=./07-PRINCIPLES.md%23%EF%B8%8F-transparency).
 - **Check for Command Existence**: Before using a command (e.g., `git`, `tmux`), check if it's installed and in the user's `$PATH` using `command -v a_command >/dev/null 2>&1`.
-- **Keep Components Focused**: A component should do one thing well. A `go-toolchain` component should install Go, while a `go-development` component should install linters and debuggers.
+- **Keep Components Focused**: A component should do one thing well. A `go-runtime` component should install Go via mise, while a `go-development` component should install linters and debuggers.
 
 ### Don't
 
