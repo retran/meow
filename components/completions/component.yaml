@@ -1,0 +1,8 @@
+description: Shell completions for meowctl and meow-theme commands. Provides tab
+  completion for zsh and bash shells with context-aware suggestions for presets,
+  variants, and components.
+platforms:
+- match:
+    platform: macos
+- match:
+    platform: linux

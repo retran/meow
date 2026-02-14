@@ -22,7 +22,6 @@ coreutils
 findutils
 jq
 yq
-tree
 watch
 glow
 groff

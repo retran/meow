@@ -23,33 +23,27 @@ if [[ -z "$PRESET" || -z "$VARIANT" ]]; then
 fi
 
 MEOW_ROOT="${MEOW:-$HOME/.meow}"
-THEME_DB="${THEME_DB:-$MEOW_ROOT/themes.yaml}"
 THEME_LIB="${THEME_LIB:-$MEOW_ROOT/lib/theme/theme.sh}"
+THEME_UTILS="${THEME_UTILS:-$MEOW_ROOT/lib/theme/theme-utils.sh}"
 OUTPUT_DIR="$MEOW_ROOT/components/terminal-apps/config/ghostty/themes"
-
-if [[ ! -f "$THEME_DB" ]]; then
-  echo "Theme database not found: $THEME_DB" >&2
-  exit 1
-fi
 
 if [[ ! -f "$THEME_LIB" ]]; then
   echo "Theme library not found: $THEME_LIB" >&2
   exit 1
 fi
 
-source "$THEME_LIB"
+if [[ ! -f "$THEME_UTILS" ]]; then
+  echo "Theme utilities not found: $THEME_UTILS" >&2
+  exit 1
+fi
 
-slugify() {
-  local value="$1"
-  value=$(echo "$value" | tr '[:upper:]' '[:lower:]')
-  value=$(echo "$value" | sed 's/[^a-z0-9]/_/g; s/_\+/_/g; s/^_//; s/_$//')
-  echo "$value"
-}
+source "$THEME_LIB"
+source "$THEME_UTILS"
 
 mkdir -p "$OUTPUT_DIR"
 
-preset_slug=$(slugify "$PRESET")
-variant_slug=$(slugify "$VARIANT")
+preset_slug=$(theme_slugify "$PRESET")
+variant_slug=$(theme_slugify "$VARIANT")
 out_file="$OUTPUT_DIR/${preset_slug}-${variant_slug}.conf"
 
 # Build color palette

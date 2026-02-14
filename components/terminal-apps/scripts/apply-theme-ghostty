@@ -9,10 +9,15 @@ if [[ -z "$PRESET" || -z "$VARIANT" ]]; then
   exit 1
 fi
 
-slugify() {
-  local value="$1"
-  echo "$value" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/_/g; s/_\+/_/g; s/^_//; s/_$//'
-}
+MEOW_ROOT="${MEOW:-$HOME/.meow}"
+THEME_UTILS="${THEME_UTILS:-$MEOW_ROOT/lib/theme/theme-utils.sh}"
+
+if [[ ! -f "$THEME_UTILS" ]]; then
+  echo "Theme utilities not found: $THEME_UTILS" >&2
+  exit 1
+fi
+
+source "$THEME_UTILS"
 
 ensure_real_file() {
   local file="$1"
@@ -26,8 +31,8 @@ ensure_real_file() {
 }
 
 MEOW_ROOT="${MEOW:-$HOME/.meow}"
-preset_slug=$(slugify "$PRESET")
-variant_slug=$(slugify "$VARIANT")
+preset_slug=$(theme_slugify "$PRESET")
+variant_slug=$(theme_slugify "$VARIANT")
 
 theme_file="$MEOW_ROOT/components/terminal-apps/config/ghostty/themes/${preset_slug}-${variant_slug}.conf"
 

@@ -10,14 +10,17 @@ if [[ -z "$PRESET" || -z "$VARIANT" ]]; then
 fi
 
 MEOW_ROOT="${MEOW:-$HOME/.meow}"
+THEME_UTILS="${THEME_UTILS:-$MEOW_ROOT/lib/theme/theme-utils.sh}"
 
-slugify() {
-  local value="$1"
-  echo "$value" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/_/g; s/_\+/_/g; s/^_//; s/_$//'
-}
+if [[ ! -f "$THEME_UTILS" ]]; then
+  echo "Theme utilities not found: $THEME_UTILS" >&2
+  exit 1
+fi
 
-preset_slug=$(slugify "$PRESET")
-variant_slug=$(slugify "$VARIANT")
+source "$THEME_UTILS"
+
+preset_slug=$(theme_slugify "$PRESET")
+variant_slug=$(theme_slugify "$VARIANT")
 
 theme_file="$MEOW_ROOT/components/shell-essential/config/tealdeer/themes/${preset_slug}-${variant_slug}.toml"
 tealdeer_config="${XDG_CONFIG_HOME:-$HOME/.config}/tealdeer/config.toml"
