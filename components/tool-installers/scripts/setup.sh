@@ -11,7 +11,7 @@ set -euo pipefail
 
 # Source required libraries
 MEOW="${MEOW:-$HOME/.meow}"
-source "$MEOW/lib/ui.sh"
+source "$MEOW/lib/core/ui.sh"
 
 # Main setup function
 main() {
