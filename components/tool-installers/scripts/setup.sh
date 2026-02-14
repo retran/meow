@@ -28,7 +28,7 @@ main() {
 
 # Setup mise configuration
 setup_mise() {
-  ui_action "Configuring mise..."
+  ui_action_start "Configuring mise..."
   
   # Check if mise is available
   if ! command -v mise >/dev/null 2>&1; then
@@ -77,7 +77,7 @@ EOF
 
 # Setup pipx directories
 setup_pipx_directories() {
-  ui_action "Configuring pipx directories..."
+  ui_action_start "Configuring pipx directories..."
   
   local pipx_home="${PIPX_HOME:-$HOME/.local/pipx}"
   local pipx_bin_dir="${PIPX_BIN_DIR:-$HOME/.local/bin}"
