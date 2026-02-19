@@ -33,6 +33,11 @@ keyboardLayouts.config = {
     productID = 0x0140,
     layoutScript = "set_das_keyboard_layouts.sh"
   },
+  air75Keyboard = {
+    vendorID = 0x07D7,
+    productID = 0x0000,
+    layoutScript = "set_das_keyboard_layouts.sh"
+  },
   macbookPro = {
     layoutScript = "set_mbp_keyboard_layouts.sh"
   }
@@ -53,35 +58,45 @@ local function runScript(scriptPath, description)
   task:start()
 end
 
-local function isDasKeyboardConnected()
+local function isExternalKeyboardConnected()
+  -- Check USB devices (Das Keyboard)
   for _, device in ipairs(hs.usb.attachedDevices()) do
     if device.vendorID == keyboardLayouts.config.dasKeyboard.vendorID and
        device.productID == keyboardLayouts.config.dasKeyboard.productID then
       return true
     end
   end
+  
+  -- Check HID devices (Bluetooth keyboards like Air75)
+  local output, status = hs.execute('ioreg -c IOHIDDevice -r -l | grep "Product" | grep -v "Apple Internal" | grep -v "Backlight" | grep -v "BTM"')
+  if output and output:match("Air75") then
+    return true
+  end
+  
   return false
 end
 
 local function setKeyboardLayoutForCurrentState(showAlert)
   local showAlert = showAlert == nil and true or showAlert
 
-  if isDasKeyboardConnected() then
-    runScript(keyboardLayouts.config.dasKeyboard.layoutScript, "Das Keyboard")
+  if isExternalKeyboardConnected() then
+    runScript(keyboardLayouts.config.dasKeyboard.layoutScript, "External Keyboard")
     if showAlert then
-      hs.alert.show("Das Keyboard connected.", 1.5)
+      hs.alert.show("External keyboard connected.", 1.5)
     end
   else
     runScript(keyboardLayouts.config.macbookPro.layoutScript, "MacBook Pro Keyboard")
     if showAlert then
-      hs.alert.show("Das Keyboard disconnected.", 1.5)
+      hs.alert.show("External keyboard disconnected.", 1.5)
     end
   end
 end
 
 local function deviceConnected(event)
-  if event.vendorID == keyboardLayouts.config.dasKeyboard.vendorID and
-     event.productID == keyboardLayouts.config.dasKeyboard.productID then
+  if (event.vendorID == keyboardLayouts.config.dasKeyboard.vendorID and
+      event.productID == keyboardLayouts.config.dasKeyboard.productID) or
+     (event.vendorID == keyboardLayouts.config.air75Keyboard.vendorID and
+      event.productID == keyboardLayouts.config.air75Keyboard.productID) then
     if event.eventType == "added" then
       setKeyboardLayoutForCurrentState(true)
     elseif event.eventType == "removed" then
@@ -94,9 +109,24 @@ function keyboardLayouts.init()
   if keyboardLayouts.usbWatcher then
     keyboardLayouts.usbWatcher:stop()
   end
+  
+  if keyboardLayouts.bluetoothTimer then
+    keyboardLayouts.bluetoothTimer:stop()
+  end
 
+  -- Watch for USB keyboard events (Das Keyboard)
   keyboardLayouts.usbWatcher = hs.usb.watcher.new(deviceConnected)
   keyboardLayouts.usbWatcher:start()
+
+  -- Poll for Bluetooth keyboard changes (Air75)
+  local lastState = isExternalKeyboardConnected()
+  keyboardLayouts.bluetoothTimer = hs.timer.doEvery(2, function()
+    local currentState = isExternalKeyboardConnected()
+    if currentState ~= lastState then
+      setKeyboardLayoutForCurrentState(true)
+      lastState = currentState
+    end
+  end)
 
   setKeyboardLayoutForCurrentState(true)
   hs.timer.doAfter(2, function()
@@ -113,6 +143,11 @@ function keyboardLayouts.cleanup()
   if keyboardLayouts.usbWatcher then
     keyboardLayouts.usbWatcher:stop()
     keyboardLayouts.usbWatcher = nil
+  end
+  
+  if keyboardLayouts.bluetoothTimer then
+    keyboardLayouts.bluetoothTimer:stop()
+    keyboardLayouts.bluetoothTimer = nil
   end
 end
 
