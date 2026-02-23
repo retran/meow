@@ -87,6 +87,11 @@ install_npm_packages() {
       export PATH="$mise_shims_dir:$PATH"
     fi
   fi
+
+  if ! command -v npm >/dev/null 2>&1; then
+    ui_action_error "npm not found. Please install Node.js/npm first."
+    return 1
+  fi
   
   install_packages_generic "$1" "npm" "npm install -g" "is_npm_package_installed"
 }
