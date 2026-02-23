@@ -87,6 +87,11 @@ install_pipx_packages() {
       export PATH="$mise_shims_dir:$PATH"
     fi
   fi
+
+  if ! command -v pipx >/dev/null 2>&1; then
+    ui_action_error "pipx not found. Please install pipx first (e.g., 'brew install pipx')."
+    return 1
+  fi
   
   install_packages_generic "$1" "pipx" "pipx install" "is_pipx_package_installed"
 }

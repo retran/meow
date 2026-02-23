@@ -87,6 +87,11 @@ install_cargo_packages() {
       export PATH="$mise_shims_dir:$PATH"
     fi
   fi
+
+  if ! command -v cargo >/dev/null 2>&1; then
+    ui_action_error "cargo not found. Please install Rust/Cargo first."
+    return 1
+  fi
   
   local component="$1"
   local manager_name="cargo"

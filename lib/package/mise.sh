@@ -93,14 +93,18 @@ setup_mise() {
 #   go
 install_mise_packages() {
   local component="$1"
-  local manager_name="mise"
   local list_file="${MEOW}/components/${component}/packages/mise.list"
 
   if [ ! -f "$list_file" ]; then
     return 0
   fi
 
-  ui_step_header "$(printf "Installing %s packages for '%s'" "$(ui_format_package_manager_name "$manager_name")" "$component")"
+  if ! command -v mise >/dev/null 2>&1; then
+    ui_action_error "mise not found. Please install mise first."
+    return 1
+  fi
+
+  ui_step_header "$(printf "Installing mise packages for '%s'" "$component")"
 
   if is_dry_run; then
     dry_run_ui_info "Would install mise packages from: $list_file"
@@ -137,7 +141,7 @@ install_mise_packages() {
   done < "$list_file"
 
   # Summary
-  ui_action_info "$(printf "mise: %d installed, %d already present" "$installed_count" "$already_present_count")"
+  ui_indent "$(printf "mise: %d installed, %d already present" "$installed_count" "$already_present_count")"
   
   if [ $failed_count -gt 0 ]; then
     ui_action_warning "$(printf "mise: %d failed" "$failed_count")"
@@ -190,7 +194,6 @@ mise_use_global_from_list() {
 # Update mise tools for a component
 update_mise_packages() {
   local component="$1"
-  local manager_name="mise"
   local list_file="${MEOW}/components/${component}/packages/mise.list"
 
   if [ ! -f "$list_file" ]; then
@@ -254,14 +257,13 @@ update_mise_packages() {
 # Uninstall mise tools for a component
 uninstall_mise_packages() {
   local component="$1"
-  local manager_name="mise"
   local list_file="${MEOW}/components/${component}/packages/mise.list"
 
   if [ ! -f "$list_file" ]; then
     return 0
   fi
 
-  ui_step_header "$(printf "Uninstalling %s packages for '%s'" "$(ui_format_package_manager_name "$manager_name")" "$component")"
+  ui_step_header "$(printf "Uninstalling mise packages for '%s'" "$component")"
 
   if is_dry_run; then
     dry_run_ui_info "Would uninstall mise packages from: $list_file"
@@ -301,10 +303,10 @@ uninstall_mise_packages() {
   done < "$list_file"
 
   # Summary
-  ui_action_info "$(printf "mise: %d uninstalled" "$uninstalled_count")"
+  ui_indent "$(printf "mise: %d uninstalled" "$uninstalled_count")"
   
   if [ $not_installed_count -gt 0 ]; then
-    ui_action_info "$(printf "mise: %d not installed" "$not_installed_count")"
+    ui_indent "$(printf "mise: %d not installed" "$not_installed_count")"
   fi
   
   if [ $failed_count -gt 0 ]; then

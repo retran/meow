@@ -100,6 +100,11 @@ install_go_packages() {
       export PATH="$mise_shims_dir:$PATH"
     fi
   fi
+
+  if ! command -v go >/dev/null 2>&1; then
+    ui_action_error "go not found. Please install Go first."
+    return 1
+  fi
   
   install_packages_generic "$1" "go" "go install" "is_go_package_installed"
 }

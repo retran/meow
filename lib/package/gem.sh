@@ -87,6 +87,11 @@ install_gem_packages() {
       export PATH="$mise_shims_dir:$PATH"
     fi
   fi
+
+  if ! command -v gem >/dev/null 2>&1; then
+    ui_action_error "gem not found. Please install Ruby first."
+    return 1
+  fi
   
   install_packages_generic "$1" "gem" "gem install" "is_gem_package_installed"
 }
