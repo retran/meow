@@ -1,0 +1,7 @@
+description: Neovide GUI client for Neovim. Provides a native desktop application
+  with GPU-accelerated rendering for Neovim.
+platforms:
+- match:
+    platform: macos
+depends_on:
+- neovim
