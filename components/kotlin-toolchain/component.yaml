@@ -1,4 +1,4 @@
-description: JVM runtime and Kotlin compiler toolchain for command-line development
+description: JVM runtime and Kotlin compiler toolchain managed by mise
 platforms:
 - match:
     platform: macos
@@ -7,3 +7,4 @@ platforms:
 depends_on:
 - development-essential
 - java-runtime
+- tool-installers

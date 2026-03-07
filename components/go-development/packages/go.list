@@ -12,3 +12,4 @@ github.com/spf13/cobra-cli@latest
 github.com/sigstore/cosign/v2/cmd/cosign@latest
 github.com/anchore/syft/cmd/syft@latest
 github.com/google/ko@latest
+github.com/sqlc-dev/sqlc/cmd/sqlc@latest

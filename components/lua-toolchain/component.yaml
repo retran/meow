@@ -1,4 +1,4 @@
-description: Lua runtime, headers, and luarocks package manager across supported platforms
+description: Lua runtime managed by mise
 platforms:
 - match:
     platform: macos
@@ -6,3 +6,4 @@ platforms:
     platform: linux
 depends_on:
 - development-essential
+- tool-installers
