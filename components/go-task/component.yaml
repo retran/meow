@@ -1,6 +1,8 @@
-description: Task runner CLI installed via Homebrew on macOS and Linux distributions using official repository setup scripts
+description: Task runner CLI managed by mise
 platforms:
 - match:
     platform: macos
 - match:
     platform: linux
+depends_on:
+- tool-installers

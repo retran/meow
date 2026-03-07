@@ -1,2 +1,4 @@
 codespell
 yamllint
+httpie
+pre-commit

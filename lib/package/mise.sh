@@ -150,9 +150,7 @@ install_mise_packages() {
   # Clear cache after installation
   unset _MISE_INSTALLED_TOOLS
 
-  if [[ "$component" == *"-runtime" ]]; then
-    mise_use_global_from_list "$component"
-  fi
+  mise_use_global_from_list "$component"
 }
 
 # Set global defaults for tools in a mise.list file

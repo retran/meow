@@ -5,9 +5,6 @@ git-lfs
 git-delta
 tealdeer
 duf
-gh
-lazygit
-direnv
 bat
 bat-extras
 fzf
@@ -26,5 +23,4 @@ groff
 zsh
 zsh-autosuggestions
 zsh-syntax-highlighting
-starship
 gum
