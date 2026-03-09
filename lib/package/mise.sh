@@ -289,9 +289,10 @@ uninstall_mise_packages() {
       continue
     fi
 
-    # Uninstall all versions of the tool
+    # Uninstall all versions of the tool and remove from global config
     ui_action_start "Uninstalling $tool_name..."
     if mise uninstall "$tool_name" --all >/dev/null 2>&1; then
+      mise use -g --remove "$tool_name" >/dev/null 2>&1 || true
       ui_action_success "$(printf "%-40s %s" "$tool_name" "✓ uninstalled")"
       ((uninstalled_count++))
     else
