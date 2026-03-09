@@ -43,7 +43,9 @@ setup_mise() {
     ui_info "Created mise config directory: $mise_config_dir"
   fi
   
-  # Create global mise.toml if it doesn't exist
+  # Create global config.toml with [settings] if it doesn't exist.
+  # The [tools] section is managed by mise_use_global_from_list, which is
+  # called automatically after each component's mise.list is installed.
   local mise_config="$mise_config_dir/config.toml"
   if [ ! -f "$mise_config" ]; then
     cat > "$mise_config" << 'EOF'
@@ -53,16 +55,6 @@ setup_mise() {
 [settings]
 # Automatically install missing tools
 auto_install = true
-
-# Use verbose output for debugging
-# verbose = true
-
-# Global tools
-# Uncomment and add versions as needed
-# [tools]
-# python = "3.12"
-# node = "20"
-# go = "1.22"
 EOF
     ui_info "Created mise config: $mise_config"
   else
