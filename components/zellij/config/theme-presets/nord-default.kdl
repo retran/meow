@@ -1,0 +1,121 @@
+// Generated from themes.yaml — nord/default
+themes {
+    meow {
+        text_unselected {
+            base       216 222 233
+            background 46 52 64
+            emphasis_0 216 222 233
+            emphasis_1 216 222 233
+            emphasis_2 216 222 233
+            emphasis_3 216 222 233
+        }
+        text_selected {
+            base       216 222 233
+            background 46 52 64
+            emphasis_0 216 222 233
+            emphasis_1 216 222 233
+            emphasis_2 216 222 233
+            emphasis_3 216 222 233
+        }
+        ribbon_selected {
+            base       46 52 64
+            background 216 222 233
+            emphasis_0 216 222 233
+            emphasis_1 216 222 233
+            emphasis_2 216 222 233
+            emphasis_3 216 222 233
+        }
+        ribbon_unselected {
+            base       46 52 64
+            background 216 222 233
+            emphasis_0 216 222 233
+            emphasis_1 216 222 233
+            emphasis_2 216 222 233
+            emphasis_3 216 222 233
+        }
+        table_title {
+            base       216 222 233
+            background 0
+            emphasis_0 216 222 233
+            emphasis_1 216 222 233
+            emphasis_2 216 222 233
+            emphasis_3 216 222 233
+        }
+        table_cell_selected {
+            base       216 222 233
+            background 46 52 64
+            emphasis_0 216 222 233
+            emphasis_1 216 222 233
+            emphasis_2 216 222 233
+            emphasis_3 216 222 233
+        }
+        table_cell_unselected {
+            base       216 222 233
+            background 46 52 64
+            emphasis_0 216 222 233
+            emphasis_1 216 222 233
+            emphasis_2 216 222 233
+            emphasis_3 216 222 233
+        }
+        list_selected {
+            base       216 222 233
+            background 46 52 64
+            emphasis_0 216 222 233
+            emphasis_1 216 222 233
+            emphasis_2 216 222 233
+            emphasis_3 216 222 233
+        }
+        list_unselected {
+            base       216 222 233
+            background 46 52 64
+            emphasis_0 216 222 233
+            emphasis_1 216 222 233
+            emphasis_2 216 222 233
+            emphasis_3 216 222 233
+        }
+        frame_selected {
+            base       216 222 233
+            background 0
+            emphasis_0 216 222 233
+            emphasis_1 216 222 233
+            emphasis_2 216 222 233
+            emphasis_3 0
+        }
+        frame_highlight {
+            base       216 222 233
+            background 0
+            emphasis_0 216 222 233
+            emphasis_1 0
+            emphasis_2 216 222 233
+            emphasis_3 216 222 233
+        }
+        exit_code_success {
+            base       216 222 233
+            background 0
+            emphasis_0 216 222 233
+            emphasis_1 46 52 64
+            emphasis_2 216 222 233
+            emphasis_3 216 222 233
+        }
+        exit_code_error {
+            base       216 222 233
+            background 0
+            emphasis_0 216 222 233
+            emphasis_1 0
+            emphasis_2 0
+            emphasis_3 0
+        }
+        multiplayer_user_colors {
+            player_1  216 222 233
+            player_2  216 222 233
+            player_3  0
+            player_4  216 222 233
+            player_5  216 222 233
+            player_6  0
+            player_7  216 222 233
+            player_8  0
+            player_9  0
+            player_10 0
+        }
+    }
+}

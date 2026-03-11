@@ -1,0 +1,121 @@
+// Generated from themes.yaml — kanagawa/lotus
+themes {
+    meow {
+        text_unselected {
+            base       84 84 100
+            background 242 236 188
+            emphasis_0 84 84 100
+            emphasis_1 84 84 100
+            emphasis_2 84 84 100
+            emphasis_3 84 84 100
+        }
+        text_selected {
+            base       84 84 100
+            background 242 236 188
+            emphasis_0 84 84 100
+            emphasis_1 84 84 100
+            emphasis_2 84 84 100
+            emphasis_3 84 84 100
+        }
+        ribbon_selected {
+            base       242 236 188
+            background 84 84 100
+            emphasis_0 84 84 100
+            emphasis_1 84 84 100
+            emphasis_2 84 84 100
+            emphasis_3 84 84 100
+        }
+        ribbon_unselected {
+            base       242 236 188
+            background 84 84 100
+            emphasis_0 84 84 100
+            emphasis_1 84 84 100
+            emphasis_2 84 84 100
+            emphasis_3 84 84 100
+        }
+        table_title {
+            base       84 84 100
+            background 0
+            emphasis_0 84 84 100
+            emphasis_1 84 84 100
+            emphasis_2 84 84 100
+            emphasis_3 84 84 100
+        }
+        table_cell_selected {
+            base       84 84 100
+            background 242 236 188
+            emphasis_0 84 84 100
+            emphasis_1 84 84 100
+            emphasis_2 84 84 100
+            emphasis_3 84 84 100
+        }
+        table_cell_unselected {
+            base       84 84 100
+            background 242 236 188
+            emphasis_0 84 84 100
+            emphasis_1 84 84 100
+            emphasis_2 84 84 100
+            emphasis_3 84 84 100
+        }
+        list_selected {
+            base       84 84 100
+            background 242 236 188
+            emphasis_0 84 84 100
+            emphasis_1 84 84 100
+            emphasis_2 84 84 100
+            emphasis_3 84 84 100
+        }
+        list_unselected {
+            base       84 84 100
+            background 242 236 188
+            emphasis_0 84 84 100
+            emphasis_1 84 84 100
+            emphasis_2 84 84 100
+            emphasis_3 84 84 100
+        }
+        frame_selected {
+            base       84 84 100
+            background 0
+            emphasis_0 84 84 100
+            emphasis_1 84 84 100
+            emphasis_2 84 84 100
+            emphasis_3 0
+        }
+        frame_highlight {
+            base       84 84 100
+            background 0
+            emphasis_0 84 84 100
+            emphasis_1 0
+            emphasis_2 84 84 100
+            emphasis_3 84 84 100
+        }
+        exit_code_success {
+            base       84 84 100
+            background 0
+            emphasis_0 84 84 100
+            emphasis_1 242 236 188
+            emphasis_2 84 84 100
+            emphasis_3 84 84 100
+        }
+        exit_code_error {
+            base       84 84 100
+            background 0
+            emphasis_0 84 84 100
+            emphasis_1 0
+            emphasis_2 0
+            emphasis_3 0
+        }
+        multiplayer_user_colors {
+            player_1  84 84 100
+            player_2  84 84 100
+            player_3  0
+            player_4  84 84 100
+            player_5  84 84 100
+            player_6  0
+            player_7  84 84 100
+            player_8  0
+            player_9  0
+            player_10 0
+        }
+    }
+}

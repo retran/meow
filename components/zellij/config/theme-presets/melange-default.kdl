@@ -1,0 +1,121 @@
+// Generated from themes.yaml — melange/default
+themes {
+    meow {
+        text_unselected {
+            base       236 225 215
+            background 41 37 34
+            emphasis_0 236 225 215
+            emphasis_1 236 225 215
+            emphasis_2 236 225 215
+            emphasis_3 236 225 215
+        }
+        text_selected {
+            base       236 225 215
+            background 41 37 34
+            emphasis_0 236 225 215
+            emphasis_1 236 225 215
+            emphasis_2 236 225 215
+            emphasis_3 236 225 215
+        }
+        ribbon_selected {
+            base       41 37 34
+            background 236 225 215
+            emphasis_0 236 225 215
+            emphasis_1 236 225 215
+            emphasis_2 236 225 215
+            emphasis_3 236 225 215
+        }
+        ribbon_unselected {
+            base       41 37 34
+            background 236 225 215
+            emphasis_0 236 225 215
+            emphasis_1 236 225 215
+            emphasis_2 236 225 215
+            emphasis_3 236 225 215
+        }
+        table_title {
+            base       236 225 215
+            background 0
+            emphasis_0 236 225 215
+            emphasis_1 236 225 215
+            emphasis_2 236 225 215
+            emphasis_3 236 225 215
+        }
+        table_cell_selected {
+            base       236 225 215
+            background 41 37 34
+            emphasis_0 236 225 215
+            emphasis_1 236 225 215
+            emphasis_2 236 225 215
+            emphasis_3 236 225 215
+        }
+        table_cell_unselected {
+            base       236 225 215
+            background 41 37 34
+            emphasis_0 236 225 215
+            emphasis_1 236 225 215
+            emphasis_2 236 225 215
+            emphasis_3 236 225 215
+        }
+        list_selected {
+            base       236 225 215
+            background 41 37 34
+            emphasis_0 236 225 215
+            emphasis_1 236 225 215
+            emphasis_2 236 225 215
+            emphasis_3 236 225 215
+        }
+        list_unselected {
+            base       236 225 215
+            background 41 37 34
+            emphasis_0 236 225 215
+            emphasis_1 236 225 215
+            emphasis_2 236 225 215
+            emphasis_3 236 225 215
+        }
+        frame_selected {
+            base       236 225 215
+            background 0
+            emphasis_0 236 225 215
+            emphasis_1 236 225 215
+            emphasis_2 236 225 215
+            emphasis_3 0
+        }
+        frame_highlight {
+            base       236 225 215
+            background 0
+            emphasis_0 236 225 215
+            emphasis_1 0
+            emphasis_2 236 225 215
+            emphasis_3 236 225 215
+        }
+        exit_code_success {
+            base       236 225 215
+            background 0
+            emphasis_0 236 225 215
+            emphasis_1 41 37 34
+            emphasis_2 236 225 215
+            emphasis_3 236 225 215
+        }
+        exit_code_error {
+            base       236 225 215
+            background 0
+            emphasis_0 236 225 215
+            emphasis_1 0
+            emphasis_2 0
+            emphasis_3 0
+        }
+        multiplayer_user_colors {
+            player_1  236 225 215
+            player_2  236 225 215
+            player_3  0
+            player_4  236 225 215
+            player_5  236 225 215
+            player_6  0
+            player_7  236 225 215
+            player_8  0
+            player_9  0
+            player_10 0
+        }
+    }
+}

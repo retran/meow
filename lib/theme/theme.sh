@@ -133,6 +133,12 @@ theme_get_terminal_named_color() {
   theme_db_get_required "themes.${preset}.variants.${variant}.terminal.${name}"
 }
 
+theme_is_hex_color() {
+  local value="$1"
+  # Must be a single-line string starting with # followed by exactly 6 hex chars
+  [[ "$value" =~ ^#[0-9a-fA-F]{6}$ ]]
+}
+
 theme_get_palette_color() {
   local preset="$1"
   local variant="$2"
@@ -141,13 +147,34 @@ theme_get_palette_color() {
 
   value=$(theme_db_get "themes.${preset}.variants.${variant}.palette.${key}")
   if [[ -n "$value" ]] && [[ "$value" != "null" ]]; then
-    theme_strip_quotes "$value"
-    return 0
+    local stripped
+    stripped=$(theme_strip_quotes "$value")
+    # If value is a plain hex color, return it directly
+    if theme_is_hex_color "$stripped"; then
+      echo "$stripped"
+      return 0
+    fi
+    # Value is a nested object — try the .base sub-key (used by nightfox, github, etc.)
+    local sub_value
+    sub_value=$(theme_db_get "themes.${preset}.variants.${variant}.palette.${key}.base")
+    if [[ -n "$sub_value" ]] && [[ "$sub_value" != "null" ]]; then
+      local sub_stripped
+      sub_stripped=$(theme_strip_quotes "$sub_value")
+      if theme_is_hex_color "$sub_stripped"; then
+        echo "$sub_stripped"
+        return 0
+      fi
+    fi
+    # Nested object with no usable .base — fall through to catppuccin fallback chain
   fi
 
   local base
   base=$(theme_db_get "themes.${preset}.variants.${variant}.palette.base")
   if [[ -z "$base" ]] || [[ "$base" == "null" ]]; then
+    return 1
+  fi
+  # base key itself might be a nested object (gruvbox uses base as a color group)
+  if ! theme_is_hex_color "$(theme_strip_quotes "$base")"; then
     return 1
   fi
 
