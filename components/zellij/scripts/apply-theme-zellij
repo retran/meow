@@ -40,7 +40,8 @@ preset_slug=$(theme_slugify "$PRESET")
 variant_slug=$(theme_slugify "$VARIANT")
 
 themes_dir="$MEOW_ROOT/components/zellij/config/themes"
-src="$themes_dir/${preset_slug}-${variant_slug}.kdl"
+presets_dir="$MEOW_ROOT/components/zellij/config/theme-presets"
+src="$presets_dir/${preset_slug}-${variant_slug}.kdl"
 
 if [[ ! -f "$src" ]]; then
   echo "Zellij theme not found: $src" >&2

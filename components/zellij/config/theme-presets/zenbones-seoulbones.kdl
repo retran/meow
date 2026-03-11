@@ -1,0 +1,121 @@
+// Generated from themes.yaml — zenbones/seoulbones
+themes {
+    meow {
+        text_unselected {
+            base       221 221 221
+            background 108 100 101
+            emphasis_0 224 152 112
+            emphasis_1 151 189 222
+            emphasis_2 152 189 153
+            emphasis_3 165 166 197
+        }
+        text_selected {
+            base       221 221 221
+            background 108 100 101
+            emphasis_0 224 152 112
+            emphasis_1 151 189 222
+            emphasis_2 152 189 153
+            emphasis_3 165 166 197
+        }
+        ribbon_selected {
+            base       75 75 75
+            background 152 189 153
+            emphasis_0 227 136 163
+            emphasis_1 224 152 112
+            emphasis_2 165 166 197
+            emphasis_3 151 189 222
+        }
+        ribbon_unselected {
+            base       75 75 75
+            background 168 168 168
+            emphasis_0 227 136 163
+            emphasis_1 221 221 221
+            emphasis_2 151 189 222
+            emphasis_3 165 166 197
+        }
+        table_title {
+            base       152 189 153
+            background 0
+            emphasis_0 224 152 112
+            emphasis_1 151 189 222
+            emphasis_2 152 189 153
+            emphasis_3 165 166 197
+        }
+        table_cell_selected {
+            base       221 221 221
+            background 108 100 101
+            emphasis_0 224 152 112
+            emphasis_1 151 189 222
+            emphasis_2 152 189 153
+            emphasis_3 165 166 197
+        }
+        table_cell_unselected {
+            base       221 221 221
+            background 108 100 101
+            emphasis_0 224 152 112
+            emphasis_1 151 189 222
+            emphasis_2 152 189 153
+            emphasis_3 165 166 197
+        }
+        list_selected {
+            base       221 221 221
+            background 108 100 101
+            emphasis_0 224 152 112
+            emphasis_1 151 189 222
+            emphasis_2 152 189 153
+            emphasis_3 165 166 197
+        }
+        list_unselected {
+            base       221 221 221
+            background 108 100 101
+            emphasis_0 224 152 112
+            emphasis_1 151 189 222
+            emphasis_2 152 189 153
+            emphasis_3 165 166 197
+        }
+        frame_selected {
+            base       152 189 153
+            background 0
+            emphasis_0 224 152 112
+            emphasis_1 151 189 222
+            emphasis_2 165 166 197
+            emphasis_3 0
+        }
+        frame_highlight {
+            base       224 152 112
+            background 0
+            emphasis_0 165 166 197
+            emphasis_1 0
+            emphasis_2 224 152 112
+            emphasis_3 224 152 112
+        }
+        exit_code_success {
+            base       152 189 153
+            background 0
+            emphasis_0 151 189 222
+            emphasis_1 75 75 75
+            emphasis_2 165 166 197
+            emphasis_3 151 189 222
+        }
+        exit_code_error {
+            base       227 136 163
+            background 0
+            emphasis_0 224 152 112
+            emphasis_1 0
+            emphasis_2 0
+            emphasis_3 0
+        }
+        multiplayer_user_colors {
+            player_1  165 166 197
+            player_2  151 189 222
+            player_3  0
+            player_4  224 152 112
+            player_5  151 189 222
+            player_6  0
+            player_7  227 136 163
+            player_8  0
+            player_9  0
+            player_10 0
+        }
+    }
+}

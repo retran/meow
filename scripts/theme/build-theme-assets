@@ -14,7 +14,7 @@ THEME_DB="$MEOW_ROOT/themes.yaml"
 THEME_LIB="$MEOW_ROOT/lib/theme/theme.sh"
 
 GHOSTTY_OUT="$MEOW_ROOT/components/terminal-apps/config/ghostty/themes"
-ZELLIJ_OUT="$MEOW_ROOT/components/zellij/config/themes"
+ZELLIJ_OUT="$MEOW_ROOT/components/zellij/config/theme-presets"
 STARSHIP_CONFIG="$MEOW_ROOT/components/shell-essential/config/starship/starship.toml"
 STARSHIP_OUT="$MEOW_ROOT/components/shell-essential/config/starship/themes"
 BAT_OUT="$MEOW_ROOT/components/shell-essential/config/bat/themes"

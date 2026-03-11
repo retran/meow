@@ -12,7 +12,7 @@ set -euo pipefail
 # Script interface:
 # Input: $1=preset, $2=variant
 # Environment: $MEOW, $THEME_LIB, $THEME_UTILS
-# Output: Writes to $MEOW/components/zellij/config/themes/
+# Output: Writes to $MEOW/components/zellij/config/theme-presets/
 
 PRESET="${1:-}"
 VARIANT="${2:-}"
@@ -25,7 +25,7 @@ fi
 MEOW_ROOT="${MEOW:-$HOME/.meow}"
 THEME_LIB="${THEME_LIB:-$MEOW_ROOT/lib/theme/theme.sh}"
 THEME_UTILS="${THEME_UTILS:-$MEOW_ROOT/lib/theme/theme-utils.sh}"
-OUTPUT_DIR="$MEOW_ROOT/components/zellij/config/themes"
+OUTPUT_DIR="$MEOW_ROOT/components/zellij/config/theme-presets"
 
 if [[ ! -f "$THEME_LIB" ]]; then
   echo "Theme library not found: $THEME_LIB" >&2

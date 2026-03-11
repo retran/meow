@@ -1,0 +1,121 @@
+// Generated from themes.yaml — everforest/light_hard
+themes {
+    meow {
+        text_unselected {
+            base       92 106 114
+            background 240 242 212
+            emphasis_0 245 125 38
+            emphasis_1 92 106 114
+            emphasis_2 141 161 1
+            emphasis_3 223 105 186
+        }
+        text_selected {
+            base       92 106 114
+            background 240 242 212
+            emphasis_0 245 125 38
+            emphasis_1 92 106 114
+            emphasis_2 141 161 1
+            emphasis_3 223 105 186
+        }
+        ribbon_selected {
+            base       248 245 228
+            background 141 161 1
+            emphasis_0 248 85 82
+            emphasis_1 245 125 38
+            emphasis_2 223 105 186
+            emphasis_3 58 148 197
+        }
+        ribbon_unselected {
+            base       248 245 228
+            background 92 106 114
+            emphasis_0 248 85 82
+            emphasis_1 92 106 114
+            emphasis_2 58 148 197
+            emphasis_3 223 105 186
+        }
+        table_title {
+            base       141 161 1
+            background 0
+            emphasis_0 245 125 38
+            emphasis_1 92 106 114
+            emphasis_2 141 161 1
+            emphasis_3 223 105 186
+        }
+        table_cell_selected {
+            base       92 106 114
+            background 240 242 212
+            emphasis_0 245 125 38
+            emphasis_1 92 106 114
+            emphasis_2 141 161 1
+            emphasis_3 223 105 186
+        }
+        table_cell_unselected {
+            base       92 106 114
+            background 240 242 212
+            emphasis_0 245 125 38
+            emphasis_1 92 106 114
+            emphasis_2 141 161 1
+            emphasis_3 223 105 186
+        }
+        list_selected {
+            base       92 106 114
+            background 240 242 212
+            emphasis_0 245 125 38
+            emphasis_1 92 106 114
+            emphasis_2 141 161 1
+            emphasis_3 223 105 186
+        }
+        list_unselected {
+            base       92 106 114
+            background 240 242 212
+            emphasis_0 245 125 38
+            emphasis_1 92 106 114
+            emphasis_2 141 161 1
+            emphasis_3 223 105 186
+        }
+        frame_selected {
+            base       141 161 1
+            background 0
+            emphasis_0 245 125 38
+            emphasis_1 92 106 114
+            emphasis_2 223 105 186
+            emphasis_3 0
+        }
+        frame_highlight {
+            base       245 125 38
+            background 0
+            emphasis_0 223 105 186
+            emphasis_1 0
+            emphasis_2 245 125 38
+            emphasis_3 245 125 38
+        }
+        exit_code_success {
+            base       141 161 1
+            background 0
+            emphasis_0 92 106 114
+            emphasis_1 248 245 228
+            emphasis_2 223 105 186
+            emphasis_3 58 148 197
+        }
+        exit_code_error {
+            base       248 85 82
+            background 0
+            emphasis_0 245 125 38
+            emphasis_1 0
+            emphasis_2 0
+            emphasis_3 0
+        }
+        multiplayer_user_colors {
+            player_1  223 105 186
+            player_2  58 148 197
+            player_3  0
+            player_4  245 125 38
+            player_5  92 106 114
+            player_6  0
+            player_7  248 85 82
+            player_8  0
+            player_9  0
+            player_10 0
+        }
+    }
+}
