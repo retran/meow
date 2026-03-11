@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+# MIT License
+# Copyright (c) 2025 Andrew Vasilyev <me@retran.me>
+#
+# @file: components/zellij/scripts/apply-theme-zellij
+# @brief: Apply a Zellij theme by overwriting meow.kdl in the themes directory
+# @author: Andrew Vasilyev
+# @license: MIT
+#
+# The themes directory (~/.config/zellij/themes/) is symlinked to
+# components/zellij/config/themes/ in the repo.  config.kdl sets
+# `theme "meow"`, so there is always exactly one active file: meow.kdl.
+# Switching themes = copying the right pre-built preset variant over it.
+#
+# Note: zellij does not support live theme reload for running sessions
+# (upstream issue #3879). The new theme takes effect for new sessions
+# and on next attach.
+
+set -euo pipefail
+
+PRESET="${1:-}"
+VARIANT="${2:-}"
+
+if [[ -z "$PRESET" || -z "$VARIANT" ]]; then
+  echo "Usage: $0 <preset> <variant>" >&2
+  exit 1
+fi
+
+MEOW_ROOT="${MEOW:-$HOME/.meow}"
+THEME_UTILS="${THEME_UTILS:-$MEOW_ROOT/lib/theme/theme-utils.sh}"
+
+if [[ ! -f "$THEME_UTILS" ]]; then
+  echo "Theme utilities not found: $THEME_UTILS" >&2
+  exit 1
+fi
+
+source "$THEME_UTILS"
+
+preset_slug=$(theme_slugify "$PRESET")
+variant_slug=$(theme_slugify "$VARIANT")
+
+themes_dir="$MEOW_ROOT/components/zellij/config/themes"
+src="$themes_dir/${preset_slug}-${variant_slug}.kdl"
+
+if [[ ! -f "$src" ]]; then
+  echo "Zellij theme not found: $src" >&2
+  exit 1
+fi
+
+cp "$src" "$themes_dir/meow.kdl"
+
+echo "Applied Zellij theme: $PRESET/$VARIANT"

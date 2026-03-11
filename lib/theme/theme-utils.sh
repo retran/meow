@@ -265,6 +265,7 @@ theme_show_summary() {
     echo ""
     echo "  To see changes:"
     echo "  • Ghostty: Updated immediately"
+    echo "  • Zellij: Updated immediately (reload with Ctrl-a r)"
     echo "  • Shell tools (fzf/eza): Source your shell or run: source ~/.zshrc"
     echo "  • TUI apps (lazygit/htop): Restart the app"
   else
@@ -275,6 +276,7 @@ theme_show_summary() {
     echo ""
     echo "To see changes:"
     echo "  • Ghostty: Updated immediately"
+    echo "  • Zellij: Updated immediately (reload with Ctrl-a r)"
     echo "  • Shell tools (fzf/eza): Source your shell or run: source ~/.zshrc"
     echo "  • TUI apps (lazygit/htop): Restart the app"
   fi

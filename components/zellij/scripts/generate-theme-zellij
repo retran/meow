@@ -1,0 +1,249 @@
+#!/usr/bin/env bash
+# MIT License
+# Copyright (c) 2025 Andrew Vasilyev <me@retran.me>
+#
+# @file: components/zellij/scripts/generate-theme-zellij
+# @brief: Generate Zellij theme KDL files from themes.yaml
+# @author: Andrew Vasilyev
+# @license: MIT
+
+set -euo pipefail
+
+# Script interface:
+# Input: $1=preset, $2=variant
+# Environment: $MEOW, $THEME_LIB, $THEME_UTILS
+# Output: Writes to $MEOW/components/zellij/config/themes/
+
+PRESET="${1:-}"
+VARIANT="${2:-}"
+
+if [[ -z "$PRESET" || -z "$VARIANT" ]]; then
+  echo "Usage: $0 <preset> <variant>" >&2
+  exit 1
+fi
+
+MEOW_ROOT="${MEOW:-$HOME/.meow}"
+THEME_LIB="${THEME_LIB:-$MEOW_ROOT/lib/theme/theme.sh}"
+THEME_UTILS="${THEME_UTILS:-$MEOW_ROOT/lib/theme/theme-utils.sh}"
+OUTPUT_DIR="$MEOW_ROOT/components/zellij/config/themes"
+
+if [[ ! -f "$THEME_LIB" ]]; then
+  echo "Theme library not found: $THEME_LIB" >&2
+  exit 1
+fi
+
+if [[ ! -f "$THEME_UTILS" ]]; then
+  echo "Theme utilities not found: $THEME_UTILS" >&2
+  exit 1
+fi
+
+source "$THEME_LIB"
+source "$THEME_UTILS"
+
+mkdir -p "$OUTPUT_DIR"
+
+preset_slug=$(theme_slugify "$PRESET")
+variant_slug=$(theme_slugify "$VARIANT")
+out_file="$OUTPUT_DIR/${preset_slug}-${variant_slug}.kdl"
+
+# ── Color resolution helpers ─────────────────────────────────────────────────
+
+# hex_to_rgb: "#rrggbb" → "R G B"
+hex_to_rgb() {
+  local hex="${1#\#}"
+  if [[ ${#hex} -ne 6 ]]; then
+    echo "0 0 0"
+    return
+  fi
+  printf "%d %d %d\n" "0x${hex:0:2}" "0x${hex:2:2}" "0x${hex:4:2}"
+}
+
+# get_color: try a list of palette keys, return first non-empty hex value
+get_color() {
+  local result=""
+  for key in "$@"; do
+    result=$(theme_get_palette_color "$PRESET" "$VARIANT" "$key" 2>/dev/null || true)
+    if [[ -n "$result" && "$result" != "null" ]]; then
+      echo "$result"
+      return
+    fi
+  done
+  echo ""
+}
+
+# ── Resolve semantic colors ───────────────────────────────────────────────────
+
+bg=$(get_color      "bg"          "base"        "bg1")
+fg=$(get_color      "fg"          "text"        "fg1")
+bg_dim=$(get_color  "bg_highlight" "bg_visual"  "bg_dark"     "bg1"    "surface0" "surface1")
+bg_sel=$(get_color  "bg_visual"   "bg_search"   "bg_highlight" "surface1" "surface2")
+green=$(get_color   "green"       "leaf"        "green1"      "teal")
+red=$(get_color     "red"         "rose"        "love"        "error")
+orange=$(get_color  "orange"      "peach"       "yellow"      "wood"   "highlight")
+cyan=$(get_color    "cyan"        "water"       "teal"        "sky"    "blue1")
+purple=$(get_color  "purple"      "mauve"       "blossom"     "iris"   "magenta")
+blue=$(get_color    "blue"        "water"       "sapphire"    "sky"    "blue0")
+fg_muted=$(get_color "comment"    "gray"        "dark5"       "fg_gutter" "fg1")
+
+# Fall back fg_muted → fg if still empty
+[[ -z "$fg_muted" ]] && fg_muted="$fg"
+
+# Fall back accent colors → fg
+[[ -z "$orange" ]] && orange="$fg"
+[[ -z "$cyan"   ]] && cyan="$fg"
+[[ -z "$purple" ]] && purple="$fg"
+[[ -z "$blue"   ]] && blue="$fg"
+[[ -z "$green"  ]] && green="$fg"
+[[ -z "$red"    ]] && red="$fg"
+
+# Require bg and fg at minimum
+if [[ -z "$bg" || -z "$fg" ]]; then
+  echo "Cannot resolve bg/fg colors for $PRESET/$VARIANT — skipping" >&2
+  exit 1
+fi
+
+# Fall back dim/sel backgrounds to bg
+[[ -z "$bg_dim" ]] && bg_dim="$bg"
+[[ -z "$bg_sel" ]] && bg_sel="$bg_dim"
+
+# ── Convert to RGB triples ────────────────────────────────────────────────────
+
+bg_rgb=$(hex_to_rgb "$bg")
+fg_rgb=$(hex_to_rgb "$fg")
+bg_dim_rgb=$(hex_to_rgb "$bg_dim")
+bg_sel_rgb=$(hex_to_rgb "$bg_sel")
+green_rgb=$(hex_to_rgb "$green")
+red_rgb=$(hex_to_rgb "$red")
+orange_rgb=$(hex_to_rgb "$orange")
+cyan_rgb=$(hex_to_rgb "$cyan")
+purple_rgb=$(hex_to_rgb "$purple")
+blue_rgb=$(hex_to_rgb "$blue")
+fg_muted_rgb=$(hex_to_rgb "$fg_muted")
+
+# ── Emit KDL ─────────────────────────────────────────────────────────────────
+
+cat > "$out_file" <<EOF
+// Generated from themes.yaml — ${PRESET}/${VARIANT}
+themes {
+    meow {
+        text_unselected {
+            base       $fg_rgb
+            background $bg_dim_rgb
+            emphasis_0 $orange_rgb
+            emphasis_1 $cyan_rgb
+            emphasis_2 $green_rgb
+            emphasis_3 $purple_rgb
+        }
+        text_selected {
+            base       $fg_rgb
+            background $bg_sel_rgb
+            emphasis_0 $orange_rgb
+            emphasis_1 $cyan_rgb
+            emphasis_2 $green_rgb
+            emphasis_3 $purple_rgb
+        }
+        ribbon_selected {
+            base       $bg_rgb
+            background $green_rgb
+            emphasis_0 $red_rgb
+            emphasis_1 $orange_rgb
+            emphasis_2 $purple_rgb
+            emphasis_3 $blue_rgb
+        }
+        ribbon_unselected {
+            base       $bg_rgb
+            background $fg_muted_rgb
+            emphasis_0 $red_rgb
+            emphasis_1 $fg_rgb
+            emphasis_2 $blue_rgb
+            emphasis_3 $purple_rgb
+        }
+        table_title {
+            base       $green_rgb
+            background 0
+            emphasis_0 $orange_rgb
+            emphasis_1 $cyan_rgb
+            emphasis_2 $green_rgb
+            emphasis_3 $purple_rgb
+        }
+        table_cell_selected {
+            base       $fg_rgb
+            background $bg_sel_rgb
+            emphasis_0 $orange_rgb
+            emphasis_1 $cyan_rgb
+            emphasis_2 $green_rgb
+            emphasis_3 $purple_rgb
+        }
+        table_cell_unselected {
+            base       $fg_rgb
+            background $bg_dim_rgb
+            emphasis_0 $orange_rgb
+            emphasis_1 $cyan_rgb
+            emphasis_2 $green_rgb
+            emphasis_3 $purple_rgb
+        }
+        list_selected {
+            base       $fg_rgb
+            background $bg_sel_rgb
+            emphasis_0 $orange_rgb
+            emphasis_1 $cyan_rgb
+            emphasis_2 $green_rgb
+            emphasis_3 $purple_rgb
+        }
+        list_unselected {
+            base       $fg_rgb
+            background $bg_dim_rgb
+            emphasis_0 $orange_rgb
+            emphasis_1 $cyan_rgb
+            emphasis_2 $green_rgb
+            emphasis_3 $purple_rgb
+        }
+        frame_selected {
+            base       $green_rgb
+            background 0
+            emphasis_0 $orange_rgb
+            emphasis_1 $cyan_rgb
+            emphasis_2 $purple_rgb
+            emphasis_3 0
+        }
+        frame_highlight {
+            base       $orange_rgb
+            background 0
+            emphasis_0 $purple_rgb
+            emphasis_1 0
+            emphasis_2 $orange_rgb
+            emphasis_3 $orange_rgb
+        }
+        exit_code_success {
+            base       $green_rgb
+            background 0
+            emphasis_0 $cyan_rgb
+            emphasis_1 $bg_rgb
+            emphasis_2 $purple_rgb
+            emphasis_3 $blue_rgb
+        }
+        exit_code_error {
+            base       $red_rgb
+            background 0
+            emphasis_0 $orange_rgb
+            emphasis_1 0
+            emphasis_2 0
+            emphasis_3 0
+        }
+        multiplayer_user_colors {
+            player_1  $purple_rgb
+            player_2  $blue_rgb
+            player_3  0
+            player_4  $orange_rgb
+            player_5  $cyan_rgb
+            player_6  0
+            player_7  $red_rgb
+            player_8  0
+            player_9  0
+            player_10 0
+        }
+    }
+}
+EOF
+
+echo "Generated: $out_file"
