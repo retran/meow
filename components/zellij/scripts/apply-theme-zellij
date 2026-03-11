@@ -3,14 +3,15 @@
 # Copyright (c) 2025 Andrew Vasilyev <me@retran.me>
 #
 # @file: components/zellij/scripts/apply-theme-zellij
-# @brief: Apply a Zellij theme by overwriting meow.kdl in the themes directory
+# @brief: Apply a Zellij theme by writing meow-light.kdl or meow-dark.kdl
 # @author: Andrew Vasilyev
 # @license: MIT
 #
-# The themes directory (~/.config/zellij/themes/) is symlinked to
-# components/zellij/config/themes/ in the repo.  config.kdl sets
-# `theme "meow"`, so there is always exactly one active file: meow.kdl.
-# Switching themes = copying the right pre-built preset variant over it.
+# Copies the matching pre-built preset from theme-presets/ into themes/ as
+# meow-light.kdl or meow-dark.kdl (with the internal theme key renamed to
+# match), then rewrites the `theme` line in config.kdl to point at the
+# correct name.  Both meow-light and meow-dark can coexist in themes/ without
+# key collisions.
 #
 # Note: zellij does not support live theme reload for running sessions
 # (upstream issue #3879). The new theme takes effect for new sessions
@@ -20,13 +21,15 @@ set -euo pipefail
 
 PRESET="${1:-}"
 VARIANT="${2:-}"
+MODE="${3:-}"
 
 if [[ -z "$PRESET" || -z "$VARIANT" ]]; then
-  echo "Usage: $0 <preset> <variant>" >&2
+  echo "Usage: $0 <preset> <variant> [light|dark]" >&2
   exit 1
 fi
 
 MEOW_ROOT="${MEOW:-$HOME/.meow}"
+THEME_LIB="${THEME_LIB:-$MEOW_ROOT/lib/theme/theme.sh}"
 THEME_UTILS="${THEME_UTILS:-$MEOW_ROOT/lib/theme/theme-utils.sh}"
 
 if [[ ! -f "$THEME_UTILS" ]]; then
@@ -34,13 +37,21 @@ if [[ ! -f "$THEME_UTILS" ]]; then
   exit 1
 fi
 
+if [[ ! -f "$THEME_LIB" ]]; then
+  echo "Theme library not found: $THEME_LIB" >&2
+  exit 1
+fi
+
+source "$THEME_LIB"
 source "$THEME_UTILS"
 
 preset_slug=$(theme_slugify "$PRESET")
 variant_slug=$(theme_slugify "$VARIANT")
 
-themes_dir="$MEOW_ROOT/components/zellij/config/themes"
 presets_dir="$MEOW_ROOT/components/zellij/config/theme-presets"
+themes_dir="$MEOW_ROOT/components/zellij/config/themes"
+config_kdl="$MEOW_ROOT/components/zellij/config/zellij/config.kdl"
+
 src="$presets_dir/${preset_slug}-${variant_slug}.kdl"
 
 if [[ ! -f "$src" ]]; then
@@ -48,6 +59,45 @@ if [[ ! -f "$src" ]]; then
   exit 1
 fi
 
-cp "$src" "$themes_dir/meow.kdl"
+# ── Determine light or dark ───────────────────────────────────────────────────
 
-echo "Applied Zellij theme: $PRESET/$VARIANT"
+# Use the mode arg if provided; otherwise fall back to background brightness.
+if [[ "$MODE" == "light" || "$MODE" == "dark" ]]; then
+  mode="$MODE"
+else
+  bg_hex=$(theme_get_palette_color "$PRESET" "$VARIANT" "bg" 2>/dev/null \
+        || theme_get_palette_color "$PRESET" "$VARIANT" "base" 2>/dev/null \
+        || true)
+  bg_hex="${bg_hex#\#}"
+  mode="dark"
+  if [[ ${#bg_hex} -eq 6 ]]; then
+    r=$(( 16#${bg_hex:0:2} ))
+    g=$(( 16#${bg_hex:2:2} ))
+    b=$(( 16#${bg_hex:4:2} ))
+    lum=$(( (299 * r + 587 * g + 114 * b) / 1000 ))
+    if (( lum > 128 )); then
+      mode="light"
+    fi
+  fi
+fi
+
+theme_name="meow-${mode}"
+dest="$themes_dir/${theme_name}.kdl"
+
+# ── Write theme file ──────────────────────────────────────────────────────────
+
+# Copy preset and rename the internal theme key from "meow" to "meow-light"
+# or "meow-dark" so zellij resolves it under the correct name.
+sed "s/^    meow {$/    ${theme_name} {/" "$src" > "$dest"
+
+# ── Rewrite theme line in config.kdl ─────────────────────────────────────────
+
+if [[ ! -f "$config_kdl" ]]; then
+  echo "config.kdl not found: $config_kdl" >&2
+  exit 1
+fi
+
+sed -i.bak "s|^theme \"meow.*\"|theme \"${theme_name}\"|" "$config_kdl"
+rm -f "${config_kdl}.bak"
+
+echo "Applied Zellij theme: $PRESET/$VARIANT (${theme_name})"
