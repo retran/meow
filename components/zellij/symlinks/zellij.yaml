@@ -29,3 +29,5 @@
   target: "$HOME/.config/zellij/config.kdl"
 - source: "$MEOW/.installed/components/zellij/config/themes"
   target: "$HOME/.config/zellij/themes"
+- source: "$MEOW/.installed/components/zellij/config/zellij/layouts"
+  target: "$HOME/.config/zellij/layouts"
