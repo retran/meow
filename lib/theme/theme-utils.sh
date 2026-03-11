@@ -193,7 +193,7 @@ theme_discover_appliers() {
     return 1
   fi
   
-  find -L "$installed_dir" -type f -name "apply-theme-*" 2>/dev/null | sort
+  find -L "$installed_dir" -type f -name "apply-theme-*" 2>/dev/null | sort || true
 }
 
 # Extract tool name from script path

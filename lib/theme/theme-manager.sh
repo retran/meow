@@ -132,7 +132,7 @@ apply_theme() {
   
   theme_log "Applying theme: $preset/$variant ($mode_label)"
   
-  echo "Discovering theme appliers..."
+  echo "Discovering theme appliers..." >&2
   local appliers
   appliers=$(theme_discover_appliers)
   
