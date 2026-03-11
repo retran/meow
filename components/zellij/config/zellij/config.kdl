@@ -232,7 +232,7 @@ default_layout "compact"
 // The folder in which Zellij will look for themes
 // (Requires restart)
 // Default: CONFIG_DIR/themes  (~/.config/zellij/themes)
-// theme_dir "/absolute/path/only"
+theme_dir "/Users/retran/.meow/components/zellij/config/themes"
  
 // Toggle enabling the mouse mode.
 // On certain configurations, or terminals this could
