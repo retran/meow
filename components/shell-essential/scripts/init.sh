@@ -105,10 +105,6 @@ if command -v eza >/dev/null 2>&1; then
   conditional_plugins+=("eza")
 fi
 
-if command -v tmux >/dev/null 2>&1; then
-  conditional_plugins+=("tmux")
-fi
-
 if command -v brew >/dev/null 2>&1; then
   conditional_plugins+=("brew")
 fi
@@ -121,12 +117,12 @@ fi
 plugins=("${base_plugins[@]}" "${conditional_plugins[@]}" "${os_plugins[@]}")
 export plugins
 
-# Set tmux autostart based on terminal detection (only if tmux is available)
-if command -v tmux >/dev/null 2>&1; then
+# Auto-start zellij in Ghostty/Alacritty terminals (only if zellij is available and not already inside)
+if command -v zellij >/dev/null 2>&1 && [[ -z "${ZELLIJ:-}" ]]; then
   if [ -n "${ALACRITTY_LOG:-}" ] || [ "${TERM_PROGRAM:-}" = "Alacritty" ] || [ -n "${ALACRITTY_WINDOW_ID:-}" ] || [ "${TERM_PROGRAM:-}" = "Ghostty" ] || [ "${TERM_PROGRAM:-}" = "ghostty" ] || [ "${TERM:-}" = "xterm-ghostty" ] || [ "${TERM:-}" = "xterm-ghostty-256color" ]; then
-    export ZSH_TMUX_AUTOSTART=true
-  else
-    export ZSH_TMUX_AUTOSTART=false
+    # ZELLIJ_AUTO_EXIT=true causes the shell to exit when zellij exits,
+    # so Ghostty closes instead of dropping back to a bare zsh prompt.
+    ZELLIJ_AUTO_EXIT=true eval "$(zellij setup --generate-auto-start zsh)"
   fi
 fi
 
@@ -145,6 +141,14 @@ if [ -f "$HOME/.oh-my-zsh/oh-my-zsh.sh" ]; then
     # Restore nounset only if it was set before
     [[ $restore_nounset -eq 1 ]] && set -u 2>/dev/null || true
   fi
+fi
+
+# Load zellij completion after compinit (oh-my-zsh initializes it above).
+# Strip the trailing `_zellij "$@"` line that zellij incorrectly emits —
+# calling the completion function at eval time triggers the
+# "_arguments: can only be called from completion function" error.
+if command -v zellij >/dev/null 2>&1; then
+  eval "$(zellij setup --generate-completion zsh 2>/dev/null | grep -v '^_zellij "\$@"')" || true
 fi
 
 # Ensure the real `duf` binary is reachable (oh-my-zsh may define `duf` alias).

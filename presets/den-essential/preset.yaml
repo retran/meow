@@ -1,9 +1,9 @@
 extends:
 - base
-description: Shared Catden essentials (shell, tmux, desktop base)
+description: Shared Catden essentials (shell, zellij, desktop base)
 required:
 - shell-essential
-- tmux
+- zellij
 - desktop-essential
 - desktop-utilities
 - terminal-apps

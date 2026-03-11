@@ -20,10 +20,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #
-# @file: components/tmux/symlinks/tmux.yaml
-# @brief: Symlink configuration for tmux terminal multiplexer.
+# @file: components/zellij/symlinks/zellij.yaml
+# @brief: Symlink configuration for zellij terminal multiplexer.
 # @author: Andrew Vasilyev
 # @license: MIT
 #
-- source: "$MEOW/.installed/components/tmux/config/tmux/.tmux.conf"
-  target: "$HOME/.tmux.conf"
+- source: "$MEOW/.installed/components/zellij/config/zellij/config.kdl"
+  target: "$HOME/.config/zellij/config.kdl"

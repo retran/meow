@@ -202,22 +202,6 @@ theme_get_tool_name() {
   basename "$script_path" | sed 's/^generate-theme-//; s/^apply-theme-//'
 }
 
-# Check if running in tmux
-theme_in_tmux() {
-  [[ -n "${TMUX:-}" ]]
-}
-
-# Reload tmux configuration
-theme_reload_tmux() {
-  if command -v tmux >/dev/null 2>&1; then
-    if theme_in_tmux; then
-      tmux source-file ~/.tmux.conf 2>/dev/null || true
-    elif tmux info &>/dev/null; then
-      tmux source-file ~/.tmux.conf 2>/dev/null || true
-    fi
-  fi
-}
-
 # Send reload signal to Ghostty terminal
 theme_reload_ghostty() {
   if command -v pkill >/dev/null 2>&1; then
@@ -281,7 +265,6 @@ theme_show_summary() {
     echo ""
     echo "  To see changes:"
     echo "  • Ghostty: Updated immediately"
-    echo "  • tmux: Reloaded automatically"
     echo "  • Shell tools (fzf/eza): Source your shell or run: source ~/.zshrc"
     echo "  • TUI apps (lazygit/htop): Restart the app"
   else
@@ -292,7 +275,6 @@ theme_show_summary() {
     echo ""
     echo "To see changes:"
     echo "  • Ghostty: Updated immediately"
-    echo "  • tmux: Reloaded automatically"
     echo "  • Shell tools (fzf/eza): Source your shell or run: source ~/.zshrc"
     echo "  • TUI apps (lazygit/htop): Restart the app"
   fi
