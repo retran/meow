@@ -875,6 +875,8 @@ themes:
           "8": "#44475A"
           "15": "#FFFFFF"
         palette:
+          bg: "#292D3E"
+          fg: "#A6ACCD"
           syntax:
             type: "#C792EA"
             field: "#A6ACCD"
@@ -956,6 +958,8 @@ themes:
           "8": "#44475A"
           "15": "#FFFFFF"
         palette:
+          bg: "#0F111A"
+          fg: "#A6ACCD"
           syntax:
             type: "#C792EA"
             field: "#A6ACCD"
@@ -1036,6 +1040,8 @@ themes:
           "8": "#44475A"
           "15": "#FFFFFF"
         palette:
+          bg: "#FAFAFA"
+          fg: "#546E7A"
           syntax:
             type: "#7C4DFF"
             field: "#546E7A"
@@ -1119,6 +1125,8 @@ themes:
           "8": "#44475A"
           "15": "#FFFFFF"
         palette:
+          bg: "#212121"
+          fg: "#B0BEC5"
           syntax:
             type: "#C792EA"
             field: "#B0BEC5"
@@ -1199,6 +1207,8 @@ themes:
           "8": "#44475A"
           "15": "#FFFFFF"
         palette:
+          bg: "#25363B"
+          fg: "#B0BEC5"
           syntax:
             type: "#C792EA"
             field: "#B0BEC5"
@@ -1454,6 +1464,8 @@ themes:
           "8": "#928374"
           "15": "#ebdbb2"
         palette:
+          bg: "#282828"
+          fg: "#ebdbb2"
           base:
             faded_aqua: "#427b58"
             faded_orange: "#af3a03"
@@ -1556,6 +1568,8 @@ themes:
           "8": "#928374"
           "15": "#ebdbb2"
         palette:
+          bg: "#1d2021"
+          fg: "#ebdbb2"
           base:
             faded_aqua: "#427b58"
             faded_orange: "#af3a03"
@@ -1658,6 +1672,8 @@ themes:
           "8": "#928374"
           "15": "#ebdbb2"
         palette:
+          bg: "#32302f"
+          fg: "#ebdbb2"
           base:
             faded_aqua: "#427b58"
             faded_orange: "#af3a03"
@@ -1762,6 +1778,7 @@ themes:
           "8": "#44475A"
           "15": "#FFFFFF"
         palette:
+          bg: "#ffffff"
           red:
             base: "#a0111f"
             bright: "#86061d"
@@ -1774,7 +1791,8 @@ themes:
           blue:
             base: "#0349b4"
             bright: "#1168e3"
-          fg:
+          fg: "#010409"
+          fg_color:
             default: "#010409"
             subtle: "#66707b"
             muted: "#0e1116"
@@ -1889,6 +1907,7 @@ themes:
           "8": "#44475A"
           "15": "#FFFFFF"
         palette:
+          bg: "#ffffff"
           red:
             base: "#cf222e"
             bright: "#a40e26"
@@ -1901,7 +1920,8 @@ themes:
           blue:
             base: "#0969da"
             bright: "#218bff"
-          fg:
+          fg: "#1F2328"
+          fg_color:
             default: "#1F2328"
             subtle: "#6e7781"
             muted: "#d0d7de"
@@ -2016,6 +2036,7 @@ themes:
           "8": "#44475A"
           "15": "#FFFFFF"
         palette:
+          bg: "#30363d"
           red:
             base: "#ff7b72"
             bright: "#ffa198"
@@ -2121,7 +2142,8 @@ themes:
           meta:
             name: "github_dark"
             light: false
-          fg:
+          fg: "#e6edf3"
+          fg_color:
             default: "#e6edf3"
             subtle: "#6e7681"
             muted: "#7d8590"
@@ -2145,6 +2167,7 @@ themes:
           "8": "#44475A"
           "15": "#FFFFFF"
         palette:
+          bg: "#22272e"
           red:
             base: "#f47067"
             bright: "#ff938a"
@@ -2250,7 +2273,8 @@ themes:
           meta:
             name: "github_dark_dimmed"
             light: false
-          fg:
+          fg: "#adbac7"
+          fg_color:
             default: "#adbac7"
             subtle: "#636e7b"
             muted: "#768390"
@@ -2274,6 +2298,7 @@ themes:
           "8": "#44475A"
           "15": "#FFFFFF"
         palette:
+          bg: "#0a0c10"
           red:
             base: "#ff9492"
             bright: "#ffb1af"
@@ -2379,7 +2404,8 @@ themes:
           meta:
             name: "github_dark_high_contrast"
             light: false
-          fg:
+          fg: "#f0f3f6"
+          fg_color:
             default: "#f0f3f6"
             subtle: "#9ea7b3"
             muted: "#d9dee3"
@@ -2405,6 +2431,8 @@ themes:
           "8": "#727169"
           "15": "#DCD7BA"
         palette:
+          bg: "#181616"
+          fg: "#c5c9c5"
           theme:
             syn:
               regex: "#c4746e"
@@ -2594,6 +2622,8 @@ themes:
           "8": "#727169"
           "15": "#DCD7BA"
         palette:
+          bg: "#f2ecbc"
+          fg: "#545464"
           theme:
             syn:
               regex: "#836f4a"
@@ -2783,6 +2813,8 @@ themes:
           "8": "#727169"
           "15": "#DCD7BA"
         palette:
+          bg: "#1F1F28"
+          fg: "#DCD7BA"
           theme:
             syn:
               regex: "#C0A36E"
@@ -3019,6 +3051,8 @@ themes:
           "8": "#44475A"
           "15": "#FFFFFF"
         palette:
+          bg: "#2E3440"
+          fg: "#D8DEE9"
           nord5_gui: "#E5E9F0"
           nord6_gui: "#ECEFF4"
           nord7_gui: "#8FBCBB"
@@ -3435,6 +3469,8 @@ themes:
           "8": "#44475A"
           "15": "#FFFFFF"
         palette:
+          bg: "#292522"
+          fg: "#ECE1D7"
           d:
             blue: "#273142"
             cyan: "#253333"
@@ -3484,6 +3520,7 @@ themes:
           "8": "#d3c6aa"
           "15": "#475258"
         palette:
+          bg: "#2d353b"
           bg_red: "#514045"
           bg_visual: "#543a48"
           red: "#e67e80"
@@ -3531,6 +3568,7 @@ themes:
           "8": "#d3c6aa"
           "15": "#4d5960"
         palette:
+          bg: "#333c43"
           bg_red: "#59464c"
           bg_visual: "#5c3f4f"
           red: "#e67e80"
@@ -3578,6 +3616,7 @@ themes:
           "8": "#edeada"
           "15": "#5c6a72"
         palette:
+          bg: "#fffbef"
           bg_red: "#ffe7de"
           bg_visual: "#f0f2d4"
           red: "#f85552"
@@ -3625,6 +3664,7 @@ themes:
           "8": "#e6e2cc"
           "15": "#5c6a72"
         palette:
+          bg: "#fdf6e3"
           bg_red: "#fde3da"
           bg_visual: "#eaedc8"
           red: "#f85552"
@@ -3672,6 +3712,7 @@ themes:
           "8": "#ddd8be"
           "15": "#5c6a72"
         palette:
+          bg: "#f3ead3"
           bg_red: "#fadbd0"
           bg_visual: "#e1e4bd"
           red: "#f85552"
@@ -3719,6 +3760,7 @@ themes:
           "8": "#d3c6aa"
           "15": "#414b50"
         palette:
+          bg: "#272e33"
           bg_red: "#493b40"
           bg_visual: "#4c3743"
           red: "#e67e80"
@@ -3768,6 +3810,7 @@ themes:
           "8": "#44475A"
           "15": "#FFFFFF"
         palette:
+          bg: "#272822"
           accent6: "#ae81ff"
           dark1: "#1d1e19"
           dimmed1: "#c0c1b5"
@@ -3802,6 +3845,7 @@ themes:
           "8": "#44475A"
           "15": "#FFFFFF"
         palette:
+          bg: "#2d2a2e"
           accent6: "#ab9df2"
           dark1: "#221f22"
           dimmed1: "#c1c0c0"
@@ -3836,6 +3880,7 @@ themes:
           "8": "#44475A"
           "15": "#FFFFFF"
         palette:
+          bg: "#282a3a"
           accent6: "#c39ac9"
           dark1: "#1e1f2b"
           dimmed1: "#b2b9bd"
@@ -3870,6 +3915,7 @@ themes:
           "8": "#44475A"
           "15": "#FFFFFF"
         palette:
+          bg: "#273136"
           accent6: "#baa0f8"
           dark1: "#1d2528"
           dimmed1: "#b8c4c3"
@@ -3904,6 +3950,7 @@ themes:
           "8": "#44475A"
           "15": "#FFFFFF"
         palette:
+          bg: "#2c2525"
           accent6: "#a8a9eb"
           dark1: "#211c1c"
           dimmed1: "#c3b7b8"
@@ -3938,6 +3985,7 @@ themes:
           "8": "#44475A"
           "15": "#FFFFFF"
         palette:
+          bg: "#222222"
           accent6: "#948ae3"
           dark1: "#191919"
           dimmed1: "#bab6c0"
@@ -3974,6 +4022,8 @@ themes:
           "8": "#575860"
           "15": "#e4e4e5"
         palette:
+          bg: "#192330"
+          fg: "#cdcecf"
           red:
             dim: "#ab435d"
             base: "#c94f6d"
@@ -4058,6 +4108,8 @@ themes:
           "8": "#534c45"
           "15": "#f4ece6"
         palette:
+          bg: "#f6f2ee"
+          fg: "#3d2b5a"
           red:
             dim: "#8c1d28"
             base: "#a5222f"
@@ -4142,6 +4194,8 @@ themes:
           "8": "#5f5695"
           "15": "#e6ebf3"
         palette:
+          bg: "#faf4ed"
+          fg: "#575279"
           red:
             dim: "#a5576d"
             base: "#b4637a"
@@ -4226,6 +4280,8 @@ themes:
           "8": "#47407d"
           "15": "#e2e0f7"
         palette:
+          bg: "#232136"
+          fg: "#e0def4"
           red:
             dim: "#d84f76"
             base: "#eb6f92"
@@ -4310,6 +4366,8 @@ themes:
           "8": "#465780"
           "15": "#e7ecf4"
         palette:
+          bg: "#2e3440"
+          fg: "#cdcecf"
           red:
             dim: "#a54e56"
             base: "#bf616a"
@@ -4394,6 +4452,8 @@ themes:
           "8": "#4e5157"
           "15": "#eeeeee"
         palette:
+          bg: "#152528"
+          fg: "#e6eaea"
           red:
             dim: "#c54e45"
             base: "#e85c51"
@@ -4478,6 +4538,8 @@ themes:
           "8": "#484848"
           "15": "#e4e4e5"
         palette:
+          bg: "#161616"
+          fg: "#f2f4f8"
           red:
             dim: "#ca4780"
             base: "#ee5396"
@@ -4546,7 +4608,23 @@ themes:
   catppuccin:
     variants:
       frappe:
-        terminal: "[]"
+        terminal:
+          "0":  "#51576d"
+          "1":  "#e78284"
+          "2":  "#a6d189"
+          "3":  "#e5c890"
+          "4":  "#8caaee"
+          "5":  "#f4b8e4"
+          "6":  "#81c8be"
+          "7":  "#a5adce"
+          "8":  "#626880"
+          "9":  "#e67172"
+          "10": "#8ec772"
+          "11": "#d9ba73"
+          "12": "#7b9ef0"
+          "13": "#f2a4db"
+          "14": "#5abfb5"
+          "15": "#b5bfe2"
         palette:
           rosewater: "#f2d5cf"
           flamingo: "#eebebe"
@@ -4575,7 +4653,23 @@ themes:
           mantle: "#292c3c"
           surface2: "#626880"
       macchiato:
-        terminal: "[]"
+        terminal:
+          "0":  "#494d64"
+          "1":  "#ed8796"
+          "2":  "#a6da95"
+          "3":  "#eed49f"
+          "4":  "#8aadf4"
+          "5":  "#f5bde6"
+          "6":  "#8bd5ca"
+          "7":  "#a5adcb"
+          "8":  "#5b6078"
+          "9":  "#ec7486"
+          "10": "#8ccf7f"
+          "11": "#e1c682"
+          "12": "#78a1f6"
+          "13": "#f2a9dd"
+          "14": "#63cbc0"
+          "15": "#b8c0e0"
         palette:
           rosewater: "#f4dbd6"
           flamingo: "#f0c6c6"
@@ -4604,7 +4698,23 @@ themes:
           mantle: "#1e2030"
           surface2: "#5b6078"
       mocha:
-        terminal: "[]"
+        terminal:
+          "0":  "#45475a"
+          "1":  "#f38ba8"
+          "2":  "#a6e3a1"
+          "3":  "#f9e2af"
+          "4":  "#89b4fa"
+          "5":  "#f5c2e7"
+          "6":  "#94e2d5"
+          "7":  "#a6adc8"
+          "8":  "#585b70"
+          "9":  "#f37799"
+          "10": "#89d88b"
+          "11": "#ebd391"
+          "12": "#74a8fc"
+          "13": "#f2aede"
+          "14": "#6bd7ca"
+          "15": "#bac2de"
         palette:
           rosewater: "#f5e0dc"
           flamingo: "#f2cdcd"
@@ -4633,7 +4743,23 @@ themes:
           mantle: "#181825"
           surface2: "#585b70"
       latte:
-        terminal: "[]"
+        terminal:
+          "0":  "#5c5f77"
+          "1":  "#d20f39"
+          "2":  "#40a02b"
+          "3":  "#df8e1d"
+          "4":  "#1e66f5"
+          "5":  "#ea76cb"
+          "6":  "#179299"
+          "7":  "#acb0be"
+          "8":  "#6c6f85"
+          "9":  "#de293e"
+          "10": "#49af3d"
+          "11": "#eea02d"
+          "12": "#456eff"
+          "13": "#fe85d8"
+          "14": "#2d9fa8"
+          "15": "#bcc0cc"
         palette:
           rosewater: "#dc8a78"
           flamingo: "#dd7878"

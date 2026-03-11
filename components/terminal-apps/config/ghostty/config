@@ -48,7 +48,7 @@ window-inherit-working-directory = true
 window-inherit-font-size = true
 
 macos-titlebar-style = tabs
-macos-non-native-fullscreen = false
+macos-non-native-fullscreen = visible-menu
 
 # ============================================================================
 # VISUAL

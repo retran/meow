@@ -75,7 +75,7 @@ get_color() {
 
 bg=$(get_color      "bg"          "base"        "bg1")
 fg=$(get_color      "fg"          "text"        "fg1")
-bg_dim=$(get_color  "bg_highlight" "bg_visual"  "bg_dark"     "bg1"    "surface0" "surface1")
+bg_dim=$(get_color  "bg_highlight" "bg_visual"  "bg_dark"     "bg1"    "mantle"   "crust"    "surface0" "surface1")
 bg_sel=$(get_color  "bg_visual"   "bg_search"   "bg_highlight" "surface1" "surface2")
 green=$(get_color   "green"       "leaf"        "green1"      "teal")
 red=$(get_color     "red"         "rose"        "love"        "error")
