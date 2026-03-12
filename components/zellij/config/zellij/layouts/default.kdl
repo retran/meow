@@ -44,7 +44,7 @@ layout {
                 mode_default_to_mode "normal"
 
                 // Weather via wttr.in (Amsterdam), refresh every 30 minutes
-                command_weather_command  "bash -c \"curl -s 'wttr.in/Amsterdam?format=1' 2>/dev/null || echo '?'\""
+                command_weather_command  "/Users/retran/.config/zellij/scripts/zjstatus-weather"
                 command_weather_interval "1800"
                 command_weather_rendermode "static"
 
@@ -54,7 +54,7 @@ layout {
                 command_cpu_rendermode "static"
 
                 // Memory usage (macOS: vm_stat)
-                command_mem_command  "bash -c \"python3 -c \\\"import subprocess; lines = subprocess.check_output(['vm_stat']).decode().splitlines(); pages = {l.split(':')[0].strip(): int(l.split(':')[1].strip().rstrip('.')) for l in lines[1:] if ':' in l}; used = (pages.get('Pages active',0)+pages.get('Pages wired down',0)+pages.get('Pages occupied by compressor',0))*4096//1048576; print(used)\\\"\""
+                command_mem_command  "/Users/retran/.config/zellij/scripts/zjstatus-memory"
                 command_mem_interval "10"
                 command_mem_rendermode "static"
 
@@ -89,7 +89,7 @@ layout {
                 mode_renametab     "#[fg=#eff1f5,bg=#df8e1d,bold] RENAME "
                 command_weather_format   "#[fg=#209fb5,bg=#eff1f5] {stdout} "
                 command_cpu_format       "#[fg=#40a02b,bg=#eff1f5] 󰻠 {stdout}% "
-                command_mem_format       "#[fg=#8839ef,bg=#eff1f5] 󰍛 {stdout}M "
+                command_mem_format       "#[fg=#8839ef,bg=#eff1f5] {stdout} "
                 command_bat_format       "#[fg=#df8e1d,bg=#eff1f5] {stdout} "
                 datetime                 "#[fg=#5c5f77,bg=#eff1f5] {format} "
                 // ZJSTATUS_COLORS_END
