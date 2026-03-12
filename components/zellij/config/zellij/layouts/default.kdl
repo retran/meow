@@ -63,8 +63,8 @@ layout {
                 command_bat_interval "60"
                 command_bat_rendermode "static"
 
-                // Clock + date (Amsterdam timezone)
-                datetime_format    "%H:%M  %d %b"
+                // Clock + date (Amsterdam timezone) — date before time, with day-of-week
+                datetime_format    "󰸗 %a %d %b  󰥔 %H:%M"
                 datetime_timezone  "Europe/Amsterdam"
 
                 // ZJSTATUS_COLORS_BEGIN (managed by apply-theme-zellij — do not edit manually)
@@ -88,9 +88,9 @@ layout {
                 mode_renamepane    "#[fg=#eff1f5,bg=#df8e1d,bold] RENAME "
                 mode_renametab     "#[fg=#eff1f5,bg=#df8e1d,bold] RENAME "
                 command_weather_format   "#[fg=#209fb5,bg=#eff1f5] {stdout} "
-                command_cpu_format       "#[fg=#40a02b,bg=#eff1f5] CPU {stdout}% "
-                command_mem_format       "#[fg=#8839ef,bg=#eff1f5] MEM {stdout}M "
-                command_bat_format       "#[fg=#df8e1d,bg=#eff1f5] BAT {stdout} "
+                command_cpu_format       "#[fg=#40a02b,bg=#eff1f5] 󰻠 {stdout}% "
+                command_mem_format       "#[fg=#8839ef,bg=#eff1f5] 󰍛 {stdout}M "
+                command_bat_format       "#[fg=#df8e1d,bg=#eff1f5] 󰁹 {stdout} "
                 datetime                 "#[fg=#5c5f77,bg=#eff1f5] {format} "
                 // ZJSTATUS_COLORS_END
             }

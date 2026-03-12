@@ -166,9 +166,9 @@ if [[ -f "$layout_kdl" ]]; then
                 mode_renamepane    \"#[fg=${_bg},bg=${_yellow},bold] RENAME \"
                 mode_renametab     \"#[fg=${_bg},bg=${_yellow},bold] RENAME \"
                 command_weather_format   \"#[fg=${_sapphire},bg=${_bg}] {stdout} \"
-                command_cpu_format       \"#[fg=${_green},bg=${_bg}] CPU {stdout}% \"
-                command_mem_format       \"#[fg=${_mauve},bg=${_bg}] MEM {stdout}M \"
-                command_bat_format       \"#[fg=${_yellow},bg=${_bg}] BAT {stdout} \"
+                command_cpu_format       \"#[fg=${_green},bg=${_bg}] 󰻠 {stdout}% \"
+                command_mem_format       \"#[fg=${_mauve},bg=${_bg}] 󰍛 {stdout}M \"
+                command_bat_format       \"#[fg=${_yellow},bg=${_bg}] 󰁹 {stdout} \"
                 datetime                 \"#[fg=${_subtext1},bg=${_bg}] {format} \"
                 // ZJSTATUS_COLORS_END"
 
