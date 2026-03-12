@@ -203,7 +203,7 @@ web_client {
 // Choose the theme that is specified in the themes section.
 // Default: default
 // 
-theme "meow-dark"
+theme "meow-light"
  
 // Choose the base input mode of zellij.
 // Default: normal

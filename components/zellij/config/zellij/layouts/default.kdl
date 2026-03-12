@@ -32,72 +32,67 @@
 layout {
     default_tab_template {
         // Status bar at the TOP (declared before children)
-        pane size=1 borderless=true {
+        pane size=2 borderless=true {
             plugin location="file:~/.config/zellij/plugins/zjstatus.wasm" {
-                // Catppuccin Mocha palette (fixed colors)
-                // bg:      #1e1e2e  surface0: #313244  surface1: #45475a
-                // text:    #cdd6f4  subtext1: #bac2de  overlay1: #7f849c
-                // blue:    #89b4fa  lavender: #b4befe  sapphire: #74c7ec
-                // mauve:   #cba6f7  green:    #a6e3a1  yellow:   #f9e2af
-                // peach:   #fab387  red:      #f38ba8
 
                 format_left   "{tabs}"
                 format_center ""
                 format_right  "{command_weather} {command_cpu} {command_mem} {command_bat} {datetime}"
-                format_space  "#[bg=#1e1e2e]"
 
                 border_enabled  "false"
-
                 hide_frame_for_single_pane "false"
-
-                // Tabs: square style, index + name, no Powerline symbols
-                tab_normal         "#[fg=#6c7086,bg=#1e1e2e] {index} {name} "
-                tab_active         "#[fg=#cdd6f4,bg=#313244,bold] {index} {name} "
-                tab_separator      "#[fg=#313244,bg=#1e1e2e]"
-
-                // Mode indicator (only pane mode shown since that's the custom mode)
-                mode_normal        "#[fg=#1e1e2e,bg=#1e1e2e] "
-                mode_pane          "#[fg=#1e1e2e,bg=#89b4fa,bold] PANE "
-                mode_tab           "#[fg=#1e1e2e,bg=#cba6f7,bold] TAB "
-                mode_scroll        "#[fg=#1e1e2e,bg=#a6e3a1,bold] SCROLL "
-                mode_search        "#[fg=#1e1e2e,bg=#f9e2af,bold] SEARCH "
-                mode_entersearch   "#[fg=#1e1e2e,bg=#f9e2af,bold] SEARCH "
-                mode_session       "#[fg=#1e1e2e,bg=#74c7ec,bold] SESSION "
-                mode_move          "#[fg=#1e1e2e,bg=#fab387,bold] MOVE "
-                mode_locked        "#[fg=#1e1e2e,bg=#f38ba8,bold] LOCKED "
-                mode_resize        "#[fg=#1e1e2e,bg=#f9e2af,bold] RESIZE "
-                mode_renamepane    "#[fg=#1e1e2e,bg=#f9e2af,bold] RENAME "
-                mode_renametab     "#[fg=#1e1e2e,bg=#f9e2af,bold] RENAME "
                 mode_default_to_mode "normal"
 
                 // Weather via wttr.in (Amsterdam), refresh every 30 minutes
                 command_weather_command  "bash -c \"curl -s 'wttr.in/Amsterdam?format=1' 2>/dev/null || echo '?'\""
-                command_weather_format   "#[fg=#74c7ec,bg=#1e1e2e] {stdout} "
                 command_weather_interval "1800"
                 command_weather_rendermode "static"
 
                 // CPU usage (macOS: top snapshot)
                 command_cpu_command  "bash -c \"top -l 1 -s 0 | awk '/CPU usage/ {print $3}' | tr -d '%'\""
-                command_cpu_format   "#[fg=#a6e3a1,bg=#1e1e2e] CPU {stdout}% "
                 command_cpu_interval "5"
                 command_cpu_rendermode "static"
 
                 // Memory usage (macOS: vm_stat)
                 command_mem_command  "bash -c \"python3 -c \\\"import subprocess; lines = subprocess.check_output(['vm_stat']).decode().splitlines(); pages = {l.split(':')[0].strip(): int(l.split(':')[1].strip().rstrip('.')) for l in lines[1:] if ':' in l}; used = (pages.get('Pages active',0)+pages.get('Pages wired down',0)+pages.get('Pages occupied by compressor',0))*4096//1048576; print(used)\\\"\""
-                command_mem_format   "#[fg=#cba6f7,bg=#1e1e2e] MEM {stdout}M "
                 command_mem_interval "10"
                 command_mem_rendermode "static"
 
                 // Battery (macOS: pmset)
                 command_bat_command  "bash -c \"pmset -g batt | grep -o '[0-9]*%' | head -1\""
-                command_bat_format   "#[fg=#f9e2af,bg=#1e1e2e] BAT {stdout} "
                 command_bat_interval "60"
                 command_bat_rendermode "static"
 
                 // Clock + date (Amsterdam timezone)
-                datetime           "#[fg=#bac2de,bg=#1e1e2e] {format} "
                 datetime_format    "%H:%M  %d %b"
                 datetime_timezone  "Europe/Amsterdam"
+
+                // ZJSTATUS_COLORS_BEGIN (managed by apply-theme-zellij — do not edit manually)
+                // bg=#eff1f5 fg=#4c4f69 surface0=#ccd0da overlay1=#8c8fa1
+                // subtext1=#5c5f77 blue=#1e66f5 sapphire=#209fb5 green=#40a02b
+                // mauve=#8839ef peach=#fe640b yellow=#df8e1d red=#d20f39
+                format_space  "#[bg=#eff1f5]"
+                tab_normal         "#[fg=#8c8fa1,bg=#eff1f5] {index} {name} "
+                tab_active         "#[fg=#4c4f69,bg=#ccd0da,bold] {index} {name} "
+                tab_separator      "#[fg=#ccd0da,bg=#eff1f5]"
+                mode_normal        "#[fg=#eff1f5,bg=#eff1f5] "
+                mode_pane          "#[fg=#eff1f5,bg=#1e66f5,bold] PANE "
+                mode_tab           "#[fg=#eff1f5,bg=#8839ef,bold] TAB "
+                mode_scroll        "#[fg=#eff1f5,bg=#40a02b,bold] SCROLL "
+                mode_search        "#[fg=#eff1f5,bg=#df8e1d,bold] SEARCH "
+                mode_entersearch   "#[fg=#eff1f5,bg=#df8e1d,bold] SEARCH "
+                mode_session       "#[fg=#eff1f5,bg=#209fb5,bold] SESSION "
+                mode_move          "#[fg=#eff1f5,bg=#fe640b,bold] MOVE "
+                mode_locked        "#[fg=#eff1f5,bg=#d20f39,bold] LOCKED "
+                mode_resize        "#[fg=#eff1f5,bg=#df8e1d,bold] RESIZE "
+                mode_renamepane    "#[fg=#eff1f5,bg=#df8e1d,bold] RENAME "
+                mode_renametab     "#[fg=#eff1f5,bg=#df8e1d,bold] RENAME "
+                command_weather_format   "#[fg=#209fb5,bg=#eff1f5] {stdout} "
+                command_cpu_format       "#[fg=#40a02b,bg=#eff1f5] CPU {stdout}% "
+                command_mem_format       "#[fg=#8839ef,bg=#eff1f5] MEM {stdout}M "
+                command_bat_format       "#[fg=#df8e1d,bg=#eff1f5] BAT {stdout} "
+                datetime                 "#[fg=#5c5f77,bg=#eff1f5] {format} "
+                // ZJSTATUS_COLORS_END
             }
         }
 
