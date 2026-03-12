@@ -31,3 +31,5 @@
   target: "$HOME/.config/zellij/themes"
 - source: "$MEOW/.installed/components/zellij/config/zellij/layouts"
   target: "$HOME/.config/zellij/layouts"
+- source: "$MEOW/.installed/components/zellij/scripts/zjstatus-battery"
+  target: "$HOME/.config/zellij/scripts/zjstatus-battery"

@@ -59,7 +59,7 @@ layout {
                 command_mem_rendermode "static"
 
                 // Battery (macOS: pmset) — dynamic icon by level and charge state
-                command_bat_command  "bash -c \"python3 -c \\\"import subprocess,re; out=subprocess.check_output(['pmset','-g','batt']).decode(); ac=('AC Power' in out and 'InternalBattery' not in out); batt=next((l for l in out.splitlines() if 'InternalBattery' in l),None); m=re.search(r'(\\\\\\\d+)%.*?(charging|discharging|charged|AC attached)',batt) if batt else None; pct=int(m.group(1)) if m else None; state=m.group(2).strip() if m else 'unknown'; icons=['󰂎','󰁺','󰁻','󰁼','󰁽','󰁾','󰁿','󰂀','󰂁','󰂂','󰁹']; print('󰚥' if (ac or pct is None) else ('󰂄 '+str(pct)+'%' if state=='charging' else ('󰁹 '+str(pct)+'%' if state in ('charged','AC attached') else (icons[min(pct//10,10)]+' '+str(pct)+'%'))))\\\"\""
+                command_bat_command  "/Users/retran/.config/zellij/scripts/zjstatus-battery"
                 command_bat_interval "60"
                 command_bat_rendermode "static"
 
