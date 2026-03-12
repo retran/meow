@@ -648,7 +648,7 @@ number_threshold = 1
 # COCKPIT FEATURES (Optional System Monitoring)
 # ============================================================================
 # Custom modules for optional system monitoring in the prompt.
-# Disabled by default to avoid duplication with tmux status bar.
+# Disabled by default to avoid duplication with zellij status bar.
 #
 # Enable via environment variables:
 #   export STARSHIP_COCKPIT_MEMORY_USAGE_ENABLED=true

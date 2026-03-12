@@ -31,8 +31,8 @@ setopt HIST_VERIFY               # Show command with history expansion before ru
 autoload -Uz add-zsh-hook
 
 function set_terminal_title() {
-  # In tmux use escape sequence for pane title
-  if [[ -n "$TMUX" ]]; then
+  # In zellij use escape sequence for pane title
+  if [[ -n "$ZELLIJ" ]]; then
     printf "\033]2;%s\033\\" "$1"
   else
     # In regular terminal
