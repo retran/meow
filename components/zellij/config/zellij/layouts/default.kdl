@@ -58,8 +58,8 @@ layout {
                 command_mem_interval "10"
                 command_mem_rendermode "static"
 
-                // Battery (macOS: pmset)
-                command_bat_command  "bash -c \"pmset -g batt | grep -o '[0-9]*%' | head -1\""
+                // Battery (macOS: pmset) — dynamic icon by level and charge state
+                command_bat_command  "bash -c \"python3 -c \\\"import subprocess,re; out=subprocess.check_output(['pmset','-g','batt']).decode(); ac=('AC Power' in out and 'InternalBattery' not in out); batt=next((l for l in out.splitlines() if 'InternalBattery' in l),None); m=re.search(r'(\\\\\\\d+)%.*?(charging|discharging|charged|AC attached)',batt) if batt else None; pct=int(m.group(1)) if m else None; state=m.group(2).strip() if m else 'unknown'; icons=['󰂎','󰁺','󰁻','󰁼','󰁽','󰁾','󰁿','󰂀','󰂁','󰂂','󰁹']; print('󰚥' if (ac or pct is None) else ('󰂄 '+str(pct)+'%' if state=='charging' else ('󰁹 '+str(pct)+'%' if state in ('charged','AC attached') else (icons[min(pct//10,10)]+' '+str(pct)+'%'))))\\\"\""
                 command_bat_interval "60"
                 command_bat_rendermode "static"
 
@@ -90,7 +90,7 @@ layout {
                 command_weather_format   "#[fg=#209fb5,bg=#eff1f5] {stdout} "
                 command_cpu_format       "#[fg=#40a02b,bg=#eff1f5] 󰻠 {stdout}% "
                 command_mem_format       "#[fg=#8839ef,bg=#eff1f5] 󰍛 {stdout}M "
-                command_bat_format       "#[fg=#df8e1d,bg=#eff1f5] 󰁹 {stdout} "
+                command_bat_format       "#[fg=#df8e1d,bg=#eff1f5] {stdout} "
                 datetime                 "#[fg=#5c5f77,bg=#eff1f5] {format} "
                 // ZJSTATUS_COLORS_END
             }

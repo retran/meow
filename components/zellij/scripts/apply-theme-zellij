@@ -168,7 +168,7 @@ if [[ -f "$layout_kdl" ]]; then
                 command_weather_format   \"#[fg=${_sapphire},bg=${_bg}] {stdout} \"
                 command_cpu_format       \"#[fg=${_green},bg=${_bg}] 󰻠 {stdout}% \"
                 command_mem_format       \"#[fg=${_mauve},bg=${_bg}] 󰍛 {stdout}M \"
-                command_bat_format       \"#[fg=${_yellow},bg=${_bg}] 󰁹 {stdout} \"
+                command_bat_format       \"#[fg=${_yellow},bg=${_bg}] {stdout} \"
                 datetime                 \"#[fg=${_subtext1},bg=${_bg}] {format} \"
                 // ZJSTATUS_COLORS_END"
 
