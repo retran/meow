@@ -44,7 +44,7 @@ layout {
                 mode_default_to_mode "normal"
 
                 // Weather via wttr.in (Amsterdam), refresh every 30 minutes
-                command_weather_command  "/Users/retran/.config/zellij/scripts/zjstatus-weather"
+                command_weather_command  "bash -c \"$HOME/.config/zellij/scripts/zjstatus-weather\""
                 command_weather_interval "1800"
                 command_weather_rendermode "static"
 
@@ -54,12 +54,12 @@ layout {
                 command_cpu_rendermode "static"
 
                 // Memory usage (macOS: vm_stat)
-                command_mem_command  "/Users/retran/.config/zellij/scripts/zjstatus-memory"
+                command_mem_command  "bash -c \"$HOME/.config/zellij/scripts/zjstatus-memory\""
                 command_mem_interval "10"
                 command_mem_rendermode "static"
 
                 // Battery (macOS: pmset) — dynamic icon by level and charge state
-                command_bat_command  "/Users/retran/.config/zellij/scripts/zjstatus-battery"
+                command_bat_command  "bash -c \"$HOME/.config/zellij/scripts/zjstatus-battery\""
                 command_bat_interval "60"
                 command_bat_rendermode "static"
 
