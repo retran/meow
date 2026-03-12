@@ -27,37 +27,7 @@ setopt HIST_IGNORE_SPACE         # Don't record commands starting with space
 setopt HIST_SAVE_NO_DUPS         # Don't save duplicates
 setopt HIST_VERIFY               # Show command with history expansion before running
 
-# Terminal title management
 autoload -Uz add-zsh-hook
-
-function set_terminal_title() {
-  # In zellij use escape sequence for pane title
-  if [[ -n "$ZELLIJ" ]]; then
-    printf "\033]2;%s\033\\" "$1"
-  else
-    # In regular terminal
-    printf "\033]0;%s\007" "$1"
-  fi
-}
-
-function preexec() {
-  # Before command execution - show command
-  local cmd="$1"
-  # If it's vim/nvim, don't update title (vim will do it itself)
-  if [[ "$cmd" =~ ^(vim|nvim|vi) ]]; then
-    return
-  fi
-  set_terminal_title "$cmd"
-}
-
-function precmd() {
-  # After command execution - show directory
-  set_terminal_title "$(basename "$PWD")"
-}
-
-# Add hooks
-add-zsh-hook preexec preexec
-add-zsh-hook precmd precmd
 
 # Source component interactive shell scripts
 if [[ -d "${MEOW}/.installed/components" ]]; then

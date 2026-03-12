@@ -103,6 +103,7 @@ rm -f "${config_kdl}.bak"
 # ── Rewrite zjstatus color block in default.kdl ───────────────────────────────
 
 layout_kdl="$MEOW_ROOT/components/zellij/config/zellij/layouts/default.kdl"
+layout_kdl_installed="$MEOW_ROOT/.installed/components/zellij/config/zellij/layouts/default.kdl"
 
 if [[ -f "$layout_kdl" ]]; then
   # Resolve palette colors (same logic as generate-theme-zellij)
@@ -118,79 +119,105 @@ if [[ -f "$layout_kdl" ]]; then
     echo ""
   }
 
-  _bg=$(get_color      "bg"           "base"        "bg1")
-  _fg=$(get_color      "fg"           "text"        "fg1")
-  _surface0=$(get_color "surface0"    "bg_highlight" "bg_visual" "bg_dark" "bg1" "mantle" "crust")
-  _overlay1=$(get_color "overlay1"    "comment"     "gray"      "dark5"   "fg_gutter")
-  _subtext1=$(get_color "subtext1"    "comment"     "gray"      "dark5"   "fg_gutter")
-  _blue=$(get_color    "blue"         "water"       "sapphire"  "sky"     "blue0")
-  _sapphire=$(get_color "sapphire"    "teal"        "cyan"      "water"   "sky")
-  _green=$(get_color   "green"        "leaf"        "green1"    "teal")
-  _mauve=$(get_color   "mauve"        "purple"      "blossom"   "iris"    "magenta")
-  _peach=$(get_color   "peach"        "orange"      "wood"      "highlight")
-  _yellow=$(get_color  "yellow"       "orange"      "peach"     "wood")
-  _red=$(get_color     "red"          "rose"        "love"      "error")
+  # ── Semantic color roles ─────────────────────────────────────────────────────
+  # bar background / foreground
+  _bg=$(get_color "bg" "base" "bg1")
+  _fg=$(get_color "fg" "text" "fg1")
 
-  # Fall back to fg for anything unresolved
-  [[ -z "$_overlay1" ]] && _overlay1="$_fg"
-  [[ -z "$_subtext1" ]] && _subtext1="$_fg"
-  [[ -z "$_surface0" ]] && _surface0="$_bg"
-  [[ -z "$_blue"     ]] && _blue="$_fg"
-  [[ -z "$_sapphire" ]] && _sapphire="$_fg"
-  [[ -z "$_green"    ]] && _green="$_fg"
-  [[ -z "$_mauve"    ]] && _mauve="$_fg"
-  [[ -z "$_peach"    ]] && _peach="$_fg"
-  [[ -z "$_yellow"   ]] && _yellow="$_fg"
-  [[ -z "$_red"      ]] && _red="$_fg"
+  # selection: active tab background
+  _sel=$(get_color "surface0" "bg_highlight" "bg_visual" "sel0" "bg1" "bg2" "mantle")
+
+  # dimmed: normal tab fg, datetime, normal mode indicator
+  _dim=$(get_color "overlay1" "comment" "gray" "subtext0" "fg_gutter" "dark5")
+
+  # subtle: datetime text (slightly lighter than dim)
+  _subtle=$(get_color "subtext1" "overlay2" "comment" "gray" "fg_gutter")
+
+  # identity/accent: session pill — teal/cyan family
+  _teal=$(get_color "teal" "cyan" "sapphire" "water" "foam" "pine" "sky")
+
+  # pane mode — blue family
+  _blue=$(get_color "blue" "water" "sapphire" "sky" "blue0" "pine" "foam")
+
+  # tab mode — purple/mauve family
+  _mauve=$(get_color "mauve" "purple" "magenta" "blossom" "iris" "violet" "pink")
+
+  # scroll / cpu widget — green family
+  _green=$(get_color "green" "leaf" "teal" "pine" "green1")
+
+  # search / resize / rename / battery — yellow/amber family
+  _yellow=$(get_color "yellow" "gold" "wood" "peach" "orange" "highlight")
+
+  # move mode / battery — orange family
+  _orange=$(get_color "orange" "peach" "wood" "yellow" "gold" "highlight")
+
+  # locked mode — red family
+  _red=$(get_color "red" "love" "rose" "danger" "error" "maroon")
+
+  # ── Fallbacks to fg/bg for anything unresolved ───────────────────────────────
+  [[ -z "$_sel"    ]] && _sel="$_bg"
+  [[ -z "$_dim"    ]] && _dim="$_fg"
+  [[ -z "$_subtle" ]] && _subtle="$_fg"
+  [[ -z "$_teal"   ]] && _teal="$_fg"
+  [[ -z "$_blue"   ]] && _blue="$_fg"
+  [[ -z "$_mauve"  ]] && _mauve="$_fg"
+  [[ -z "$_green"  ]] && _green="$_fg"
+  [[ -z "$_yellow" ]] && _yellow="$_fg"
+  [[ -z "$_orange" ]] && _orange="$_fg"
+  [[ -z "$_red"    ]] && _red="$_fg"
 
   if [[ -n "$_bg" && -n "$_fg" ]]; then
     # Build the replacement block — only color-bearing values, no command strings
     new_block="                // ZJSTATUS_COLORS_BEGIN (managed by apply-theme-zellij — do not edit manually)
-                // bg=${_bg} fg=${_fg} surface0=${_surface0} overlay1=${_overlay1}
-                // subtext1=${_subtext1} blue=${_blue} sapphire=${_sapphire} green=${_green}
-                // mauve=${_mauve} peach=${_peach} yellow=${_yellow} red=${_red}
-                format_space  \"#[bg=${_bg}]\"
-                tab_normal         \"#[fg=${_overlay1},bg=${_bg}] {index} {name} \"
-                tab_active         \"#[fg=${_fg},bg=${_surface0},bold] {index} {name} \"
-                tab_separator      \"#[fg=${_surface0},bg=${_bg}]\"
-                mode_normal        \"#[fg=${_bg},bg=${_bg}] \"
-                mode_pane          \"#[fg=${_bg},bg=${_blue},bold] PANE \"
-                mode_tab           \"#[fg=${_bg},bg=${_mauve},bold] TAB \"
-                mode_scroll        \"#[fg=${_bg},bg=${_green},bold] SCROLL \"
-                mode_search        \"#[fg=${_bg},bg=${_yellow},bold] SEARCH \"
-                mode_entersearch   \"#[fg=${_bg},bg=${_yellow},bold] SEARCH \"
-                mode_session       \"#[fg=${_bg},bg=${_sapphire},bold] SESSION \"
-                mode_move          \"#[fg=${_bg},bg=${_peach},bold] MOVE \"
-                mode_locked        \"#[fg=${_bg},bg=${_red},bold] LOCKED \"
-                mode_resize        \"#[fg=${_bg},bg=${_yellow},bold] RESIZE \"
-                mode_renamepane    \"#[fg=${_bg},bg=${_yellow},bold] RENAME \"
-                mode_renametab     \"#[fg=${_bg},bg=${_yellow},bold] RENAME \"
-                command_weather_format   \"#[fg=${_sapphire},bg=${_bg}] {stdout} \"
-                command_cpu_format       \"#[fg=${_green},bg=${_bg}] 󰻠 {stdout}% \"
-                command_mem_format       \"#[fg=${_mauve},bg=${_bg}] {stdout} \"
-                command_bat_format       \"#[fg=${_yellow},bg=${_bg}] {stdout} \"
-                datetime                 \"#[fg=${_subtext1},bg=${_bg}] {format} \"
-                // ZJSTATUS_COLORS_END"
+                 // bg=${_bg} fg=${_fg} sel=${_sel} dim=${_dim} subtle=${_subtle}
+                 // teal=${_teal} blue=${_blue} mauve=${_mauve} green=${_green}
+                 // yellow=${_yellow} orange=${_orange} red=${_red}
+                 format_left              \"{mode}#[fg=${_bg},bg=${_teal},bold] {session} #[fg=${_teal},bg=${_bg}]{tabs}\"
+                 format_space             \"#[bg=${_bg}]\"
+                 tab_normal               \"#[fg=${_dim},bg=${_bg}] {index} {name} \"
+                 tab_active               \"#[fg=${_fg},bg=${_sel},bold] {index} {name} \"
+                 tab_separator            \"#[fg=${_sel},bg=${_bg}]\"
+                 mode_normal              \"#[fg=${_dim},bg=${_bg}] NORMAL \"
+                 mode_pane                \"#[fg=${_bg},bg=${_blue},bold] PANE \"
+                 mode_tab                 \"#[fg=${_bg},bg=${_mauve},bold] TAB \"
+                 mode_scroll              \"#[fg=${_bg},bg=${_green},bold] SCROLL \"
+                 mode_search              \"#[fg=${_bg},bg=${_yellow},bold] SEARCH \"
+                 mode_enter_search        \"#[fg=${_bg},bg=${_yellow},bold] SEARCH \"
+                 mode_session             \"#[fg=${_bg},bg=${_teal},bold] SESSION \"
+                 mode_move                \"#[fg=${_bg},bg=${_orange},bold] MOVE \"
+                 mode_locked              \"#[fg=${_bg},bg=${_red},bold] LOCKED \"
+                 mode_resize              \"#[fg=${_bg},bg=${_yellow},bold] RESIZE \"
+                 mode_rename_pane         \"#[fg=${_bg},bg=${_yellow},bold] RENAME \"
+                 mode_rename_tab          \"#[fg=${_bg},bg=${_yellow},bold] RENAME \"
+                 command_weather_format   \"#[fg=${_teal},bg=${_bg}] {stdout} \"
+                 command_cpu_format       \"#[fg=${_green},bg=${_bg}] 󰻠 {stdout}% \"
+                 command_mem_format       \"#[fg=${_mauve},bg=${_bg}] {stdout} \"
+                 command_bat_format       \"#[fg=${_orange},bg=${_bg}] {stdout} \"
+                 datetime                 \"#[fg=${_subtle},bg=${_bg}] {format}\"
+                 // ZJSTATUS_COLORS_END"
 
-    # Replace everything between the sentinel comments (inclusive)
-    python3 - "$layout_kdl" "$new_block" <<'PYEOF'
+    # Replace everything between the sentinel comments (inclusive) in both source and installed
+    python3 - "$layout_kdl" "$layout_kdl_installed" "$new_block" <<'PYEOF'
 import sys, re
 
-layout_file = sys.argv[1]
-new_block = sys.argv[2]
-
-with open(layout_file, 'r') as f:
-    content = f.read()
+layout_files = sys.argv[1:-1]
+new_block = sys.argv[-1]
 
 pattern = r'[ \t]*// ZJSTATUS_COLORS_BEGIN.*?// ZJSTATUS_COLORS_END'
-replacement = new_block
-if not re.search(pattern, content, flags=re.DOTALL):
-    print("Warning: ZJSTATUS_COLORS_BEGIN/END sentinels not found in layout file", file=sys.stderr)
-else:
-    new_content = re.sub(pattern, replacement, content, flags=re.DOTALL)
-    with open(layout_file, 'w') as f:
-        f.write(new_content)
-    print("Updated zjstatus colors in layout file")
+
+for layout_file in layout_files:
+    import os
+    if not os.path.isfile(layout_file):
+        continue
+    with open(layout_file, 'r') as f:
+        content = f.read()
+    if not re.search(pattern, content, flags=re.DOTALL):
+        print(f"Warning: ZJSTATUS_COLORS_BEGIN/END sentinels not found in {layout_file}", file=sys.stderr)
+    else:
+        new_content = re.sub(pattern, new_block, content, flags=re.DOTALL)
+        with open(layout_file, 'w') as f:
+            f.write(new_content)
+        print(f"Updated zjstatus colors in {layout_file}")
 PYEOF
   else
     echo "Warning: could not resolve bg/fg colors for zjstatus, skipping layout update" >&2

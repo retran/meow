@@ -7,6 +7,9 @@ keybinds clear-defaults=true {
         bind "Ctrl a" { SwitchToMode "pane"; }
     }
     pane {
+        bind "t" { SwitchToMode "tab"; }
+        bind "r" { SwitchToMode "resize"; }
+        bind "m" { SwitchToMode "move"; }
         bind "left" { MoveFocus "left"; SwitchToMode "normal"; }
         bind "Alt left" { GoToPreviousTab; SwitchToMode "normal"; }
         bind "down" { MoveFocus "down"; SwitchToMode "normal"; }
@@ -203,7 +206,7 @@ web_client {
 // Choose the theme that is specified in the themes section.
 // Default: default
 // 
-theme "meow-light"
+theme "meow-dark"
  
 // Choose the base input mode of zellij.
 // Default: normal
