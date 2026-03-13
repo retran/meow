@@ -8,12 +8,17 @@
 #         with runs of spaces collapsed to one.
 # @author: Andrew Vasilyev
 # @license: MIT
+#
+# Location is read from the ZJSTATUS_WEATHER_LOCATION environment variable.
+# If not set, defaults to "Amsterdam".  Override it in ~/.zshrc or
+# ~/.config/zellij/env (or any file sourced before zellij starts).
 
+import os
 import subprocess
 import re
 import sys
 
-LOCATION = "Amsterdam"
+LOCATION = os.environ.get("ZJSTATUS_WEATHER_LOCATION", "Amsterdam")
 
 try:
     out = subprocess.check_output(

@@ -25,14 +25,14 @@
 # @author: Andrew Vasilyev
 # @license: MIT
 #
-- source: "$MEOW/.installed/components/zellij/config/zellij/config.kdl"
-  target: "$HOME/.config/zellij/config.kdl"
 - source: "$MEOW/.installed/components/zellij/config/themes"
   target: "$HOME/.config/zellij/themes"
 - source: "$MEOW/.installed/components/zellij/config/zellij/layouts"
   target: "$HOME/.config/zellij/layouts"
 - source: "$MEOW/.installed/components/zellij/scripts/zjstatus-battery"
   target: "$HOME/.config/zellij/scripts/zjstatus-battery"
+- source: "$MEOW/.installed/components/zellij/scripts/zjstatus-cpu"
+  target: "$HOME/.config/zellij/scripts/zjstatus-cpu"
 - source: "$MEOW/.installed/components/zellij/scripts/zjstatus-memory"
   target: "$HOME/.config/zellij/scripts/zjstatus-memory"
 - source: "$MEOW/.installed/components/zellij/scripts/zjstatus-weather"

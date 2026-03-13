@@ -29,6 +29,26 @@ setopt HIST_VERIFY               # Show command with history expansion before ru
 
 autoload -Uz add-zsh-hook
 
+# Terminal title management — show running command or current directory.
+# Works in any terminal; zellij sets its own tab names on top of this.
+function _meow_set_terminal_title() {
+  printf "\033]0;%s\007" "$1"
+}
+
+function _meow_preexec() {
+  local cmd="$1"
+  # Let vim/nvim manage their own title
+  [[ "$cmd" =~ ^(vim|nvim|vi) ]] && return
+  _meow_set_terminal_title "$cmd"
+}
+
+function _meow_precmd() {
+  _meow_set_terminal_title "$(basename "$PWD")"
+}
+
+add-zsh-hook preexec _meow_preexec
+add-zsh-hook precmd  _meow_precmd
+
 # Source component interactive shell scripts
 if [[ -d "${MEOW}/.installed/components" ]]; then
   # Use nullglob to avoid errors when no files match

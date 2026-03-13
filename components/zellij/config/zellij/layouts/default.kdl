@@ -47,8 +47,8 @@ layout {
                 command_weather_interval "1800"
                 command_weather_rendermode "static"
 
-                // CPU usage (macOS: top snapshot)
-                command_cpu_command  "bash -c \"top -l 1 -s 0 | awk '/CPU usage/ {print $3}' | tr -d '%'\""
+                // CPU usage
+                command_cpu_command  "bash -c \"$HOME/.config/zellij/scripts/zjstatus-cpu\""
                 command_cpu_interval "5"
                 command_cpu_rendermode "static"
 

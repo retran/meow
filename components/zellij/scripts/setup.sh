@@ -34,6 +34,45 @@ source "${MEOW}/lib/core/ui.sh"
 ZJSTATUS_URL="https://github.com/dj95/zjstatus/releases/latest/download/zjstatus.wasm"
 PLUGINS_DIR="${HOME}/.config/zellij/plugins"
 ZJSTATUS_DEST="${PLUGINS_DIR}/zjstatus.wasm"
+CONFIG_TEMPLATE="${MEOW}/components/zellij/config/zellij/config.kdl.template"
+CONFIG_KDL_DEST="${HOME}/.config/zellij/config.kdl"
+
+# Render config.kdl.template to ~/.config/zellij/config.kdl, substituting the
+# layout_dir and theme_dir placeholders with real absolute paths.
+# zellij does not expand ~ in these fields, so absolute paths are required.
+# config.kdl is NOT symlinked — it is generated here so the repo template stays clean.
+render_config_kdl() {
+  if [ "${MEOW_DRY_RUN:-false}" = "true" ]; then
+    ui_info "(dry-run) Would render config.kdl.template -> ${CONFIG_KDL_DEST}"
+    return 0
+  fi
+
+  if [ ! -f "${CONFIG_TEMPLATE}" ]; then
+    ui_warning "config.kdl.template not found at ${CONFIG_TEMPLATE}, skipping config render"
+    return 0
+  fi
+
+  local layouts_path="${HOME}/.config/zellij/layouts"
+  local themes_path="${HOME}/.config/zellij/themes"
+
+  mkdir -p "$(dirname "${CONFIG_KDL_DEST}")" || {
+    ui_warning "Failed to create directory for config.kdl: $(dirname "${CONFIG_KDL_DEST}")"
+    return 1
+  }
+
+  # If a symlink exists at the destination (from a previous install), remove it
+  # so sed writes a fresh regular file rather than following the link into the repo.
+  if [ -L "${CONFIG_KDL_DEST}" ]; then
+    rm -f "${CONFIG_KDL_DEST}"
+  fi
+
+  sed \
+    -e "s|layout_dir \".*\"|layout_dir \"${layouts_path}\"|" \
+    -e "s|theme_dir \".*\"|theme_dir \"${themes_path}\"|" \
+    "${CONFIG_TEMPLATE}" > "${CONFIG_KDL_DEST}"
+
+  ui_action_success "Rendered config.kdl to ${CONFIG_KDL_DEST}"
+}
 
 install_zjstatus() {
   ui_step_header "Setting up zjstatus plugin"
@@ -56,17 +95,20 @@ install_zjstatus() {
 
   ui_action_start "Downloading zjstatus.wasm..."
 
+  local download_ok=false
   if command -v curl >/dev/null 2>&1; then
-    curl -fsSL "${ZJSTATUS_URL}" -o "${ZJSTATUS_DEST}" 2>&1
+    curl -fsSL "${ZJSTATUS_URL}" -o "${ZJSTATUS_DEST}" 2>&1 && download_ok=true
   elif command -v wget >/dev/null 2>&1; then
-    wget -q "${ZJSTATUS_URL}" -O "${ZJSTATUS_DEST}" 2>&1
+    wget -q "${ZJSTATUS_URL}" -O "${ZJSTATUS_DEST}" 2>&1 && download_ok=true
   else
     ui_action_fail "Neither curl nor wget found. Cannot download zjstatus.wasm."
     return 1
   fi
 
-  if [ $? -ne 0 ] || [ ! -f "${ZJSTATUS_DEST}" ]; then
+  if [ "$download_ok" = "false" ] || [ ! -f "${ZJSTATUS_DEST}" ]; then
     ui_action_fail "Failed to download zjstatus.wasm from ${ZJSTATUS_URL}"
+    ui_warning "zjstatus plugin is required for the status bar. Start zellij with: zellij -l default"
+    ui_warning "Re-run component setup once network is available, or manually place zjstatus.wasm at: ${ZJSTATUS_DEST}"
     rm -f "${ZJSTATUS_DEST}"
     return 1
   fi
@@ -75,4 +117,7 @@ install_zjstatus() {
   return 0
 }
 
-install_zjstatus || true
+render_config_kdl
+if ! install_zjstatus; then
+  ui_warning "zellij setup completed with warnings — zjstatus plugin is missing."
+fi

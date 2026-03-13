@@ -31,6 +31,7 @@ fi
 MEOW_ROOT="${MEOW:-$HOME/.meow}"
 THEME_LIB="${THEME_LIB:-$MEOW_ROOT/lib/theme/theme.sh}"
 THEME_UTILS="${THEME_UTILS:-$MEOW_ROOT/lib/theme/theme-utils.sh}"
+ZJSTATUS_COLORS_LIB="${MEOW_ROOT}/lib/zellij/zjstatus-colors.sh"
 
 if [[ ! -f "$THEME_UTILS" ]]; then
   echo "Theme utilities not found: $THEME_UTILS" >&2
@@ -42,8 +43,14 @@ if [[ ! -f "$THEME_LIB" ]]; then
   exit 1
 fi
 
+if [[ ! -f "$ZJSTATUS_COLORS_LIB" ]]; then
+  echo "zjstatus colors library not found: $ZJSTATUS_COLORS_LIB" >&2
+  exit 1
+fi
+
 source "$THEME_LIB"
 source "$THEME_UTILS"
+source "$ZJSTATUS_COLORS_LIB"
 
 preset_slug=$(theme_slugify "$PRESET")
 variant_slug=$(theme_slugify "$VARIANT")
@@ -106,97 +113,12 @@ layout_kdl="$MEOW_ROOT/components/zellij/config/zellij/layouts/default.kdl"
 layout_kdl_installed="$MEOW_ROOT/.installed/components/zellij/config/zellij/layouts/default.kdl"
 
 if [[ -f "$layout_kdl" ]]; then
-  # Resolve palette colors (same logic as generate-theme-zellij)
-  get_color() {
-    local result=""
-    for key in "$@"; do
-      result=$(theme_get_palette_color "$PRESET" "$VARIANT" "$key" 2>/dev/null || true)
-      if [[ -n "$result" && "$result" != "null" ]]; then
-        echo "$result"
-        return
-      fi
-    done
-    echo ""
+  new_block=$(zjstatus_build_color_block "$PRESET" "$VARIANT") || {
+    echo "Warning: could not resolve bg/fg colors for zjstatus, skipping layout update" >&2
+    new_block=""
   }
 
-  # ── Semantic color roles ─────────────────────────────────────────────────────
-  # bar background / foreground
-  _bg=$(get_color "bg" "base" "bg1")
-  _fg=$(get_color "fg" "text" "fg1")
-
-  # selection: active tab background
-  _sel=$(get_color "surface0" "bg_highlight" "bg_visual" "sel0" "bg1" "bg2" "mantle")
-
-  # dimmed: normal tab fg, datetime, normal mode indicator
-  _dim=$(get_color "overlay1" "comment" "gray" "subtext0" "fg_gutter" "dark5")
-
-  # subtle: datetime text (slightly lighter than dim)
-  _subtle=$(get_color "subtext1" "overlay2" "comment" "gray" "fg_gutter")
-
-  # identity/accent: session pill — teal/cyan family
-  _teal=$(get_color "teal" "cyan" "sapphire" "water" "foam" "pine" "sky")
-
-  # pane mode — blue family
-  _blue=$(get_color "blue" "water" "sapphire" "sky" "blue0" "pine" "foam")
-
-  # tab mode — purple/mauve family
-  _mauve=$(get_color "mauve" "purple" "magenta" "blossom" "iris" "violet" "pink")
-
-  # scroll / cpu widget — green family
-  _green=$(get_color "green" "leaf" "teal" "pine" "green1")
-
-  # search / resize / rename / battery — yellow/amber family
-  _yellow=$(get_color "yellow" "gold" "wood" "peach" "orange" "highlight")
-
-  # move mode / battery — orange family
-  _orange=$(get_color "orange" "peach" "wood" "yellow" "gold" "highlight")
-
-  # locked mode — red family
-  _red=$(get_color "red" "love" "rose" "danger" "error" "maroon")
-
-  # ── Fallbacks to fg/bg for anything unresolved ───────────────────────────────
-  [[ -z "$_sel"    ]] && _sel="$_bg"
-  [[ -z "$_dim"    ]] && _dim="$_fg"
-  [[ -z "$_subtle" ]] && _subtle="$_fg"
-  [[ -z "$_teal"   ]] && _teal="$_fg"
-  [[ -z "$_blue"   ]] && _blue="$_fg"
-  [[ -z "$_mauve"  ]] && _mauve="$_fg"
-  [[ -z "$_green"  ]] && _green="$_fg"
-  [[ -z "$_yellow" ]] && _yellow="$_fg"
-  [[ -z "$_orange" ]] && _orange="$_fg"
-  [[ -z "$_red"    ]] && _red="$_fg"
-
-  if [[ -n "$_bg" && -n "$_fg" ]]; then
-    # Build the replacement block — only color-bearing values, no command strings
-    new_block="                // ZJSTATUS_COLORS_BEGIN (managed by apply-theme-zellij — do not edit manually)
-                 // bg=${_bg} fg=${_fg} sel=${_sel} dim=${_dim} subtle=${_subtle}
-                 // teal=${_teal} blue=${_blue} mauve=${_mauve} green=${_green}
-                 // yellow=${_yellow} orange=${_orange} red=${_red}
-                 format_left              \"{mode}#[fg=${_bg},bg=${_teal},bold] {session} #[fg=${_teal},bg=${_bg}]{tabs}\"
-                 format_space             \"#[bg=${_bg}]\"
-                 tab_normal               \"#[fg=${_dim},bg=${_bg}] {index} {name} \"
-                 tab_active               \"#[fg=${_fg},bg=${_sel},bold] {index} {name} \"
-                 tab_separator            \"#[fg=${_sel},bg=${_bg}]\"
-                 mode_normal              \"#[fg=${_dim},bg=${_bg}] NORMAL \"
-                 mode_pane                \"#[fg=${_bg},bg=${_blue},bold] PANE \"
-                 mode_tab                 \"#[fg=${_bg},bg=${_mauve},bold] TAB \"
-                 mode_scroll              \"#[fg=${_bg},bg=${_green},bold] SCROLL \"
-                 mode_search              \"#[fg=${_bg},bg=${_yellow},bold] SEARCH \"
-                 mode_enter_search        \"#[fg=${_bg},bg=${_yellow},bold] SEARCH \"
-                 mode_session             \"#[fg=${_bg},bg=${_teal},bold] SESSION \"
-                 mode_move                \"#[fg=${_bg},bg=${_orange},bold] MOVE \"
-                 mode_locked              \"#[fg=${_bg},bg=${_red},bold] LOCKED \"
-                 mode_resize              \"#[fg=${_bg},bg=${_yellow},bold] RESIZE \"
-                 mode_rename_pane         \"#[fg=${_bg},bg=${_yellow},bold] RENAME \"
-                 mode_rename_tab          \"#[fg=${_bg},bg=${_yellow},bold] RENAME \"
-                 command_weather_format   \"#[fg=${_teal},bg=${_bg}] {stdout} \"
-                 command_cpu_format       \"#[fg=${_green},bg=${_bg}] 󰻠 {stdout}% \"
-                 command_mem_format       \"#[fg=${_mauve},bg=${_bg}] {stdout} \"
-                 command_bat_format       \"#[fg=${_orange},bg=${_bg}] {stdout} \"
-                 datetime                 \"#[fg=${_subtle},bg=${_bg}] {format}\"
-                 // ZJSTATUS_COLORS_END"
-
-    # Replace everything between the sentinel comments (inclusive) in both source and installed
+  if [[ -n "$new_block" ]]; then
     python3 - "$layout_kdl" "$layout_kdl_installed" "$new_block" <<'PYEOF'
 import sys, re
 
@@ -219,8 +141,6 @@ for layout_file in layout_files:
             f.write(new_content)
         print(f"Updated zjstatus colors in {layout_file}")
 PYEOF
-  else
-    echo "Warning: could not resolve bg/fg colors for zjstatus, skipping layout update" >&2
   fi
 fi
 
