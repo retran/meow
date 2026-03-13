@@ -57,7 +57,7 @@ variant_slug=$(theme_slugify "$VARIANT")
 
 presets_dir="$MEOW_ROOT/components/zellij/config/theme-presets"
 themes_dir="$MEOW_ROOT/components/zellij/config/themes"
-config_kdl="$MEOW_ROOT/components/zellij/config/zellij/config.kdl"
+config_kdl="$HOME/.config/zellij/config.kdl"
 
 src="$presets_dir/${preset_slug}-${variant_slug}.kdl"
 
@@ -100,7 +100,7 @@ sed "s/^    meow {$/    ${theme_name} {/" "$src" > "$dest"
 # ── Rewrite theme line in config.kdl ─────────────────────────────────────────
 
 if [[ ! -f "$config_kdl" ]]; then
-  echo "config.kdl not found: $config_kdl" >&2
+  echo "config.kdl not found: $config_kdl (run: meowctl component install zellij --force)" >&2
   exit 1
 fi
 
