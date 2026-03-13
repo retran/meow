@@ -1,0 +1,9 @@
+description: Terminal multiplexer for advanced terminal session management. Provides
+  zellij for session management and window splitting.
+platforms:
+- match:
+    platform: macos
+- match:
+    platform: linux
+depends_on:
+- shell-essential

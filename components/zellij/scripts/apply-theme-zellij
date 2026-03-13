@@ -1,0 +1,147 @@
+#!/usr/bin/env bash
+# MIT License
+# Copyright (c) 2025 Andrew Vasilyev <me@retran.me>
+#
+# @file: components/zellij/scripts/apply-theme-zellij
+# @brief: Apply a Zellij theme by writing meow-light.kdl or meow-dark.kdl
+# @author: Andrew Vasilyev
+# @license: MIT
+#
+# Copies the matching pre-built preset from theme-presets/ into themes/ as
+# meow-light.kdl or meow-dark.kdl (with the internal theme key renamed to
+# match), then rewrites the `theme` line in config.kdl to point at the
+# correct name.  Both meow-light and meow-dark can coexist in themes/ without
+# key collisions.
+#
+# Note: zellij does not support live theme reload for running sessions
+# (upstream issue #3879). The new theme takes effect for new sessions
+# and on next attach.
+
+set -euo pipefail
+
+PRESET="${1:-}"
+VARIANT="${2:-}"
+MODE="${3:-}"
+
+if [[ -z "$PRESET" || -z "$VARIANT" ]]; then
+  echo "Usage: $0 <preset> <variant> [light|dark]" >&2
+  exit 1
+fi
+
+MEOW_ROOT="${MEOW:-$HOME/.meow}"
+THEME_LIB="${THEME_LIB:-$MEOW_ROOT/lib/theme/theme.sh}"
+THEME_UTILS="${THEME_UTILS:-$MEOW_ROOT/lib/theme/theme-utils.sh}"
+ZJSTATUS_COLORS_LIB="${MEOW_ROOT}/lib/zellij/zjstatus-colors.sh"
+
+if [[ ! -f "$THEME_UTILS" ]]; then
+  echo "Theme utilities not found: $THEME_UTILS" >&2
+  exit 1
+fi
+
+if [[ ! -f "$THEME_LIB" ]]; then
+  echo "Theme library not found: $THEME_LIB" >&2
+  exit 1
+fi
+
+if [[ ! -f "$ZJSTATUS_COLORS_LIB" ]]; then
+  echo "zjstatus colors library not found: $ZJSTATUS_COLORS_LIB" >&2
+  exit 1
+fi
+
+source "$THEME_LIB"
+source "$THEME_UTILS"
+source "$ZJSTATUS_COLORS_LIB"
+
+preset_slug=$(theme_slugify "$PRESET")
+variant_slug=$(theme_slugify "$VARIANT")
+
+presets_dir="$MEOW_ROOT/components/zellij/config/theme-presets"
+themes_dir="$MEOW_ROOT/components/zellij/config/themes"
+config_kdl="$HOME/.config/zellij/config.kdl"
+
+src="$presets_dir/${preset_slug}-${variant_slug}.kdl"
+
+if [[ ! -f "$src" ]]; then
+  echo "Zellij theme not found: $src" >&2
+  exit 1
+fi
+
+# ── Determine light or dark ───────────────────────────────────────────────────
+
+# Use the mode arg if provided; otherwise fall back to background brightness.
+if [[ "$MODE" == "light" || "$MODE" == "dark" ]]; then
+  mode="$MODE"
+else
+  bg_hex=$(theme_get_palette_color "$PRESET" "$VARIANT" "bg" 2>/dev/null \
+        || theme_get_palette_color "$PRESET" "$VARIANT" "base" 2>/dev/null \
+        || true)
+  bg_hex="${bg_hex#\#}"
+  mode="dark"
+  if [[ ${#bg_hex} -eq 6 ]]; then
+    r=$(( 16#${bg_hex:0:2} ))
+    g=$(( 16#${bg_hex:2:2} ))
+    b=$(( 16#${bg_hex:4:2} ))
+    lum=$(( (299 * r + 587 * g + 114 * b) / 1000 ))
+    if (( lum > 128 )); then
+      mode="light"
+    fi
+  fi
+fi
+
+theme_name="meow-${mode}"
+dest="$themes_dir/${theme_name}.kdl"
+
+# ── Write theme file ──────────────────────────────────────────────────────────
+
+# Copy preset and rename the internal theme key from "meow" to "meow-light"
+# or "meow-dark" so zellij resolves it under the correct name.
+sed "s/^    meow {$/    ${theme_name} {/" "$src" > "$dest"
+
+# ── Rewrite theme line in config.kdl ─────────────────────────────────────────
+
+if [[ ! -f "$config_kdl" ]]; then
+  echo "config.kdl not found: $config_kdl (run: meowctl component install zellij --force)" >&2
+  exit 1
+fi
+
+sed -i.bak "s|^theme \"meow.*\"|theme \"${theme_name}\"|" "$config_kdl"
+rm -f "${config_kdl}.bak"
+
+# ── Rewrite zjstatus color block in default.kdl ───────────────────────────────
+
+layout_kdl="$MEOW_ROOT/components/zellij/config/zellij/layouts/default.kdl"
+layout_kdl_installed="$MEOW_ROOT/.installed/components/zellij/config/zellij/layouts/default.kdl"
+
+if [[ -f "$layout_kdl" ]]; then
+  new_block=$(zjstatus_build_color_block "$PRESET" "$VARIANT") || {
+    echo "Warning: could not resolve bg/fg colors for zjstatus, skipping layout update" >&2
+    new_block=""
+  }
+
+  if [[ -n "$new_block" ]]; then
+    python3 - "$layout_kdl" "$layout_kdl_installed" "$new_block" <<'PYEOF'
+import sys, re
+
+layout_files = sys.argv[1:-1]
+new_block = sys.argv[-1]
+
+pattern = r'[ \t]*// ZJSTATUS_COLORS_BEGIN.*?// ZJSTATUS_COLORS_END'
+
+for layout_file in layout_files:
+    import os
+    if not os.path.isfile(layout_file):
+        continue
+    with open(layout_file, 'r') as f:
+        content = f.read()
+    if not re.search(pattern, content, flags=re.DOTALL):
+        print(f"Warning: ZJSTATUS_COLORS_BEGIN/END sentinels not found in {layout_file}", file=sys.stderr)
+    else:
+        new_content = re.sub(pattern, new_block, content, flags=re.DOTALL)
+        with open(layout_file, 'w') as f:
+            f.write(new_content)
+        print(f"Updated zjstatus colors in {layout_file}")
+PYEOF
+  fi
+fi
+
+echo "Applied Zellij theme: $PRESET/$VARIANT (${theme_name})"

@@ -193,29 +193,13 @@ theme_discover_appliers() {
     return 1
   fi
   
-  find -L "$installed_dir" -type f -name "apply-theme-*" 2>/dev/null | sort
+  find -L "$installed_dir" -type f -name "apply-theme-*" 2>/dev/null | sort || true
 }
 
 # Extract tool name from script path
 theme_get_tool_name() {
   local script_path="$1"
   basename "$script_path" | sed 's/^generate-theme-//; s/^apply-theme-//'
-}
-
-# Check if running in tmux
-theme_in_tmux() {
-  [[ -n "${TMUX:-}" ]]
-}
-
-# Reload tmux configuration
-theme_reload_tmux() {
-  if command -v tmux >/dev/null 2>&1; then
-    if theme_in_tmux; then
-      tmux source-file ~/.tmux.conf 2>/dev/null || true
-    elif tmux info &>/dev/null; then
-      tmux source-file ~/.tmux.conf 2>/dev/null || true
-    fi
-  fi
 }
 
 # Send reload signal to Ghostty terminal
@@ -281,7 +265,7 @@ theme_show_summary() {
     echo ""
     echo "  To see changes:"
     echo "  • Ghostty: Updated immediately"
-    echo "  • tmux: Reloaded automatically"
+    echo "  • Zellij: Updated immediately (reload with Ctrl-a r)"
     echo "  • Shell tools (fzf/eza): Source your shell or run: source ~/.zshrc"
     echo "  • TUI apps (lazygit/htop): Restart the app"
   else
@@ -292,7 +276,7 @@ theme_show_summary() {
     echo ""
     echo "To see changes:"
     echo "  • Ghostty: Updated immediately"
-    echo "  • tmux: Reloaded automatically"
+    echo "  • Zellij: Updated immediately (reload with Ctrl-a r)"
     echo "  • Shell tools (fzf/eza): Source your shell or run: source ~/.zshrc"
     echo "  • TUI apps (lazygit/htop): Restart the app"
   fi

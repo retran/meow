@@ -47,8 +47,8 @@ window-vsync = true
 window-inherit-working-directory = true
 window-inherit-font-size = true
 
-macos-titlebar-style = tabs
-macos-non-native-fullscreen = false
+macos-titlebar-style = transparent
+macos-non-native-fullscreen = true
 
 # ============================================================================
 # VISUAL
@@ -113,5 +113,29 @@ keybind = cmd+f=toggle_quick_terminal
 # THEME
 # ============================================================================
 # theme: meow
-# Theme will be injected here by apply-theme-ghostty
+# Generated from themes.yaml — catppuccin/mocha
+background = 1e1e2e
+foreground = cdd6f4
+cursor-color = f5e0dc
+cursor-text = 11111b
+selection-background = 313244
+selection-foreground = cdd6f4
+split-divider-color = 313244
+
+palette = 0=#45475a
+palette = 1=#f38ba8
+palette = 2=#a6e3a1
+palette = 3=#f9e2af
+palette = 4=#89b4fa
+palette = 5=#f5c2e7
+palette = 6=#94e2d5
+palette = 7=#a6adc8
+palette = 8=#585b70
+palette = 9=#f37799
+palette = 10=#89d88b
+palette = 11=#ebd391
+palette = 12=#74a8fc
+palette = 13=#f2aede
+palette = 14=#6bd7ca
+palette = 15=#bac2de
 # endtheme: meow

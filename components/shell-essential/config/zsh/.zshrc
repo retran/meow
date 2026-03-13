@@ -27,37 +27,27 @@ setopt HIST_IGNORE_SPACE         # Don't record commands starting with space
 setopt HIST_SAVE_NO_DUPS         # Don't save duplicates
 setopt HIST_VERIFY               # Show command with history expansion before running
 
-# Terminal title management
 autoload -Uz add-zsh-hook
 
-function set_terminal_title() {
-  # In tmux use escape sequence for pane title
-  if [[ -n "$TMUX" ]]; then
-    printf "\033]2;%s\033\\" "$1"
-  else
-    # In regular terminal
-    printf "\033]0;%s\007" "$1"
-  fi
+# Terminal title management — show running command or current directory.
+# Works in any terminal; zellij sets its own tab names on top of this.
+function _meow_set_terminal_title() {
+  printf "\033]0;%s\007" "$1"
 }
 
-function preexec() {
-  # Before command execution - show command
+function _meow_preexec() {
   local cmd="$1"
-  # If it's vim/nvim, don't update title (vim will do it itself)
-  if [[ "$cmd" =~ ^(vim|nvim|vi) ]]; then
-    return
-  fi
-  set_terminal_title "$cmd"
+  # Let vim/nvim manage their own title
+  [[ "$cmd" =~ ^(vim|nvim|vi) ]] && return
+  _meow_set_terminal_title "$cmd"
 }
 
-function precmd() {
-  # After command execution - show directory
-  set_terminal_title "$(basename "$PWD")"
+function _meow_precmd() {
+  _meow_set_terminal_title "$(basename "$PWD")"
 }
 
-# Add hooks
-add-zsh-hook preexec preexec
-add-zsh-hook precmd precmd
+add-zsh-hook preexec _meow_preexec
+add-zsh-hook precmd  _meow_precmd
 
 # Source component interactive shell scripts
 if [[ -d "${MEOW}/.installed/components" ]]; then

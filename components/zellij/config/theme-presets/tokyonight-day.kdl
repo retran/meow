@@ -1,0 +1,121 @@
+// Generated from themes.yaml — tokyonight/day
+themes {
+    meow {
+        text_unselected {
+            base       55 96 191
+            background 196 200 218
+            emphasis_0 177 92 0
+            emphasis_1 0 113 151
+            emphasis_2 88 117 57
+            emphasis_3 120 71 189
+        }
+        text_selected {
+            base       55 96 191
+            background 183 193 227
+            emphasis_0 177 92 0
+            emphasis_1 0 113 151
+            emphasis_2 88 117 57
+            emphasis_3 120 71 189
+        }
+        ribbon_selected {
+            base       225 226 231
+            background 88 117 57
+            emphasis_0 245 42 101
+            emphasis_1 177 92 0
+            emphasis_2 120 71 189
+            emphasis_3 46 125 233
+        }
+        ribbon_unselected {
+            base       225 226 231
+            background 132 140 181
+            emphasis_0 245 42 101
+            emphasis_1 55 96 191
+            emphasis_2 46 125 233
+            emphasis_3 120 71 189
+        }
+        table_title {
+            base       88 117 57
+            background 0
+            emphasis_0 177 92 0
+            emphasis_1 0 113 151
+            emphasis_2 88 117 57
+            emphasis_3 120 71 189
+        }
+        table_cell_selected {
+            base       55 96 191
+            background 183 193 227
+            emphasis_0 177 92 0
+            emphasis_1 0 113 151
+            emphasis_2 88 117 57
+            emphasis_3 120 71 189
+        }
+        table_cell_unselected {
+            base       55 96 191
+            background 196 200 218
+            emphasis_0 177 92 0
+            emphasis_1 0 113 151
+            emphasis_2 88 117 57
+            emphasis_3 120 71 189
+        }
+        list_selected {
+            base       55 96 191
+            background 183 193 227
+            emphasis_0 177 92 0
+            emphasis_1 0 113 151
+            emphasis_2 88 117 57
+            emphasis_3 120 71 189
+        }
+        list_unselected {
+            base       55 96 191
+            background 196 200 218
+            emphasis_0 177 92 0
+            emphasis_1 0 113 151
+            emphasis_2 88 117 57
+            emphasis_3 120 71 189
+        }
+        frame_selected {
+            base       88 117 57
+            background 0
+            emphasis_0 177 92 0
+            emphasis_1 0 113 151
+            emphasis_2 120 71 189
+            emphasis_3 0
+        }
+        frame_highlight {
+            base       177 92 0
+            background 0
+            emphasis_0 120 71 189
+            emphasis_1 0
+            emphasis_2 177 92 0
+            emphasis_3 177 92 0
+        }
+        exit_code_success {
+            base       88 117 57
+            background 0
+            emphasis_0 0 113 151
+            emphasis_1 225 226 231
+            emphasis_2 120 71 189
+            emphasis_3 46 125 233
+        }
+        exit_code_error {
+            base       245 42 101
+            background 0
+            emphasis_0 177 92 0
+            emphasis_1 0
+            emphasis_2 0
+            emphasis_3 0
+        }
+        multiplayer_user_colors {
+            player_1  120 71 189
+            player_2  46 125 233
+            player_3  0
+            player_4  177 92 0
+            player_5  0 113 151
+            player_6  0
+            player_7  245 42 101
+            player_8  0
+            player_9  0
+            player_10 0
+        }
+    }
+}

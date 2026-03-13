@@ -1,4 +1,12 @@
 #!/usr/bin/env bash
+# MIT License
+# Copyright (c) 2025 Andrew Vasilyev <me@retran.me>
+#
+# @file: components/shell-essential/scripts/generate-theme-fzf
+# @brief: Generate fzf theme files from themes.yaml
+# @author: Andrew Vasilyev
+# @license: MIT
+
 set -euo pipefail
 
 PRESET="${1:-}"
@@ -10,10 +18,19 @@ if [[ -z "$PRESET" || -z "$VARIANT" ]]; then
 fi
 
 MEOW_ROOT="${MEOW:-$HOME/.meow}"
-THEME_DB="${THEME_DB:-$MEOW_ROOT/themes.yaml}"
 THEME_LIB="${THEME_LIB:-$MEOW_ROOT/lib/theme/theme.sh}"
 THEME_UTILS="${THEME_UTILS:-$MEOW_ROOT/lib/theme/theme-utils.sh}"
 OUTPUT_DIR="$MEOW_ROOT/components/shell-essential/config/fzf/themes"
+
+if [[ ! -f "$THEME_LIB" ]]; then
+  echo "Theme library not found: $THEME_LIB" >&2
+  exit 1
+fi
+
+if [[ ! -f "$THEME_UTILS" ]]; then
+  echo "Theme utilities not found: $THEME_UTILS" >&2
+  exit 1
+fi
 
 source "$THEME_LIB"
 source "$THEME_UTILS"
@@ -23,41 +40,64 @@ preset_slug=$(theme_slugify "$PRESET")
 variant_slug=$(theme_slugify "$VARIANT")
 out_file="$OUTPUT_DIR/${preset_slug}-${variant_slug}.sh"
 
-# Get colors from theme with fallbacks to terminal colors
-bg=$(theme_get_palette_color "$PRESET" "$VARIANT" "bg" || theme_get_palette_color "$PRESET" "$VARIANT" "bg1" || theme_get_terminal_color "$PRESET" "$VARIANT" "0" || echo "000000")
-fg=$(theme_get_palette_color "$PRESET" "$VARIANT" "fg" || theme_get_palette_color "$PRESET" "$VARIANT" "fg1" || theme_get_terminal_color "$PRESET" "$VARIANT" "7" || echo "ffffff")
-hl=$(theme_get_palette_color "$PRESET" "$VARIANT" "red" || theme_get_palette_color "$PRESET" "$VARIANT" "rose" || theme_get_terminal_color "$PRESET" "$VARIANT" "1" || echo "ff0000")
-fg_plus=$(theme_get_palette_color "$PRESET" "$VARIANT" "fg" || theme_get_terminal_color "$PRESET" "$VARIANT" "7" || echo "ffffff")
-bg_plus=$(theme_get_palette_color "$PRESET" "$VARIANT" "bg_highlight" || theme_get_palette_color "$PRESET" "$VARIANT" "bg_visual" || theme_get_palette_color "$PRESET" "$VARIANT" "selection_bg" || theme_get_terminal_color "$PRESET" "$VARIANT" "8" || echo "444444")
-hl_plus=$(theme_get_palette_color "$PRESET" "$VARIANT" "red" || theme_get_palette_color "$PRESET" "$VARIANT" "rose" || theme_get_terminal_color "$PRESET" "$VARIANT" "9" || echo "ff0000")
-info=$(theme_get_palette_color "$PRESET" "$VARIANT" "cyan" || theme_get_palette_color "$PRESET" "$VARIANT" "water" || theme_get_terminal_color "$PRESET" "$VARIANT" "6" || echo "00ffff")
-prompt=$(theme_get_palette_color "$PRESET" "$VARIANT" "blue" || theme_get_palette_color "$PRESET" "$VARIANT" "water" || theme_get_terminal_color "$PRESET" "$VARIANT" "4" || echo "0000ff")
-pointer=$(theme_get_palette_color "$PRESET" "$VARIANT" "red" || theme_get_palette_color "$PRESET" "$VARIANT" "rose" || theme_get_terminal_color "$PRESET" "$VARIANT" "1" || echo "ff0000")
-marker=$(theme_get_palette_color "$PRESET" "$VARIANT" "purple" || theme_get_palette_color "$PRESET" "$VARIANT" "blossom" || theme_get_terminal_color "$PRESET" "$VARIANT" "5" || echo "ff00ff")
-spinner=$(theme_get_palette_color "$PRESET" "$VARIANT" "yellow" || theme_get_palette_color "$PRESET" "$VARIANT" "wood" || theme_get_terminal_color "$PRESET" "$VARIANT" "3" || echo "ffff00")
-header=$(theme_get_palette_color "$PRESET" "$VARIANT" "blue" || theme_get_palette_color "$PRESET" "$VARIANT" "water" || theme_get_terminal_color "$PRESET" "$VARIANT" "4" || echo "0000ff")
+# ── Color resolution helper ───────────────────────────────────────────────────
 
-# Convert hex to terminal color codes (strip #)
-bg="${bg#\#}"
-fg="${fg#\#}"
-hl="${hl#\#}"
-fg_plus="${fg_plus#\#}"
-bg_plus="${bg_plus#\#}"
-hl_plus="${hl_plus#\#}"
-info="${info#\#}"
-prompt="${prompt#\#}"
-pointer="${pointer#\#}"
-marker="${marker#\#}"
-spinner="${spinner#\#}"
-header="${header#\#}"
+get_color() {
+  local result=""
+  for key in "$@"; do
+    result=$(theme_get_palette_color "$PRESET" "$VARIANT" "$key" 2>/dev/null || true)
+    if [[ -n "$result" && "$result" != "null" ]]; then
+      echo "${result#\#}"
+      return
+    fi
+  done
+  echo ""
+}
+
+# ── Resolve fzf color roles (official catppuccin/fzf mapping) ────────────────
+
+# Background colors
+bg=$(get_color       "base"     "bg"     "bg1")
+bg_plus=$(get_color  "surface0" "bg_highlight" "bg_visual" "selection_bg")
+sel_bg=$(get_color   "surface1" "surface0"     "bg_highlight")
+
+# Foreground colors
+fg=$(get_color       "text"  "fg"  "fg1")
+fg_plus=$(get_color  "text"  "fg"  "fg1")
+
+# Accent colors (catppuccin: hl/hl+/header = red)
+hl=$(get_color       "red"  "rose"  "love")
+hl_plus=$(get_color  "red"  "rose"  "love")
+header=$(get_color   "red"  "rose"  "love")
+
+# UI element colors
+info=$(get_color    "mauve"     "purple"   "blossom"  "iris"   "cyan")
+prompt=$(get_color  "mauve"     "purple"   "blossom"  "iris"   "blue")
+pointer=$(get_color "rosewater" "flamingo" "peach"    "orange" "red")
+spinner=$(get_color "rosewater" "flamingo" "peach"    "orange" "yellow")
+marker=$(get_color  "lavender"  "blue"     "sapphire" "sky"    "cyan")
+border=$(get_color  "overlay0"  "overlay1" "surface2" "comment")
+label=$(get_color   "text"      "fg"       "fg1")
+
+# Fallbacks for required colors
+[[ -z "$bg"      ]] && bg="1e1e2e"
+[[ -z "$fg"      ]] && fg="cdd6f4"
+[[ -z "$bg_plus" ]] && bg_plus="313244"
+[[ -z "$sel_bg"  ]] && sel_bg="45475a"
+[[ -z "$hl"      ]] && hl="f38ba8"
 
 cat > "$out_file" <<EOF
-# Generated from themes.yaml
+# Generated from themes.yaml — ${PRESET}/${VARIANT}
 export FZF_DEFAULT_OPTS="\
---color=bg:#${bg},fg:#${fg},hl:#${hl} \
---color=bg+:#${bg_plus},fg+:#${fg_plus},hl+:#${hl_plus} \
---color=info:#${info},prompt:#${prompt},pointer:#${pointer} \
---color=marker:#${marker},spinner:#${spinner},header:#${header}"
+--color=bg:#${bg},fg:#${fg} \
+--color=bg+:#${bg_plus},fg+:#${fg_plus} \
+--color=selected-bg:#${sel_bg} \
+--color=hl:#${hl},hl+:#${hl_plus} \
+--color=header:#${header} \
+--color=info:#${info},prompt:#${prompt} \
+--color=pointer:#${pointer},spinner:#${spinner} \
+--color=marker:#${marker} \
+--color=border:#${border},label:#${label}"
 EOF
 
 echo "Generated: $out_file"

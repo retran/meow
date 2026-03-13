@@ -1,0 +1,121 @@
+// Generated from themes.yaml — ayu/light
+themes {
+    meow {
+        text_unselected {
+            base       92 97 102
+            background 248 249 250
+            emphasis_0 92 97 102
+            emphasis_1 92 97 102
+            emphasis_2 92 97 102
+            emphasis_3 92 97 102
+        }
+        text_selected {
+            base       92 97 102
+            background 248 249 250
+            emphasis_0 92 97 102
+            emphasis_1 92 97 102
+            emphasis_2 92 97 102
+            emphasis_3 92 97 102
+        }
+        ribbon_selected {
+            base       248 249 250
+            background 92 97 102
+            emphasis_0 230 80 80
+            emphasis_1 92 97 102
+            emphasis_2 92 97 102
+            emphasis_3 92 97 102
+        }
+        ribbon_unselected {
+            base       248 249 250
+            background 171 173 177
+            emphasis_0 230 80 80
+            emphasis_1 92 97 102
+            emphasis_2 92 97 102
+            emphasis_3 92 97 102
+        }
+        table_title {
+            base       92 97 102
+            background 0
+            emphasis_0 92 97 102
+            emphasis_1 92 97 102
+            emphasis_2 92 97 102
+            emphasis_3 92 97 102
+        }
+        table_cell_selected {
+            base       92 97 102
+            background 248 249 250
+            emphasis_0 92 97 102
+            emphasis_1 92 97 102
+            emphasis_2 92 97 102
+            emphasis_3 92 97 102
+        }
+        table_cell_unselected {
+            base       92 97 102
+            background 248 249 250
+            emphasis_0 92 97 102
+            emphasis_1 92 97 102
+            emphasis_2 92 97 102
+            emphasis_3 92 97 102
+        }
+        list_selected {
+            base       92 97 102
+            background 248 249 250
+            emphasis_0 92 97 102
+            emphasis_1 92 97 102
+            emphasis_2 92 97 102
+            emphasis_3 92 97 102
+        }
+        list_unselected {
+            base       92 97 102
+            background 248 249 250
+            emphasis_0 92 97 102
+            emphasis_1 92 97 102
+            emphasis_2 92 97 102
+            emphasis_3 92 97 102
+        }
+        frame_selected {
+            base       92 97 102
+            background 0
+            emphasis_0 92 97 102
+            emphasis_1 92 97 102
+            emphasis_2 92 97 102
+            emphasis_3 0
+        }
+        frame_highlight {
+            base       92 97 102
+            background 0
+            emphasis_0 92 97 102
+            emphasis_1 0
+            emphasis_2 92 97 102
+            emphasis_3 92 97 102
+        }
+        exit_code_success {
+            base       92 97 102
+            background 0
+            emphasis_0 92 97 102
+            emphasis_1 248 249 250
+            emphasis_2 92 97 102
+            emphasis_3 92 97 102
+        }
+        exit_code_error {
+            base       230 80 80
+            background 0
+            emphasis_0 92 97 102
+            emphasis_1 0
+            emphasis_2 0
+            emphasis_3 0
+        }
+        multiplayer_user_colors {
+            player_1  92 97 102
+            player_2  92 97 102
+            player_3  0
+            player_4  92 97 102
+            player_5  92 97 102
+            player_6  0
+            player_7  230 80 80
+            player_8  0
+            player_9  0
+            player_10 0
+        }
+    }
+}

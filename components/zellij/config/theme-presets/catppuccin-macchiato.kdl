@@ -1,0 +1,121 @@
+// Generated from themes.yaml — catppuccin/macchiato
+themes {
+    meow {
+        text_unselected {
+            base       202 211 245
+            background 91 96 120
+            emphasis_0 245 169 127
+            emphasis_1 139 213 202
+            emphasis_2 166 218 149
+            emphasis_3 198 160 246
+        }
+        text_selected {
+            base       202 211 245
+            background 91 96 120
+            emphasis_0 245 169 127
+            emphasis_1 139 213 202
+            emphasis_2 166 218 149
+            emphasis_3 198 160 246
+        }
+        ribbon_selected {
+            base       36 39 58
+            background 166 218 149
+            emphasis_0 237 135 150
+            emphasis_1 245 169 127
+            emphasis_2 198 160 246
+            emphasis_3 138 173 244
+        }
+        ribbon_unselected {
+            base       36 39 58
+            background 91 96 120
+            emphasis_0 237 135 150
+            emphasis_1 202 211 245
+            emphasis_2 138 173 244
+            emphasis_3 198 160 246
+        }
+        table_title {
+            base       166 218 149
+            background 0
+            emphasis_0 245 169 127
+            emphasis_1 139 213 202
+            emphasis_2 166 218 149
+            emphasis_3 198 160 246
+        }
+        table_cell_selected {
+            base       202 211 245
+            background 91 96 120
+            emphasis_0 245 169 127
+            emphasis_1 139 213 202
+            emphasis_2 166 218 149
+            emphasis_3 198 160 246
+        }
+        table_cell_unselected {
+            base       202 211 245
+            background 91 96 120
+            emphasis_0 245 169 127
+            emphasis_1 139 213 202
+            emphasis_2 166 218 149
+            emphasis_3 198 160 246
+        }
+        list_selected {
+            base       202 211 245
+            background 91 96 120
+            emphasis_0 245 169 127
+            emphasis_1 139 213 202
+            emphasis_2 166 218 149
+            emphasis_3 198 160 246
+        }
+        list_unselected {
+            base       202 211 245
+            background 91 96 120
+            emphasis_0 245 169 127
+            emphasis_1 139 213 202
+            emphasis_2 166 218 149
+            emphasis_3 198 160 246
+        }
+        frame_selected {
+            base       166 218 149
+            background 0
+            emphasis_0 245 169 127
+            emphasis_1 139 213 202
+            emphasis_2 198 160 246
+            emphasis_3 0
+        }
+        frame_highlight {
+            base       245 169 127
+            background 0
+            emphasis_0 198 160 246
+            emphasis_1 0
+            emphasis_2 245 169 127
+            emphasis_3 245 169 127
+        }
+        exit_code_success {
+            base       166 218 149
+            background 0
+            emphasis_0 139 213 202
+            emphasis_1 36 39 58
+            emphasis_2 198 160 246
+            emphasis_3 138 173 244
+        }
+        exit_code_error {
+            base       237 135 150
+            background 0
+            emphasis_0 245 169 127
+            emphasis_1 0
+            emphasis_2 0
+            emphasis_3 0
+        }
+        multiplayer_user_colors {
+            player_1  198 160 246
+            player_2  138 173 244
+            player_3  0
+            player_4  245 169 127
+            player_5  139 213 202
+            player_6  0
+            player_7  237 135 150
+            player_8  0
+            player_9  0
+            player_10 0
+        }
+    }
+}

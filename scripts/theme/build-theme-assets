@@ -14,7 +14,6 @@ THEME_DB="$MEOW_ROOT/themes.yaml"
 THEME_LIB="$MEOW_ROOT/lib/theme/theme.sh"
 
 GHOSTTY_OUT="$MEOW_ROOT/components/terminal-apps/config/ghostty/themes"
-TMUX_OUT="$MEOW_ROOT/components/tmux/config/themes"
 STARSHIP_CONFIG="$MEOW_ROOT/components/shell-essential/config/starship/starship.toml"
 STARSHIP_OUT="$MEOW_ROOT/components/shell-essential/config/starship/themes"
 BAT_OUT="$MEOW_ROOT/components/shell-essential/config/bat/themes"
@@ -28,7 +27,7 @@ RIPGREP_OUT="$MEOW_ROOT/components/shell-essential/config/ripgrep/themes"
 TEALDEER_OUT="$MEOW_ROOT/components/shell-essential/config/tealdeer/themes"
 HTOP_OUT="$MEOW_ROOT/components/shell-essential/config/htop/themes"
 
-mkdir -p "$GHOSTTY_OUT" "$TMUX_OUT" "$STARSHIP_OUT" "$BAT_OUT" "$LAZYGIT_OUT" "$DELTA_OUT" "$FZF_OUT" "$GLOW_OUT" "$EZA_OUT" "$ZSH_OUT" "$RIPGREP_OUT" "$TEALDEER_OUT" "$HTOP_OUT"
+mkdir -p "$GHOSTTY_OUT" "$STARSHIP_OUT" "$BAT_OUT" "$LAZYGIT_OUT" "$DELTA_OUT" "$FZF_OUT" "$GLOW_OUT" "$EZA_OUT" "$ZSH_OUT" "$RIPGREP_OUT" "$TEALDEER_OUT" "$HTOP_OUT"
 
 if [[ ! -f "$THEME_DB" ]]; then
   echo "Missing theme database at $THEME_DB" >&2
@@ -177,79 +176,6 @@ write_ghostty_theme() {
       echo "palette = $idx=${colors[$idx]}"
     done
   } > "$out_file"
-}
-
-write_tmux_theme() {
-  local preset="$1"
-  local variant="$2"
-  local preset_slug
-  local variant_slug
-  preset_slug=$(slugify "$preset")
-  variant_slug=$(slugify "$variant")
-  local out_file="$TMUX_OUT/${preset_slug}-${variant_slug}.conf"
-
-  local bg
-  local fg
-  local accent
-  local border
-  local alert
-  local ok
-  local status_bg
-  local status_fg
-  local message_bg
-  bg=$(theme_get_palette_color "$preset" "$variant" "bg" || theme_get_palette_color "$preset" "$variant" "bg1" || true)
-  fg=$(theme_get_palette_color "$preset" "$variant" "fg" || theme_get_palette_color "$preset" "$variant" "fg1" || true)
-  accent=$(theme_get_palette_color "$preset" "$variant" "blue" || theme_get_palette_color "$preset" "$variant" "blue1" || theme_get_palette_color "$preset" "$variant" "blue0" || theme_get_palette_color "$preset" "$variant" "water" || theme_get_terminal_color "$preset" "$variant" "4" || theme_get_terminal_named_color "$preset" "$variant" "blue" || true)
-  border=$(theme_get_palette_color "$preset" "$variant" "border" || theme_get_palette_color "$preset" "$variant" "gray" || theme_get_palette_color "$preset" "$variant" "fg1" || true)
-  alert=$(theme_get_palette_color "$preset" "$variant" "red" || theme_get_palette_color "$preset" "$variant" "rose" || theme_get_terminal_color "$preset" "$variant" "1" || theme_get_terminal_named_color "$preset" "$variant" "red" || true)
-  ok=$(theme_get_palette_color "$preset" "$variant" "green" || theme_get_palette_color "$preset" "$variant" "leaf" || theme_get_terminal_color "$preset" "$variant" "2" || theme_get_terminal_named_color "$preset" "$variant" "green" || true)
-  status_bg=$(theme_get_palette_color "$preset" "$variant" "bg_statusline" || theme_get_palette_color "$preset" "$variant" "bg_dark" || theme_get_palette_color "$preset" "$variant" "bg" || true)
-  status_fg=$(theme_get_palette_color "$preset" "$variant" "fg" || theme_get_palette_color "$preset" "$variant" "fg_sidebar" || theme_get_palette_color "$preset" "$variant" "fg1" || true)
-  message_bg=$(theme_get_palette_color "$preset" "$variant" "bg_highlight" || theme_get_palette_color "$preset" "$variant" "bg_visual" || true)
-
-  if [[ -z "$bg" ]] || [[ -z "$fg" ]]; then
-    return
-  fi
-
-  if [[ -z "$accent" ]]; then
-    accent="$fg"
-  fi
-  if [[ -z "$border" ]]; then
-    border="$fg"
-  fi
-  if [[ -z "$alert" ]]; then
-    alert="$fg"
-  fi
-  if [[ -z "$ok" ]]; then
-    ok="$fg"
-  fi
-  if [[ -z "$status_bg" ]]; then
-    status_bg="$bg"
-  fi
-  if [[ -z "$status_fg" ]]; then
-    status_fg="$fg"
-  fi
-  if [[ -z "$message_bg" ]]; then
-    message_bg="$accent"
-  fi
-
-  cat > "$out_file" <<EOF
-set -g status-style "bg=${status_bg},fg=${status_fg}"
-set -g status-left-style NONE
-set -g status-right-style NONE
-set -g message-style "bg=${message_bg},fg=${status_fg}"
-set -g message-command-style "bg=${status_bg},fg=${status_fg}"
-set -g pane-border-style "fg=${border}"
-set -g pane-active-border-style "fg=${accent}"
-set -g window-status-activity-style "fg=${status_fg},bg=${status_bg}"
-set -g window-status-style "fg=${status_fg},bg=${status_bg}"
-set -g window-status-current-format "#[fg=${status_bg},bg=${accent},bold] #I #[fg=${status_fg},bg=${status_bg}] #W #F "
-set -g window-status-format "#[fg=${status_fg},bg=${status_bg}] #I #[fg=${status_fg},bg=${status_bg}] #W #F "
-set -g status-left "#[fg=${status_bg},bg=${accent},bold] #S #[fg=${accent},bg=${status_bg}]"
-set -g status-right "#[fg=${ok},bg=${status_bg}] %Y-%m-%d #[fg=${accent},bg=${status_bg}]  #[fg=${status_bg},bg=${accent},bold] %H:%M "
-set -g mode-style "fg=${ok},bg=${status_bg}"
-set -g window-status-bell-style "fg=${alert},bg=${status_bg},bold"
-EOF
 }
 
 map_bat_theme() {
@@ -835,6 +761,19 @@ color_scheme=${color_scheme}
 EOF
 }
 
+write_zellij_theme() {
+  local preset="$1"
+  local variant="$2"
+  # Delegate to the canonical generator script to avoid duplicating color-resolution logic.
+  local generator="$MEOW_ROOT/components/zellij/scripts/generate-theme-zellij"
+  if [[ ! -x "$generator" ]]; then
+    echo "Warning: zellij theme generator not found or not executable: $generator" >&2
+    return
+  fi
+  MEOW="$MEOW_ROOT" THEME_LIB="$THEME_LIB" \
+    "$generator" "$preset" "$variant" >/dev/null
+}
+
 main() {
   if ! command -v yq >/dev/null 2>&1; then
     echo "yq is required to regenerate theme assets." >&2
@@ -872,7 +811,7 @@ main() {
         continue
       fi
       write_ghostty_theme "$preset" "$variant"
-      write_tmux_theme "$preset" "$variant"
+      write_zellij_theme "$preset" "$variant"
       write_starship_theme "$preset" "$variant"
       write_bat_theme "$preset" "$variant"
       write_lazygit_theme "$preset" "$variant"

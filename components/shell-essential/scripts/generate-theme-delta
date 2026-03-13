@@ -1,4 +1,12 @@
 #!/usr/bin/env bash
+# MIT License
+# Copyright (c) 2025 Andrew Vasilyev <me@retran.me>
+#
+# @file: components/shell-essential/scripts/generate-theme-delta
+# @brief: Generate delta theme files from themes.yaml
+# @author: Andrew Vasilyev
+# @license: MIT
+
 set -euo pipefail
 
 PRESET="${1:-}"
@@ -27,69 +35,90 @@ fi
 source "$THEME_LIB"
 source "$THEME_UTILS"
 
+# ── Color helpers ─────────────────────────────────────────────────────────────
+
+get_color() {
+  local result=""
+  for key in "$@"; do
+    result=$(theme_get_palette_color "$PRESET" "$VARIANT" "$key" 2>/dev/null || true)
+    if [[ -n "$result" && "$result" != "null" ]]; then
+      echo "$result"
+      return
+    fi
+  done
+  echo ""
+}
+
+# blend_hex: blend fg color into bg color at given percentage (0-100)
+# blend_hex "#rrggbb" "#rrggbb" 20  → hex with 20% of fg mixed into bg
+blend_hex() {
+  local bg="${1#\#}"
+  local fg="${2#\#}"
+  local pct="$3"
+
+  local br=$(( 16#${bg:0:2} ))
+  local bg_g=$(( 16#${bg:2:2} ))
+  local bb=$(( 16#${bg:4:2} ))
+
+  local fr=$(( 16#${fg:0:2} ))
+  local fg_g=$(( 16#${fg:2:2} ))
+  local fb=$(( 16#${fg:4:2} ))
+
+  local r=$(( br + (fr - br) * pct / 100 ))
+  local g=$(( bg_g + (fg_g - bg_g) * pct / 100 ))
+  local b=$(( bb + (fb - bb) * pct / 100 ))
+
+  printf "#%02x%02x%02x\n" "$r" "$g" "$b"
+}
+
 map_bat_theme() {
   local preset="$1"
   local variant="$2"
-  
-  # Map known presets/variants to bat theme names
+
   case "$preset" in
     catppuccin)
       case "$variant" in
-        latte) echo "Catppuccin Latte" ;;
-        frappe) echo "Catppuccin Frappe" ;;
+        latte)     echo "Catppuccin Latte" ;;
+        frappe)    echo "Catppuccin Frappe" ;;
         macchiato) echo "Catppuccin Macchiato" ;;
-        mocha) echo "Catppuccin Mocha" ;;
-        *) echo "Catppuccin Mocha" ;;
+        mocha)     echo "Catppuccin Mocha" ;;
+        *)         echo "Catppuccin Mocha" ;;
       esac
       ;;
     tokyonight)
       case "$variant" in
-        day) echo "GitHub" ;;
+        day)              echo "GitHub" ;;
         storm|night|moon) echo "Nord" ;;
-        *) echo "Nord" ;;
+        *)                echo "Nord" ;;
       esac
       ;;
     onedark)
       case "$variant" in
         onelight) echo "OneHalfLight" ;;
-        *) echo "OneHalfDark" ;;
+        *)        echo "OneHalfDark" ;;
       esac
       ;;
-    dracula)
-      echo "Dracula"
-      ;;
-    nord)
-      echo "Nord"
-      ;;
+    dracula)  echo "Dracula" ;;
+    nord)     echo "Nord" ;;
+    github)   echo "GitHub" ;;
     material)
       case "$variant" in
         lighter) echo "GitHub" ;;
-        *) echo "Monokai Extended" ;;
+        *)       echo "Monokai Extended" ;;
       esac
       ;;
-    github)
-      echo "GitHub"
-      ;;
-    gruvbox)
-      echo "Monokai Extended"
-      ;;
+    gruvbox)  echo "Monokai Extended" ;;
     ayu)
       case "$variant" in
         light) echo "Solarized (light)" ;;
-        *) echo "Solarized (dark)" ;;
+        *)     echo "Solarized (dark)" ;;
       esac
       ;;
     *)
-      # Default fallback based on background color brightness
       local bg
-      bg=$(theme_get_palette_color "$preset" "$variant" "bg" || theme_get_palette_color "$preset" "$variant" "bg1" || true)
-      if [[ -n "$bg" ]]; then
-        # Simple brightness check: if bg starts with #[a-f][0-9], assume light
-        if [[ "$bg" =~ ^#[a-fA-F] || "$bg" =~ ^#[89] ]]; then
-          echo "GitHub"
-        else
-          echo "OneHalfDark"
-        fi
+      bg=$(get_color "bg" "bg1" || true)
+      if [[ -n "$bg" && ( "$bg" =~ ^#[a-fA-F] || "$bg" =~ ^#[89] ) ]]; then
+        echo "GitHub"
       else
         echo "OneHalfDark"
       fi
@@ -102,12 +131,94 @@ preset_slug=$(theme_slugify "$PRESET")
 variant_slug=$(theme_slugify "$VARIANT")
 out_file="$OUTPUT_DIR/${preset_slug}-${variant_slug}.conf"
 
-delta_theme=$(map_bat_theme "$PRESET" "$VARIANT")
+syntax_theme=$(map_bat_theme "$PRESET" "$VARIANT")
+
+# ── Resolve semantic colors ───────────────────────────────────────────────────
+
+base=$(get_color     "base"     "bg"       "bg1")
+text=$(get_color     "text"     "fg"       "fg1")
+surface0=$(get_color "surface0" "bg_highlight" "bg_visual" "selection_bg")
+surface1=$(get_color "surface1" "surface2" "bg_highlight")
+surface2=$(get_color "surface2" "surface1" "overlay0")
+overlay0=$(get_color "overlay0" "comment"  "gray"     "dark5")
+overlay1=$(get_color "overlay1" "overlay0" "comment")
+subtext0=$(get_color "subtext0" "comment"  "overlay1" "overlay0")
+subtext1=$(get_color "subtext1" "subtext0" "fg_muted" "text")
+red=$(get_color      "red"      "rose"     "love"     "error")
+green=$(get_color    "green"    "leaf"     "teal")
+yellow=$(get_color   "yellow"   "gold"     "wood")
+blue=$(get_color     "blue"     "water"    "sapphire" "sky")
+mauve=$(get_color    "mauve"    "purple"   "blossom"  "iris"  "blue")
+peach=$(get_color    "peach"    "orange"   "flamingo" "rosewater")
+teal=$(get_color     "teal"     "cyan"     "foam"     "water")
+
+# Fallback to sane defaults
+[[ -z "$base"     ]] && base="#1e1e2e"
+[[ -z "$text"     ]] && text="#cdd6f4"
+[[ -z "$surface0" ]] && surface0="#313244"
+[[ -z "$surface1" ]] && surface1="#45475a"
+[[ -z "$surface2" ]] && surface2="#585b70"
+[[ -z "$overlay0" ]] && overlay0="#6c7086"
+[[ -z "$overlay1" ]] && overlay1="#7f849c"
+[[ -z "$subtext0" ]] && subtext0="#a6adc8"
+[[ -z "$subtext1" ]] && subtext1="#bac2de"
+[[ -z "$red"      ]] && red="#f38ba8"
+[[ -z "$green"    ]] && green="#a6e3a1"
+[[ -z "$yellow"   ]] && yellow="#f9e2af"
+[[ -z "$blue"     ]] && blue="#89b4fa"
+[[ -z "$mauve"    ]] && mauve="#cba6f7"
+[[ -z "$peach"    ]] && peach="#fab387"
+[[ -z "$teal"     ]] && teal="#94e2d5"
+
+# Blended diff backgrounds: 20% red/green mixed into base
+minus_bg=$(blend_hex "$base" "$red" 20)
+minus_emph_bg=$(blend_hex "$base" "$red" 35)
+plus_bg=$(blend_hex "$base" "$green" 20)
+plus_emph_bg=$(blend_hex "$base" "$green" 35)
+
+# Blame palette: a spread of muted surface/overlay colors
+blame_1="$surface1"
+blame_2="$surface2"
+blame_3="$overlay0"
+blame_4="$overlay1"
+blame_5="$subtext0"
 
 cat > "$out_file" <<EOF
+# Generated from themes.yaml — ${PRESET}/${VARIANT}
 [delta]
-	navigate = true
-	syntax-theme = ${delta_theme}
+    navigate = true
+    light = false
+    syntax-theme = ${syntax_theme}
+
+    # File and hunk headers
+    file-style = "${blue}" bold
+    file-decoration-style = "${blue}" ul
+    hunk-header-style = file line-number syntax
+    hunk-header-file-style = "${mauve}"
+    hunk-header-line-number-style = bold "${yellow}"
+    hunk-header-decoration-style = "${surface1}" box
+
+    # Line numbers
+    line-numbers = true
+    line-numbers-left-style = "${surface1}"
+    line-numbers-right-style = "${surface1}"
+    line-numbers-minus-style = "${red}"
+    line-numbers-plus-style = "${green}"
+    line-numbers-zero-style = "${overlay0}"
+
+    # Diff content
+    minus-style = syntax "${minus_bg}"
+    minus-emph-style = syntax "${minus_emph_bg}"
+    plus-style = syntax "${plus_bg}"
+    plus-emph-style = syntax "${plus_emph_bg}"
+
+    # Commit/blame
+    commit-decoration-style = "${mauve}" bold box
+    blame-palette = "${blame_1}" "${blame_2}" "${blame_3}" "${blame_4}" "${blame_5}"
+
+    # Other
+    zero-style = syntax
+    whitespace-error-style = "${red}" reverse
 EOF
 
 echo "Generated: $out_file"

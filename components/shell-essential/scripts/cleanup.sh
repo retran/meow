@@ -48,14 +48,12 @@ if [ -d "$HOME/.oh-my-zsh/cache" ]; then
   fi
 fi
 
-if [ -d "$HOME/.tmux" ]; then
-  ui_info "Cleaning Tmux session logs and resurrect cache..."
+if [ -d "${XDG_CACHE_HOME:-$HOME/.cache}/zellij" ]; then
+  ui_info "Cleaning Zellij cache directory..."
   if [ "${MEOW_DRY_RUN:-false}" = "true" ]; then
-    ui_warn "DRY-RUN: Would remove '$HOME/.tmux/logs'"
-    ui_warn "DRY-RUN: Would remove '$HOME/.tmux/resurrect'"
+    ui_warn "DRY-RUN: Would remove '${XDG_CACHE_HOME:-$HOME/.cache}/zellij'"
   else
-    rm -rf "$HOME/.tmux/logs" 2>/dev/null || true
-    rm -rf "$HOME/.tmux/resurrect" 2>/dev/null || true
+    rm -rf "${XDG_CACHE_HOME:-$HOME/.cache}/zellij" 2>/dev/null || true
   fi
 fi
 

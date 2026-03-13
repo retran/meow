@@ -132,7 +132,7 @@ apply_theme() {
   
   theme_log "Applying theme: $preset/$variant ($mode_label)"
   
-  echo "Discovering theme appliers..."
+  echo "Discovering theme appliers..." >&2
   local appliers
   appliers=$(theme_discover_appliers)
   
@@ -171,7 +171,7 @@ apply_theme() {
         fi
         
         # Run applier
-        if output=$("$applier" "$preset" "$variant" 2>&1); then
+        if output=$("$applier" "$preset" "$variant" "$mode_label" 2>&1); then
           theme_format_success "  $tool_name"
           exit 0
         else
@@ -209,7 +209,7 @@ apply_theme() {
       fi
       
       # Run applier
-      if "$applier" "$preset" "$variant" 2>/dev/null; then
+      if "$applier" "$preset" "$variant" "$mode_label" 2>/dev/null; then
         echo "OK"
         ((total_applied++))
       else

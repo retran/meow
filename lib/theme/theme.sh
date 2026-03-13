@@ -133,6 +133,12 @@ theme_get_terminal_named_color() {
   theme_db_get_required "themes.${preset}.variants.${variant}.terminal.${name}"
 }
 
+theme_is_hex_color() {
+  local value="$1"
+  # Must be a single-line string starting with # followed by exactly 6 hex chars
+  [[ "$value" =~ ^#[0-9a-fA-F]{6}$ ]]
+}
+
 theme_get_palette_color() {
   local preset="$1"
   local variant="$2"
@@ -141,13 +147,34 @@ theme_get_palette_color() {
 
   value=$(theme_db_get "themes.${preset}.variants.${variant}.palette.${key}")
   if [[ -n "$value" ]] && [[ "$value" != "null" ]]; then
-    theme_strip_quotes "$value"
-    return 0
+    local stripped
+    stripped=$(theme_strip_quotes "$value")
+    # If value is a plain hex color, return it directly
+    if theme_is_hex_color "$stripped"; then
+      echo "$stripped"
+      return 0
+    fi
+    # Value is a nested object — try the .base sub-key (used by nightfox, github, etc.)
+    local sub_value
+    sub_value=$(theme_db_get "themes.${preset}.variants.${variant}.palette.${key}.base")
+    if [[ -n "$sub_value" ]] && [[ "$sub_value" != "null" ]]; then
+      local sub_stripped
+      sub_stripped=$(theme_strip_quotes "$sub_value")
+      if theme_is_hex_color "$sub_stripped"; then
+        echo "$sub_stripped"
+        return 0
+      fi
+    fi
+    # Nested object with no usable .base — fall through to catppuccin fallback chain
   fi
 
   local base
   base=$(theme_db_get "themes.${preset}.variants.${variant}.palette.base")
   if [[ -z "$base" ]] || [[ "$base" == "null" ]]; then
+    return 1
+  fi
+  # base key itself might be a nested object (gruvbox uses base as a color group)
+  if ! theme_is_hex_color "$(theme_strip_quotes "$base")"; then
     return 1
   fi
 
@@ -180,81 +207,4 @@ theme_get_palette_color() {
     return 1
   fi
   theme_strip_quotes "$value"
-}
-
-theme_tmux_file_path() {
-  local config_dir="${XDG_CONFIG_HOME:-$HOME/.config}/meow"
-  echo "$config_dir/tmux/theme.conf"
-}
-
-theme_write_tmux_file() {
-  local preset="$1"
-  local variant="$2"
-
-  local theme_file
-  theme_file=$(theme_tmux_file_path)
-  mkdir -p "$(dirname "$theme_file")"
-
-  local bg
-  local fg
-  local accent
-  local border
-  local alert
-  local ok
-  local status_bg
-  local status_fg
-  local message_bg
-  bg=$(theme_get_palette_color "$preset" "$variant" "bg" || theme_get_palette_color "$preset" "$variant" "bg1" || true)
-  fg=$(theme_get_palette_color "$preset" "$variant" "fg" || theme_get_palette_color "$preset" "$variant" "fg1" || true)
-  accent=$(theme_get_palette_color "$preset" "$variant" "blue" || theme_get_palette_color "$preset" "$variant" "blue1" || theme_get_palette_color "$preset" "$variant" "blue0" || theme_get_palette_color "$preset" "$variant" "water" || theme_get_terminal_color "$preset" "$variant" "4" || theme_get_terminal_named_color "$preset" "$variant" "blue" || true)
-  border=$(theme_get_palette_color "$preset" "$variant" "border" || theme_get_palette_color "$preset" "$variant" "gray" || theme_get_palette_color "$preset" "$variant" "fg1" || true)
-  alert=$(theme_get_palette_color "$preset" "$variant" "red" || theme_get_palette_color "$preset" "$variant" "rose" || theme_get_terminal_color "$preset" "$variant" "1" || theme_get_terminal_named_color "$preset" "$variant" "red" || true)
-  ok=$(theme_get_palette_color "$preset" "$variant" "green" || theme_get_palette_color "$preset" "$variant" "leaf" || theme_get_terminal_color "$preset" "$variant" "2" || theme_get_terminal_named_color "$preset" "$variant" "green" || true)
-  status_bg=$(theme_get_palette_color "$preset" "$variant" "bg_statusline" || theme_get_palette_color "$preset" "$variant" "bg_dark" || theme_get_palette_color "$preset" "$variant" "bg" || true)
-  status_fg=$(theme_get_palette_color "$preset" "$variant" "fg" || theme_get_palette_color "$preset" "$variant" "fg_sidebar" || theme_get_palette_color "$preset" "$variant" "fg1" || true)
-  message_bg=$(theme_get_palette_color "$preset" "$variant" "bg_highlight" || theme_get_palette_color "$preset" "$variant" "bg_visual" || true)
-
-  if [[ -z "$accent" ]]; then
-    accent="$fg"
-  fi
-  if [[ -z "$border" ]]; then
-    border="$fg"
-  fi
-  if [[ -z "$alert" ]]; then
-    alert="$fg"
-  fi
-  if [[ -z "$ok" ]]; then
-    ok="$fg"
-  fi
-  if [[ -z "$status_bg" ]]; then
-    status_bg="$bg"
-  fi
-  if [[ -z "$status_fg" ]]; then
-    status_fg="$fg"
-  fi
-  if [[ -z "$message_bg" ]]; then
-    message_bg="$accent"
-  fi
-
-  if [[ -z "$bg" ]] || [[ -z "$fg" ]]; then
-    return 1
-  fi
-
-  cat >"$theme_file" <<EOF
-set -g status-style "bg=${status_bg},fg=${status_fg}"
-set -g status-left-style NONE
-set -g status-right-style NONE
-set -g message-style "bg=${message_bg},fg=${status_fg}"
-set -g message-command-style "bg=${status_bg},fg=${status_fg}"
-set -g pane-border-style "fg=${border}"
-set -g pane-active-border-style "fg=${accent}"
-set -g window-status-activity-style "fg=${status_fg},bg=${status_bg}"
-set -g window-status-style "fg=${status_fg},bg=${status_bg}"
-set -g window-status-current-format "#[fg=${status_bg},bg=${accent},bold] #I #[fg=${status_fg},bg=${status_bg}] #W #F "
-set -g window-status-format "#[fg=${status_fg},bg=${status_bg}] #I #[fg=${status_fg},bg=${status_bg}] #W #F "
-set -g status-left "#[fg=${status_bg},bg=${accent},bold] #S #[fg=${accent},bg=${status_bg}]"
-set -g status-right "#[fg=${ok},bg=${status_bg}] %Y-%m-%d #[fg=${accent},bg=${status_bg}]  #[fg=${status_bg},bg=${accent},bold] %H:%M "
-set -g mode-style "fg=${ok},bg=${status_bg}"
-set -g window-status-bell-style "fg=${alert},bg=${status_bg},bold"
-EOF
 }

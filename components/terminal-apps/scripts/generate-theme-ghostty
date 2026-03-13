@@ -11,7 +11,7 @@ set -euo pipefail
 
 # Script interface:
 # Input: $1=preset, $2=variant
-# Environment: $MEOW, $THEME_DB, $THEME_LIB
+# Environment: $MEOW, $THEME_LIB, $THEME_UTILS
 # Output: Writes to $MEOW/components/terminal-apps/config/ghostty/themes/
 
 PRESET="${1:-}"
@@ -46,80 +46,107 @@ preset_slug=$(theme_slugify "$PRESET")
 variant_slug=$(theme_slugify "$VARIANT")
 out_file="$OUTPUT_DIR/${preset_slug}-${variant_slug}.conf"
 
-# Build color palette
-colors=()
-has_terminal=1
+# ── Color resolution helpers ──────────────────────────────────────────────────
 
-# Try to get terminal colors (0-15)
-if [[ -n "$(theme_get_terminal_color "$PRESET" "$VARIANT" "0" 2>/dev/null)" ]]; then
-  for idx in {0..15}; do
-    color=$(theme_get_terminal_color "$PRESET" "$VARIANT" "$idx") || color=""
-    colors+=("$color")
+get_color() {
+  local result=""
+  for key in "$@"; do
+    result=$(theme_get_palette_color "$PRESET" "$VARIANT" "$key" 2>/dev/null || true)
+    if [[ -n "$result" && "$result" != "null" ]]; then
+      echo "${result#\#}"
+      return
+    fi
   done
-else
-  # Fallback to named colors
-  order=(black red green yellow blue magenta cyan white black_bright red_bright green_bright yellow_bright blue_bright magenta_bright cyan_bright white_bright)
-  for name in "${order[@]}"; do
-    color=$(theme_get_terminal_named_color "$PRESET" "$VARIANT" "$name") || color=""
-    colors+=("$color")
-  done
-  if [[ -z "${colors[0]}" ]]; then
-    has_terminal=0
+  echo ""
+}
+
+get_terminal() {
+  local idx="$1"
+  local result
+  result=$(theme_get_terminal_color "$PRESET" "$VARIANT" "$idx" 2>/dev/null || true)
+  if [[ -n "$result" && "$result" != "null" ]]; then
+    echo "${result#\#}"
+  else
+    echo ""
   fi
-fi
+}
 
-# If no terminal colors, construct from palette
-if [[ $has_terminal -eq 0 ]]; then
-  base=$(theme_get_palette_color "$PRESET" "$VARIANT" "bg" || true)
-  text=$(theme_get_palette_color "$PRESET" "$VARIANT" "fg" || true)
-  red=$(theme_get_palette_color "$PRESET" "$VARIANT" "red" || true)
-  green=$(theme_get_palette_color "$PRESET" "$VARIANT" "green" || true)
-  yellow=$(theme_get_palette_color "$PRESET" "$VARIANT" "yellow" || true)
-  blue=$(theme_get_palette_color "$PRESET" "$VARIANT" "blue" || true)
-  magenta=$(theme_get_palette_color "$PRESET" "$VARIANT" "purple" || true)
-  cyan=$(theme_get_palette_color "$PRESET" "$VARIANT" "cyan" || true)
-  overlay=$(theme_get_palette_color "$PRESET" "$VARIANT" "surface0" || theme_get_palette_color "$PRESET" "$VARIANT" "surface1" || true)
+# ── Resolve semantic colors ───────────────────────────────────────────────────
 
-  colors=(
-    "$base" "$red" "$green" "$yellow" "$blue" "$magenta" "$cyan" "$text"
-    "$overlay" "$red" "$green" "$yellow" "$blue" "$magenta" "$cyan" "$text"
-  )
-fi
+background=$(get_color "bg" "base" "bg1")
+foreground=$(get_color "fg" "text" "fg1")
 
-# Exit if no colors available
-if [[ -z "${colors[0]}" ]]; then
-  echo "No colors found for $PRESET/$VARIANT" >&2
+# Cursor: rosewater → peach → orange → accent → highlight → yellow
+cursor=$(get_color "rosewater" "peach" "orange" "accent" "highlight" "yellow")
+# Cursor text: darkest available background
+cursor_text=$(get_color "crust" "mantle" "bg" "base")
+
+# Selection background: surface0 → surface1 → bg_highlight → bg_visual
+selection_bg=$(get_color "surface0" "bg_highlight" "bg_visual" "surface1")
+# Selection foreground: same as main foreground
+selection_fg=$(get_color "fg" "text" "fg1")
+
+# Split divider: surface0 → surface1 → overlay0
+split_divider=$(get_color "surface0" "surface1" "overlay0")
+
+# ── ANSI palette (16 colors) ──────────────────────────────────────────────────
+# Prefer terminal colors from themes.yaml; fall back to semantic palette keys.
+
+# Slot 0  black       → surface1 → surface0
+c0=$(get_terminal 0); [[ -z "$c0" ]] && c0=$(get_color "surface1" "surface0")
+# Slot 1  red
+c1=$(get_terminal 1); [[ -z "$c1" ]] && c1=$(get_color "red")
+# Slot 2  green
+c2=$(get_terminal 2); [[ -z "$c2" ]] && c2=$(get_color "green" "leaf")
+# Slot 3  yellow
+c3=$(get_terminal 3); [[ -z "$c3" ]] && c3=$(get_color "yellow" "wood" "gold")
+# Slot 4  blue
+c4=$(get_terminal 4); [[ -z "$c4" ]] && c4=$(get_color "blue" "water")
+# Slot 5  magenta/pink
+c5=$(get_terminal 5); [[ -z "$c5" ]] && c5=$(get_color "pink" "magenta" "purple" "mauve" "blossom")
+# Slot 6  cyan/teal
+c6=$(get_terminal 6); [[ -z "$c6" ]] && c6=$(get_color "teal" "cyan" "water" "foam")
+# Slot 7  white/subtext
+c7=$(get_terminal 7); [[ -z "$c7" ]] && c7=$(get_color "subtext0" "overlay2" "fg" "text")
+# Slot 8  bright black → surface2
+c8=$(get_terminal 8); [[ -z "$c8" ]] && c8=$(get_color "surface2" "surface1" "overlay0")
+# Slot 9  bright red (same as red for most themes)
+c9=$(get_terminal 9); [[ -z "$c9" ]] && c9=$(get_color "red")
+# Slot 10 bright green
+c10=$(get_terminal 10); [[ -z "$c10" ]] && c10=$(get_color "green" "leaf")
+# Slot 11 bright yellow
+c11=$(get_terminal 11); [[ -z "$c11" ]] && c11=$(get_color "yellow" "wood" "gold")
+# Slot 12 bright blue
+c12=$(get_terminal 12); [[ -z "$c12" ]] && c12=$(get_color "blue" "water")
+# Slot 13 bright magenta/pink
+c13=$(get_terminal 13); [[ -z "$c13" ]] && c13=$(get_color "pink" "magenta" "purple" "mauve" "blossom")
+# Slot 14 bright cyan/teal
+c14=$(get_terminal 14); [[ -z "$c14" ]] && c14=$(get_color "teal" "cyan" "water" "foam")
+# Slot 15 bright white/subtext1
+c15=$(get_terminal 15); [[ -z "$c15" ]] && c15=$(get_color "subtext1" "fg" "text")
+
+# Require at minimum background and foreground
+if [[ -z "$background" || -z "$foreground" ]]; then
+  echo "Cannot resolve bg/fg for $PRESET/$VARIANT — skipping" >&2
   exit 1
 fi
 
-# Get background and foreground
-background=$(theme_get_palette_color "$PRESET" "$VARIANT" "bg" || theme_get_palette_color "$PRESET" "$VARIANT" "bg1" || true)
-foreground=$(theme_get_palette_color "$PRESET" "$VARIANT" "fg" || theme_get_palette_color "$PRESET" "$VARIANT" "fg1" || true)
+# ── Emit config ───────────────────────────────────────────────────────────────
 
-# Generate theme file
 {
-  echo "# Generated from themes.yaml"
-  if [[ -n "$background" ]]; then
-    echo "background = \"$background\""
-    echo "selection-foreground = \"$background\""
-  fi
-  if [[ -n "$foreground" ]]; then
-    echo "foreground = \"$foreground\""
-    echo "selection-background = \"$foreground\""
-  fi
-  
-  # Cursor color
-  cursor=$(theme_get_palette_color "$PRESET" "$VARIANT" "highlight" || theme_get_palette_color "$PRESET" "$VARIANT" "accent" || theme_get_palette_color "$PRESET" "$VARIANT" "orange" || true)
-  if [[ -n "$cursor" ]]; then
-    echo "cursor-color = \"$cursor\""
-    if [[ -n "$background" ]]; then
-      echo "cursor-text = \"$background\""
-    fi
-  fi
-  
-  # Palette entries
-  for idx in {0..15}; do
-    echo "palette = $idx=${colors[$idx]}"
+  echo "# Generated from themes.yaml — ${PRESET}/${VARIANT}"
+  echo "background = ${background}"
+  echo "foreground = ${foreground}"
+  [[ -n "$cursor" ]]       && echo "cursor-color = ${cursor}"
+  [[ -n "$cursor_text" ]]  && echo "cursor-text = ${cursor_text}"
+  [[ -n "$selection_bg" ]] && echo "selection-background = ${selection_bg}"
+  [[ -n "$selection_fg" ]] && echo "selection-foreground = ${selection_fg}"
+  [[ -n "$split_divider" ]] && echo "split-divider-color = ${split_divider}"
+  echo ""
+  for idx in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15; do
+    varname="c${idx}"
+    val="${!varname}"
+    [[ -n "$val" ]] && echo "palette = ${idx}=#${val}"
   done
 } > "$out_file"
 

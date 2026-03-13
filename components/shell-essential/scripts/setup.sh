@@ -51,56 +51,6 @@ setup_meow_config_dir() {
   fi
 }
 
-setup_tmux_plugin_manager() {
-  if ! command -v tmux >/dev/null 2>&1; then
-    ui_warning "tmux is not installed. Skipping Plugin Manager setup."
-    return 0
-  fi
-
-  ui_step_header "Setting up tmux Plugin Manager"
-
-  if [ -d "$HOME/.tmux/plugins/tpm" ]; then
-    ui_action_success "tmux Plugin Manager is already installed."
-
-    if [ "${MEOW_DRY_RUN:-}" = "true" ]; then
-      ui_info "(dry-run) Would update tmux Plugin Manager"
-      return 0
-    fi
-
-    ui_spinner "Updating tmux Plugin Manager..." \
-      --success "tmux Plugin Manager updated." \
-      --fail "Failed to update tmux Plugin Manager." \
-      git -C "$HOME/.tmux/plugins/tpm" pull
-
-    return $?
-  fi
-
-  if [ "${MEOW_DRY_RUN:-}" = "true" ]; then
-    ui_info "(dry-run) Would create directory and install tmux Plugin Manager"
-    return 0
-  fi
-
-  mkdir -p "$HOME/.tmux/plugins"
-
-  ui_spinner "Installing tmux Plugin Manager..." \
-    --success "tmux Plugin Manager installed." \
-    --fail "Failed to install tmux Plugin Manager." \
-    git clone https://github.com/tmux-plugins/tpm "$HOME/.tmux/plugins/tpm"
-
-  return $?
-}
-
-configure_tmux() {
-  ui_step_header "Setting up tmux environment"
-
-  if setup_tmux_plugin_manager; then
-    ui_action_success "tmux environment setup complete."
-  else
-    ui_warning "tmux environment setup had issues, continuing..."
-  fi
-  return 0
-}
-
 setup_ohmyzsh() {
   ui_action_start "Checking for Oh My Zsh installation..."
 
@@ -256,13 +206,6 @@ if command -v zsh >/dev/null 2>&1; then
   install_zsh_plugins || true
 else
   ui_warning "zsh is not installed. Skipping Oh My Zsh and plugin configuration."
-fi
-
-if command -v tmux >/dev/null 2>&1; then
-  if [ "$MEOW_VERBOSE" = "true" ]; then
-    ui_info "Configuring tmux"
-  fi
-  configure_tmux || true
 fi
 
 if command -v npm >/dev/null 2>&1; then

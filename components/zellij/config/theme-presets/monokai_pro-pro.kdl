@@ -1,0 +1,121 @@
+// Generated from themes.yaml — monokai-pro/pro
+themes {
+    meow {
+        text_unselected {
+            base       252 252 250
+            background 45 42 46
+            emphasis_0 252 252 250
+            emphasis_1 252 252 250
+            emphasis_2 252 252 250
+            emphasis_3 252 252 250
+        }
+        text_selected {
+            base       252 252 250
+            background 45 42 46
+            emphasis_0 252 252 250
+            emphasis_1 252 252 250
+            emphasis_2 252 252 250
+            emphasis_3 252 252 250
+        }
+        ribbon_selected {
+            base       45 42 46
+            background 252 252 250
+            emphasis_0 252 252 250
+            emphasis_1 252 252 250
+            emphasis_2 252 252 250
+            emphasis_3 252 252 250
+        }
+        ribbon_unselected {
+            base       45 42 46
+            background 252 252 250
+            emphasis_0 252 252 250
+            emphasis_1 252 252 250
+            emphasis_2 252 252 250
+            emphasis_3 252 252 250
+        }
+        table_title {
+            base       252 252 250
+            background 0
+            emphasis_0 252 252 250
+            emphasis_1 252 252 250
+            emphasis_2 252 252 250
+            emphasis_3 252 252 250
+        }
+        table_cell_selected {
+            base       252 252 250
+            background 45 42 46
+            emphasis_0 252 252 250
+            emphasis_1 252 252 250
+            emphasis_2 252 252 250
+            emphasis_3 252 252 250
+        }
+        table_cell_unselected {
+            base       252 252 250
+            background 45 42 46
+            emphasis_0 252 252 250
+            emphasis_1 252 252 250
+            emphasis_2 252 252 250
+            emphasis_3 252 252 250
+        }
+        list_selected {
+            base       252 252 250
+            background 45 42 46
+            emphasis_0 252 252 250
+            emphasis_1 252 252 250
+            emphasis_2 252 252 250
+            emphasis_3 252 252 250
+        }
+        list_unselected {
+            base       252 252 250
+            background 45 42 46
+            emphasis_0 252 252 250
+            emphasis_1 252 252 250
+            emphasis_2 252 252 250
+            emphasis_3 252 252 250
+        }
+        frame_selected {
+            base       252 252 250
+            background 0
+            emphasis_0 252 252 250
+            emphasis_1 252 252 250
+            emphasis_2 252 252 250
+            emphasis_3 0
+        }
+        frame_highlight {
+            base       252 252 250
+            background 0
+            emphasis_0 252 252 250
+            emphasis_1 0
+            emphasis_2 252 252 250
+            emphasis_3 252 252 250
+        }
+        exit_code_success {
+            base       252 252 250
+            background 0
+            emphasis_0 252 252 250
+            emphasis_1 45 42 46
+            emphasis_2 252 252 250
+            emphasis_3 252 252 250
+        }
+        exit_code_error {
+            base       252 252 250
+            background 0
+            emphasis_0 252 252 250
+            emphasis_1 0
+            emphasis_2 0
+            emphasis_3 0
+        }
+        multiplayer_user_colors {
+            player_1  252 252 250
+            player_2  252 252 250
+            player_3  0
+            player_4  252 252 250
+            player_5  252 252 250
+            player_6  0
+            player_7  252 252 250
+            player_8  0
+            player_9  0
+            player_10 0
+        }
+    }
+}

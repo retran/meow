@@ -1,0 +1,121 @@
+// Generated from themes.yaml — github/github_dark
+themes {
+    meow {
+        text_unselected {
+            base       230 237 243
+            background 48 54 61
+            emphasis_0 240 136 62
+            emphasis_1 118 227 234
+            emphasis_2 63 185 80
+            emphasis_3 188 140 255
+        }
+        text_selected {
+            base       230 237 243
+            background 48 54 61
+            emphasis_0 240 136 62
+            emphasis_1 118 227 234
+            emphasis_2 63 185 80
+            emphasis_3 188 140 255
+        }
+        ribbon_selected {
+            base       48 54 61
+            background 63 185 80
+            emphasis_0 255 123 114
+            emphasis_1 240 136 62
+            emphasis_2 188 140 255
+            emphasis_3 88 166 255
+        }
+        ribbon_unselected {
+            base       48 54 61
+            background 110 118 129
+            emphasis_0 255 123 114
+            emphasis_1 230 237 243
+            emphasis_2 88 166 255
+            emphasis_3 188 140 255
+        }
+        table_title {
+            base       63 185 80
+            background 0
+            emphasis_0 240 136 62
+            emphasis_1 118 227 234
+            emphasis_2 63 185 80
+            emphasis_3 188 140 255
+        }
+        table_cell_selected {
+            base       230 237 243
+            background 48 54 61
+            emphasis_0 240 136 62
+            emphasis_1 118 227 234
+            emphasis_2 63 185 80
+            emphasis_3 188 140 255
+        }
+        table_cell_unselected {
+            base       230 237 243
+            background 48 54 61
+            emphasis_0 240 136 62
+            emphasis_1 118 227 234
+            emphasis_2 63 185 80
+            emphasis_3 188 140 255
+        }
+        list_selected {
+            base       230 237 243
+            background 48 54 61
+            emphasis_0 240 136 62
+            emphasis_1 118 227 234
+            emphasis_2 63 185 80
+            emphasis_3 188 140 255
+        }
+        list_unselected {
+            base       230 237 243
+            background 48 54 61
+            emphasis_0 240 136 62
+            emphasis_1 118 227 234
+            emphasis_2 63 185 80
+            emphasis_3 188 140 255
+        }
+        frame_selected {
+            base       63 185 80
+            background 0
+            emphasis_0 240 136 62
+            emphasis_1 118 227 234
+            emphasis_2 188 140 255
+            emphasis_3 0
+        }
+        frame_highlight {
+            base       240 136 62
+            background 0
+            emphasis_0 188 140 255
+            emphasis_1 0
+            emphasis_2 240 136 62
+            emphasis_3 240 136 62
+        }
+        exit_code_success {
+            base       63 185 80
+            background 0
+            emphasis_0 118 227 234
+            emphasis_1 48 54 61
+            emphasis_2 188 140 255
+            emphasis_3 88 166 255
+        }
+        exit_code_error {
+            base       255 123 114
+            background 0
+            emphasis_0 240 136 62
+            emphasis_1 0
+            emphasis_2 0
+            emphasis_3 0
+        }
+        multiplayer_user_colors {
+            player_1  188 140 255
+            player_2  88 166 255
+            player_3  0
+            player_4  240 136 62
+            player_5  118 227 234
+            player_6  0
+            player_7  255 123 114
+            player_8  0
+            player_9  0
+            player_10 0
+        }
+    }
+}

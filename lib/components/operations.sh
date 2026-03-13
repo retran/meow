@@ -1186,18 +1186,29 @@ generate_component_themes() {
     fi
     return 0
   fi
-  
-  # Check if themes need regeneration (based on themes.yaml checksum)
+
+  # Compute a combined checksum of themes.yaml + all generator scripts.
+  # Defined here (outside the force-check block) so it can also be called when
+  # saving the checksum after generation.
+  _compute_theme_checksum() {
+    local _files=("${MEOW}/themes.yaml")
+    while IFS= read -r _gen; do
+      [[ -n "$_gen" && -f "$_gen" ]] && _files+=("$_gen")
+    done <<< "$generators"
+    if command -v sha256sum >/dev/null 2>&1; then
+      sha256sum "${_files[@]}" 2>/dev/null | sha256sum | awk '{print $1}'
+    elif command -v shasum >/dev/null 2>&1; then
+      shasum -a 256 "${_files[@]}" 2>/dev/null | shasum -a 256 | awk '{print $1}'
+    fi
+  }
+
+  # Check if themes need regeneration (based on themes.yaml + generator scripts checksum)
   if [[ "$force" != "true" ]]; then
     local checksum_file="${MEOW}/.installed/components/${component}/.theme-checksum"
     local current_checksum=""
-    
+
     if [[ -f "${MEOW}/themes.yaml" ]]; then
-      if command -v sha256sum >/dev/null 2>&1; then
-        current_checksum=$(sha256sum "${MEOW}/themes.yaml" 2>/dev/null | awk '{print $1}')
-      elif command -v shasum >/dev/null 2>&1; then
-        current_checksum=$(shasum -a 256 "${MEOW}/themes.yaml" 2>/dev/null | awk '{print $1}')
-      fi
+      current_checksum=$(_compute_theme_checksum)
     fi
     
     if [[ -n "$current_checksum" && -f "$checksum_file" ]]; then
@@ -1290,14 +1301,10 @@ generate_component_themes() {
   if [[ $total_generated -gt 0 ]]; then
     ui_action_success "$(_f "Generated %d theme file(s) for component '%s'." "$total_generated" "$component")"
     
-    # Save checksum for future reference
+    # Save checksum of themes.yaml + generators for future skip-if-up-to-date checks
     if [[ -f "${MEOW}/themes.yaml" ]]; then
       local checksum_file="${MEOW}/.installed/components/${component}/.theme-checksum"
-      if command -v sha256sum >/dev/null 2>&1; then
-        sha256sum "${MEOW}/themes.yaml" 2>/dev/null | awk '{print $1}' > "$checksum_file"
-      elif command -v shasum >/dev/null 2>&1; then
-        shasum -a 256 "${MEOW}/themes.yaml" 2>/dev/null | awk '{print $1}' > "$checksum_file"
-      fi
+      _compute_theme_checksum > "$checksum_file" 2>/dev/null || true
     fi
   fi
   

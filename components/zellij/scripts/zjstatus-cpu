@@ -1,0 +1,62 @@
+#!/usr/bin/env python3
+# MIT License
+#
+# Copyright (c) 2025 Andrew Vasilyev <me@retran.me>
+#
+# @file: components/zellij/scripts/zjstatus-cpu
+# @brief: CPU usage widget for zjstatus — outputs integer percentage.
+# @author: Andrew Vasilyev
+# @license: MIT
+#
+# macOS:  reads from `top -l 1 -s 0`
+# Linux:  reads from /proc/stat (two-sample delta for accuracy, using a
+#         small sleep so the first sample is not stale)
+
+import subprocess
+import sys
+import platform
+import re
+
+def cpu_macos() -> str:
+    try:
+        out = subprocess.check_output(
+            ["top", "-l", "1", "-s", "0"],
+            stderr=subprocess.DEVNULL,
+        ).decode()
+        m = re.search(r"CPU usage:\s+([\d.]+)%\s+user,\s+([\d.]+)%\s+sys", out)
+        if m:
+            total = float(m.group(1)) + float(m.group(2))
+            return str(int(round(total)))
+    except Exception:
+        pass
+    return "?"
+
+def _read_proc_stat():
+    with open("/proc/stat") as f:
+        line = f.readline()
+    fields = line.split()
+    # fields: cpu user nice system idle iowait irq softirq steal guest guest_nice
+    values = [int(x) for x in fields[1:]]
+    idle = values[3] + (values[4] if len(values) > 4 else 0)
+    total = sum(values)
+    return idle, total
+
+def cpu_linux() -> str:
+    try:
+        import time
+        idle1, total1 = _read_proc_stat()
+        time.sleep(0.2)
+        idle2, total2 = _read_proc_stat()
+        d_total = total2 - total1
+        d_idle  = idle2  - idle1
+        if d_total == 0:
+            return "?"
+        pct = 100 * (d_total - d_idle) // d_total
+        return str(pct)
+    except Exception:
+        return "?"
+
+if platform.system() == "Darwin":
+    print(cpu_macos())
+else:
+    print(cpu_linux())

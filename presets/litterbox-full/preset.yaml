@@ -28,6 +28,6 @@ required:
 - rust-runtime
 - shell-development
 - shell-essential
-- tmux
+- zellij
 - visual-studio-code-cli
 - web-development
