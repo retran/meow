@@ -61,6 +61,7 @@ export LC_ALL="en_US.UTF-8"
 _meow_set_if_command_exists "EDITOR" "nvim" "vim" "nano"
 if [ -n "${EDITOR:-}" ]; then
   export VISUAL="$EDITOR"
+  export GIT_EDITOR="$EDITOR"
 fi
 
 _meow_set_if_command_exists "PAGER" "less" "more"
@@ -84,29 +85,4 @@ if [ -f "$HOME/.secrets" ]; then
   source "$HOME/.secrets"
 fi
 
-_meow_source_component_env_scripts() {
-  if [ -d "${MEOW}/.installed/components" ]; then
-    local component_link
-    local component_name
-    local env_script
-
-    for component_link in "${MEOW}/.installed/components"/*; do
-      if [ ! -L "$component_link" ]; then
-        continue
-      fi
-
-      component_name=$(basename "$component_link")
-
-      env_script="${MEOW}/components/${component_name}/scripts/env.sh"
-      if [ -f "$env_script" ]; then
-        # shellcheck source=/dev/null
-        source "$env_script"
-      fi
-    done
-  fi
-}
-
-_meow_source_component_env_scripts
-
 unset -f _meow_set_if_command_exists
-unset -f _meow_source_component_env_scripts

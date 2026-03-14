@@ -1,4 +1,3 @@
-#!/usr/bin/env bash
 # MIT License
 #
 # Copyright (c) 2025 Andrew Vasilyev <me@retran.me>
@@ -21,21 +20,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #
-# @file: components/node-development/scripts/env.sh
-# @brief: Environment configuration script for JavaScript development tools and Node.js paths.
+# @file: components/shell-essential/symlinks/btop.yaml
+# @brief: Symlink configuration for btop++ resource monitor.
 # @author: Andrew Vasilyev
 # @license: MIT
 #
-if [ -n "${_COMPONENT_NODE_DEVELOPMENT_ENV_SOURCED:-}" ]; then
-  exit 0
-fi
-_COMPONENT_NODE_DEVELOPMENT_ENV_SOURCED=1
-
-export NPM_CONFIG_PREFIX="${HOME}/.npm-global"
-if [ -d "$NPM_CONFIG_PREFIX/bin" ]; then
-  export PATH="$NPM_CONFIG_PREFIX/bin:$PATH"
-fi
-
-export TS_NODE_CACHE_DIRECTORY="${HOME}/.cache/ts-node"
-
-# vim: set ft=sh:
+- source: "$MEOW/.installed/components/shell-essential/config/btop/btop.conf"
+  target: "$HOME/.config/btop/btop.conf"

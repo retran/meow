@@ -1,0 +1,98 @@
+#!/usr/bin/env bash
+# MIT License
+# Copyright (c) 2025 Andrew Vasilyev <me@retran.me>
+#
+# @file: components/shell-essential/scripts/generate-theme-btop
+# @brief: Generate btop theme files from themes.yaml
+# @author: Andrew Vasilyev
+# @license: MIT
+
+set -euo pipefail
+
+PRESET="${1:-}"
+VARIANT="${2:-}"
+
+if [[ -z "$PRESET" || -z "$VARIANT" ]]; then
+  echo "Usage: $0 <preset> <variant>" >&2
+  exit 1
+fi
+
+MEOW_ROOT="${MEOW:-$HOME/.meow}"
+THEME_LIB="${THEME_LIB:-$MEOW_ROOT/lib/theme/theme.sh}"
+THEME_UTILS="${THEME_UTILS:-$MEOW_ROOT/lib/theme/theme-utils.sh}"
+OUTPUT_DIR="$MEOW_ROOT/components/shell-essential/config/btop/themes"
+
+if [[ ! -f "$THEME_LIB" ]]; then
+  echo "Theme library not found: $THEME_LIB" >&2
+  exit 1
+fi
+
+if [[ ! -f "$THEME_UTILS" ]]; then
+  echo "Theme utilities not found: $THEME_UTILS" >&2
+  exit 1
+fi
+
+source "$THEME_LIB"
+source "$THEME_UTILS"
+
+mkdir -p "$OUTPUT_DIR"
+preset_slug=$(theme_slugify "$PRESET")
+variant_slug=$(theme_slugify "$VARIANT")
+out_file="$OUTPUT_DIR/${preset_slug}-${variant_slug}.theme"
+
+# Retrieve colours from themes.yaml with fallback chain
+get_color() {
+  local name="$1"
+  theme_get_palette_color "$PRESET" "$VARIANT" "$name" 2>/dev/null || true
+}
+get_terminal() {
+  local idx="$1"
+  theme_get_terminal_color "$PRESET" "$VARIANT" "$idx" 2>/dev/null || true
+}
+
+bg=$(get_color "bg" || get_color "bg1" || get_terminal "0" || echo "")
+bg2=$(get_color "bg2" || get_color "bg1" || get_terminal "8" || echo "")
+bg3=$(get_color "bg3" || get_color "bg2" || get_terminal "8" || echo "")
+fg=$(get_color "fg" || get_color "fg1" || get_terminal "7" || echo "")
+red=$(get_color "red" || get_color "rose" || get_terminal "1" || echo "")
+green=$(get_color "green" || get_color "leaf" || get_terminal "2" || echo "")
+yellow=$(get_color "yellow" || get_color "wood" || get_terminal "3" || echo "")
+blue=$(get_color "blue" || get_color "blue1" || get_terminal "4" || echo "")
+magenta=$(get_color "purple" || get_color "blossom" || get_terminal "5" || echo "")
+cyan=$(get_color "cyan" || get_color "water" || get_terminal "6" || echo "")
+
+# btop theme format: key = "hex_without_hash"
+# btop expects colours as 6-digit hex strings without the '#' prefix
+strip_hash() { echo "${1#\#}"; }
+
+{
+  echo "# Generated from themes.yaml — $PRESET / $VARIANT"
+  echo "# btop colour theme"
+  echo ""
+  [[ -n "$bg"      ]] && echo "theme[main_bg]=\"$(strip_hash "$bg")\""
+  [[ -n "$fg"      ]] && echo "theme[main_fg]=\"$(strip_hash "$fg")\""
+  [[ -n "$fg"      ]] && echo "theme[title]=\"$(strip_hash "$fg")\""
+  [[ -n "$fg"      ]] && echo "theme[hi_fg]=\"$(strip_hash "$fg")\""
+  [[ -n "$bg2"     ]] && echo "theme[selected_bg]=\"$(strip_hash "$bg2")\""
+  [[ -n "$fg"      ]] && echo "theme[selected_fg]=\"$(strip_hash "$fg")\""
+  [[ -n "$cyan"    ]] && echo "theme[inactive_fg]=\"$(strip_hash "$cyan")\""
+  [[ -n "$green"   ]] && echo "theme[graph_text]=\"$(strip_hash "$green")\""
+  [[ -n "$bg2"     ]] && echo "theme[meter_bg]=\"$(strip_hash "$bg2")\""
+  [[ -n "$green"   ]] && echo "theme[proc_start]=\"$(strip_hash "$green")\""
+  [[ -n "$yellow"  ]] && echo "theme[proc_mid]=\"$(strip_hash "$yellow")\""
+  [[ -n "$red"     ]] && echo "theme[proc_end]=\"$(strip_hash "$red")\""
+  [[ -n "$green"   ]] && echo "theme[cpu_start]=\"$(strip_hash "$green")\""
+  [[ -n "$yellow"  ]] && echo "theme[cpu_mid]=\"$(strip_hash "$yellow")\""
+  [[ -n "$red"     ]] && echo "theme[cpu_end]=\"$(strip_hash "$red")\""
+  [[ -n "$green"   ]] && echo "theme[mem_start]=\"$(strip_hash "$green")\""
+  [[ -n "$yellow"  ]] && echo "theme[mem_mid]=\"$(strip_hash "$yellow")\""
+  [[ -n "$red"     ]] && echo "theme[mem_end]=\"$(strip_hash "$red")\""
+  [[ -n "$cyan"    ]] && echo "theme[net_start]=\"$(strip_hash "$cyan")\""
+  [[ -n "$blue"    ]] && echo "theme[net_mid]=\"$(strip_hash "$blue")\""
+  [[ -n "$magenta" ]] && echo "theme[net_end]=\"$(strip_hash "$magenta")\""
+  [[ -n "$green"   ]] && echo "theme[div_line]=\"$(strip_hash "$green")\""
+  [[ -n "$blue"    ]] && echo "theme[box]=\"$(strip_hash "$blue")\""
+  [[ -n "$cyan"    ]] && echo "theme[box_hi]=\"$(strip_hash "$cyan")\""
+} > "$out_file"
+
+echo "Generated: $out_file"

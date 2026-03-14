@@ -17,17 +17,54 @@ source "${MEOW:-$HOME/.meow}/lib/core/tools.sh"
 source "${MEOW:-$HOME/.meow}/lib/core/yaml.sh"
 source "${MEOW:-$HOME/.meow}/lib/config/config.sh"
 
-# Theme database cache
-declare -A MEOW_THEME_CACHE
+# Theme database cache.
+# Use a plain newline-delimited store for Bash 3.2 compatibility on macOS.
+MEOW_THEME_CACHE=""
 
 # Clear theme cache
 theme_cache_clear() {
-  MEOW_THEME_CACHE=()
+  MEOW_THEME_CACHE=""
 }
 
 # Get cache key
 theme_cache_key() {
   echo "${MEOW_THEME_DB}:$1"
+}
+
+theme_cache_get() {
+  local cache_key="$1"
+  local entry_key
+  local entry_value
+
+  while IFS=$'\t' read -r entry_key entry_value; do
+    if [[ "$entry_key" == "$cache_key" ]]; then
+      echo "$entry_value"
+      return 0
+    fi
+  done <<<"${MEOW_THEME_CACHE}"
+
+  return 1
+}
+
+theme_cache_set() {
+  local cache_key="$1"
+  local value="$2"
+  local new_cache=""
+  local entry_key
+  local entry_value
+
+  while IFS=$'\t' read -r entry_key entry_value; do
+    if [[ -z "$entry_key" ]]; then
+      continue
+    fi
+    if [[ "$entry_key" == "$cache_key" ]]; then
+      continue
+    fi
+    new_cache+="${entry_key}"$'\t'"${entry_value}"$'\n'
+  done <<<"${MEOW_THEME_CACHE}"
+
+  new_cache+="${cache_key}"$'\t'"${value}"
+  MEOW_THEME_CACHE="$new_cache"
 }
 
 theme_yaml_path() {
@@ -44,9 +81,10 @@ theme_db_get() {
   local cache_key
   cache_key=$(theme_cache_key "$path")
   
-  # Check cache first
-  if [[ -n "${MEOW_THEME_CACHE[$cache_key]:-}" ]]; then
-    echo "${MEOW_THEME_CACHE[$cache_key]}"
+  # Check cache first.
+  local cached_value=""
+  if cached_value=$(theme_cache_get "$cache_key"); then
+    echo "$cached_value"
     return 0
   fi
   
@@ -60,8 +98,8 @@ theme_db_get() {
   local value
   value=$(read_yaml_value "$MEOW_THEME_DB" "$yaml_path")
   
-  # Cache the result
-  MEOW_THEME_CACHE[$cache_key]="$value"
+  # Cache the result.
+  theme_cache_set "$cache_key" "$value"
   
   echo "$value"
 }

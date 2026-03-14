@@ -28,15 +28,18 @@
 
 add_newline = true
 
-command_timeout = 3000
+command_timeout = 500
+scan_timeout = 30
 
 format = """
 $os\
+$shlvl\
 $username\
 $directory\
 $git_branch\
 $git_commit\
 $git_status\
+$git_metrics\
 $git_state\
 $c\
 $rust\
@@ -46,10 +49,10 @@ $php\
 $java\
 $kotlin\
 $haskell\
+$lua\
 $python\
 $package\
 $docker_context\
-$kubernetes\
 $container\
 $jobs\
 ${custom.memory_usage}\
@@ -454,7 +457,6 @@ color_vimcmd_visual = '#77713f'
 disabled = false
 style = "fg:color_os"
 format = '[$symbol]($style)'
-
 [os.symbols]
 Windows = "󰍲"
 Ubuntu = "󰕈"
@@ -479,7 +481,7 @@ RedHatEnterprise = "󱄛"
 Pop = ""
 
 [username]
-show_always = true
+show_always = false
 style_user = "fg:color_username"
 style_root = "bold fg:color_danger"
 format = '[ $user ]($style)'
@@ -491,7 +493,7 @@ repo_root_style = "bold fg:color_directory"
 format = "[ $path ]($style)"
 read_only = " "
 home_symbol = "~"
-truncation_symbol = "…/"
+truncation_symbol = " …/"
 truncation_length = 0
 truncate_to_repo = true
 fish_style_pwd_dir_length = 0
@@ -539,7 +541,7 @@ format = '([([+$added]($added_style))([-$deleted]($deleted_style))](fg:color_git
 added_style = "fg:color_git_added"
 deleted_style = "fg:color_git_deleted"
 only_nonzero_diffs = true
-disabled = true
+disabled = false
 
 [git_state]
 style = "fg:color_danger"
@@ -589,9 +591,21 @@ style = "fg:color_env"
 format = '( [$symbol( $version)]($style) )'
 
 [haskell]
-symbol = ""
+symbol = ""
 style = "fg:color_env"
 format = '( [$symbol( $version)]($style) )'
+
+[lua]
+symbol = "󰢱"
+style = "fg:color_env"
+format = '( [$symbol( $version)]($style) )'
+
+[shlvl]
+symbol = "󰘧"
+style = "fg:color_caution"
+format = '( [$symbol$shlvl]($style) )'
+threshold = 2
+disabled = false
 
 [python]
 symbol = ""
@@ -606,15 +620,16 @@ style = "fg:color_env"
 format = '( [$symbol( $version)]($style) )'
 
 [docker_context]
-symbol = ""
+symbol = ""
 style = "fg:color_docker"
 format = '( [$symbol( $context)]($style) )'
+only_with_files = true
+detect_files = ["docker-compose.yml", "docker-compose.yaml", "Dockerfile", ".dockerignore"]
+detect_extensions = []
+detect_folders = []
 
 [kubernetes]
-symbol = "󱃾"
-style = "fg:color_kubernetes"
-format = '( [($symbol( $cluster))]($style) )'
-disabled = false
+disabled = true
 
 [shell]
 disabled = true
