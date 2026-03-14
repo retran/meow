@@ -347,8 +347,8 @@ write_lazygit_theme() {
   # options text: lazygit_options_text override, then accent
   local options_text
   options_text=$(theme_get_palette_color "$preset" "$variant" "lazygit_options_text" || echo "$accent")
-  # unstaged changes: red
-  unstaged=$(theme_get_palette_color "$preset" "$variant" "red" || theme_get_palette_color "$preset" "$variant" "rose" || theme_get_terminal_color "$preset" "$variant" "1" || true)
+  # unstaged changes: lazygit_unstaged override, then red/rose
+  unstaged=$(theme_get_palette_color "$preset" "$variant" "lazygit_unstaged" || theme_get_palette_color "$preset" "$variant" "red" || theme_get_palette_color "$preset" "$variant" "rose" || theme_get_terminal_color "$preset" "$variant" "1" || true)
   # searching border: lazygit_searching_border override, then yellow/wood/cyan
   searching_border=$(theme_get_palette_color "$preset" "$variant" "lazygit_searching_border" || theme_get_palette_color "$preset" "$variant" "yellow" || theme_get_palette_color "$preset" "$variant" "wood" || theme_get_palette_color "$preset" "$variant" "cyan" || true)
   default_fg=$(theme_get_palette_color "$preset" "$variant" "fg" || theme_get_palette_color "$preset" "$variant" "text" || true)
@@ -401,6 +401,8 @@ write_delta_theme() {
   
   # Get palette colors
   local bg fg red green base overlay0 surface0 surface1 surface2 subtext1 yellow blue mauve cyan purple
+  local delta_minus_bg delta_minus_emph_bg delta_plus_bg delta_plus_emph_bg
+  local delta_minus_line_num delta_plus_line_num delta_zero_line_num
   bg=$(theme_get_palette_color "$preset" "$variant" "bg" || theme_get_palette_color "$preset" "$variant" "bg1" || true)
   fg=$(theme_get_palette_color "$preset" "$variant" "fg" || theme_get_palette_color "$preset" "$variant" "fg1" || true)
   base=$(theme_get_palette_color "$preset" "$variant" "base" || theme_get_palette_color "$preset" "$variant" "bg" || true)
@@ -416,6 +418,14 @@ write_delta_theme() {
   mauve=$(theme_get_palette_color "$preset" "$variant" "mauve" || theme_get_palette_color "$preset" "$variant" "purple" || true)
   cyan=$(theme_get_palette_color "$preset" "$variant" "sky" || theme_get_palette_color "$preset" "$variant" "teal" || true)
   purple=$(theme_get_palette_color "$preset" "$variant" "mauve" || theme_get_palette_color "$preset" "$variant" "purple" || true)
+  # Delta override keys (if set, skip blending and use exact upstream colors)
+  delta_minus_bg=$(theme_get_palette_color "$preset" "$variant" "delta_minus_bg" || true)
+  delta_minus_emph_bg=$(theme_get_palette_color "$preset" "$variant" "delta_minus_emph_bg" || true)
+  delta_plus_bg=$(theme_get_palette_color "$preset" "$variant" "delta_plus_bg" || true)
+  delta_plus_emph_bg=$(theme_get_palette_color "$preset" "$variant" "delta_plus_emph_bg" || true)
+  delta_minus_line_num=$(theme_get_palette_color "$preset" "$variant" "delta_minus_line_num" || true)
+  delta_plus_line_num=$(theme_get_palette_color "$preset" "$variant" "delta_plus_line_num" || true)
+  delta_zero_line_num=$(theme_get_palette_color "$preset" "$variant" "delta_zero_line_num" || true)
   
   if [[ -z "$bg" ]] || [[ -z "$red" ]] || [[ -z "$green" ]]; then
     # Fallback: just write syntax-theme
@@ -444,13 +454,20 @@ EOF
   # minus-emph-style: 35% red + 65% base
   # plus-style:       20% green + 80% base
   # plus-emph-style:  35% green + 65% base
+  # If delta_minus_bg / delta_plus_bg overrides are set, use them directly instead of blending
   local base_color="${base:-$bg}"
   local minus_style="" minus_emph="" plus_style="" plus_emph=""
-  if [[ -n "$red" ]] && [[ -n "$base_color" ]]; then
+  if [[ -n "$delta_minus_bg" ]]; then
+    minus_style="$delta_minus_bg"
+    minus_emph="${delta_minus_emph_bg:-$delta_minus_bg}"
+  elif [[ -n "$red" ]] && [[ -n "$base_color" ]]; then
     minus_style=$(blend_hex_colors "$red" "$base_color" 20)
     minus_emph=$(blend_hex_colors "$red" "$base_color" 35)
   fi
-  if [[ -n "$green" ]] && [[ -n "$base_color" ]]; then
+  if [[ -n "$delta_plus_bg" ]]; then
+    plus_style="$delta_plus_bg"
+    plus_emph="${delta_plus_emph_bg:-$delta_plus_bg}"
+  elif [[ -n "$green" ]] && [[ -n "$base_color" ]]; then
     plus_style=$(blend_hex_colors "$green" "$base_color" 20)
     plus_emph=$(blend_hex_colors "$green" "$base_color" 35)
   fi
@@ -485,9 +502,9 @@ EOF
     echo "	line-numbers = true"
     echo "	line-numbers-left-style = \"${file_dec_color}\""
     echo "	line-numbers-right-style = \"${file_dec_color}\""
-    echo "	line-numbers-minus-style = bold \"${red}\""
-    echo "	line-numbers-plus-style = bold \"${green}\""
-    echo "	line-numbers-zero-style = \"${file_dec_color}\""
+    echo "	line-numbers-minus-style = bold \"${delta_minus_line_num:-$red}\""
+    echo "	line-numbers-plus-style = bold \"${delta_plus_line_num:-$green}\""
+    echo "	line-numbers-zero-style = \"${delta_zero_line_num:-$file_dec_color}\""
     echo ""
     echo "	# Diff content"
     if [[ -n "$minus_style" ]]; then
@@ -536,8 +553,8 @@ write_fzf_theme() {
   local spinner
   local header
   
-  bg=$(theme_get_palette_color "$preset" "$variant" "bg" || theme_get_palette_color "$preset" "$variant" "bg1" || true)
-  fg=$(theme_get_palette_color "$preset" "$variant" "fg" || theme_get_palette_color "$preset" "$variant" "fg1" || true)
+  bg=$(theme_get_palette_color "$preset" "$variant" "fzf_bg" || theme_get_palette_color "$preset" "$variant" "bg" || theme_get_palette_color "$preset" "$variant" "bg1" || true)
+  fg=$(theme_get_palette_color "$preset" "$variant" "fzf_fg" || theme_get_palette_color "$preset" "$variant" "fg" || theme_get_palette_color "$preset" "$variant" "fg1" || true)
   # fzf_hl override, then fallback to red/rose
   hl=$(theme_get_palette_color "$preset" "$variant" "fzf_hl" || theme_get_palette_color "$preset" "$variant" "red" || theme_get_palette_color "$preset" "$variant" "rose" || true)
   fg_plus=$(theme_get_palette_color "$preset" "$variant" "fg" || true)
