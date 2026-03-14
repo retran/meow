@@ -25,6 +25,9 @@
 # @author: Andrew Vasilyev
 # @license: MIT
 
+# Suppress the default fish greeting
+set -g fish_greeting
+
 # ============================================================================
 # MEOW / XDG environment
 # ============================================================================
