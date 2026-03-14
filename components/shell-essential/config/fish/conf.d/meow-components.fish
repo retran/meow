@@ -15,17 +15,11 @@ end
 for _component_dir in "$meow_root"/.installed/components/*
     set -l _component_name (basename "$_component_dir")
 
-    # Prefer native fish init script; fall back to bash via bass
+    # Source native fish init script if present
     set -l _fish_init "$meow_root/components/$_component_name/scripts/init.fish"
-    set -l _bash_init "$meow_root/components/$_component_name/scripts/init.sh"
 
     if test -f "$_fish_init"
         source "$_fish_init" 2>/dev/null; or true
-    else if test -f "$_bash_init"
-        # bass not yet installed — skip silently (happens during fisher bootstrap)
-        if functions -q bass
-            bass source "$_bash_init" 2>/dev/null; or true
-        end
     end
 end
 

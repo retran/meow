@@ -99,6 +99,7 @@ install_fish_plugins() {
     "jorgebucaran/autopair.fish" # auto-close brackets/quotes
     "edc/bass"                   # source bash scripts from fish
     "meaningful-ooo/sponge"      # remove failed/silent commands from history
+    "wfxr/forgit"                # interactive git commands via fzf
   )
 
   local installed=0 failed=0

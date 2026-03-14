@@ -112,6 +112,24 @@ end
 # Tool integrations
 # ============================================================================
 
+# ctrl-z to fg — bring last background job to foreground
+function _fish_ctrl_z --description 'Foreground last background job on ctrl-z'
+    if jobs | grep -q '.'
+        fg
+    else
+        commandline -f cancel
+    end
+end
+bind \cz _fish_ctrl_z
+if bind -M insert >/dev/null 2>&1
+    bind -M insert \cz _fish_ctrl_z
+end
+
+# Homebrew command-not-found — suggest package when command is missing
+if test -f /opt/homebrew/Library/Taps/homebrew/homebrew-command-not-found/handler.fish
+    source /opt/homebrew/Library/Taps/homebrew/homebrew-command-not-found/handler.fish
+end
+
 # zoxide — replaces cd
 if command -q zoxide
     zoxide init fish --cmd cd | source

@@ -22,9 +22,6 @@ function _meow_source_theme_colors --description 'Reload meow theme colour varia
         if test -f "$config_dir/eza/colors.sh"
             bass source "$config_dir/eza/colors.sh" 2>/dev/null; or true
         end
-        if test -f "$config_dir/zsh/colors.sh"
-            bass source "$config_dir/zsh/colors.sh" 2>/dev/null; or true
-        end
     end
 
     # Apply fish-native theme colours (universal variables) if a theme file exists.
