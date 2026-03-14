@@ -67,31 +67,31 @@ layout {
                 datetime_timezone  "Europe/Amsterdam"
 
                 // ZJSTATUS_COLORS_BEGIN (managed by apply-theme-zellij — do not edit manually)
-                 // bg=#1e1e2e fg=#cdd6f4 sel=#313244 dim=#7f849c subtle=#bac2de
-                 // teal=#94e2d5 blue=#89b4fa mauve=#cba6f7 green=#a6e3a1
-                 // yellow=#f9e2af orange=#fab387 red=#f38ba8
-                 format_left              "{mode}#[fg=#1e1e2e,bg=#94e2d5,bold] {session} #[fg=#94e2d5,bg=#1e1e2e]{tabs}"
-                 format_space             "#[bg=#1e1e2e]"
-                 tab_normal               "#[fg=#7f849c,bg=#1e1e2e] {index} {name} "
-                 tab_active               "#[fg=#cdd6f4,bg=#313244,bold] {index} {name} "
-                 tab_separator            "#[fg=#313244,bg=#1e1e2e]"
-                 mode_normal              "#[fg=#7f849c,bg=#1e1e2e] NORMAL "
-                 mode_pane                "#[fg=#1e1e2e,bg=#89b4fa,bold] PANE "
-                 mode_tab                 "#[fg=#1e1e2e,bg=#cba6f7,bold] TAB "
-                 mode_scroll              "#[fg=#1e1e2e,bg=#a6e3a1,bold] SCROLL "
-                 mode_search              "#[fg=#1e1e2e,bg=#f9e2af,bold] SEARCH "
-                 mode_enter_search        "#[fg=#1e1e2e,bg=#f9e2af,bold] SEARCH "
-                 mode_session             "#[fg=#1e1e2e,bg=#94e2d5,bold] SESSION "
-                 mode_move                "#[fg=#1e1e2e,bg=#fab387,bold] MOVE "
-                 mode_locked              "#[fg=#1e1e2e,bg=#f38ba8,bold] LOCKED "
-                 mode_resize              "#[fg=#1e1e2e,bg=#f9e2af,bold] RESIZE "
-                 mode_rename_pane         "#[fg=#1e1e2e,bg=#f9e2af,bold] RENAME "
-                 mode_rename_tab          "#[fg=#1e1e2e,bg=#f9e2af,bold] RENAME "
-                 command_weather_format   "#[fg=#94e2d5,bg=#1e1e2e] {stdout} "
-                 command_cpu_format       "#[fg=#a6e3a1,bg=#1e1e2e] 󰻠 {stdout}% "
-                 command_mem_format       "#[fg=#cba6f7,bg=#1e1e2e] {stdout} "
-                 command_bat_format       "#[fg=#fab387,bg=#1e1e2e] {stdout} "
-                 datetime                 "#[fg=#bac2de,bg=#1e1e2e] {format}"
+                 // bg=#eff1f5 fg=#4c4f69 sel=#ccd0da dim=#8c8fa1 subtle=#5c5f77
+                 // teal=#179299 blue=#1e66f5 mauve=#8839ef green=#40a02b
+                 // yellow=#df8e1d orange=#fe640b red=#d20f39
+                 format_left              "{mode}#[fg=#eff1f5,bg=#179299,bold] {session} #[fg=#179299,bg=#eff1f5]{tabs}"
+                 format_space             "#[bg=#eff1f5]"
+                 tab_normal               "#[fg=#8c8fa1,bg=#eff1f5] {index} {name} "
+                 tab_active               "#[fg=#4c4f69,bg=#ccd0da,bold] {index} {name} "
+                 tab_separator            "#[fg=#ccd0da,bg=#eff1f5]"
+                 mode_normal              "#[fg=#8c8fa1,bg=#eff1f5] NORMAL "
+                 mode_pane                "#[fg=#eff1f5,bg=#1e66f5,bold] PANE "
+                 mode_tab                 "#[fg=#eff1f5,bg=#8839ef,bold] TAB "
+                 mode_scroll              "#[fg=#eff1f5,bg=#40a02b,bold] SCROLL "
+                 mode_search              "#[fg=#eff1f5,bg=#df8e1d,bold] SEARCH "
+                 mode_enter_search        "#[fg=#eff1f5,bg=#df8e1d,bold] SEARCH "
+                 mode_session             "#[fg=#eff1f5,bg=#179299,bold] SESSION "
+                 mode_move                "#[fg=#eff1f5,bg=#fe640b,bold] MOVE "
+                 mode_locked              "#[fg=#eff1f5,bg=#d20f39,bold] LOCKED "
+                 mode_resize              "#[fg=#eff1f5,bg=#df8e1d,bold] RESIZE "
+                 mode_rename_pane         "#[fg=#eff1f5,bg=#df8e1d,bold] RENAME "
+                 mode_rename_tab          "#[fg=#eff1f5,bg=#df8e1d,bold] RENAME "
+                 command_weather_format   "#[fg=#179299,bg=#eff1f5] {stdout} "
+                 command_cpu_format       "#[fg=#40a02b,bg=#eff1f5] 󰻠 {stdout}% "
+                 command_mem_format       "#[fg=#8839ef,bg=#eff1f5] {stdout} "
+                 command_bat_format       "#[fg=#fe640b,bg=#eff1f5] {stdout} "
+                 datetime                 "#[fg=#5c5f77,bg=#eff1f5] {format}"
                  // ZJSTATUS_COLORS_END
             }
         }
