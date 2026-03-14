@@ -21,7 +21,11 @@ for _component_dir in "$meow_root"/.installed/components/*
 
     if test -f "$_fish_init"
         source "$_fish_init" 2>/dev/null; or true
-    else if test -f "$_bash_init" && functions -q bass
-        bass source "$_bash_init" 2>/dev/null; or true
+    else if test -f "$_bash_init"
+        # bass not yet installed — skip silently (happens during fisher bootstrap)
+        if functions -q bass
+            bass source "$_bash_init" 2>/dev/null; or true
+        end
     end
 end
+
