@@ -30,48 +30,23 @@ source "${MEOW}/lib/core/ui.sh"
 
 ui_info "Starting essential shell cleanup..."
 
-if [ -d "$HOME/.zsh_cache" ]; then
-  ui_info "Cleaning Zsh cache directory: '$HOME/.zsh_cache'"
+# Fisher cache
+if [ -d "$HOME/.local/share/fisher" ]; then
+  ui_info "Cleaning Fisher cache directory: '$HOME/.local/share/fisher'"
   if [ "${MEOW_DRY_RUN:-false}" = "true" ]; then
-    ui_warn "DRY-RUN: Would remove '$HOME/.zsh_cache'"
+    ui_warn "DRY-RUN: Would remove '$HOME/.local/share/fisher'"
   else
-    rm -rf "$HOME/.zsh_cache" 2>/dev/null || true
+    rm -rf "$HOME/.local/share/fisher" 2>/dev/null || true
   fi
 fi
 
-if [ -d "$HOME/.oh-my-zsh/cache" ]; then
-  ui_info "Cleaning Oh My Zsh cache directory: '$HOME/.oh-my-zsh/cache'"
-  if [ "${MEOW_DRY_RUN:-false}" = "true" ]; then
-    ui_warn "DRY-RUN: Would remove '$HOME/.oh-my-zsh/cache'"
-  else
-    rm -rf "$HOME/.oh-my-zsh/cache" 2>/dev/null || true
-  fi
-fi
-
+# Zellij cache
 if [ -d "${XDG_CACHE_HOME:-$HOME/.cache}/zellij" ]; then
   ui_info "Cleaning Zellij cache directory..."
   if [ "${MEOW_DRY_RUN:-false}" = "true" ]; then
     ui_warn "DRY-RUN: Would remove '${XDG_CACHE_HOME:-$HOME/.cache}/zellij'"
   else
     rm -rf "${XDG_CACHE_HOME:-$HOME/.cache}/zellij" 2>/dev/null || true
-  fi
-fi
-
-ui_info "Cleaning old shell history backup files..."
-if [ "${MEOW_DRY_RUN:-false}" = "true" ]; then
-  ui_warn "DRY-RUN: Would remove '$HOME/.zsh_history.old'"
-  ui_warn "DRY-RUN: Would remove '$HOME/.bash_history.old'"
-else
-  rm -f "$HOME/.zsh_history.old" 2>/dev/null || true
-  rm -f "$HOME/.bash_history.old" 2>/dev/null || true
-fi
-
-if [ -d "$HOME/.zcompdump" ]; then
-  ui_info "Cleaning Zsh completion cache files..."
-  if [ "${MEOW_DRY_RUN:-false}" = "true" ]; then
-    ui_warn "DRY-RUN: Would remove '$HOME/.zcompdump*'"
-  else
-    rm -f "$HOME/.zcompdump*" 2>/dev/null || true
   fi
 fi
 
@@ -84,7 +59,7 @@ if [ -d "$HOME/.fzf" ]; then
   fi
 fi
 
-# Node.js cleanup (since node functionality is now in shell-essential)
+# Node.js cleanup
 if command -v npm >/dev/null 2>&1; then
   ui_info "Cleaning npm cache..."
   if [ "${MEOW_DRY_RUN:-false}" = "true" ]; then
@@ -130,7 +105,7 @@ if [ -d "$HOME/.node-gyp" ]; then
   fi
 fi
 
-# Pipx cleanup (since pipx functionality is now in shell-essential)
+# Pipx cleanup
 if command -v pipx >/dev/null 2>&1; then
   ui_info "Cleaning pipx cache..."
   if [ "${MEOW_DRY_RUN:-false}" = "true" ]; then

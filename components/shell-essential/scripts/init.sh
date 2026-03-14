@@ -26,6 +26,10 @@
 # @author: Andrew Vasilyev
 # @license: MIT
 #
+# NOTE: This script is a bash fallback for non-fish environments (e.g. remote SSH).
+# The canonical interactive shell configuration lives in config/fish/conf.d/.
+# Do not add fish-specific logic here.
+#
 if [ -n "${_COMPONENT_SHELL_ESSENTIAL_INIT_SOURCED:-}" ]; then
   return 0
 fi
@@ -47,111 +51,15 @@ if [[ -f "${MEOW:-$HOME/.meow}/lib/config/config.sh" ]]; then
     source "${MEOW:-$HOME/.meow}/lib/config/config.sh"
 fi
 
-# Initialize variables to prevent nounset errors
-# RPS1-4 are right-side prompts (main, continuation, secondary, debug)
-export RPS1="${RPS1:-}"
-export RPS2="${RPS2:-}"
-export RPS3="${RPS3:-}"
-export RPS4="${RPS4:-}"
-export STARSHIP_JOBS_COUNT="${STARSHIP_JOBS_COUNT:-0}"
-
-# Only set ZSH_THEME if starship is not available
-if ! command -v starship >/dev/null 2>&1; then
-  export ZSH_THEME="robbyrussell"
-fi
-
-base_plugins=(
-  safe-paste
-  command-not-found
-  colored-man-pages
-  man
-  colorize
-  copyfile
-  copypath
-  urltools
-  encode64
-)
-
-conditional_plugins=()
-if command -v gh >/dev/null 2>&1; then
-  conditional_plugins+=("github")
-fi
-
-if command -v ssh >/dev/null 2>&1; then
-  conditional_plugins+=("ssh")
-fi
-
-if command -v docker >/dev/null 2>&1; then
-  conditional_plugins+=("docker" "docker-compose")
-fi
-
-if command -v code >/dev/null 2>&1; then
-  conditional_plugins+=("vscode")
-fi
-
-if command -v http >/dev/null 2>&1; then
-  conditional_plugins+=("httpie")
-fi
-
-if command -v go >/dev/null 2>&1; then
-  conditional_plugins+=("golang")
-fi
-
-if command -v node >/dev/null 2>&1; then
-  conditional_plugins+=("node" "npm")
-fi
-
-if command -v eza >/dev/null 2>&1; then
-  conditional_plugins+=("eza")
-fi
-
-if command -v brew >/dev/null 2>&1; then
-  conditional_plugins+=("brew")
-fi
-
-os_plugins=()
-if [ "${OSTYPE#darwin}" != "$OSTYPE" ]; then
-  os_plugins+=("macos")
-fi
-
-plugins=("${base_plugins[@]}" "${conditional_plugins[@]}" "${os_plugins[@]}")
-export plugins
-
 # Auto-start zellij in Ghostty/Alacritty terminals (only if zellij is available and not already inside)
 if command -v zellij >/dev/null 2>&1 && [[ -z "${ZELLIJ:-}" ]]; then
   if [ -n "${ALACRITTY_LOG:-}" ] || [ "${TERM_PROGRAM:-}" = "Alacritty" ] || [ -n "${ALACRITTY_WINDOW_ID:-}" ] || [ "${TERM_PROGRAM:-}" = "Ghostty" ] || [ "${TERM_PROGRAM:-}" = "ghostty" ] || [ "${TERM:-}" = "xterm-ghostty" ] || [ "${TERM:-}" = "xterm-ghostty-256color" ]; then
-    # ZELLIJ_AUTO_EXIT=true causes the shell to exit when zellij exits,
-    # so Ghostty closes instead of dropping back to a bare zsh prompt.
-    ZELLIJ_AUTO_EXIT=true eval "$(zellij setup --generate-auto-start zsh)"
+    # ZELLIJ_AUTO_EXIT=true causes the shell to exit when zellij exits
+    ZELLIJ_AUTO_EXIT=true eval "$(zellij setup --generate-auto-start bash)"
   fi
 fi
 
-if [ -f "$HOME/.oh-my-zsh/oh-my-zsh.sh" ]; then
-  if [ "${MEOW_DRY_RUN:-false}" = "true" ]; then
-    echo "DRY-RUN: sourcing $HOME/.oh-my-zsh/oh-my-zsh.sh"
-  else
-    # Temporarily disable nounset for oh-my-zsh compatibility (if it was set)
-    # Save the state first
-    case $- in
-      *u*) local restore_nounset=1 ;;
-      *) local restore_nounset=0 ;;
-    esac
-    set +u 2>/dev/null || true
-    source "$HOME/.oh-my-zsh/oh-my-zsh.sh"
-    # Restore nounset only if it was set before
-    [[ $restore_nounset -eq 1 ]] && set -u 2>/dev/null || true
-  fi
-fi
-
-# Load zellij completion after compinit (oh-my-zsh initializes it above).
-# Strip the trailing `_zellij "$@"` line that zellij incorrectly emits —
-# calling the completion function at eval time triggers the
-# "_arguments: can only be called from completion function" error.
-if command -v zellij >/dev/null 2>&1; then
-  eval "$(zellij setup --generate-completion zsh 2>/dev/null | grep -v '^_zellij "\$@"')" || true
-fi
-
-# Ensure the real `duf` binary is reachable (oh-my-zsh may define `duf` alias).
+# Ensure the real `duf` binary is reachable
 if command -v duf >/dev/null 2>&1; then
   unalias duf >/dev/null 2>&1 || true
   alias df='duf'
@@ -195,7 +103,7 @@ if command -v eza >/dev/null 2>&1; then
   alias lta='eza --tree --level=2 -a'
 fi
 
-# Git aliases (if not using oh-my-zsh git plugin)
+# Git aliases
 if command -v git >/dev/null 2>&1; then
   alias g='git'
   alias gs='git status'
@@ -209,21 +117,21 @@ fi
 
 if command -v fzf >/dev/null 2>&1; then
   if [ "${MEOW_VERBOSE:-false}" = "true" ]; then
-    echo "INFO: sourcing fzf zsh completion"
+    echo "INFO: sourcing fzf bash completion"
   fi
   if [ "${MEOW_DRY_RUN:-false}" = "true" ]; then
     echo "DRY-RUN: sourcing fzf completion"
   else
     # shellcheck disable=SC1090
-    source <(fzf --zsh)
-    
+    source <(fzf --bash)
+
     # Configure FZF to use fd for file search if available
     if command -v fd >/dev/null 2>&1; then
       export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
       export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
       export FZF_ALT_C_COMMAND='fd --type d --hidden --follow --exclude .git'
     fi
-    
+
     # Configure FZF to use bat for file preview if available
     if command -v bat >/dev/null 2>&1; then
       export FZF_CTRL_T_OPTS="--preview 'bat --color=always --style=numbers --line-range=:500 {}'"
@@ -239,18 +147,7 @@ if command -v zoxide >/dev/null 2>&1; then
   if [ "${MEOW_DRY_RUN:-false}" = "true" ]; then
     echo "DRY-RUN: evaluating zoxide init command"
   else
-    eval "$(zoxide init zsh --cmd cd)"
-  fi
-fi
-
-if command -v direnv >/dev/null 2>&1; then
-  if [ "${MEOW_VERBOSE:-false}" = "true" ]; then
-    echo "INFO: initializing direnv"
-  fi
-  if [ "${MEOW_DRY_RUN:-false}" = "true" ]; then
-    echo "DRY-RUN: evaluating direnv hook command"
-  else
-    eval "$(direnv hook zsh)"
+    eval "$(zoxide init bash --cmd cd)"
   fi
 fi
 
@@ -261,7 +158,7 @@ if command -v starship >/dev/null 2>&1; then
   if [ "${MEOW_DRY_RUN:-false}" = "true" ]; then
     echo "DRY-RUN: evaluating starship init command"
   else
-    eval "$(starship init zsh)"
+    eval "$(starship init bash)"
   fi
 fi
 
@@ -277,42 +174,30 @@ _meow_source_theme_colors() {
 meow-theme() {
   "${MEOW:-$HOME/.meow}/components/shell-essential/scripts/meow-theme" "$@"
   local exit_code=$?
-  
+
   # Reload environment variables after theme changes
   case "${1:-apply}" in
     toggle|apply|preset|auto|"")
       _meow_source_theme_colors
       ;;
   esac
-  
+
   return $exit_code
 }
 
 # Source theme colors on shell initialization
 _meow_source_theme_colors
 
-# Load shell completions for meowctl and meow-theme
-if [ -n "$ZSH_VERSION" ]; then
-  # Zsh completion
-  fpath=("$MEOW/completions/zsh" $fpath)
-  
-  # Force reload of completion system
-  autoload -Uz compinit
-  compinit -i
-  
-  if [ "${MEOW_VERBOSE:-false}" = "true" ]; then
-    echo "INFO: Loaded zsh completions for meowctl and meow-theme"
-  fi
-elif [ -n "$BASH_VERSION" ]; then
-  # Bash completion
+# Load bash completions for meowctl and meow-theme
+if [ -n "$BASH_VERSION" ]; then
   if [ -f "$MEOW/completions/bash/meowctl-completion.bash" ]; then
     source "$MEOW/completions/bash/meowctl-completion.bash"
   fi
-  
+
   if [ -f "$MEOW/completions/bash/meow-theme-completion.bash" ]; then
     source "$MEOW/completions/bash/meow-theme-completion.bash"
   fi
-  
+
   if [ "${MEOW_VERBOSE:-false}" = "true" ]; then
     echo "INFO: Loaded bash completions for meowctl and meow-theme"
   fi

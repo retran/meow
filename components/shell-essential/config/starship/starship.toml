@@ -28,15 +28,18 @@
 
 add_newline = true
 
-command_timeout = 3000
+command_timeout = 500
+scan_timeout = 30
 
 format = """
 $os\
+$shlvl\
 $username\
 $directory\
 $git_branch\
 $git_commit\
 $git_status\
+$git_metrics\
 $git_state\
 $c\
 $rust\
@@ -46,6 +49,7 @@ $php\
 $java\
 $kotlin\
 $haskell\
+$lua\
 $python\
 $package\
 $docker_context\
@@ -479,7 +483,7 @@ RedHatEnterprise = "󱄛"
 Pop = ""
 
 [username]
-show_always = true
+show_always = false
 style_user = "fg:color_username"
 style_root = "bold fg:color_danger"
 format = '[ $user ]($style)'
@@ -539,7 +543,7 @@ format = '([([+$added]($added_style))([-$deleted]($deleted_style))](fg:color_git
 added_style = "fg:color_git_added"
 deleted_style = "fg:color_git_deleted"
 only_nonzero_diffs = true
-disabled = true
+disabled = false
 
 [git_state]
 style = "fg:color_danger"
@@ -589,9 +593,21 @@ style = "fg:color_env"
 format = '( [$symbol( $version)]($style) )'
 
 [haskell]
-symbol = ""
+symbol = ""
 style = "fg:color_env"
 format = '( [$symbol( $version)]($style) )'
+
+[lua]
+symbol = "󰢱"
+style = "fg:color_env"
+format = '( [$symbol( $version)]($style) )'
+
+[shlvl]
+symbol = "󰘧"
+style = "fg:color_caution"
+format = '( [$symbol$shlvl]($style) )'
+threshold = 2
+disabled = false
 
 [python]
 symbol = ""

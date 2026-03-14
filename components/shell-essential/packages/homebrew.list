@@ -10,7 +10,7 @@ bat-extras
 fzf
 ripgrep
 zoxide
-htop
+btop
 eza
 fd
 coreutils
@@ -20,7 +20,5 @@ yq
 watch
 glow
 groff
-zsh
-zsh-autosuggestions
-zsh-syntax-highlighting
+fish
 gum

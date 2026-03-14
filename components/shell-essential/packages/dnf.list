@@ -4,11 +4,10 @@ git-delta
 tealdeer
 duf
 bash
-zsh
+fish
 coreutils
 curl
 wget
-direnv
 bat
 eza
 fd-find
@@ -18,7 +17,5 @@ zoxide
 glow
 findutils
 watch
-htop
-zsh-autosuggestions
-zsh-syntax-highlighting
+btop
 starship
