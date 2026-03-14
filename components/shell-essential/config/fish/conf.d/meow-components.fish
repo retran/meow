@@ -3,7 +3,7 @@
 # Copyright (c) 2025 Andrew Vasilyev <me@retran.me>
 #
 # @file: components/shell-essential/config/fish/conf.d/meow-components.fish
-# @brief: Source each installed component's init.fish (preferred) or init.sh (fallback via bass).
+# @brief: Source each installed component's init.fish.
 # @author: Andrew Vasilyev
 # @license: MIT
 

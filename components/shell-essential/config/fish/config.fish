@@ -67,11 +67,10 @@ if test -d "$HOME/.fzf/bin"
 end
 
 # ============================================================================
-# Source meow env — fish-native per-component env.fish first, then bash
-# fallback via bass for components that only have env.sh
+# Source meow env — per-component env.fish, then lib/env/env.sh via bass
 # ============================================================================
 
-# Per-component env.fish (fish-native, preferred)
+# Per-component env.fish
 for _component_dir in "$MEOW"/.installed/components/*
     set -l _component_name (basename "$_component_dir")
     set -l _fish_env "$MEOW/components/$_component_name/scripts/env.fish"
@@ -80,8 +79,7 @@ for _component_dir in "$MEOW"/.installed/components/*
     end
 end
 
-# lib/env/env.sh via bass — sets EDITOR, VISUAL, PATH additions for components
-# without env.fish (pipx, cargo, npm-global, mise shims, etc.)
+# lib/env/env.sh via bass — sets EDITOR, VISUAL, GIT_EDITOR, PAGER, LANG, PATH
 if functions -q bass
     if test -f "$MEOW/lib/env/env.sh"
         bass source "$MEOW/lib/env/env.sh"
