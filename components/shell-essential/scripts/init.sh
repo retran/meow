@@ -52,10 +52,13 @@ if [[ -f "${MEOW:-$HOME/.meow}/lib/config/config.sh" ]]; then
 fi
 
 # Auto-start zellij in Ghostty/Alacritty terminals (only if zellij is available and not already inside)
-if command -v zellij >/dev/null 2>&1 && [[ -z "${ZELLIJ:-}" ]]; then
-  if [ -n "${ALACRITTY_LOG:-}" ] || [ "${TERM_PROGRAM:-}" = "Alacritty" ] || [ -n "${ALACRITTY_WINDOW_ID:-}" ] || [ "${TERM_PROGRAM:-}" = "Ghostty" ] || [ "${TERM_PROGRAM:-}" = "ghostty" ] || [ "${TERM:-}" = "xterm-ghostty" ] || [ "${TERM:-}" = "xterm-ghostty-256color" ]; then
-    # ZELLIJ_AUTO_EXIT=true causes the shell to exit when zellij exits
-    ZELLIJ_AUTO_EXIT=true eval "$(zellij setup --generate-auto-start bash)"
+# Skip when sourced non-interactively (e.g. via bass from fish — fish handles zellij auto-start itself)
+if [[ $- == *i* ]]; then
+  if command -v zellij >/dev/null 2>&1 && [[ -z "${ZELLIJ:-}" ]]; then
+    if [ -n "${ALACRITTY_LOG:-}" ] || [ "${TERM_PROGRAM:-}" = "Alacritty" ] || [ -n "${ALACRITTY_WINDOW_ID:-}" ] || [ "${TERM_PROGRAM:-}" = "Ghostty" ] || [ "${TERM_PROGRAM:-}" = "ghostty" ] || [ "${TERM:-}" = "xterm-ghostty" ] || [ "${TERM:-}" = "xterm-ghostty-256color" ]; then
+      # ZELLIJ_AUTO_EXIT=true causes the shell to exit when zellij exits
+      ZELLIJ_AUTO_EXIT=true eval "$(zellij setup --generate-auto-start bash)"
+    fi
   fi
 fi
 

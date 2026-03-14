@@ -22,8 +22,20 @@
 #
 # @file: components/shell-essential/symlinks/fish.yaml
 # @brief: Symlink configuration for fish shell settings.
+#         ~/.config/fish itself is a real directory (Fisher writes there freely).
+#         Only our managed files are symlinked in.
 # @author: Andrew Vasilyev
 # @license: MIT
 #
-- source: "$MEOW/.installed/components/shell-essential/config/fish"
-  target: "$HOME/.config/fish"
+- source: "$MEOW/.installed/components/shell-essential/config/fish/config.fish"
+  target: "$HOME/.config/fish/config.fish"
+- source: "$MEOW/.installed/components/shell-essential/config/fish/conf.d/aliases.fish"
+  target: "$HOME/.config/fish/conf.d/aliases.fish"
+- source: "$MEOW/.installed/components/shell-essential/config/fish/conf.d/meow-components.fish"
+  target: "$HOME/.config/fish/conf.d/meow-components.fish"
+- source: "$MEOW/.installed/components/shell-essential/config/fish/conf.d/terminal-title.fish"
+  target: "$HOME/.config/fish/conf.d/terminal-title.fish"
+- source: "$MEOW/.installed/components/shell-essential/config/fish/conf.d/theme-colors.fish"
+  target: "$HOME/.config/fish/conf.d/theme-colors.fish"
+- source: "$MEOW/.installed/components/shell-essential/config/fish/themes"
+  target: "$HOME/.config/fish/themes"

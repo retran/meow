@@ -53,7 +53,6 @@ $lua\
 $python\
 $package\
 $docker_context\
-$kubernetes\
 $container\
 $jobs\
 ${custom.memory_usage}\
@@ -458,7 +457,6 @@ color_vimcmd_visual = '#77713f'
 disabled = false
 style = "fg:color_os"
 format = '[$symbol]($style)'
-
 [os.symbols]
 Windows = "󰍲"
 Ubuntu = "󰕈"
@@ -495,7 +493,7 @@ repo_root_style = "bold fg:color_directory"
 format = "[ $path ]($style)"
 read_only = " "
 home_symbol = "~"
-truncation_symbol = "…/"
+truncation_symbol = " …/"
 truncation_length = 0
 truncate_to_repo = true
 fish_style_pwd_dir_length = 0
@@ -622,15 +620,16 @@ style = "fg:color_env"
 format = '( [$symbol( $version)]($style) )'
 
 [docker_context]
-symbol = ""
+symbol = ""
 style = "fg:color_docker"
 format = '( [$symbol( $context)]($style) )'
+only_with_files = true
+detect_files = ["docker-compose.yml", "docker-compose.yaml", "Dockerfile", ".dockerignore"]
+detect_extensions = []
+detect_folders = []
 
 [kubernetes]
-symbol = "󱃾"
-style = "fg:color_kubernetes"
-format = '( [($symbol( $cluster))]($style) )'
-disabled = false
+disabled = true
 
 [shell]
 disabled = true

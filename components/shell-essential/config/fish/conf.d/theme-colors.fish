@@ -41,13 +41,10 @@ function meow-theme --description 'Manage meow colour theme'
     command "$meow_root/components/shell-essential/scripts/meow-theme" $argv
     set -l exit_code $status
 
-    switch (count $argv) (string match -r '^(toggle|apply|preset|auto)$' -- $argv[1])
-        case '* 1'
-            _meow_source_theme_colors
-        case '*'
-            if test (count $argv) -eq 0
-                _meow_source_theme_colors
-            end
+    if test (count $argv) -eq 0
+        _meow_source_theme_colors
+    else if string match -rq '^(toggle|apply|preset|auto)$' -- $argv[1]
+        _meow_source_theme_colors
     end
 
     return $exit_code

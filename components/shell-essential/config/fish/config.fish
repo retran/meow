@@ -64,8 +64,21 @@ if test -d "$HOME/.fzf/bin"
 end
 
 # ============================================================================
-# Source meow env.sh via bass (sets EDITOR, VISUAL, FZF_* vars, etc.)
+# Source meow env — fish-native per-component env.fish first, then bash
+# fallback via bass for components that only have env.sh
 # ============================================================================
+
+# Per-component env.fish (fish-native, preferred)
+for _component_dir in "$MEOW"/.installed/components/*
+    set -l _component_name (basename "$_component_dir")
+    set -l _fish_env "$MEOW/components/$_component_name/scripts/env.fish"
+    if test -f "$_fish_env"
+        source "$_fish_env" 2>/dev/null; or true
+    end
+end
+
+# lib/env/env.sh via bass — sets EDITOR, VISUAL, PATH additions for components
+# without env.fish (pipx, cargo, npm-global, mise shims, etc.)
 if functions -q bass
     if test -f "$MEOW/lib/env/env.sh"
         bass source "$MEOW/lib/env/env.sh"
@@ -75,17 +88,20 @@ end
 # ============================================================================
 # Zellij auto-start (Ghostty / Alacritty terminals only)
 # ============================================================================
-if command -q zellij; and test -z "$ZELLIJ"
+if status is-interactive
     set -l _term "$TERM_PROGRAM"
     set -l _xterm "$TERM"
-    if test "$_term" = Ghostty
-        or test "$_term" = ghostty
-        or test "$_xterm" = xterm-ghostty
-        or test "$_xterm" = xterm-ghostty-256color
-        or test "$_term" = Alacritty
-        or test -n "$ALACRITTY_LOG"
-        or test -n "$ALACRITTY_WINDOW_ID"
-        ZELLIJ_AUTO_EXIT=true eval (zellij setup --generate-auto-start bash | string collect)
+    if command -q zellij; and test -z "$ZELLIJ"
+        if test "$_term" = Ghostty
+            or test "$_term" = ghostty
+            or test "$_xterm" = xterm-ghostty
+            or test "$_xterm" = xterm-ghostty-256color
+            or test "$_term" = Alacritty
+            or test -n "$ALACRITTY_LOG"
+            or test -n "$ALACRITTY_WINDOW_ID"
+
+            exec zellij
+        end
     end
 end
 
@@ -96,6 +112,11 @@ end
 # zoxide — replaces cd
 if command -q zoxide
     zoxide init fish --cmd cd | source
+end
+
+# mise — tool version manager
+if command -q mise
+    mise activate fish | source
 end
 
 # starship prompt
