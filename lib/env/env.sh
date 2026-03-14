@@ -61,6 +61,7 @@ export LC_ALL="en_US.UTF-8"
 _meow_set_if_command_exists "EDITOR" "nvim" "vim" "nano"
 if [ -n "${EDITOR:-}" ]; then
   export VISUAL="$EDITOR"
+  export GIT_EDITOR="$EDITOR"
 fi
 
 _meow_set_if_command_exists "PAGER" "less" "more"
