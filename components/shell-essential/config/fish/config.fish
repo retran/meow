@@ -114,10 +114,7 @@ if command -q zoxide
     zoxide init fish --cmd cd | source
 end
 
-# mise — tool version manager
-if command -q mise
-    mise activate fish | source
-end
+# mise — activated via components/tool-installers/scripts/init.fish (sourced by meow-components.fish)
 
 # starship prompt
 if command -q starship
