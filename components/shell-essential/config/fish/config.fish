@@ -136,11 +136,6 @@ if functions -q fzf_configure_bindings
         --processes=\cp
 end
 
-# navi — interactive command cheatsheets (ctrl-g)
-if command -q navi
-    navi widget fish | source
-end
-
 # ============================================================================
 # Theme colours (FZF_DEFAULT_OPTS, EZA_COLORS, LS_COLORS)
 # ============================================================================
