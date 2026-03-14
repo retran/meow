@@ -202,7 +202,7 @@ write_ghostty_theme() {
       echo "foreground = ${fg_raw}"
     fi
     local cursor
-    cursor=$(theme_get_palette_color "$preset" "$variant" "rosewater" || theme_get_palette_color "$preset" "$variant" "highlight" || theme_get_palette_color "$preset" "$variant" "accent" || theme_get_palette_color "$preset" "$variant" "orange" || true)
+    cursor=$(theme_get_palette_color "$preset" "$variant" "cursor_color" || theme_get_palette_color "$preset" "$variant" "rosewater" || theme_get_palette_color "$preset" "$variant" "highlight" || theme_get_palette_color "$preset" "$variant" "accent" || theme_get_palette_color "$preset" "$variant" "orange" || true)
     local cursor_raw="${cursor#\#}"
     if [[ -n "$cursor_raw" ]]; then
       echo "cursor-color = ${cursor_raw}"
@@ -334,19 +334,23 @@ write_lazygit_theme() {
   
   fg=$(theme_get_palette_color "$preset" "$variant" "fg" || theme_get_palette_color "$preset" "$variant" "fg1" || true)
   bg=$(theme_get_palette_color "$preset" "$variant" "bg" || theme_get_palette_color "$preset" "$variant" "bg1" || true)
-  # inactive border: subtext0 (muted text color)
-  inactive_border=$(theme_get_palette_color "$preset" "$variant" "subtext0" || theme_get_palette_color "$preset" "$variant" "comment" || theme_get_palette_color "$preset" "$variant" "overlay0" || true)
-  # selected line bg: surface0 (first surface above base)
-  selected_line_bg=$(theme_get_palette_color "$preset" "$variant" "surface0" || theme_get_palette_color "$preset" "$variant" "bg_highlight" || theme_get_palette_color "$preset" "$variant" "selection_bg" || true)
-  # cherry pick bg: surface1
-  cherry_pick_bg=$(theme_get_palette_color "$preset" "$variant" "surface1" || theme_get_palette_color "$preset" "$variant" "surface0" || true)
-  # active/accent: blue
-  accent=$(theme_get_palette_color "$preset" "$variant" "blue" || theme_get_palette_color "$preset" "$variant" "water" || true)
-  cherry_pick_fg="$accent"
+  # inactive border: lazygit_inactive_border override, then subtext0/comment/overlay0
+  inactive_border=$(theme_get_palette_color "$preset" "$variant" "lazygit_inactive_border" || theme_get_palette_color "$preset" "$variant" "subtext0" || theme_get_palette_color "$preset" "$variant" "comment" || theme_get_palette_color "$preset" "$variant" "overlay0" || true)
+  # selected line bg: lazygit_selected_line_bg override, then surface0/bg_highlight/selection_bg
+  selected_line_bg=$(theme_get_palette_color "$preset" "$variant" "lazygit_selected_line_bg" || theme_get_palette_color "$preset" "$variant" "surface0" || theme_get_palette_color "$preset" "$variant" "bg_highlight" || theme_get_palette_color "$preset" "$variant" "selection_bg" || true)
+  # cherry pick bg: lazygit_cherry_pick_bg override, then surface1/surface0
+  cherry_pick_bg=$(theme_get_palette_color "$preset" "$variant" "lazygit_cherry_pick_bg" || theme_get_palette_color "$preset" "$variant" "surface1" || theme_get_palette_color "$preset" "$variant" "surface0" || true)
+  # active/accent: lazygit_active_border override, then blue/water/pink
+  accent=$(theme_get_palette_color "$preset" "$variant" "lazygit_active_border" || theme_get_palette_color "$preset" "$variant" "blue" || theme_get_palette_color "$preset" "$variant" "water" || theme_get_palette_color "$preset" "$variant" "pink" || true)
+  # cherry pick fg: lazygit_cherry_pick_fg override, then accent
+  cherry_pick_fg=$(theme_get_palette_color "$preset" "$variant" "lazygit_cherry_pick_fg" || echo "$accent")
+  # options text: lazygit_options_text override, then accent
+  local options_text
+  options_text=$(theme_get_palette_color "$preset" "$variant" "lazygit_options_text" || echo "$accent")
   # unstaged changes: red
   unstaged=$(theme_get_palette_color "$preset" "$variant" "red" || theme_get_palette_color "$preset" "$variant" "rose" || theme_get_terminal_color "$preset" "$variant" "1" || true)
-  # searching border: yellow
-  searching_border=$(theme_get_palette_color "$preset" "$variant" "yellow" || theme_get_palette_color "$preset" "$variant" "wood" || true)
+  # searching border: lazygit_searching_border override, then yellow/wood/cyan
+  searching_border=$(theme_get_palette_color "$preset" "$variant" "lazygit_searching_border" || theme_get_palette_color "$preset" "$variant" "yellow" || theme_get_palette_color "$preset" "$variant" "wood" || theme_get_palette_color "$preset" "$variant" "cyan" || true)
   default_fg=$(theme_get_palette_color "$preset" "$variant" "fg" || theme_get_palette_color "$preset" "$variant" "text" || true)
   
   if [[ -z "$fg" ]] || [[ -z "$bg" ]]; then
@@ -364,7 +368,7 @@ write_lazygit_theme() {
     echo "    inactiveBorderColor:"
     echo "      - \"${inactive_border:-$fg}\""
     echo "    optionsTextColor:"
-    echo "      - \"${accent}\""
+    echo "      - \"${options_text}\""
     echo "    selectedLineBgColor:"
     echo "      - \"${selected_line_bg}\""
     echo "    cherryPickedCommitBgColor:"
@@ -378,6 +382,7 @@ write_lazygit_theme() {
     if [[ -n "$searching_border" ]]; then
       echo "    searchingActiveBorderColor:"
       echo "      - \"${searching_border}\""
+      echo "      - bold"
     fi
   } > "$out_file"
 }
@@ -533,29 +538,33 @@ write_fzf_theme() {
   
   bg=$(theme_get_palette_color "$preset" "$variant" "bg" || theme_get_palette_color "$preset" "$variant" "bg1" || true)
   fg=$(theme_get_palette_color "$preset" "$variant" "fg" || theme_get_palette_color "$preset" "$variant" "fg1" || true)
-  hl=$(theme_get_palette_color "$preset" "$variant" "red" || theme_get_palette_color "$preset" "$variant" "rose" || true)
+  # fzf_hl override, then fallback to red/rose
+  hl=$(theme_get_palette_color "$preset" "$variant" "fzf_hl" || theme_get_palette_color "$preset" "$variant" "red" || theme_get_palette_color "$preset" "$variant" "rose" || true)
   fg_plus=$(theme_get_palette_color "$preset" "$variant" "fg" || true)
-  bg_plus=$(theme_get_palette_color "$preset" "$variant" "surface0" || theme_get_palette_color "$preset" "$variant" "bg_highlight" || theme_get_palette_color "$preset" "$variant" "selection_bg" || true)
-  hl_plus=$(theme_get_palette_color "$preset" "$variant" "red" || theme_get_palette_color "$preset" "$variant" "rose" || true)
-  # info and prompt: mauve/purple (catppuccin style)
-  info=$(theme_get_palette_color "$preset" "$variant" "mauve" || theme_get_palette_color "$preset" "$variant" "purple" || theme_get_palette_color "$preset" "$variant" "cyan" || true)
-  prompt=$(theme_get_palette_color "$preset" "$variant" "mauve" || theme_get_palette_color "$preset" "$variant" "purple" || theme_get_palette_color "$preset" "$variant" "blue" || true)
-  # pointer and spinner: rosewater/accent
-  pointer=$(theme_get_palette_color "$preset" "$variant" "rosewater" || theme_get_palette_color "$preset" "$variant" "red" || theme_get_palette_color "$preset" "$variant" "rose" || true)
-  spinner=$(theme_get_palette_color "$preset" "$variant" "rosewater" || theme_get_palette_color "$preset" "$variant" "yellow" || true)
-  # marker: lavender
-  marker=$(theme_get_palette_color "$preset" "$variant" "lavender" || theme_get_palette_color "$preset" "$variant" "purple" || theme_get_palette_color "$preset" "$variant" "blossom" || true)
-  # header: red
-  header=$(theme_get_palette_color "$preset" "$variant" "red" || theme_get_palette_color "$preset" "$variant" "rose" || theme_get_palette_color "$preset" "$variant" "blue" || true)
-  # selected-bg: surface1
+  bg_plus=$(theme_get_palette_color "$preset" "$variant" "fzf_bg_plus" || theme_get_palette_color "$preset" "$variant" "surface0" || theme_get_palette_color "$preset" "$variant" "bg_highlight" || theme_get_palette_color "$preset" "$variant" "selection_bg" || true)
+  # fzf_hl_plus override, then fallback to fzf_hl value
+  hl_plus=$(theme_get_palette_color "$preset" "$variant" "fzf_hl_plus" || theme_get_palette_color "$preset" "$variant" "fzf_hl" || theme_get_palette_color "$preset" "$variant" "red" || theme_get_palette_color "$preset" "$variant" "rose" || true)
+  # info: fzf_info override, then mauve/purple (catppuccin style)
+  info=$(theme_get_palette_color "$preset" "$variant" "fzf_info" || theme_get_palette_color "$preset" "$variant" "mauve" || theme_get_palette_color "$preset" "$variant" "purple" || theme_get_palette_color "$preset" "$variant" "cyan" || true)
+  # prompt: fzf_prompt override, then mauve/purple/blue
+  prompt=$(theme_get_palette_color "$preset" "$variant" "fzf_prompt" || theme_get_palette_color "$preset" "$variant" "mauve" || theme_get_palette_color "$preset" "$variant" "purple" || theme_get_palette_color "$preset" "$variant" "blue" || true)
+  # pointer: fzf_pointer override, then rosewater/accent
+  pointer=$(theme_get_palette_color "$preset" "$variant" "fzf_pointer" || theme_get_palette_color "$preset" "$variant" "rosewater" || theme_get_palette_color "$preset" "$variant" "red" || theme_get_palette_color "$preset" "$variant" "rose" || true)
+  # spinner: fzf_spinner override, then rosewater/yellow
+  spinner=$(theme_get_palette_color "$preset" "$variant" "fzf_spinner" || theme_get_palette_color "$preset" "$variant" "rosewater" || theme_get_palette_color "$preset" "$variant" "yellow" || true)
+  # marker: fzf_marker override, then lavender/purple
+  marker=$(theme_get_palette_color "$preset" "$variant" "fzf_marker" || theme_get_palette_color "$preset" "$variant" "lavender" || theme_get_palette_color "$preset" "$variant" "purple" || theme_get_palette_color "$preset" "$variant" "blossom" || true)
+  # header: fzf_header override, then red/rose/blue
+  header=$(theme_get_palette_color "$preset" "$variant" "fzf_header" || theme_get_palette_color "$preset" "$variant" "red" || theme_get_palette_color "$preset" "$variant" "rose" || theme_get_palette_color "$preset" "$variant" "blue" || true)
+  # selected-bg: fzf_selected_bg override, then surface1
   local selected_bg
-  selected_bg=$(theme_get_palette_color "$preset" "$variant" "surface1" || theme_get_palette_color "$preset" "$variant" "bg_highlight" || true)
-  # border: overlay0
+  selected_bg=$(theme_get_palette_color "$preset" "$variant" "fzf_selected_bg" || theme_get_palette_color "$preset" "$variant" "surface1" || theme_get_palette_color "$preset" "$variant" "bg_highlight" || true)
+  # border: fzf_border override, then overlay0/comment
   local border
-  border=$(theme_get_palette_color "$preset" "$variant" "overlay0" || theme_get_palette_color "$preset" "$variant" "comment" || true)
-  # label: text/fg
+  border=$(theme_get_palette_color "$preset" "$variant" "fzf_border" || theme_get_palette_color "$preset" "$variant" "overlay0" || theme_get_palette_color "$preset" "$variant" "comment" || true)
+  # label: fzf_label override, then text/fg
   local label
-  label=$(theme_get_palette_color "$preset" "$variant" "text" || theme_get_palette_color "$preset" "$variant" "fg" || true)
+  label=$(theme_get_palette_color "$preset" "$variant" "fzf_label" || theme_get_palette_color "$preset" "$variant" "text" || theme_get_palette_color "$preset" "$variant" "fg" || true)
   
   if [[ -z "$bg" ]] || [[ -z "$fg" ]]; then
     return
