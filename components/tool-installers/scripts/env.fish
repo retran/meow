@@ -16,9 +16,12 @@ set -g _COMPONENT_TOOL_INSTALLERS_ENV_FISH_SOURCED 1
 # mise binary and shims
 fish_add_path "$HOME/.local/bin"
 
-set -l _mise_shims "${MISE_DATA_DIR:-$HOME/.local/share/mise}/shims"
-if test -d "$_mise_shims"
-    fish_add_path "$_mise_shims"
+set -l _mise_data_dir "$HOME/.local/share/mise"
+if set -q MISE_DATA_DIR
+    set _mise_data_dir "$MISE_DATA_DIR"
+end
+if test -d "$_mise_data_dir/shims"
+    fish_add_path "$_mise_data_dir/shims"
 end
 
 # pipx
