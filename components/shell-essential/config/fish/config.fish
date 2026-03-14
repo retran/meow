@@ -125,7 +125,21 @@ if command -q starship
 end
 
 # fzf key bindings (provided by PatrickF1/fzf.fish plugin)
-# No explicit init needed — fzf.fish handles it via conf.d autoloading.
+# Explicitly configure bindings so behaviour is documented and stable.
+if functions -q fzf_configure_bindings
+    fzf_configure_bindings \
+        --history=\cr \
+        --variables=\cv \
+        --directory=\cf \
+        --git_log=\cg \
+        --git_status=\cs \
+        --processes=\cp
+end
+
+# navi — interactive command cheatsheets (ctrl-g)
+if command -q navi
+    navi widget fish | source
+end
 
 # ============================================================================
 # Theme colours (FZF_DEFAULT_OPTS, EZA_COLORS, LS_COLORS)

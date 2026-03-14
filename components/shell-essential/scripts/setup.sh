@@ -95,9 +95,10 @@ install_fish_plugins() {
   fi
 
   local plugins=(
-    "PatrickF1/fzf.fish"    # fzf key bindings and completions
-    "jorgebucaran/autopair.fish"  # auto-close brackets/quotes
-    "edc/bass"              # source bash scripts from fish
+    "PatrickF1/fzf.fish"         # fzf key bindings and completions
+    "jorgebucaran/autopair.fish" # auto-close brackets/quotes
+    "edc/bass"                   # source bash scripts from fish
+    "meaningful-ooo/sponge"      # remove failed/silent commands from history
   )
 
   local installed=0 failed=0
