@@ -243,6 +243,8 @@ theme_dir "~/.config/zellij/themes"
 //   - true (default)
 //   - false
 // 
+// Mouse mode enables click-to-focus panes. To select and copy text, hold Shift while dragging.
+// Selection is automatically copied to clipboard on release (see copy_on_select below).
 mouse_mode true
  
 // Toggle having pane frames around the panes
