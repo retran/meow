@@ -65,6 +65,22 @@ hex_to_rgb() {
   echo "${r},${g},${b}"
 }
 
+# blend_hex_colors <color1_hex> <color2_hex> <pct1>
+# Returns a hex color that is pct1% of color1 mixed with (100-pct1)% of color2
+blend_hex_colors() {
+  local c1="$1" c2="$2" pct="${3:-50}"
+  c1="${c1#\#}"
+  c2="${c2#\#}"
+  local r1 g1 b1 r2 g2 b2
+  r1=$((16#${c1:0:2})); g1=$((16#${c1:2:2})); b1=$((16#${c1:4:2}))
+  r2=$((16#${c2:0:2})); g2=$((16#${c2:2:2})); b2=$((16#${c2:4:2}))
+  local r g b
+  r=$(( (r1 * pct + r2 * (100 - pct)) / 100 ))
+  g=$(( (g1 * pct + g2 * (100 - pct)) / 100 ))
+  b=$(( (b1 * pct + b2 * (100 - pct)) / 100 ))
+  printf "#%02x%02x%02x\n" "$r" "$g" "$b"
+}
+
 get_theme_list() {
   read_yaml_value "$THEME_DB" ".themes | keys | .[]" | sed '/^\s*$/d'
 }
@@ -154,24 +170,56 @@ write_ghostty_theme() {
   background=$(theme_get_palette_color "$preset" "$variant" "bg" || theme_get_palette_color "$preset" "$variant" "bg1" || true)
   foreground=$(theme_get_palette_color "$preset" "$variant" "fg" || theme_get_palette_color "$preset" "$variant" "fg1" || true)
 
+  # Strip leading '#' from hex colors (ghostty format: no '#', no quotes)
+  local bg_raw="${background#\#}"
+  local fg_raw="${foreground#\#}"
+
+  # Look up additional semantic colors from palette
+  local selection_bg_raw
+  local selection_fg_raw
+  local cursor_text_raw
+  local split_div_raw
+  # Try theme-specific selection_bg key first, then fall back to surface0
+  local sel_bg
+  sel_bg=$(theme_get_palette_color "$preset" "$variant" "selection_bg" || theme_get_palette_color "$preset" "$variant" "surface0" || true)
+  selection_bg_raw="${sel_bg#\#}"
+  selection_fg_raw="$fg_raw"
+  # cursor-text: use base for light themes, crust for dark themes
+  local cursor_text_color
+  cursor_text_color=$(theme_get_palette_color "$preset" "$variant" "base" || theme_get_palette_color "$preset" "$variant" "bg" || true)
+  cursor_text_raw="${cursor_text_color#\#}"
+  # split divider: surface0
+  local split_div
+  split_div=$(theme_get_palette_color "$preset" "$variant" "surface0" || true)
+  split_div_raw="${split_div#\#}"
+
   {
-    echo "# Generated from themes.yaml"
-    if [[ -n "$background" ]]; then
-      echo "background = \"$background\""
-      echo "selection-foreground = \"$background\""
+    echo "# Generated from themes.yaml — ${preset}/${variant}"
+    if [[ -n "$bg_raw" ]]; then
+      echo "background = ${bg_raw}"
     fi
-    if [[ -n "$foreground" ]]; then
-      echo "foreground = \"$foreground\""
-      echo "selection-background = \"$foreground\""
+    if [[ -n "$fg_raw" ]]; then
+      echo "foreground = ${fg_raw}"
     fi
     local cursor
-    cursor=$(theme_get_palette_color "$preset" "$variant" "highlight" || theme_get_palette_color "$preset" "$variant" "accent" || theme_get_palette_color "$preset" "$variant" "orange" || true)
-    if [[ -n "$cursor" ]]; then
-      echo "cursor-color = \"$cursor\""
-      if [[ -n "$background" ]]; then
-        echo "cursor-text = \"$background\""
-      fi
+    cursor=$(theme_get_palette_color "$preset" "$variant" "rosewater" || theme_get_palette_color "$preset" "$variant" "highlight" || theme_get_palette_color "$preset" "$variant" "accent" || theme_get_palette_color "$preset" "$variant" "orange" || true)
+    local cursor_raw="${cursor#\#}"
+    if [[ -n "$cursor_raw" ]]; then
+      echo "cursor-color = ${cursor_raw}"
     fi
+    if [[ -n "$cursor_text_raw" ]]; then
+      echo "cursor-text = ${cursor_text_raw}"
+    fi
+    if [[ -n "$selection_bg_raw" ]]; then
+      echo "selection-background = ${selection_bg_raw}"
+    fi
+    if [[ -n "$fg_raw" ]]; then
+      echo "selection-foreground = ${fg_raw}"
+    fi
+    if [[ -n "$split_div_raw" ]]; then
+      echo "split-divider-color = ${split_div_raw}"
+    fi
+    echo ""
     for idx in {0..15}; do
       echo "palette = $idx=${colors[$idx]}"
     done
@@ -275,51 +323,63 @@ write_lazygit_theme() {
   # Get colors from theme
   local fg
   local bg
-  local selected_bg
-  local selected_fg
-  local cherry_pick
-  local untracked
+  local inactive_border
+  local selected_line_bg
+  local cherry_pick_bg
+  local cherry_pick_fg
+  local unstaged
+  local searching_border
   local default_fg
-  local default_bg
+  local accent
   
   fg=$(theme_get_palette_color "$preset" "$variant" "fg" || theme_get_palette_color "$preset" "$variant" "fg1" || true)
   bg=$(theme_get_palette_color "$preset" "$variant" "bg" || theme_get_palette_color "$preset" "$variant" "bg1" || true)
-  selected_bg=$(theme_get_palette_color "$preset" "$variant" "bg_highlight" || theme_get_palette_color "$preset" "$variant" "bg_visual" || theme_get_palette_color "$preset" "$variant" "selection_bg" || true)
-  selected_fg=$(theme_get_palette_color "$preset" "$variant" "fg" || true)
-  cherry_pick=$(theme_get_palette_color "$preset" "$variant" "cyan" || theme_get_palette_color "$preset" "$variant" "water" || theme_get_terminal_color "$preset" "$variant" "6" || true)
-  untracked=$(theme_get_palette_color "$preset" "$variant" "red" || theme_get_palette_color "$preset" "$variant" "rose" || theme_get_terminal_color "$preset" "$variant" "1" || true)
-  default_fg=$(theme_get_palette_color "$preset" "$variant" "blue" || theme_get_palette_color "$preset" "$variant" "water" || true)
-  default_bg=$(theme_get_palette_color "$preset" "$variant" "bg" || true)
+  # inactive border: subtext0 (muted text color)
+  inactive_border=$(theme_get_palette_color "$preset" "$variant" "subtext0" || theme_get_palette_color "$preset" "$variant" "comment" || theme_get_palette_color "$preset" "$variant" "overlay0" || true)
+  # selected line bg: surface0 (first surface above base)
+  selected_line_bg=$(theme_get_palette_color "$preset" "$variant" "surface0" || theme_get_palette_color "$preset" "$variant" "bg_highlight" || theme_get_palette_color "$preset" "$variant" "selection_bg" || true)
+  # cherry pick bg: surface1
+  cherry_pick_bg=$(theme_get_palette_color "$preset" "$variant" "surface1" || theme_get_palette_color "$preset" "$variant" "surface0" || true)
+  # active/accent: blue
+  accent=$(theme_get_palette_color "$preset" "$variant" "blue" || theme_get_palette_color "$preset" "$variant" "water" || true)
+  cherry_pick_fg="$accent"
+  # unstaged changes: red
+  unstaged=$(theme_get_palette_color "$preset" "$variant" "red" || theme_get_palette_color "$preset" "$variant" "rose" || theme_get_terminal_color "$preset" "$variant" "1" || true)
+  # searching border: yellow
+  searching_border=$(theme_get_palette_color "$preset" "$variant" "yellow" || theme_get_palette_color "$preset" "$variant" "wood" || true)
+  default_fg=$(theme_get_palette_color "$preset" "$variant" "fg" || theme_get_palette_color "$preset" "$variant" "text" || true)
   
   if [[ -z "$fg" ]] || [[ -z "$bg" ]]; then
     return
   fi
   
   # Write lazygit config
-  cat > "$out_file" <<EOF
-# Generated from themes.yaml
-gui:
-  theme:
-    activeBorderColor:
-      - "${default_fg}"
-      - bold
-    inactiveBorderColor:
-      - "${fg}"
-    optionsTextColor:
-      - "${default_fg}"
-    selectedLineBgColor:
-      - "${selected_bg}"
-    selectedRangeBgColor:
-      - "${selected_bg}"
-    cherryPickedCommitBgColor:
-      - "${cherry_pick}"
-    cherryPickedCommitFgColor:
-      - "${default_fg}"
-    unTrackedFileBgColor:
-      - "${untracked}"
-    defaultFgColor:
-      - "${fg}"
-EOF
+  {
+    echo "# Generated from themes.yaml — ${preset}/${variant}"
+    echo "gui:"
+    echo "  theme:"
+    echo "    activeBorderColor:"
+    echo "      - \"${accent}\""
+    echo "      - bold"
+    echo "    inactiveBorderColor:"
+    echo "      - \"${inactive_border:-$fg}\""
+    echo "    optionsTextColor:"
+    echo "      - \"${accent}\""
+    echo "    selectedLineBgColor:"
+    echo "      - \"${selected_line_bg}\""
+    echo "    cherryPickedCommitBgColor:"
+    echo "      - \"${cherry_pick_bg}\""
+    echo "    cherryPickedCommitFgColor:"
+    echo "      - \"${cherry_pick_fg}\""
+    echo "    unstagedChangesColor:"
+    echo "      - \"${unstaged}\""
+    echo "    defaultFgColor:"
+    echo "      - \"${default_fg}\""
+    if [[ -n "$searching_border" ]]; then
+      echo "    searchingActiveBorderColor:"
+      echo "      - \"${searching_border}\""
+    fi
+  } > "$out_file"
 }
 
 write_delta_theme() {
@@ -334,11 +394,118 @@ write_delta_theme() {
   local delta_theme
   delta_theme=$(map_bat_theme "$preset" "$variant")
   
-  cat > "$out_file" <<EOF
+  # Get palette colors
+  local bg fg red green base overlay0 surface0 surface1 surface2 subtext1 yellow blue mauve cyan purple
+  bg=$(theme_get_palette_color "$preset" "$variant" "bg" || theme_get_palette_color "$preset" "$variant" "bg1" || true)
+  fg=$(theme_get_palette_color "$preset" "$variant" "fg" || theme_get_palette_color "$preset" "$variant" "fg1" || true)
+  base=$(theme_get_palette_color "$preset" "$variant" "base" || theme_get_palette_color "$preset" "$variant" "bg" || true)
+  red=$(theme_get_palette_color "$preset" "$variant" "red" || theme_get_palette_color "$preset" "$variant" "rose" || true)
+  green=$(theme_get_palette_color "$preset" "$variant" "green" || theme_get_palette_color "$preset" "$variant" "leaf" || true)
+  overlay0=$(theme_get_palette_color "$preset" "$variant" "overlay0" || theme_get_palette_color "$preset" "$variant" "comment" || true)
+  surface0=$(theme_get_palette_color "$preset" "$variant" "surface0" || true)
+  surface1=$(theme_get_palette_color "$preset" "$variant" "surface1" || true)
+  surface2=$(theme_get_palette_color "$preset" "$variant" "surface2" || true)
+  subtext1=$(theme_get_palette_color "$preset" "$variant" "subtext1" || theme_get_palette_color "$preset" "$variant" "fg" || true)
+  yellow=$(theme_get_palette_color "$preset" "$variant" "yellow" || theme_get_palette_color "$preset" "$variant" "wood" || true)
+  blue=$(theme_get_palette_color "$preset" "$variant" "blue" || theme_get_palette_color "$preset" "$variant" "water" || true)
+  mauve=$(theme_get_palette_color "$preset" "$variant" "mauve" || theme_get_palette_color "$preset" "$variant" "purple" || true)
+  cyan=$(theme_get_palette_color "$preset" "$variant" "sky" || theme_get_palette_color "$preset" "$variant" "teal" || true)
+  purple=$(theme_get_palette_color "$preset" "$variant" "mauve" || theme_get_palette_color "$preset" "$variant" "purple" || true)
+  
+  if [[ -z "$bg" ]] || [[ -z "$red" ]] || [[ -z "$green" ]]; then
+    # Fallback: just write syntax-theme
+    cat > "$out_file" <<EOF
+# Generated from themes.yaml — ${preset}/${variant}
 [delta]
 	navigate = true
 	syntax-theme = ${delta_theme}
 EOF
+    return
+  fi
+
+  # Determine light/dark
+  local light_flag="false"
+  if [[ -n "$base" ]]; then
+    # Simple brightness heuristic: if first hex nibble of base is high (a-f or 8-9), it's light
+    local base_clean="${base#\#}"
+    local first_char="${base_clean:0:1}"
+    if [[ "$first_char" =~ [a-fA-F89] ]]; then
+      light_flag="true"
+    fi
+  fi
+
+  # Compute blended minus/plus colors (matching catppuccin/delta approach)
+  # minus-style:      20% red + 80% base
+  # minus-emph-style: 35% red + 65% base
+  # plus-style:       20% green + 80% base
+  # plus-emph-style:  35% green + 65% base
+  local base_color="${base:-$bg}"
+  local minus_style="" minus_emph="" plus_style="" plus_emph=""
+  if [[ -n "$red" ]] && [[ -n "$base_color" ]]; then
+    minus_style=$(blend_hex_colors "$red" "$base_color" 20)
+    minus_emph=$(blend_hex_colors "$red" "$base_color" 35)
+  fi
+  if [[ -n "$green" ]] && [[ -n "$base_color" ]]; then
+    plus_style=$(blend_hex_colors "$green" "$base_color" 20)
+    plus_emph=$(blend_hex_colors "$green" "$base_color" 35)
+  fi
+
+  # Blame palette: use surface colors from dark→light (or light→dark for light themes)
+  local blame_palette=""
+  if [[ "$light_flag" == "true" ]]; then
+    blame_palette="${base_color} ${surface0:-$base_color} ${surface1:-$base_color} ${surface2:-$base_color} ${subtext1:-$fg}"
+  else
+    blame_palette="${base_color} ${surface0:-$base_color} ${surface1:-$base_color} ${surface2:-$base_color} ${overlay0:-$fg}"
+  fi
+
+  local file_dec_color="${overlay0:-$fg}"
+  local hunk_line_num_color="${subtext1:-$fg}"
+
+  {
+    echo "# Generated from themes.yaml — ${preset}/${variant}"
+    echo "[delta]"
+    echo "	navigate = true"
+    echo "	light = ${light_flag}"
+    echo "	syntax-theme = ${delta_theme}"
+    echo ""
+    echo "	# File and hunk headers"
+    echo "	file-style = \"${fg}\""
+    echo "	file-decoration-style = \"${file_dec_color}\""
+    echo "	hunk-header-style = file line-number syntax"
+    echo "	hunk-header-file-style = bold"
+    echo "	hunk-header-line-number-style = bold \"${hunk_line_num_color}\""
+    echo "	hunk-header-decoration-style = \"${file_dec_color}\" box ul"
+    echo ""
+    echo "	# Line numbers"
+    echo "	line-numbers = true"
+    echo "	line-numbers-left-style = \"${file_dec_color}\""
+    echo "	line-numbers-right-style = \"${file_dec_color}\""
+    echo "	line-numbers-minus-style = bold \"${red}\""
+    echo "	line-numbers-plus-style = bold \"${green}\""
+    echo "	line-numbers-zero-style = \"${file_dec_color}\""
+    echo ""
+    echo "	# Diff content"
+    if [[ -n "$minus_style" ]]; then
+      echo "	minus-style = syntax \"${minus_style}\""
+    fi
+    if [[ -n "$minus_emph" ]]; then
+      echo "	minus-emph-style = bold syntax \"${minus_emph}\""
+    fi
+    if [[ -n "$plus_style" ]]; then
+      echo "	plus-style = syntax \"${plus_style}\""
+    fi
+    if [[ -n "$plus_emph" ]]; then
+      echo "	plus-emph-style = bold syntax \"${plus_emph}\""
+    fi
+    echo ""
+    echo "	# Commit/blame"
+    if [[ -n "$mauve" ]]; then
+      echo "	commit-decoration-style = \"${mauve}\" bold box ul"
+    fi
+    if [[ -n "$blame_palette" ]]; then
+      echo "	blame-palette = \"${blame_palette}\""
+    fi
+  } > "$out_file"
 }
 
 write_fzf_theme() {
@@ -368,41 +535,56 @@ write_fzf_theme() {
   fg=$(theme_get_palette_color "$preset" "$variant" "fg" || theme_get_palette_color "$preset" "$variant" "fg1" || true)
   hl=$(theme_get_palette_color "$preset" "$variant" "red" || theme_get_palette_color "$preset" "$variant" "rose" || true)
   fg_plus=$(theme_get_palette_color "$preset" "$variant" "fg" || true)
-  bg_plus=$(theme_get_palette_color "$preset" "$variant" "bg_highlight" || theme_get_palette_color "$preset" "$variant" "bg_visual" || theme_get_palette_color "$preset" "$variant" "selection_bg" || true)
+  bg_plus=$(theme_get_palette_color "$preset" "$variant" "surface0" || theme_get_palette_color "$preset" "$variant" "bg_highlight" || theme_get_palette_color "$preset" "$variant" "selection_bg" || true)
   hl_plus=$(theme_get_palette_color "$preset" "$variant" "red" || theme_get_palette_color "$preset" "$variant" "rose" || true)
-  info=$(theme_get_palette_color "$preset" "$variant" "cyan" || theme_get_palette_color "$preset" "$variant" "water" || true)
-  prompt=$(theme_get_palette_color "$preset" "$variant" "blue" || theme_get_palette_color "$preset" "$variant" "water" || true)
-  pointer=$(theme_get_palette_color "$preset" "$variant" "red" || theme_get_palette_color "$preset" "$variant" "rose" || true)
-  marker=$(theme_get_palette_color "$preset" "$variant" "purple" || theme_get_palette_color "$preset" "$variant" "blossom" || true)
-  spinner=$(theme_get_palette_color "$preset" "$variant" "yellow" || theme_get_palette_color "$preset" "$variant" "wood" || true)
-  header=$(theme_get_palette_color "$preset" "$variant" "blue" || theme_get_palette_color "$preset" "$variant" "water" || true)
+  # info and prompt: mauve/purple (catppuccin style)
+  info=$(theme_get_palette_color "$preset" "$variant" "mauve" || theme_get_palette_color "$preset" "$variant" "purple" || theme_get_palette_color "$preset" "$variant" "cyan" || true)
+  prompt=$(theme_get_palette_color "$preset" "$variant" "mauve" || theme_get_palette_color "$preset" "$variant" "purple" || theme_get_palette_color "$preset" "$variant" "blue" || true)
+  # pointer and spinner: rosewater/accent
+  pointer=$(theme_get_palette_color "$preset" "$variant" "rosewater" || theme_get_palette_color "$preset" "$variant" "red" || theme_get_palette_color "$preset" "$variant" "rose" || true)
+  spinner=$(theme_get_palette_color "$preset" "$variant" "rosewater" || theme_get_palette_color "$preset" "$variant" "yellow" || true)
+  # marker: lavender
+  marker=$(theme_get_palette_color "$preset" "$variant" "lavender" || theme_get_palette_color "$preset" "$variant" "purple" || theme_get_palette_color "$preset" "$variant" "blossom" || true)
+  # header: red
+  header=$(theme_get_palette_color "$preset" "$variant" "red" || theme_get_palette_color "$preset" "$variant" "rose" || theme_get_palette_color "$preset" "$variant" "blue" || true)
+  # selected-bg: surface1
+  local selected_bg
+  selected_bg=$(theme_get_palette_color "$preset" "$variant" "surface1" || theme_get_palette_color "$preset" "$variant" "bg_highlight" || true)
+  # border: overlay0
+  local border
+  border=$(theme_get_palette_color "$preset" "$variant" "overlay0" || theme_get_palette_color "$preset" "$variant" "comment" || true)
+  # label: text/fg
+  local label
+  label=$(theme_get_palette_color "$preset" "$variant" "text" || theme_get_palette_color "$preset" "$variant" "fg" || true)
   
   if [[ -z "$bg" ]] || [[ -z "$fg" ]]; then
     return
   fi
   
-  # Convert hex to terminal color codes (strip #)
-  bg="${bg#\#}"
-  fg="${fg#\#}"
-  hl="${hl#\#}"
-  fg_plus="${fg_plus#\#}"
-  bg_plus="${bg_plus#\#}"
-  hl_plus="${hl_plus#\#}"
-  info="${info#\#}"
-  prompt="${prompt#\#}"
-  pointer="${pointer#\#}"
-  marker="${marker#\#}"
-  spinner="${spinner#\#}"
-  header="${header#\#}"
-  
-  cat > "$out_file" <<EOF
-# Generated from themes.yaml
-export FZF_DEFAULT_OPTS="\
---color=bg:#${bg},fg:#${fg},hl:#${hl} \
---color=bg+:#${bg_plus},fg+:#${fg_plus},hl+:#${hl_plus} \
---color=info:#${info},prompt:#${prompt},pointer:#${pointer} \
---color=marker:#${marker},spinner:#${spinner},header:#${header}"
-EOF
+  # Keep '#' prefix — fzf expects full hex color codes
+  local sel_bg_part=""
+  if [[ -n "$selected_bg" ]]; then
+    sel_bg_part=" \\\\"$'\n'"--color=selected-bg:${selected_bg}"
+  fi
+  local border_label_part=""
+  if [[ -n "$border" ]] && [[ -n "$label" ]]; then
+    border_label_part=" \\\\"$'\n'"--color=border:${border},label:${label}"
+  fi
+
+  {
+    echo "# Generated from themes.yaml — ${preset}/${variant}"
+    printf 'export FZF_DEFAULT_OPTS=" \\\n'
+    printf -- '--color=bg+:%s,bg:%s,spinner:%s,hl:%s \\\n' "${bg_plus}" "${bg}" "${spinner}" "${hl}"
+    printf -- '--color=fg:%s,header:%s,info:%s,pointer:%s \\\n' "${fg}" "${header}" "${info}" "${pointer}"
+    printf -- '--color=marker:%s,fg+:%s,prompt:%s,hl+:%s' "${marker}" "${fg_plus}" "${prompt}" "${hl_plus}"
+    if [[ -n "$selected_bg" ]]; then
+      printf ' \\\n--color=selected-bg:%s' "${selected_bg}"
+    fi
+    if [[ -n "$border" ]] && [[ -n "$label" ]]; then
+      printf ' \\\n--color=border:%s,label:%s' "${border}" "${label}"
+    fi
+    printf '"\n'
+  } > "$out_file"
 }
 
 write_glow_theme() {
