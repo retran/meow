@@ -3,26 +3,26 @@ themes {
     meow {
         text_unselected {
             base       220 215 186
-            background 31 31 40
+            background 42 42 55
             emphasis_0 220 215 186
             emphasis_1 220 215 186
             emphasis_2 220 215 186
-            emphasis_3 220 215 186
+            emphasis_3 149 127 184
         }
         text_selected {
             base       220 215 186
-            background 31 31 40
+            background 54 54 70
             emphasis_0 220 215 186
             emphasis_1 220 215 186
             emphasis_2 220 215 186
-            emphasis_3 220 215 186
+            emphasis_3 149 127 184
         }
         ribbon_selected {
             base       31 31 40
             background 220 215 186
             emphasis_0 220 215 186
             emphasis_1 220 215 186
-            emphasis_2 220 215 186
+            emphasis_2 149 127 184
             emphasis_3 220 215 186
         }
         ribbon_unselected {
@@ -31,7 +31,7 @@ themes {
             emphasis_0 220 215 186
             emphasis_1 220 215 186
             emphasis_2 220 215 186
-            emphasis_3 220 215 186
+            emphasis_3 149 127 184
         }
         table_title {
             base       220 215 186
@@ -39,52 +39,52 @@ themes {
             emphasis_0 220 215 186
             emphasis_1 220 215 186
             emphasis_2 220 215 186
-            emphasis_3 220 215 186
+            emphasis_3 149 127 184
         }
         table_cell_selected {
             base       220 215 186
-            background 31 31 40
+            background 54 54 70
             emphasis_0 220 215 186
             emphasis_1 220 215 186
             emphasis_2 220 215 186
-            emphasis_3 220 215 186
+            emphasis_3 149 127 184
         }
         table_cell_unselected {
             base       220 215 186
-            background 31 31 40
+            background 42 42 55
             emphasis_0 220 215 186
             emphasis_1 220 215 186
             emphasis_2 220 215 186
-            emphasis_3 220 215 186
+            emphasis_3 149 127 184
         }
         list_selected {
             base       220 215 186
-            background 31 31 40
+            background 54 54 70
             emphasis_0 220 215 186
             emphasis_1 220 215 186
             emphasis_2 220 215 186
-            emphasis_3 220 215 186
+            emphasis_3 149 127 184
         }
         list_unselected {
             base       220 215 186
-            background 31 31 40
+            background 42 42 55
             emphasis_0 220 215 186
             emphasis_1 220 215 186
             emphasis_2 220 215 186
-            emphasis_3 220 215 186
+            emphasis_3 149 127 184
         }
         frame_selected {
             base       220 215 186
             background 0
             emphasis_0 220 215 186
             emphasis_1 220 215 186
-            emphasis_2 220 215 186
+            emphasis_2 149 127 184
             emphasis_3 0
         }
         frame_highlight {
             base       220 215 186
             background 0
-            emphasis_0 220 215 186
+            emphasis_0 149 127 184
             emphasis_1 0
             emphasis_2 220 215 186
             emphasis_3 220 215 186
@@ -94,7 +94,7 @@ themes {
             background 0
             emphasis_0 220 215 186
             emphasis_1 31 31 40
-            emphasis_2 220 215 186
+            emphasis_2 149 127 184
             emphasis_3 220 215 186
         }
         exit_code_error {
@@ -106,7 +106,7 @@ themes {
             emphasis_3 0
         }
         multiplayer_user_colors {
-            player_1  220 215 186
+            player_1  149 127 184
             player_2  220 215 186
             player_3  0
             player_4  220 215 186

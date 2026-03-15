@@ -43,16 +43,28 @@ out_file="$OUTPUT_DIR/${preset_slug}-${variant_slug}.theme"
 # Retrieve colours from themes.yaml with fallback chain
 get_color() {
   local name="$1"
-  theme_get_palette_color "$PRESET" "$VARIANT" "$name" 2>/dev/null || true
+  local val
+  val=$(theme_get_palette_color "$PRESET" "$VARIANT" "$name" 2>/dev/null) || true
+  if [[ -n "$val" && "$val" != "null" ]]; then
+    echo "$val"
+    return 0
+  fi
+  return 1
 }
 get_terminal() {
   local idx="$1"
-  theme_get_terminal_color "$PRESET" "$VARIANT" "$idx" 2>/dev/null || true
+  local val
+  val=$(theme_get_terminal_color "$PRESET" "$VARIANT" "$idx" 2>/dev/null) || true
+  if [[ -n "$val" && "$val" != "null" ]]; then
+    echo "$val"
+    return 0
+  fi
+  return 1
 }
 
 bg=$(get_color "bg" || get_color "bg1" || get_terminal "0" || echo "")
-bg2=$(get_color "bg2" || get_color "bg1" || get_terminal "8" || echo "")
-bg3=$(get_color "bg3" || get_color "bg2" || get_terminal "8" || echo "")
+bg2=$(get_color "bg2" || get_color "surface0" || get_color "bg1" || get_terminal "8" || echo "")
+bg3=$(get_color "bg3" || get_color "surface1" || get_color "bg2" || get_terminal "8" || echo "")
 fg=$(get_color "fg" || get_color "fg1" || get_terminal "7" || echo "")
 red=$(get_color "red" || get_color "rose" || get_terminal "1" || echo "")
 green=$(get_color "green" || get_color "leaf" || get_terminal "2" || echo "")
