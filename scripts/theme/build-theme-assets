@@ -26,8 +26,9 @@ ZSH_OUT="$MEOW_ROOT/components/shell-essential/config/zsh/themes"
 RIPGREP_OUT="$MEOW_ROOT/components/shell-essential/config/ripgrep/themes"
 TEALDEER_OUT="$MEOW_ROOT/components/shell-essential/config/tealdeer/themes"
 HTOP_OUT="$MEOW_ROOT/components/shell-essential/config/htop/themes"
+BTOP_OUT="$MEOW_ROOT/components/shell-essential/config/btop/themes"
 
-mkdir -p "$GHOSTTY_OUT" "$STARSHIP_OUT" "$BAT_OUT" "$LAZYGIT_OUT" "$DELTA_OUT" "$FZF_OUT" "$GLOW_OUT" "$EZA_OUT" "$ZSH_OUT" "$RIPGREP_OUT" "$TEALDEER_OUT" "$HTOP_OUT"
+mkdir -p "$GHOSTTY_OUT" "$STARSHIP_OUT" "$BAT_OUT" "$LAZYGIT_OUT" "$DELTA_OUT" "$FZF_OUT" "$GLOW_OUT" "$EZA_OUT" "$ZSH_OUT" "$RIPGREP_OUT" "$TEALDEER_OUT" "$HTOP_OUT" "$BTOP_OUT"
 
 if [[ ! -f "$THEME_DB" ]]; then
   echo "Missing theme database at $THEME_DB" >&2
@@ -971,6 +972,19 @@ color_scheme=${color_scheme}
 EOF
 }
 
+write_btop_theme() {
+  local preset="$1"
+  local variant="$2"
+  # Delegate to the canonical generator script to avoid duplicating color-resolution logic.
+  local generator="$MEOW_ROOT/components/shell-essential/scripts/generate-theme-btop"
+  if [[ ! -x "$generator" ]]; then
+    echo "Warning: btop theme generator not found or not executable: $generator" >&2
+    return
+  fi
+  MEOW="$MEOW_ROOT" THEME_LIB="$THEME_LIB" THEME_UTILS="$MEOW_ROOT/lib/theme/theme-utils.sh" \
+    "$generator" "$preset" "$variant" >/dev/null
+}
+
 write_zellij_theme() {
   local preset="$1"
   local variant="$2"
@@ -1035,6 +1049,7 @@ main() {
       write_ripgrep_theme "$preset" "$variant"
       write_tealdeer_theme "$preset" "$variant"
       write_htop_theme "$preset" "$variant"
+      write_btop_theme "$preset" "$variant"
     done <<< "$(get_variant_list "$preset")"
   done < <(get_theme_list)
 }
