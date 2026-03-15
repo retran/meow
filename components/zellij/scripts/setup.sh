@@ -74,6 +74,41 @@ render_config_kdl() {
   ui_action_success "Rendered config.kdl to ${CONFIG_KDL_DEST}"
 }
 
+setup_themes_dir() {
+  local themes_src="${MEOW}/components/zellij/config/themes"
+  local themes_link="${HOME}/.config/zellij/themes"
+
+  if [ "${MEOW_DRY_RUN:-false}" = "true" ]; then
+    ui_info "(dry-run) Would create themes dir symlink: ${themes_link} -> ${themes_src}"
+    return 0
+  fi
+
+  mkdir -p "${themes_src}" || {
+    ui_warning "Failed to create themes source directory: ${themes_src}"
+    return 1
+  }
+
+  # Remove a plain directory (e.g. from a previous incomplete install) so we
+  # can replace it with the symlink.  A symlink that already points to the
+  # correct target is left untouched.
+  if [ -d "${themes_link}" ] && [ ! -L "${themes_link}" ]; then
+    rmdir "${themes_link}" 2>/dev/null || {
+      ui_warning "themes dir ${themes_link} is not empty and not a symlink; skipping"
+      return 1
+    }
+  fi
+
+  if [ ! -L "${themes_link}" ]; then
+    ln -s "${themes_src}" "${themes_link}" || {
+      ui_warning "Failed to create themes symlink: ${themes_link} -> ${themes_src}"
+      return 1
+    }
+    ui_action_success "Created themes symlink: ${themes_link} -> ${themes_src}"
+  else
+    ui_action_success "Themes symlink already exists: ${themes_link}"
+  fi
+}
+
 install_zjstatus() {
   ui_step_header "Setting up zjstatus plugin"
 
@@ -118,6 +153,7 @@ install_zjstatus() {
 }
 
 render_config_kdl
+setup_themes_dir
 if ! install_zjstatus; then
   ui_warning "zellij setup completed with warnings — zjstatus plugin is missing."
 fi
