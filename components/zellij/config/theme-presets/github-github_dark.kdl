@@ -3,7 +3,7 @@ themes {
     meow {
         text_unselected {
             base       230 237 243
-            background 48 54 61
+            background 13 17 23
             emphasis_0 240 136 62
             emphasis_1 118 227 234
             emphasis_2 63 185 80
@@ -11,14 +11,14 @@ themes {
         }
         text_selected {
             base       230 237 243
-            background 48 54 61
+            background 13 17 23
             emphasis_0 240 136 62
             emphasis_1 118 227 234
             emphasis_2 63 185 80
             emphasis_3 188 140 255
         }
         ribbon_selected {
-            base       48 54 61
+            base       13 17 23
             background 63 185 80
             emphasis_0 255 123 114
             emphasis_1 240 136 62
@@ -26,7 +26,7 @@ themes {
             emphasis_3 88 166 255
         }
         ribbon_unselected {
-            base       48 54 61
+            base       13 17 23
             background 110 118 129
             emphasis_0 255 123 114
             emphasis_1 230 237 243
@@ -43,7 +43,7 @@ themes {
         }
         table_cell_selected {
             base       230 237 243
-            background 48 54 61
+            background 13 17 23
             emphasis_0 240 136 62
             emphasis_1 118 227 234
             emphasis_2 63 185 80
@@ -51,7 +51,7 @@ themes {
         }
         table_cell_unselected {
             base       230 237 243
-            background 48 54 61
+            background 13 17 23
             emphasis_0 240 136 62
             emphasis_1 118 227 234
             emphasis_2 63 185 80
@@ -59,7 +59,7 @@ themes {
         }
         list_selected {
             base       230 237 243
-            background 48 54 61
+            background 13 17 23
             emphasis_0 240 136 62
             emphasis_1 118 227 234
             emphasis_2 63 185 80
@@ -67,7 +67,7 @@ themes {
         }
         list_unselected {
             base       230 237 243
-            background 48 54 61
+            background 13 17 23
             emphasis_0 240 136 62
             emphasis_1 118 227 234
             emphasis_2 63 185 80
@@ -93,7 +93,7 @@ themes {
             base       63 185 80
             background 0
             emphasis_0 118 227 234
-            emphasis_1 48 54 61
+            emphasis_1 13 17 23
             emphasis_2 188 140 255
             emphasis_3 88 166 255
         }

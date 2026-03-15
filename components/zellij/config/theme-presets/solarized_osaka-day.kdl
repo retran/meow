@@ -18,7 +18,7 @@ themes {
             emphasis_3 215 56 132
         }
         ribbon_selected {
-            base       217 249 255
+            base       217 245 255
             background 87 102 0
             emphasis_0 231 51 48
             emphasis_1 209 79 23
@@ -26,8 +26,8 @@ themes {
             emphasis_3 28 109 167
         }
         ribbon_unselected {
-            base       217 249 255
-            background 102 124 132
+            base       217 245 255
+            background 86 97 98
             emphasis_0 231 51 48
             emphasis_1 86 97 98
             emphasis_2 28 109 167
@@ -93,7 +93,7 @@ themes {
             base       87 102 0
             background 0
             emphasis_0 39 154 145
-            emphasis_1 217 249 255
+            emphasis_1 217 245 255
             emphasis_2 215 56 132
             emphasis_3 28 109 167
         }

@@ -83,11 +83,13 @@ blend_hex_colors() {
 
 get_theme_list() {
   read_yaml_value "$THEME_DB" ".themes | keys | .[]" | sed '/^\s*$/d'
+  echo ""
 }
 
 get_variant_list() {
   local preset="$1"
   read_yaml_value "$THEME_DB" ".themes.${preset}.variants | keys | .[]" | sed '/^\s*$/d'
+  echo ""
 }
 
 write_ghostty_theme() {
@@ -1010,11 +1012,13 @@ main() {
 
   local preset
   while IFS= read -r preset; do
+    [[ -z "$preset" ]] && continue
     if [[ -n "$requested_preset" && "$preset" != "$requested_preset" ]]; then
       continue
     fi
     local variant
     while IFS= read -r variant; do
+      [[ -z "$variant" ]] && continue
       if [[ -n "$requested_variant" && "$variant" != "$requested_variant" ]]; then
         continue
       fi
