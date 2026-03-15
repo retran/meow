@@ -325,6 +325,9 @@ themes:
           delta_minus_line_num: "#EB7193"
           delta_plus_line_num: "#317490"
           delta_zero_line_num: "#BF9B99"
+          comment: "#BF9B99"
+          surface0: "#3A3651"
+          surface1: "#232137"
       zenbones:
         terminal:
           "1": "#DE6E7C"
@@ -393,6 +396,9 @@ themes:
           delta_minus_line_num: "#DE6E7C"
           delta_plus_line_num: "#819B69"
           delta_zero_line_num: "#888F94"
+          comment: "#888F94"
+          surface0: "#403833"
+          surface1: "#221F1D"
       zenwritten:
         terminal:
           "1": "#A8334C"
@@ -461,6 +467,9 @@ themes:
           delta_minus_line_num: "#A8334C"
           delta_plus_line_num: "#4F6C31"
           delta_zero_line_num: "#5C5C5C"
+          comment: "#5C5C5C"
+          surface0: "#C6C3C3"
+          surface1: "#E5E5E5"
       neobones:
         terminal:
           "1": "#DE6E7C"
@@ -529,6 +538,9 @@ themes:
           delta_minus_line_num: "#DE6E7C"
           delta_plus_line_num: "#90FF6B"
           delta_zero_line_num: "#98A39E"
+          comment: "#98A39E"
+          surface0: "#263945"
+          surface1: "#151F25"
       tokyobones:
         terminal:
           "1": "#F77890"
@@ -598,6 +610,9 @@ themes:
           delta_minus_line_num: "#F77890"
           delta_plus_line_num: "#74DBCB"
           delta_zero_line_num: "#7E98EB"
+          comment: "#7E98EB"
+          surface0: "#36384D"
+          surface1: "#25293C"
       seoulbones:
         terminal:
           "1": "#E388A3"
@@ -667,6 +682,9 @@ themes:
           delta_minus_line_num: "#E388A3"
           delta_plus_line_num: "#98BD99"
           delta_zero_line_num: "#A8A8A8"
+          comment: "#A8A8A8"
+          surface0: "#6C6465"
+          surface1: "#525252"
       forestbones:
         terminal:
           "1": "#E67C7F"
@@ -735,6 +753,9 @@ themes:
           delta_minus_line_num: "#E67C7F"
           delta_plus_line_num: "#A9C181"
           delta_zero_line_num: "#B2A790"
+          comment: "#B2A790"
+          surface0: "#45525C"
+          surface1: "#323A40"
       nordbones:
         terminal:
           "1": "#C1616A"
@@ -803,6 +824,9 @@ themes:
           delta_minus_line_num: "#C1616A"
           delta_plus_line_num: "#A4BE8D"
           delta_zero_line_num: "#A5B4CD"
+          comment: "#A5B4CD"
+          surface0: "#475063"
+          surface1: "#363B47"
       kanagawabones:
         terminal:
           "1": "#E46A78"
@@ -871,6 +895,9 @@ themes:
           delta_minus_line_num: "#E46A78"
           delta_plus_line_num: "#98BC6D"
           delta_zero_line_num: "#A8A48D"
+          comment: "#A8A48D"
+          surface0: "#3C3C51"
+          surface1: "#25252F"
   tokyonight:
     variants:
       day:
@@ -1427,6 +1454,8 @@ themes:
           delta_minus_line_num: "#F07178"
           delta_plus_line_num: "#C3E88D"
           delta_zero_line_num: "#717CB4"
+          overlay0: "#717CB4"
+          mauve: "#C792EA"
           syntax:
             type: "#C792EA"
             field: "#A6ACCD"
@@ -1541,6 +1570,8 @@ themes:
           delta_minus_line_num: "#F07178"
           delta_plus_line_num: "#C3E88D"
           delta_zero_line_num: "#717CB4"
+          overlay0: "#717CB4"
+          mauve: "#C792EA"
           syntax:
             type: "#C792EA"
             field: "#A6ACCD"
@@ -1654,6 +1685,8 @@ themes:
           delta_minus_line_num: "#E53935"
           delta_plus_line_num: "#91B859"
           delta_zero_line_num: "#94A7B0"
+          overlay0: "#94A7B0"
+          mauve: "#7C4DFF"
           syntax:
             type: "#7C4DFF"
             field: "#546E7A"
@@ -1770,6 +1803,8 @@ themes:
           delta_minus_line_num: "#F07178"
           delta_plus_line_num: "#C3E88D"
           delta_zero_line_num: "#8C8B8B"
+          overlay0: "#8C8B8B"
+          mauve: "#C792EA"
           syntax:
             type: "#C792EA"
             field: "#B0BEC5"
@@ -1883,6 +1918,8 @@ themes:
           delta_minus_line_num: "#F07178"
           delta_plus_line_num: "#C3E88D"
           delta_zero_line_num: "#7C9EAD"
+          overlay0: "#7C9EAD"
+          mauve: "#C792EA"
           syntax:
             type: "#C792EA"
             field: "#B0BEC5"
@@ -1994,6 +2031,7 @@ themes:
           fg: "#BFBDB6"
           warning: "#FF8F40"
           comment: "#636A72"
+          mauve: "#D2A6FF"
           func: "#FFB454"
           accent: "#E6B450"
           black: "#000000"
@@ -2081,6 +2119,7 @@ themes:
           fg: "#5C6166"
           warning: "#FA8D3E"
           comment: "#ABADB1"
+          mauve: "#A37ACC"
           func: "#F2AE49"
           accent: "#FFAA33"
           black: "#000000"
@@ -2168,6 +2207,7 @@ themes:
           fg: "#CCCAC2"
           warning: "#FFA759"
           comment: "#6C7A8B"
+          mauve: "#DFBFFF"
           func: "#FFD173"
           accent: "#FFCC66"
           black: "#000000"
@@ -2343,6 +2383,12 @@ themes:
           delta_minus_line_num: "#fb4934"
           delta_plus_line_num: "#b8bb26"
           delta_zero_line_num: "#665c54"
+          overlay0: "#665c54"
+          mauve: "#b16286"
+          subtext1: "#a89984"
+          surface0: "#3c3836"
+          surface1: "#504945"
+          surface2: "#665c54"
       hard:
         terminal:
           "1": "#cc241d"
@@ -2477,6 +2523,12 @@ themes:
           delta_minus_line_num: "#fb4934"
           delta_plus_line_num: "#b8bb26"
           delta_zero_line_num: "#665c54"
+          overlay0: "#665c54"
+          mauve: "#b16286"
+          subtext1: "#a89984"
+          surface0: "#3c3836"
+          surface1: "#504945"
+          surface2: "#665c54"
       soft:
         terminal:
           "1": "#cc241d"
@@ -2611,6 +2663,12 @@ themes:
           delta_minus_line_num: "#fb4934"
           delta_plus_line_num: "#b8bb26"
           delta_zero_line_num: "#665c54"
+          overlay0: "#665c54"
+          mauve: "#b16286"
+          subtext1: "#a89984"
+          surface0: "#3c3836"
+          surface1: "#504945"
+          surface2: "#665c54"
   github:
     variants:
       github_light_high_contrast:
@@ -3464,6 +3522,8 @@ themes:
           delta_minus_line_num: "#c4746e"
           delta_plus_line_num: "#8a9a7b"
           delta_zero_line_num: "#737c73"
+          overlay0: "#737c73"
+          mauve: "#a292a3"
           theme:
             syn:
               regex: "#c4746e"
@@ -3686,6 +3746,8 @@ themes:
           delta_minus_line_num: "#c84053"
           delta_plus_line_num: "#6f894e"
           delta_zero_line_num: "#8a8980"
+          overlay0: "#8a8980"
+          mauve: "#b35b79"
           theme:
             syn:
               regex: "#836f4a"
@@ -3908,6 +3970,8 @@ themes:
           delta_minus_line_num: "#C34043"
           delta_plus_line_num: "#98BB6C"
           delta_zero_line_num: "#727169"
+          overlay0: "#727169"
+          mauve: "#957FB8"
           theme:
             syn:
               regex: "#C0A36E"
@@ -4223,6 +4287,13 @@ themes:
           delta_minus_line_num: "#bf616a"
           delta_plus_line_num: "#a3be8c"
           delta_zero_line_num: "#4c566a"
+          red: "#bf616a"
+          green: "#a3be8c"
+          mauve: "#b48ead"
+          overlay0: "#616e88"
+          surface0: "#3b4252"
+          surface1: "#434c5e"
+          surface2: "#4c566a"
   solarized-osaka:
     variants:
       day:
@@ -5340,6 +5411,8 @@ themes:
           delta_minus_line_num: "#f92672"
           delta_plus_line_num: "#a6e22e"
           delta_zero_line_num: "#6e7066"
+          overlay0: "#6e7066"
+          mauve: "#ae81ff"
       pro:
         terminal:
           "0": "#221f22"
@@ -5407,6 +5480,8 @@ themes:
           delta_minus_line_num: "#ff6188"
           delta_plus_line_num: "#a9dc76"
           delta_zero_line_num: "#727072"
+          overlay0: "#727072"
+          mauve: "#ab9df2"
       octagon:
         terminal:
           "0": "#1e1f2b"
@@ -5474,6 +5549,8 @@ themes:
           delta_minus_line_num: "#ff657a"
           delta_plus_line_num: "#bad761"
           delta_zero_line_num: "#696d77"
+          overlay0: "#696d77"
+          mauve: "#c39ac9"
       machine:
         terminal:
           "0": "#1d2528"
@@ -5541,6 +5618,8 @@ themes:
           delta_minus_line_num: "#ff6d7e"
           delta_plus_line_num: "#a2e57b"
           delta_zero_line_num: "#6b7678"
+          overlay0: "#6b7678"
+          mauve: "#baa0f8"
       ristretto:
         terminal:
           "0": "#211c1c"
@@ -5608,6 +5687,8 @@ themes:
           delta_minus_line_num: "#fd6883"
           delta_plus_line_num: "#adda78"
           delta_zero_line_num: "#72696a"
+          overlay0: "#72696a"
+          mauve: "#a8a9eb"
       spectrum:
         terminal:
           "0": "#191919"
@@ -5675,6 +5756,8 @@ themes:
           delta_minus_line_num: "#fc618d"
           delta_plus_line_num: "#7bd88f"
           delta_zero_line_num: "#69676c"
+          overlay0: "#69676c"
+          mauve: "#948ae3"
   nightfox:
     variants:
       nightfox:

@@ -427,7 +427,7 @@ write_delta_theme() {
   delta_plus_line_num=$(theme_get_palette_color "$preset" "$variant" "delta_plus_line_num" || true)
   delta_zero_line_num=$(theme_get_palette_color "$preset" "$variant" "delta_zero_line_num" || true)
   
-  if [[ -z "$bg" ]] || [[ -z "$red" ]] || [[ -z "$green" ]]; then
+  if [[ -z "$bg" ]] || ([[ -z "$red" ]] && [[ -z "$delta_minus_bg" ]]) || ([[ -z "$green" ]] && [[ -z "$delta_plus_bg" ]]); then
     # Fallback: just write syntax-theme
     cat > "$out_file" <<EOF
 # Generated from themes.yaml — ${preset}/${variant}
