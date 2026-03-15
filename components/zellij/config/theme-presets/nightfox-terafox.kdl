@@ -11,7 +11,7 @@ themes {
         }
         text_selected {
             base       230 234 234
-            background 21 37 40
+            background 37 65 71
             emphasis_0 255 131 73
             emphasis_1 161 205 216
             emphasis_2 122 164 161
@@ -43,7 +43,7 @@ themes {
         }
         table_cell_selected {
             base       230 234 234
-            background 21 37 40
+            background 37 65 71
             emphasis_0 255 131 73
             emphasis_1 161 205 216
             emphasis_2 122 164 161
@@ -59,7 +59,7 @@ themes {
         }
         list_selected {
             base       230 234 234
-            background 21 37 40
+            background 37 65 71
             emphasis_0 255 131 73
             emphasis_1 161 205 216
             emphasis_2 122 164 161

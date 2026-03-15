@@ -3,7 +3,7 @@ themes {
     meow {
         text_unselected {
             base       234 242 241
-            background 40 42 58
+            background 58 61 75
             emphasis_0 234 242 241
             emphasis_1 234 242 241
             emphasis_2 234 242 241
@@ -11,7 +11,7 @@ themes {
         }
         text_selected {
             base       234 242 241
-            background 40 42 58
+            background 83 85 99
             emphasis_0 234 242 241
             emphasis_1 234 242 241
             emphasis_2 234 242 241
@@ -43,7 +43,7 @@ themes {
         }
         table_cell_selected {
             base       234 242 241
-            background 40 42 58
+            background 83 85 99
             emphasis_0 234 242 241
             emphasis_1 234 242 241
             emphasis_2 234 242 241
@@ -51,7 +51,7 @@ themes {
         }
         table_cell_unselected {
             base       234 242 241
-            background 40 42 58
+            background 58 61 75
             emphasis_0 234 242 241
             emphasis_1 234 242 241
             emphasis_2 234 242 241
@@ -59,7 +59,7 @@ themes {
         }
         list_selected {
             base       234 242 241
-            background 40 42 58
+            background 83 85 99
             emphasis_0 234 242 241
             emphasis_1 234 242 241
             emphasis_2 234 242 241
@@ -67,7 +67,7 @@ themes {
         }
         list_unselected {
             base       234 242 241
-            background 40 42 58
+            background 58 61 75
             emphasis_0 234 242 241
             emphasis_1 234 242 241
             emphasis_2 234 242 241
