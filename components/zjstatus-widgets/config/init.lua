@@ -345,6 +345,59 @@ end
 
 -- ── Weather ────────────────────────────────────────────────────────────────
 
+-- WWO weather code → nerd font icon (nf-weather-*)
+-- Codes from https://www.worldweatheronline.com/feed/wwoConditionCodes.txt
+local WEATHER_ICONS = {
+    [113] = "󰖙",  -- Clear / Sunny            nf-weather-day_sunny
+    [116] = "󰖕",  -- Partly Cloudy            nf-weather-day_cloudy
+    [119] = "󰖐",  -- Cloudy                   nf-weather-cloudy
+    [122] = "󰖐",  -- Overcast                 nf-weather-cloudy
+    [143] = "󰖑",  -- Mist                     nf-weather-fog
+    [176] = "󰖗",  -- Patchy rain nearby       nf-weather-day_showers
+    [179] = "󰖘",  -- Patchy snow nearby       nf-weather-day_snow
+    [182] = "󰖘",  -- Patchy sleet nearby      nf-weather-day_snow
+    [185] = "󰖘",  -- Patchy freezing drizzle  nf-weather-day_snow
+    [200] = "󰖓",  -- Thundery outbreaks       nf-weather-day_thunderstorm
+    [227] = "󰖚",  -- Blowing snow             nf-weather-snow_wind
+    [230] = "󰖔",  -- Blizzard                 nf-weather-snowflake_cold
+    [248] = "󰖑",  -- Fog                      nf-weather-fog
+    [260] = "󰖑",  -- Freezing fog             nf-weather-fog
+    [263] = "󰖒",  -- Patchy light drizzle     nf-weather-sprinkle
+    [266] = "󰖒",  -- Light drizzle            nf-weather-sprinkle
+    [281] = "󰖘",  -- Freezing drizzle         nf-weather-sleet
+    [284] = "󰖘",  -- Heavy freezing drizzle   nf-weather-sleet
+    [293] = "󰖗",  -- Patchy light rain        nf-weather-day_showers
+    [296] = "󰖗",  -- Light rain               nf-weather-day_showers
+    [299] = "󰖖",  -- Moderate rain at times   nf-weather-rain
+    [302] = "󰖖",  -- Moderate rain            nf-weather-rain
+    [305] = "󰖖",  -- Heavy rain at times      nf-weather-rain
+    [308] = "󰖖",  -- Heavy rain               nf-weather-rain
+    [311] = "󰖘",  -- Light freezing rain      nf-weather-sleet
+    [314] = "󰖘",  -- Mod/heavy freezing rain  nf-weather-sleet
+    [317] = "󰖘",  -- Light sleet              nf-weather-sleet
+    [320] = "󰖘",  -- Mod/heavy sleet          nf-weather-sleet
+    [323] = "󰖙",  -- Patchy light snow        nf-weather-day_snow
+    [326] = "󰼶",  -- Light snow               nf-weather-snow
+    [329] = "󰼶",  -- Patchy moderate snow     nf-weather-snow
+    [332] = "󰼶",  -- Moderate snow            nf-weather-snow
+    [335] = "󰖔",  -- Patchy heavy snow        nf-weather-snowflake_cold
+    [338] = "󰖔",  -- Heavy snow               nf-weather-snowflake_cold
+    [350] = "󰖘",  -- Ice pellets              nf-weather-sleet
+    [353] = "󰖗",  -- Light rain shower        nf-weather-day_showers
+    [356] = "󰖖",  -- Mod/heavy rain shower    nf-weather-rain
+    [359] = "󰖖",  -- Torrential rain shower   nf-weather-rain
+    [362] = "󰖘",  -- Light sleet showers      nf-weather-sleet
+    [365] = "󰖘",  -- Mod/heavy sleet showers  nf-weather-sleet
+    [368] = "󰼶",  -- Light snow showers       nf-weather-snow
+    [371] = "󰖔",  -- Mod/heavy snow showers   nf-weather-snowflake_cold
+    [374] = "󰖘",  -- Light ice pellet showers nf-weather-sleet
+    [377] = "󰖘",  -- Mod/heavy ice pellets    nf-weather-sleet
+    [386] = "󰖓",  -- Patchy rain w/ thunder   nf-weather-day_thunderstorm
+    [389] = "󰖓",  -- Mod/heavy rain w/ thunder nf-weather-thunderstorm
+    [392] = "󰖓",  -- Patchy snow w/ thunder   nf-weather-day_thunderstorm
+    [395] = "󰖓",  -- Mod/heavy snow w/ thunder nf-weather-thunderstorm
+}
+
 local function isValidLocation(loc)
     return type(loc) == "string"
         and #loc >= 1 and #loc <= 64
@@ -354,12 +407,17 @@ end
 local function fetchWeather()
     local loc = hs.settings.get("zjstatus.weatherLocation") or WEATHER_LOCATION_DEFAULT
     if not isValidLocation(loc) then loc = WEATHER_LOCATION_DEFAULT end
-    local url = "https://wttr.in/" .. loc .. "?format=1"
+    local url = "https://wttr.in/" .. loc .. "?format=j1"
     hs.http.asyncGet(url, nil, function(status, body, _)
-        if status == 200 and body and body ~= "" then
-            local val = body:gsub("%s+", " "):gsub("^%s+", ""):gsub("%s+$", "")
-            if val ~= "" then pushCached("weather", val) end
-        end
+        if status ~= 200 or not body or body == "" then return end
+        local ok, data = pcall(function() return hs.json.decode(body) end)
+        if not ok or not data then return end
+        local cc = data.current_condition and data.current_condition[1]
+        if not cc then return end
+        local code = tonumber(cc.weatherCode)
+        local temp = cc.temp_C or "?"
+        local icon = WEATHER_ICONS[code] or "󰖐"
+        pushCached("weather", icon .. " " .. temp .. "°")
     end)
 end
 
