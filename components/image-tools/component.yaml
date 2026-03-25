@@ -1,0 +1,8 @@
+description: Image processing tools for terminal image rendering and media manipulation
+platforms:
+- match:
+    platform: macos
+- match:
+    platform: linux
+depends_on:
+- shell-essential

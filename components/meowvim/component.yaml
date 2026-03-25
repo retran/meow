@@ -9,3 +9,4 @@ platforms:
     platform: linux
 depends_on:
 - neovim
+- image-tools
