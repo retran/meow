@@ -339,8 +339,12 @@ local function memLabel()
     local pages = (vm.pagesActive or 0) + (vm.pagesWiredDown or 0)
                 + (vm.pagesUsedByVMCompressor or 0)
     local pageSize = vm.pageSize or 4096
-    local usedMiB = math.floor(pages * pageSize / 1048576 + 0.5)
-    return "󰍛 " .. usedMiB .. "M"
+    local usedMiB = pages * pageSize / 1048576
+    if usedMiB >= 1024 then
+        return "󰍛 " .. string.format("%.1f", usedMiB / 1024) .. "G"
+    else
+        return "󰍛 " .. math.floor(usedMiB + 0.5) .. "M"
+    end
 end
 
 -- ── Weather ────────────────────────────────────────────────────────────────
