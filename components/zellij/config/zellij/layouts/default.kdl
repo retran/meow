@@ -29,9 +29,9 @@
 //   Download zjstatus.wasm from https://github.com/dj95/zjstatus/releases
 //   and place it at ~/.config/zellij/plugins/zjstatus.wasm
 //
-//   zjstatus-daemon must be running in the background.  It is launched
-//   automatically by the layout via the start_suspended pane below and
-//   pushes keyboard / network / battery updates as pipe events — no polling.
+//   The zjstatus-widgets Hammerspoon plugin must be installed and Hammerspoon
+//   must be running.  It pushes all widget values (keyboard, network/SSID,
+//   battery, CPU, memory, weather) as pipe events — no polling, no daemons.
 
 layout {
     default_tab_template {
@@ -40,31 +40,21 @@ layout {
             plugin location="file:~/.config/zellij/plugins/zjstatus.wasm" {
 
                 format_center ""
-                format_right  "{pipe_keyboard} {command_weather} {command_cpu} {command_mem} {pipe_network} {pipe_battery} {datetime}"
+                format_right  "{pipe_keyboard} {pipe_weather} {pipe_cpu} {pipe_memory} {pipe_network} {pipe_battery} {datetime}"
 
                 border_enabled  "false"
                 hide_frame_for_single_pane "false"
                 mode_default_to_mode "normal"
 
-                // Weather via wttr.in (Amsterdam), refresh every 30 minutes
-                command_weather_command  "bash -c \"$HOME/.config/zellij/scripts/zjstatus-weather\""
-                command_weather_interval "1800"
-                command_weather_rendermode "static"
-
-                // CPU usage
-                command_cpu_command  "bash -c \"$HOME/.config/zellij/scripts/zjstatus-cpu\""
-                command_cpu_interval "5"
-                command_cpu_rendermode "static"
-
-                // Memory usage (macOS: vm_stat)
-                command_mem_command  "bash -c \"$HOME/.config/zellij/scripts/zjstatus-memory\""
-                command_mem_interval "10"
-                command_mem_rendermode "static"
-
-                // Keyboard layout, network, battery — pushed instantly by zjstatus-daemon
+                // Keyboard layout, network/SSID, battery, CPU, memory, weather
+                // — all pushed instantly or on a timer by the zjstatus-widgets
+                // Hammerspoon plugin. No command_ polling, no child processes.
                 pipe_keyboard_rendermode "static"
                 pipe_network_rendermode  "static"
                 pipe_battery_rendermode  "static"
+                pipe_cpu_rendermode      "static"
+                pipe_memory_rendermode   "static"
+                pipe_weather_rendermode  "static"
 
                 // Clock + date (Amsterdam timezone) — date before time, with day-of-week
                 datetime_format    "󰸗 %a %d %b  󰥔 %H:%M"
@@ -91,11 +81,11 @@ layout {
                  mode_resize              "#[fg=#1e1e2e,bg=#f9e2af,bold] RESIZE "
                  mode_rename_pane         "#[fg=#1e1e2e,bg=#f9e2af,bold] RENAME "
                  mode_rename_tab          "#[fg=#1e1e2e,bg=#f9e2af,bold] RENAME "
-                 command_weather_format   "#[fg=#94e2d5,bg=#1e1e2e] {stdout} "
+                 pipe_weather_format      "#[fg=#94e2d5,bg=#1e1e2e] {output} "
                  pipe_keyboard_format     "#[fg=#89b4fa,bg=#1e1e2e] {output} "
                  pipe_network_format      "#[fg=#a6e3a1,bg=#1e1e2e] {output} "
-                 command_cpu_format       "#[fg=#a6e3a1,bg=#1e1e2e] 󰻠 {stdout}% "
-                 command_mem_format       "#[fg=#cba6f7,bg=#1e1e2e] {stdout} "
+                 pipe_cpu_format          "#[fg=#a6e3a1,bg=#1e1e2e] {output} "
+                 pipe_memory_format       "#[fg=#cba6f7,bg=#1e1e2e] {output} "
                  pipe_battery_format      "#[fg=#fab387,bg=#1e1e2e] {output} "
                  datetime                 "#[fg=#bac2de,bg=#1e1e2e] {format}"
                  // ZJSTATUS_COLORS_END

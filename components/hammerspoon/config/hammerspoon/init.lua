@@ -90,4 +90,3 @@ end
 cleanupComponents()
 
 loadInstalledPlugins()
-
