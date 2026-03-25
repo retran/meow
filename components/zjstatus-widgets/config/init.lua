@@ -417,7 +417,8 @@ local function fetchWeather()
         local code = tonumber(cc.weatherCode)
         local temp = cc.temp_C or "?"
         local icon = WEATHER_ICONS[code] or "󰖐"
-        pushCached("weather", icon .. " " .. temp .. "°")
+        local sign = (tonumber(temp) or 0) >= 0 and "+" or ""
+        pushCached("weather", icon .. " " .. sign .. temp .. "°C")
     end)
 end
 
