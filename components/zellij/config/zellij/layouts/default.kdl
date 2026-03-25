@@ -57,7 +57,7 @@ layout {
                 pipe_weather_rendermode  "static"
 
                 // Clock + date (Amsterdam timezone) — date before time, with day-of-week
-                datetime_format    "󰸗 %a %d %b  󰥔 %H:%M"
+                datetime_format    "󰸗 %a %d %b 󰥔 %H:%M"
                 datetime_timezone  "Europe/Amsterdam"
 
                 // ZJSTATUS_COLORS_BEGIN (managed by apply-theme-zellij — do not edit manually)
@@ -81,13 +81,13 @@ layout {
                  mode_resize              "#[fg=#1e1e2e,bg=#f9e2af,bold] RESIZE "
                  mode_rename_pane         "#[fg=#1e1e2e,bg=#f9e2af,bold] RENAME "
                  mode_rename_tab          "#[fg=#1e1e2e,bg=#f9e2af,bold] RENAME "
-                 pipe_weather_format      "#[fg=#94e2d5,bg=#1e1e2e] {output} "
+                 pipe_weather_format      "#[fg=#94e2d5,bg=#1e1e2e]{output} "
                  pipe_keyboard_format     "#[fg=#89b4fa,bg=#1e1e2e] {output} "
-                 pipe_network_format      "#[fg=#a6e3a1,bg=#1e1e2e] {output} "
-                 pipe_cpu_format          "#[fg=#a6e3a1,bg=#1e1e2e] {output} "
-                 pipe_memory_format       "#[fg=#cba6f7,bg=#1e1e2e] {output} "
-                 pipe_battery_format      "#[fg=#fab387,bg=#1e1e2e] {output} "
-                 datetime                 "#[fg=#bac2de,bg=#1e1e2e] {format}"
+                 pipe_network_format      "#[fg=#a6e3a1,bg=#1e1e2e]{output} "
+                 pipe_cpu_format          "#[fg=#a6e3a1,bg=#1e1e2e]{output} "
+                 pipe_memory_format       "#[fg=#cba6f7,bg=#1e1e2e]{output} "
+                 pipe_battery_format      "#[fg=#fab387,bg=#1e1e2e]{output} "
+                 datetime                 "#[fg=#bac2de,bg=#1e1e2e]{format}"
                  // ZJSTATUS_COLORS_END
             }
         }
