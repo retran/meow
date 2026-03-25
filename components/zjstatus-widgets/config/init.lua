@@ -152,11 +152,17 @@ end
 
 -- Refresh the session cache asynchronously (fallback/startup only).
 -- Calls optional callback(sessions) when done.
+-- Never wipes the cache if list-sessions returns nothing — a transient empty
+-- result (e.g. during session startup) would drop all sessions and stop all
+-- widget pushes until the next refresh cycle.
 local function refreshSessions(callback)
     if not zellijBin then return end
     hs.task.new(zellijBin, function(code, out, _)
         if code == 0 and out then
-            cachedSessions = parseSessions(out)
+            local fresh = parseSessions(out)
+            if #fresh > 0 then
+                cachedSessions = fresh
+            end
         end
         if callback then callback(cachedSessions) end
     end, {"list-sessions", "--no-formatting"}):start()
@@ -358,23 +364,29 @@ local function fetchWeather()
 end
 
 -- ── URL handler: new-session bootstrap ────────────────────────────────────
--- fish calls: open "hammerspoon://zjstatus-push-all?session=<name>"
+-- fish calls: hs -c "ZJStatusPushAll('session-name')"
+-- (also still bound to hammerspoon:// for compatibility)
 -- We register the session, then push all current values to it.
+
+-- Global function callable via hs IPC CLI:
+--   hs -c "ZJStatusPushAll('session-name')"
+function ZJStatusPushAll(name)
+    log("ZJStatusPushAll called name=" .. tostring(name))
+    if name and isValidSessionName(name) then
+        registerSession(name)
+        pushToSession(name)
+        hs.timer.doAfter(4, function() pushToSession(name) end)
+    else
+        pushAll()
+        hs.timer.doAfter(4, pushAll)
+    end
+end
 
 local function setupUrlHandler()
     hs.urlevent.bind("zjstatus-push-all", function(_, params)
         local name = params and params.session
-        if name and isValidSessionName(name) then
-            -- Register and push to this specific session only
-            registerSession(name)
-            pushToSession(name)
-            -- Re-send after 4 s to survive zjstatus startup latency
-            hs.timer.doAfter(4, function() pushToSession(name) end)
-        else
-            -- No session param: push to all known sessions (legacy / manual trigger)
-            pushAll()
-            hs.timer.doAfter(4, pushAll)
-        end
+        log("urlevent zjstatus-push-all fired name=" .. tostring(name))
+        ZJStatusPushAll(name)
     end)
 end
 

@@ -25,6 +25,12 @@
 -- @author: Andrew Vasilyev
 -- @license: MIT
 --
+-- Load hs.ipc so the `hs` CLI tool can send commands to Hammerspoon.
+-- This is required for the zjstatus-widgets new-session bootstrap:
+-- fish calls `hs -c "..."` instead of `open hammerspoon://...` because
+-- `open` is unreliable from background/non-GUI processes (zellij panes).
+require("hs.ipc")
+
 local installedComponents = {}
 
 local function isComponentInstalled(component)
