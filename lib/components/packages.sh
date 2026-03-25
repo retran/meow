@@ -50,6 +50,7 @@ source "${MEOW}/lib/package/pipx.sh"
 source "${MEOW}/lib/package/npm.sh"
 source "${MEOW}/lib/package/go.sh"
 source "${MEOW}/lib/package/cargo.sh"
+source "${MEOW}/lib/package/luarocks.sh"
 source "${MEOW}/lib/package/vscode.sh"
 source "${MEOW}/lib/package/snap.sh"
 
@@ -200,7 +201,7 @@ install_component_packages() {
     fi
   fi
 
-  for mgr in mise pipx npm go cargo gem vscode snap; do
+  for mgr in mise pipx npm go cargo gem luarocks vscode snap; do
     if meow_pm_should_use_manager "$active_managers" "$mgr" && [ -f "${packages_dir}/${mgr}.list" ]; then
       if _install_packages_for_component_manager "$component" "$mgr"; then
         has_packages=true
@@ -273,7 +274,7 @@ uninstall_component_packages() {
     fi
   fi
 
-  for mgr in mise pipx npm go cargo vscode snap; do
+  for mgr in mise pipx npm go cargo vscode snap luarocks; do
     if meow_pm_should_use_manager "$active_managers" "$mgr"; then
       _uninstall_packages_for_component_manager "$component" "$mgr"
     fi
@@ -444,7 +445,7 @@ update_component_packages() {
     fi
   fi
 
-  for mgr in mise pipx npm go cargo vscode snap; do
+  for mgr in mise pipx npm go cargo vscode snap luarocks; do
     if ! meow_pm_should_use_manager "$active_managers" "$mgr"; then
       continue
     fi
