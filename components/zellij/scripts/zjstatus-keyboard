@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+# MIT License
+#
+# Copyright (c) 2025 Andrew Vasilyev <me@retran.me>
+#
+# @file: components/zellij/scripts/zjstatus-keyboard
+# @brief: Keyboard layout widget for zjstatus — outputs icon + short layout name.
+# @author: Andrew Vasilyev
+# @license: MIT
+#
+# Reads the active keyboard layout from macOS HIToolbox preferences via
+# `defaults read`.  String manipulation is done entirely with bash builtins —
+# no extra process spawns — keeping total execution time ~15 ms so that a
+# 1-second poll interval is practical.
+#
+# Prefix stripping rules:
+#   com.apple.keylayout.ABC                  -> ABC
+#   com.apple.inputmethod.Kotoeri.*.Japanese -> Japanese  (last dot-segment)
+#
+# Well-known layout aliases (maps macOS internal names to short display labels):
+#   ABC, US, USInternational-PC, … -> EN
+#   RussianWin, Russian-Phonetic, … -> RU
+
+ICON="󰌌"
+
+raw=$(defaults read com.apple.HIToolbox AppleCurrentKeyboardLayoutInputSourceID 2>/dev/null)
+
+if [[ -z "$raw" ]]; then
+    printf '%s ?\n' "$ICON"
+    exit 0
+fi
+
+# Strip the two known prefixes (longest-match via ##)
+name="${raw##com.apple.keylayout.}"
+if [[ "$name" == "$raw" ]]; then
+    name="${raw##com.apple.inputmethod.}"
+fi
+
+# For input methods the remainder can still be dotted — keep only the last segment
+while [[ "$name" == *.* ]]; do
+    name="${name##*.}"
+done
+
+# Map well-known macOS layout identifiers to short display labels
+case "$name" in
+    ABC|US|USInternational*|British*|Canadian*|Australian*|Irish*) name="EN" ;;
+    Russian*|RussianWin*)                                          name="RU" ;;
+esac
+
+printf '%s %s\n' "$ICON" "$name"

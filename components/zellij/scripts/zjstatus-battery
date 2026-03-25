@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env bash
 # MIT License
 #
 # Copyright (c) 2025 Andrew Vasilyev <me@retran.me>
@@ -8,49 +8,36 @@
 # @author: Andrew Vasilyev
 # @license: MIT
 #
-# Icons by charge level (nf-md-battery series):
+# macOS only — uses `pmset -g batt`.
+# Icons (nf-md-battery series):
 #   Charging:    󰂄
 #   Full/AC:     󰁹
-#   Discharging: 󰂎 󰁺 󰁻 󰁼 󰁽 󰁾 󰁿 󰂀 󰂁 󰂂 󰁹  (0–10, 10–20, … 90–100)
+#   Discharging: 󰂎 󰁺 󰁻 󰁼 󰁽 󰁾 󰁿 󰂀 󰂁 󰂂 󰁹  (0–9 %, 10–19 %, … 90–100 %)
 #   AC only:     󰚥
 
-import subprocess
-import re
-import sys
+ICONS_D=("󰂎" "󰁺" "󰁻" "󰁼" "󰁽" "󰁾" "󰁿" "󰂀" "󰂁" "󰂂" "󰁹")
 
-ICONS_DISCHARGING = ["󰂎", "󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"]
-ICON_CHARGING = "󰂄"
-ICON_FULL = "󰁹"
-ICON_AC_ONLY = "󰚥"
+out=$(pmset -g batt 2>/dev/null)
 
-try:
-    out = subprocess.check_output(["pmset", "-g", "batt"], stderr=subprocess.DEVNULL).decode()
-except Exception:
-    print(ICON_AC_ONLY)
-    sys.exit(0)
+if [[ "$out" != *"InternalBattery"* ]]; then
+    printf '󰚥\n'
+    exit 0
+fi
 
-# No internal battery — desktop or closed-lid with AC only
-if "InternalBattery" not in out:
-    print(ICON_AC_ONLY)
-    sys.exit(0)
+# Extract the InternalBattery line
+line=$(grep "InternalBattery" <<< "$out")
 
-batt_line = next((l for l in out.splitlines() if "InternalBattery" in l), None)
-if not batt_line:
-    print(ICON_AC_ONLY)
-    sys.exit(0)
+# Extract percentage — first run of digits before '%'
+[[ "$line" =~ ([0-9]+)% ]] || { printf '󰚥\n'; exit 0; }
+pct="${BASH_REMATCH[1]}"
 
-m = re.search(r"(\d+)%.*?(charging|discharging|charged|AC attached)", batt_line)
-if not m:
-    print(ICON_AC_ONLY)
-    sys.exit(0)
-
-pct = int(m.group(1))
-state = m.group(2).strip()
-
-if state == "charging":
-    print(f"{ICON_CHARGING} {pct}%")
-elif state in ("charged", "AC attached"):
-    print(f"{ICON_FULL} {pct}%")
-else:
-    icon = ICONS_DISCHARGING[min(pct // 10, 10)]
-    print(f"{icon} {pct}%")
+# Determine charge state via simple substring tests (avoids semicolon-in-regex issues)
+if [[ "$line" == *"charging"* && "$line" != *"discharging"* ]]; then
+    printf '󰂄 %d%%\n' "$pct"
+elif [[ "$line" == *"charged"* || "$line" == *"AC attached"* ]]; then
+    printf '󰁹 %d%%\n' "$pct"
+else
+    idx=$(( pct / 10 ))
+    (( idx > 10 )) && idx=10
+    printf '%s %d%%\n' "${ICONS_D[$idx]}" "$pct"
+fi

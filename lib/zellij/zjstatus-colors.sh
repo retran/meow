@@ -120,9 +120,11 @@ zjstatus_build_color_block() {
     "                 mode_rename_pane         \"#[fg=${_bg},bg=${_yellow},bold] RENAME \"" \
     "                 mode_rename_tab          \"#[fg=${_bg},bg=${_yellow},bold] RENAME \"" \
     "                 command_weather_format   \"#[fg=${_teal},bg=${_bg}] {stdout} \"" \
+    "                 pipe_keyboard_format     \"#[fg=${_blue},bg=${_bg}] {output} \"" \
+    "                 pipe_network_format      \"#[fg=${_green},bg=${_bg}] {output} \"" \
     "                 command_cpu_format       \"#[fg=${_green},bg=${_bg}] 󰻠 {stdout}% \"" \
     "                 command_mem_format       \"#[fg=${_mauve},bg=${_bg}] {stdout} \"" \
-    "                 command_bat_format       \"#[fg=${_orange},bg=${_bg}] {stdout} \"" \
+    "                 pipe_battery_format      \"#[fg=${_orange},bg=${_bg}] {output} \"" \
     "                 datetime                 \"#[fg=${_subtle},bg=${_bg}] {format}\"" \
     "                 // ZJSTATUS_COLORS_END"
 }

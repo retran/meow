@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+# MIT License
+#
+# Copyright (c) 2025 Andrew Vasilyev <me@retran.me>
+#
+# @file: components/zellij/scripts/zjstatus-network
+# @brief: Network status widget for zjstatus — outputs icon + active interface.
+# @author: Andrew Vasilyev
+# @license: MIT
+#
+# macOS: uses `scutil --nwi`.  The "Network interfaces: <iface>" summary line
+#        at the end of the output is parsed with a single awk call — this is
+#        the most reliable field and requires no block-scanning.
+# Linux: reads /proc/net/route to find the interface with the default gateway
+#        (destination 00000000), falling back to any non-loopback interface
+#        that has an assigned address via `ip route`.
+#
+# Icons (Nerd Font):
+#   Wi-Fi / wireless  󰤨   (en0, wlan*, wlp*)
+#   Ethernet / other  󰈁
+#   Offline           󰤭
+
+_iface_icon() {
+    case "$1" in
+        en0|wlan*|wlp*) printf '󰤨' ;;
+        *)               printf '󰈁' ;;
+    esac
+}
+
+if [[ "$(uname)" == "Darwin" ]]; then
+    # "Network interfaces: en0" — the last token on that line
+    iface=$(scutil --nwi 2>/dev/null | awk '/^Network interfaces:/{print $NF; exit}')
+    if [[ -z "$iface" ]]; then
+        printf '󰤭\n'
+    else
+        printf '%s %s\n' "$(_iface_icon "$iface")" "$iface"
+    fi
+else
+    # /proc/net/route: dest=00000000 means default route; col 2 is iface name
+    iface=$(awk '$2=="00000000"{print $1; exit}' /proc/net/route 2>/dev/null)
+    if [[ -z "$iface" ]]; then
+        printf '󰤭\n'
+    else
+        printf '%s %s\n' "$(_iface_icon "$iface")" "$iface"
+    fi
+fi

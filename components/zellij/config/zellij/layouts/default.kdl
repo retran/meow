@@ -28,6 +28,10 @@
 // Prerequisites:
 //   Download zjstatus.wasm from https://github.com/dj95/zjstatus/releases
 //   and place it at ~/.config/zellij/plugins/zjstatus.wasm
+//
+//   zjstatus-daemon must be running in the background.  It is launched
+//   automatically by the layout via the start_suspended pane below and
+//   pushes keyboard / network / battery updates as pipe events — no polling.
 
 layout {
     default_tab_template {
@@ -36,7 +40,7 @@ layout {
             plugin location="file:~/.config/zellij/plugins/zjstatus.wasm" {
 
                 format_center ""
-                format_right  "{command_weather} {command_cpu} {command_mem} {command_bat} {datetime}"
+                format_right  "{pipe_keyboard} {command_weather} {command_cpu} {command_mem} {pipe_network} {pipe_battery} {datetime}"
 
                 border_enabled  "false"
                 hide_frame_for_single_pane "false"
@@ -57,10 +61,10 @@ layout {
                 command_mem_interval "10"
                 command_mem_rendermode "static"
 
-                // Battery (macOS: pmset) — dynamic icon by level and charge state
-                command_bat_command  "bash -c \"$HOME/.config/zellij/scripts/zjstatus-battery\""
-                command_bat_interval "60"
-                command_bat_rendermode "static"
+                // Keyboard layout, network, battery — pushed instantly by zjstatus-daemon
+                pipe_keyboard_rendermode "static"
+                pipe_network_rendermode  "static"
+                pipe_battery_rendermode  "static"
 
                 // Clock + date (Amsterdam timezone) — date before time, with day-of-week
                 datetime_format    "󰸗 %a %d %b  󰥔 %H:%M"
@@ -88,9 +92,11 @@ layout {
                  mode_rename_pane         "#[fg=#1e1e2e,bg=#f9e2af,bold] RENAME "
                  mode_rename_tab          "#[fg=#1e1e2e,bg=#f9e2af,bold] RENAME "
                  command_weather_format   "#[fg=#94e2d5,bg=#1e1e2e] {stdout} "
+                 pipe_keyboard_format     "#[fg=#89b4fa,bg=#1e1e2e] {output} "
+                 pipe_network_format      "#[fg=#a6e3a1,bg=#1e1e2e] {output} "
                  command_cpu_format       "#[fg=#a6e3a1,bg=#1e1e2e] 󰻠 {stdout}% "
                  command_mem_format       "#[fg=#cba6f7,bg=#1e1e2e] {stdout} "
-                 command_bat_format       "#[fg=#fab387,bg=#1e1e2e] {stdout} "
+                 pipe_battery_format      "#[fg=#fab387,bg=#1e1e2e] {output} "
                  datetime                 "#[fg=#bac2de,bg=#1e1e2e] {format}"
                  // ZJSTATUS_COLORS_END
             }

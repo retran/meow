@@ -37,3 +37,13 @@
   target: "$HOME/.config/zellij/scripts/zjstatus-memory"
 - source: "$MEOW/.installed/components/zellij/scripts/zjstatus-weather"
   target: "$HOME/.config/zellij/scripts/zjstatus-weather"
+- source: "$MEOW/.installed/components/zellij/scripts/zjstatus-keyboard"
+  target: "$HOME/.config/zellij/scripts/zjstatus-keyboard"
+- source: "$MEOW/.installed/components/zellij/scripts/zjstatus-network"
+  target: "$HOME/.config/zellij/scripts/zjstatus-network"
+- source: "$MEOW/.installed/components/zellij/daemon/zjstatus-daemon"
+  target: "$HOME/.config/zellij/scripts/zjstatus-daemon"
+  os: macos
+- source: "$MEOW/.installed/components/zellij/config/fish/conf.d/zjstatus-daemon.fish"
+  target: "$HOME/.config/fish/conf.d/zjstatus-daemon.fish"
+  os: macos

@@ -22,7 +22,7 @@
 # THE SOFTWARE.
 #
 # @file: components/zellij/scripts/setup.sh
-# @brief: Setup script for zellij - downloads required plugins.
+# @brief: Setup script for zellij - downloads required plugins, compiles daemon.
 # @author: Andrew Vasilyev
 # @license: MIT
 #
@@ -36,6 +36,8 @@ PLUGINS_DIR="${HOME}/.config/zellij/plugins"
 ZJSTATUS_DEST="${PLUGINS_DIR}/zjstatus.wasm"
 CONFIG_TEMPLATE="${MEOW}/components/zellij/config/zellij/config.kdl.template"
 CONFIG_KDL_DEST="${HOME}/.config/zellij/config.kdl"
+DAEMON_SRC="${MEOW}/components/zellij/daemon/zjstatus-daemon.swift"
+DAEMON_BIN="${MEOW}/components/zellij/daemon/zjstatus-daemon"
 
 # Render config.kdl.template to ~/.config/zellij/config.kdl, substituting the
 # layout_dir and theme_dir placeholders with real absolute paths.
@@ -152,8 +154,53 @@ install_zjstatus() {
   return 0
 }
 
+build_daemon() {
+  ui_step_header "Building zjstatus-daemon"
+
+  if [ ! -f "${DAEMON_SRC}" ]; then
+    ui_warning "zjstatus-daemon.swift not found at ${DAEMON_SRC}, skipping build"
+    return 0
+  fi
+
+  if [ "${MEOW_DRY_RUN:-false}" = "true" ]; then
+    ui_info "(dry-run) Would compile ${DAEMON_SRC} -> ${DAEMON_BIN}"
+    return 0
+  fi
+
+  # Skip rebuild if binary is up-to-date
+  if [ -f "${DAEMON_BIN}" ] && [ "${DAEMON_BIN}" -nt "${DAEMON_SRC}" ]; then
+    ui_action_success "zjstatus-daemon already up-to-date"
+    return 0
+  fi
+
+  if ! command -v swiftc >/dev/null 2>&1; then
+    ui_warning "swiftc not found — cannot build zjstatus-daemon (install Xcode Command Line Tools)"
+    return 1
+  fi
+
+  ui_action_start "Compiling zjstatus-daemon..."
+
+  if swiftc \
+      "${DAEMON_SRC}" \
+      -framework Foundation \
+      -framework Carbon \
+      -framework SystemConfiguration \
+      -framework IOKit \
+      -O \
+      -o "${DAEMON_BIN}" 2>&1; then
+    strip "${DAEMON_BIN}" 2>/dev/null || true
+    ui_action_success "zjstatus-daemon compiled to ${DAEMON_BIN}"
+  else
+    ui_action_fail "Failed to compile zjstatus-daemon"
+    return 1
+  fi
+}
+
 render_config_kdl
 setup_themes_dir
 if ! install_zjstatus; then
   ui_warning "zellij setup completed with warnings — zjstatus plugin is missing."
+fi
+if [[ "$(uname)" == "Darwin" ]]; then
+  build_daemon
 fi

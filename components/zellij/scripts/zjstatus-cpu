@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env bash
 # MIT License
 #
 # Copyright (c) 2025 Andrew Vasilyev <me@retran.me>
@@ -8,55 +8,38 @@
 # @author: Andrew Vasilyev
 # @license: MIT
 #
-# macOS:  reads from `top -l 1 -s 0`
-# Linux:  reads from /proc/stat (two-sample delta for accuracy, using a
-#         small sleep so the first sample is not stale)
+# macOS: reads from `iostat -c 1` — single-sample, ~4 ms total.
+#        iostat columns: us (user) + sy (system) summed by awk using the
+#        header row to find column positions, so the output is robust to
+#        varying numbers of disk columns.
+# Linux: reads /proc/stat twice with a 0.2 s sleep for an accurate delta.
+#        Pure bash arithmetic — no extra process spawns after the two reads.
 
-import subprocess
-import sys
-import platform
-import re
-
-def cpu_macos() -> str:
-    try:
-        out = subprocess.check_output(
-            ["top", "-l", "1", "-s", "0"],
-            stderr=subprocess.DEVNULL,
-        ).decode()
-        m = re.search(r"CPU usage:\s+([\d.]+)%\s+user,\s+([\d.]+)%\s+sys", out)
-        if m:
-            total = float(m.group(1)) + float(m.group(2))
-            return str(int(round(total)))
-    except Exception:
-        pass
-    return "?"
-
-def _read_proc_stat():
-    with open("/proc/stat") as f:
-        line = f.readline()
-    fields = line.split()
-    # fields: cpu user nice system idle iowait irq softirq steal guest guest_nice
-    values = [int(x) for x in fields[1:]]
-    idle = values[3] + (values[4] if len(values) > 4 else 0)
-    total = sum(values)
-    return idle, total
-
-def cpu_linux() -> str:
-    try:
-        import time
-        idle1, total1 = _read_proc_stat()
-        time.sleep(0.2)
-        idle2, total2 = _read_proc_stat()
-        d_total = total2 - total1
-        d_idle  = idle2  - idle1
-        if d_total == 0:
-            return "?"
-        pct = 100 * (d_total - d_idle) // d_total
-        return str(pct)
-    except Exception:
-        return "?"
-
-if platform.system() == "Darwin":
-    print(cpu_macos())
-else:
-    print(cpu_linux())
+if [[ "$(uname)" == "Darwin" ]]; then
+    iostat -c 1 2>/dev/null | awk '
+        NR==2 { for(i=1;i<=NF;i++) { if($i=="us") u=i; if($i=="sy") s=i } }
+        NR==3 { if(u && s) { printf "%d\n", $u+$s } else { print "?" } }
+    ' || printf '?\n'
+else
+    # Two-sample /proc/stat delta — bash builtins only after the two reads
+    read_stat() {
+        local fields
+        read -r -a fields < /proc/stat
+        # fields[0]=cpu fields[1..]=user nice system idle iowait irq softirq ...
+        local idle=$(( fields[4] + ${fields[5]:-0} ))   # idle + iowait
+        local total=0
+        local f
+        for f in "${fields[@]:1}"; do (( total += f )); done
+        printf '%d %d' "$idle" "$total"
+    }
+    read -r idle1 total1 <<< "$(read_stat)"
+    sleep 0.2
+    read -r idle2 total2 <<< "$(read_stat)"
+    d_total=$(( total2 - total1 ))
+    d_idle=$(( idle2 - idle1 ))
+    if (( d_total > 0 )); then
+        printf '%d\n' $(( 100 * (d_total - d_idle) / d_total ))
+    else
+        printf '?\n'
+    fi
+fi
