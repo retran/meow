@@ -1,8 +1,0 @@
-description: Task runner CLI managed by mise
-platforms:
-- match:
-    platform: macos
-- match:
-    platform: linux
-depends_on:
-- tool-installers

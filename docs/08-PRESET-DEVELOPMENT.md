@@ -183,5 +183,4 @@ The framework will:
 ## Tips for Preset Design
 
 - **Keep it Modular**: Don't create a monolithic "everything" preset. Use `extends` to build layers (e.g., `base` -\> `headless` -\> `desktop` -\> `workstation`).
-- **Use The Litterbox for Ephemeral Needs**: If you need a set of tools for just one project (e.g., Python Data Science), create a `litterbox-python` preset instead of adding those tools to your main `den`. This keeps your host machine clean.
 - **Platform Agnosticism**: Try to make presets work across OSs by selecting components that support both macOS and Linux. Use the `platforms` restriction only when a preset is inherently specific to one OS.

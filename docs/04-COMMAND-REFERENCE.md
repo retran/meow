@@ -35,9 +35,6 @@ meowctl install <preset> [options]
 ```bash
 # Install the professional den preset
 meowctl install den-professional
-
-# Force reinstall the Go litterbox preset with verbose output
-meowctl install litterbox-go --force --verbose
 ```
 
 ---

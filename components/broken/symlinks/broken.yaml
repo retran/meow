@@ -1,0 +1,2 @@
+- source: "/does/not/exist/$$"
+  target: "/var/folders/wk/74q0nx852996mc0yhcf2__pw0000gn/T/tmp.6aLGQe2SCs/home/.broken_test_link_65526"

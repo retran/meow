@@ -1,3 +1,17 @@
 starship@latest
 github-cli@latest
 lazygit@latest
+git-lfs@latest
+bat@latest
+bat-extras@latest
+duf@latest
+eza@latest
+fd@latest
+fzf@latest
+glow@latest
+gum@latest
+jq@latest
+yq@latest
+ripgrep@latest
+zoxide@latest
+delta@latest

@@ -1,7 +1,0 @@
-description: Rust development litterbox setup with systems programming tools
-extends:
-- base
-- litterbox-essential
-required:
-- rust-runtime
-- rust-development

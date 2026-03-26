@@ -1,8 +1,9 @@
-github.codespaces
-github.copilot
-github.copilot-chat
 github.vscode-github-actions
 github.vscode-pull-request-github
 enkia.tokyo-night
 robbowen.synthwave-vscode
+catppuccin.catppuccin-vsc
 ms-azuretools.vscode-containers
+ms-azuretools.vscode-docker
+mohsen1.prettify-json
+zainchen.json

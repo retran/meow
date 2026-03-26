@@ -1,7 +1,0 @@
-description: .NET development litterbox setup with C# and related tooling
-extends:
-- base
-- litterbox-essential
-required:
-- dotnet-runtime
-- dotnet-development

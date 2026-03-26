@@ -46,7 +46,7 @@ Setting up a consistent and reproducible development environment is often a tedi
 
 -   **🧩 Component-Based Architecture**: Build your environment from isolated, reusable [components](./docs/09-COMPONENT-DEVELOPMENT.md), each defined by a clear manifest and containing its own packages, configurations, and scripts.
 -   **📦 Universal Package Management**: Seamlessly handle package installations across macOS (Homebrew, mas) and Linux (apt, dnf, pacman, apk) through a unified abstraction layer.
--   **📑 Presets (Den & Litterbox)**: Apply configurations called [Presets](./docs/03-USING-PRESETS.md) to quickly deploy tailored setups.
+-   **📑 Presets**: Apply configurations called [Presets](./docs/03-USING-PRESETS.md) to quickly deploy tailored setups.
 -   **🔄 Idempotent Operations**: Run setup scripts multiple times safely; `.meow` ensures that actions are only taken if necessary, bringing your system to the desired state without unintended side effects, a core [principle](./docs/11-PRINCIPLES.md) of the framework.
 -   **⚡ Zero Dependencies**: The core framework is written in pure Shell (Bash/Zsh) and requires only `git` and `curl` to bootstrap, ensuring maximum portability and minimal overhead. It is also compatible with Bash 3.2, which is the default on macOS.
 
@@ -92,16 +92,6 @@ Apply the chosen configuration.
 
 ```bash
 ./bin/meowctl install den-personal
-```
-
-**For ephemeral environments (The Litterbox):**
-
-```bash
-# Go Development
-./bin/meowctl install litterbox-go
-
-# Python & Data Science
-./bin/meowctl install litterbox-python
 ```
 
 -----
