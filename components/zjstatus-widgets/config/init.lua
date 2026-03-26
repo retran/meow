@@ -524,7 +524,7 @@ function M.init()
 
     zellijBin = resolveZellij()
     if not zellijBin then
-        print("zjstatus-widgets: zellij not found in PATH, plugin disabled")
+        print("zjstatus-widgets: zellij binary not found, plugin disabled")
         return
     end
 
