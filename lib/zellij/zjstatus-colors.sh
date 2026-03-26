@@ -121,7 +121,7 @@ zjstatus_build_color_block() {
     "                 mode_rename_tab          \"#[fg=${_bg},bg=${_yellow},bold] RENAME \"" \
     "                 pipe_vpn_format          \"{output}  \"" \
     "                 pipe_focus_format        \"{output}  \"" \
-    "                 pipe_keyboard_format     \"#[fg=${_blue},bg=${_bg}]{output}  \"" \
+    "                 pipe_keyboard_format     \"{output}  \"" \
     "                 pipe_cpu_format          \"{output}  \"" \
     "                 pipe_memory_format       \"{output}  \"" \
     "                 pipe_battery_format      \"{output}  \"" \

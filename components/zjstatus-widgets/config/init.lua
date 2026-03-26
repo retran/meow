@@ -269,7 +269,7 @@ end
 local function keyboardLabel()
     local src = hs.keycodes.currentSourceID()
     log("keyboard src=" .. tostring(src))
-    if not src then return "󰌌 ?" end
+    if not src then return colored(C_BLUE, "󰌌 ?") end
     local name = src
         :gsub("^com%.apple%.keylayout%.", "")
         :gsub("^com%.apple%.inputmethod%.", "")
@@ -277,11 +277,11 @@ local function keyboardLabel()
     if name == "ABC" or name == "US"
             or name:find("^USInternational") or name:find("^British")
             or name:find("^Australian") then
-        return "󰌌 EN"
+        return colored(C_BLUE, "󰌌 EN")
     elseif name:find("^Russian") then
-        return "󰌌 RU"
+        return colored(C_BLUE, "󰌌 RU")
     else
-        return "󰌌 " .. name
+        return colored(C_BLUE, "󰌌 " .. name)
     end
 end
 

@@ -47,11 +47,11 @@ layout {
                 mode_default_to_mode "normal"
 
                 // All widgets pushed by the zjstatus-widgets Hammerspoon plugin.
-                // cpu/memory/battery/disk/date/time use "dynamic" rendermode so that
-                // color codes embedded in the piped value are interpreted.
+                // All use "dynamic" rendermode — colors are embedded in the piped
+                // value by Lua so they update immediately on theme change.
                 pipe_vpn_rendermode      "dynamic"
                 pipe_focus_rendermode    "dynamic"
-                pipe_keyboard_rendermode "static"
+                pipe_keyboard_rendermode "dynamic"
                 pipe_cpu_rendermode      "dynamic"
                 pipe_memory_rendermode   "dynamic"
                 pipe_battery_rendermode  "dynamic"
@@ -81,7 +81,7 @@ layout {
                  mode_rename_tab          "#[fg=#1e1e2e,bg=#f9e2af,bold] RENAME "
                  pipe_vpn_format          "{output}  "
                  pipe_focus_format        "{output}  "
-                 pipe_keyboard_format     "#[fg=#89b4fa,bg=#1e1e2e]{output}  "
+                 pipe_keyboard_format     "{output}  "
                  pipe_cpu_format          "{output}  "
                  pipe_memory_format       "{output}  "
                  pipe_battery_format      "{output}  "
