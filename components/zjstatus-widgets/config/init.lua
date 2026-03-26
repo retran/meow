@@ -64,12 +64,6 @@ local LOG_FILE = os.getenv("HOME") .. "/.local/share/zjstatus-widgets/zjstatus-w
 local LOG_MAX  = 256 * 1024  -- rotate at 256 KiB
 
 local function log(msg)
-    -- Lazy-create the log directory (hs.fs.mkdir does not recurse, so create
-    -- each component individually; all paths are constant, no injection risk).
-    local home = os.getenv("HOME")
-    hs.fs.mkdir(home .. "/.local")
-    hs.fs.mkdir(home .. "/.local/share")
-    hs.fs.mkdir(home .. "/.local/share/zjstatus-widgets")
     local f = io.open(LOG_FILE, "a")
     if not f then return end
     f:write(os.date("[%Y-%m-%d %H:%M:%S] ") .. msg .. "\n")
@@ -164,7 +158,8 @@ local function isValidSessionName(name)
 end
 
 -- Resolve the zellij binary once.
--- hs.execute runs in a restricted GUI PATH, so we probe known locations directly.
+-- zellij is not in the GUI PATH (Hammerspoon launches without a login shell),
+-- so we probe known install locations directly.
 -- Never call a login shell here — it can hang during HS startup.
 local function resolveZellij()
     local candidates = {
@@ -519,6 +514,14 @@ function M.init()
     -- Pin M to a global so Lua's GC never collects it (and its timers/watchers).
     _G._zjstatusWidgets = M
 
+    -- Ensure log directory exists before any log() call.
+    -- hs.fs.mkdir does not recurse, so create each component individually.
+    -- All paths are constants derived from HOME — no injection risk.
+    local home = os.getenv("HOME")
+    hs.fs.mkdir(home .. "/.local")
+    hs.fs.mkdir(home .. "/.local/share")
+    hs.fs.mkdir(home .. "/.local/share/zjstatus-widgets")
+
     zellijBin = resolveZellij()
     if not zellijBin then
         print("zjstatus-widgets: zellij not found in PATH, plugin disabled")
@@ -593,7 +596,7 @@ function M.init()
 
     -- Session list: seed cache once at startup, then prune dead sessions
     -- every SESSION_INTERVAL_S. Normal operation never needs list-sessions —
-    -- sessions register themselves via the URL handler.
+    -- sessions register themselves via the hs -c bootstrap in fish conf.d.
     refreshSessions(function()
         pushCached("vpn",      vpnLabel())
         pushCached("focus",    focusLabelFromID(_lastFocusModeID or ""))
