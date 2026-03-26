@@ -141,6 +141,14 @@ for layout_file in layout_files:
             f.write(new_content)
         print(f"Updated zjstatus colors in {layout_file}")
 PYEOF
+
+    # Write Lua color file for the Hammerspoon plugin so widget colors stay in sync.
+    zjstatus_write_lua_colors "$PRESET" "$VARIANT" || true
+
+    # Notify Hammerspoon to reload colors and repush all widgets.
+    if command -v hs >/dev/null 2>&1; then
+      hs -c "if ZJStatusReloadColors then ZJStatusReloadColors() end" 2>/dev/null || true
+    fi
   fi
 fi
 

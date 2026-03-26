@@ -87,6 +87,7 @@ layout {
                  pipe_battery_format      "{output}  "
                  pipe_date_format         "{output}  "
                  pipe_time_format         "{output}"
+                 datetime                 "#[fg=#bac2de,bg=#1e1e2e] {format}"
                  // ZJSTATUS_COLORS_END
             }
         }

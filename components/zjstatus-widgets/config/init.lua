@@ -92,7 +92,9 @@ local CPU_INTERVAL_S           = 5
 local MEM_INTERVAL_S           = 10
 local SESSION_INTERVAL_S       = 10    -- async session list refresh cadence (fallback only)
 
--- Catppuccin Mocha palette (must match ZJSTATUS_COLORS in default.kdl)
+-- Theme-aware palette colors.
+-- Defaults are Catppuccin Mocha; overwritten at startup and on theme change
+-- by loadColors() which reads ~/.local/share/zjstatus-widgets/colors.lua.
 local C_GREEN  = "#a6e3a1"
 local C_YELLOW = "#f9e2af"
 local C_ORANGE = "#fab387"
@@ -100,6 +102,30 @@ local C_RED    = "#f38ba8"
 local C_MAUVE  = "#cba6f7"
 local C_BLUE   = "#89b4fa"
 local C_BG     = "#1e1e2e"
+
+local COLORS_FILE = os.getenv("HOME") .. "/.local/share/zjstatus-widgets/colors.lua"
+
+-- Load colors from the generated Lua file written by apply-theme-zellij.
+-- Returns true if colors were updated, false otherwise.
+local function loadColors()
+    local f = io.open(COLORS_FILE, "r")
+    if not f then return false end
+    f:close()
+    local ok, palette = pcall(dofile, COLORS_FILE)
+    if not ok or type(palette) ~= "table" then
+        log("loadColors: failed to parse " .. COLORS_FILE .. ": " .. tostring(palette))
+        return false
+    end
+    C_BG     = palette.bg     or C_BG
+    C_GREEN  = palette.green  or C_GREEN
+    C_YELLOW = palette.yellow or C_YELLOW
+    C_ORANGE = palette.orange or C_ORANGE
+    C_RED    = palette.red    or C_RED
+    C_MAUVE  = palette.mauve  or C_MAUVE
+    C_BLUE   = palette.blue   or C_BLUE
+    log("loadColors: bg=" .. C_BG .. " green=" .. C_GREEN .. " blue=" .. C_BLUE)
+    return true
+end
 
 local function colored(fg, text)
     return "#[fg=" .. fg .. ",bg=" .. C_BG .. "]" .. text
@@ -126,6 +152,7 @@ M._dateTimer        = nil
 M._timeTimer        = nil
 M._reachWatcher     = nil
 M._focusWatcher     = nil
+M._colorsWatcher    = nil
 
 -- ── Zellij session discovery & piping ──────────────────────────────────────
 
@@ -418,6 +445,21 @@ local function timeLabel()
     return colored(C_GREEN, "󰥔 " .. out)
 end
 
+-- Recompute all widget labels (using the current C_* color variables) and push
+-- them to every active session.  Used after a theme/color change.
+local function recomputeAll()
+    pushCached("vpn",      vpnLabel())
+    pushCached("focus",    focusLabel())
+    pushCached("keyboard", keyboardLabel())
+    pushCached("battery",  batteryLabel())
+    pushCached("memory",   memLabel())
+    pushCached("date",     dateLabel())
+    pushCached("time",     timeLabel())
+    -- CPU is self-scheduling; the next tick will pick up the new colors
+    -- automatically.  Clear the cached value so no stale color flickers.
+    lastValues["cpu"] = nil
+end
+
 -- ── URL handler: new-session bootstrap ────────────────────────────────────
 -- fish calls: hs -c "ZJStatusPushAll('session-name')"
 -- (also still bound to hammerspoon:// for compatibility)
@@ -437,6 +479,15 @@ function ZJStatusPushAll(name)
     end
 end
 
+-- Global function called by apply-theme-zellij after colors.lua is written.
+-- Reloads the palette and recomputes all widget labels with the new colors.
+function ZJStatusReloadColors()
+    log("ZJStatusReloadColors called")
+    if loadColors() then
+        recomputeAll()
+    end
+end
+
 local function setupUrlHandler()
     hs.urlevent.bind("zjstatus-push-all", function(_, params)
         local name = params and params.session
@@ -453,6 +504,19 @@ function M.init()
         print("zjstatus-widgets: zellij not found in PATH, plugin disabled")
         return
     end
+
+    -- Load theme colors from file written by apply-theme-zellij (if present).
+    loadColors()
+
+    -- Watch for theme changes: apply-theme-zellij rewrites colors.lua, which
+    -- triggers this callback.  We reload colors then recompute all widget labels
+    -- so every running session reflects the new palette immediately.
+    M._colorsWatcher = hs.pathwatcher.new(COLORS_FILE, function()
+        log("colors file changed, reloading palette")
+        if loadColors() then
+            recomputeAll()
+        end
+    end):start()
 
     -- Keyboard: hs.keycodes.inputSourceChanged is the correct native callback
     hs.keycodes.inputSourceChanged(function()
@@ -530,6 +594,7 @@ function M.cleanup()
     if M._timeTimer        then M._timeTimer:stop();      M._timeTimer = nil end
     if M._reachWatcher     then M._reachWatcher:stop();   M._reachWatcher = nil end
     if M._focusWatcher     then M._focusWatcher:stop();   M._focusWatcher = nil end
+    if M._colorsWatcher    then M._colorsWatcher:stop();  M._colorsWatcher = nil end
     hs.urlevent.bind("zjstatus-push-all", nil)
     zellijBin      = nil
     lastValues     = {}
