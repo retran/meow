@@ -88,13 +88,8 @@ end
 
 -- ── Constants ──────────────────────────────────────────────────────────────
 
--- Weather location: URL-safe characters only (letters, digits, %, +, ,, /, -)
--- Override via hs.settings: hs.settings.set("zjstatus.weatherLocation", "Rotterdam")
-local WEATHER_LOCATION_DEFAULT = "Amsterdam"
-local WEATHER_INTERVAL_S       = 1800   -- 30 minutes
 local CPU_INTERVAL_S           = 5
 local MEM_INTERVAL_S           = 10
-local NET_INTERVAL_S           = 2     -- network traffic sampling interval
 local SESSION_INTERVAL_S       = 10    -- async session list refresh cadence (fallback only)
 
 -- Catppuccin Mocha palette (must match ZJSTATUS_COLORS in default.kdl)
@@ -120,16 +115,13 @@ local ICONS_DISCHARGING = {
 local zellijBin        = nil   -- absolute path, resolved once
 local lastValues       = {}    -- widget -> last pushed string (for re-send)
 local cachedSessions   = {}    -- list of validated session name strings
-local netPrevBytes     = nil   -- {rx, tx} from last sample, for rate calc
 
 -- Watchers / timers — kept in M so cleanup() can stop them
 M._wifiWatcher      = nil
 M._batteryWatcher   = nil
 M._memTimer         = nil
-M._diskTimer        = nil
-M._weatherTimer     = nil
+M._focusTimer       = nil
 M._sessionTimer     = nil
-M._netTimer         = nil
 M._dateTimer        = nil
 M._timeTimer        = nil
 M._reachWatcher     = nil
@@ -266,92 +258,6 @@ local function keyboardLabel()
     end
 end
 
--- ── Network traffic ────────────────────────────────────────────────────────
-
--- Returns {name, isWifi} for the first active non-loopback interface, preferring WiFi.
-local function activeInterface()
-    local ifaces = hs.network.interfaces()
-    if not ifaces then return nil end
-    local fallback = nil
-    for _, iface in ipairs(ifaces) do
-        local d = hs.network.interfaceDetails(iface)
-        if d and d.IPv4 and iface ~= "lo0" then
-            if d.AirPort then
-                local ch = d.AirPort.CHANNEL
-                if type(ch) == "number" and ch > 0 then
-                    return iface, true   -- connected WiFi — first choice
-                end
-            else
-                fallback = fallback or iface
-            end
-        end
-    end
-    return fallback, false
-end
-
--- Read cumulative rx/tx bytes for an interface via netstat.
-local function readIfaceBytes(iface)
-    local f = io.popen("netstat -ibn 2>/dev/null")
-    if not f then return nil, nil end
-    local rx, tx
-    for line in f:lines() do
-        -- Match the <Link#N> row for this interface
-        if line:match("^" .. iface .. "%s") and line:match("<Link") then
-            local fields = {}
-            for v in line:gmatch("%S+") do fields[#fields+1] = v end
-            -- netstat -ibn columns: Name Mtu Network Address Ipkts Ierrs Ibytes Opkts Oerrs Obytes Coll
-            rx = tonumber(fields[7])
-            tx = tonumber(fields[10])
-            break
-        end
-    end
-    f:close()
-    return rx, tx
-end
-
--- Format bytes/s into a human-readable rate string.
-local function fmtRate(bps)
-    if bps >= 1048576 then
-        return string.format("%.1fM", bps / 1048576)
-    elseif bps >= 1024 then
-        return string.format("%.0fK", bps / 1024)
-    else
-        return string.format("%dB", bps)
-    end
-end
-
-local function updateNetwork()
-    local iface, isWifi = activeInterface()
-    if not iface then
-        pushCached("network", "󰤭")
-        netPrevBytes = nil
-        return
-    end
-
-    local icon = isWifi and "󰤨" or "󰈁"
-    local rx, tx = readIfaceBytes(iface)
-    if not rx or not tx then
-        pushCached("network", icon)
-        netPrevBytes = nil
-        return
-    end
-
-    -- Reset rate history if interface changed
-    if netPrevBytes and netPrevBytes[3] ~= iface then
-        netPrevBytes = nil
-    end
-
-    if netPrevBytes then
-        local drx = math.max(0, rx - netPrevBytes[1])
-        local dtx = math.max(0, tx - netPrevBytes[2])
-        local rxRate = drx / NET_INTERVAL_S
-        local txRate = dtx / NET_INTERVAL_S
-        pushCached("network", icon .. " 󰁆 " .. fmtRate(rxRate) .. " 󰁞 " .. fmtRate(txRate))
-    end
-
-    netPrevBytes = {rx, tx, iface}
-end
-
 -- ── Battery ────────────────────────────────────────────────────────────────
 
 local function batteryLabel()
@@ -386,8 +292,12 @@ local function scheduleCpuUpdate()
         if result and result.overall then
             pct = math.floor((result.overall.active or 0) + 0.5)
         end
-        local fg = pct >= 90 and C_RED or pct >= 60 and C_YELLOW or C_GREEN
-        pushCached("cpu", colored(fg, "󰻠 " .. pct .. "%"))
+        if pct >= 60 then
+            local fg = pct >= 90 and C_RED or C_YELLOW
+            pushCached("cpu", colored(fg, "󰻠 " .. pct .. "%"))
+        else
+            pushCached("cpu", "")
+        end
         scheduleCpuUpdate()
     end)
 end
@@ -411,20 +321,9 @@ local function memLabel()
     local totalMiB  = (vm.memSize or 0) / 1048576
     local usedMiB   = usedPages * pageSize / 1048576
     local pct       = totalMiB > 0 and (usedMiB / totalMiB * 100) or 0
-    local fg        = pct >= 90 and C_RED or pct >= 70 and C_YELLOW or C_MAUVE
+    if pct < 70 then return "" end
+    local fg        = pct >= 90 and C_RED or C_YELLOW
     return colored(fg, "󰍛 " .. fmtGiB(usedMiB))
-end
-
--- ── Disk ───────────────────────────────────────────────────────────────────
-
-local function diskLabel()
-    local vol = hs.fs.volume.allVolumes(true)["/"]
-    if not vol then return colored(C_YELLOW, "󰋊 ?") end
-    local avail = vol.NSURLVolumeAvailableCapacityKey
-    if not avail then return colored(C_YELLOW, "󰋊 ?") end
-    local freeGiB = avail / 1073741824
-    local fg = freeGiB <= 20 and C_RED or freeGiB <= 50 and C_YELLOW or C_GREEN
-    return colored(fg, "󰋊 " .. string.format("%.0f", freeGiB) .. "G")
 end
 
 -- ── VPN ────────────────────────────────────────────────────────────────────
@@ -453,49 +352,48 @@ end
 
 -- ── Focus Mode ─────────────────────────────────────────────────────────────
 
-local ASSERTIONS_FILE = os.getenv("HOME") .. "/Library/DoNotDisturb/DB/Assertions.json"
-local SLEEP_MODE      = "com.apple.sleep.sleep-mode"
+-- Reads Focus state via Accessibility on the Control Centre menu bar item
+-- (AXIdentifier = com.apple.menuextra.focusmode).
+-- No Full Disk Access required — only Accessibility permission (already granted).
+-- When Focus is OFF the item has AXValue = nil and no visible icon text.
+-- When Focus is ON  the item has AXValue = "<mode name>" (e.g. "Do Not Disturb").
+-- Falls back to "" (empty) on any error so the widget stays hidden.
 
--- Map Focus mode identifiers to nerd font icons.
-local FOCUS_ICONS = {
-    ["com.apple.donotdisturb.mode.default"] = "󰂶",   -- Do Not Disturb (moon)
-    ["com.apple.focus.work"]                = "󰢾",   -- Work
-    ["com.apple.focus.personal-time"]       = "󱗽",   -- Personal
-    ["com.apple.focus.fitness"]             = "󰈿",   -- Fitness
-    ["com.apple.focus.gaming"]              = "󰊗",   -- Gaming
-    ["com.apple.focus.mindfulness"]         = "󰓏",   -- Mindfulness
-    ["com.apple.focus.reduce-interruptions"]= "󱑙",   -- Reduce Interruptions
-}
-
--- Read the currently active Focus mode identifier from Assertions.json.
--- Returns nil when no user-visible Focus mode is active.
-local function readFocusMode()
-    local f = io.open(ASSERTIONS_FILE, "r")
-    if not f then return nil end
-    local raw = f:read("*a")
-    f:close()
-    local ok, data = pcall(hs.json.decode, raw)
-    if not ok or not data or not data.data or not data.data[1] then return nil end
-    local records = data.data[1].storeAssertionRecords or {}
-    for _, rec in ipairs(records) do
-        local d = rec.assertionDetails or {}
-        local mode = d.assertionDetailsModeIdentifier
-        if mode and mode ~= SLEEP_MODE then
-            return mode
+local function readFocusMenuBarValue()
+    local cc = hs.application.find("Control Centre")
+    if not cc then return nil end
+    local ax = hs.axuielement.applicationElement(cc)
+    if not ax then return nil end
+    -- Control Centre has one child: AXMenuBar
+    local topChildren = ax:attributeValue("AXChildren") or {}
+    local menubar = topChildren[1]
+    if not menubar then return nil end
+    local children = menubar:attributeValue("AXChildren") or {}
+    for _, item in ipairs(children) do
+        local id = item:attributeValue("AXIdentifier") or ""
+        if id == "com.apple.menuextra.focusmode" then
+            return item:attributeValue("AXValue")  -- nil or string when active
         end
     end
     return nil
 end
 
 local function focusLabel()
-    local mode = readFocusMode()
-    if not mode then return "" end
-    local icon = FOCUS_ICONS[mode] or "󱑙"
-    -- Extract a short human-readable name from the identifier tail
-    local name = mode:match("%.([^%.]+)$") or "Focus"
-    -- Capitalise first letter
-    name = name:sub(1,1):upper() .. name:sub(2)
-    return colored(C_MAUVE, icon .. " " .. name)
+    local val = readFocusMenuBarValue()
+    if not val or val == "" then return "" end
+    -- val is a human-readable name like "Do Not Disturb", "Work", "Personal" etc.
+    -- Pick an icon based on common names.
+    local icons = {
+        ["Do Not Disturb"] = "󰂶",
+        ["Work"]           = "󰢾",
+        ["Personal"]       = "󱗽",
+        ["Fitness"]        = "󰈿",
+        ["Gaming"]         = "󰊗",
+        ["Mindfulness"]    = "󰓏",
+        ["Sleep"]          = "󰒲",
+    }
+    local icon = icons[val] or "󱑙"
+    return colored(C_MAUVE, icon .. " " .. val)
 end
 
 -- ── Date / Time ────────────────────────────────────────────────────────────
@@ -518,85 +416,6 @@ local function timeLabel()
     end
     out = out:gsub("%s+$", "")
     return colored(C_GREEN, "󰥔 " .. out)
-end
-
--- ── Weather ────────────────────────────────────────────────────────────────
-
--- WWO weather code → nerd font icon (nf-weather-*)
--- Codes from https://www.worldweatheronline.com/feed/wwoConditionCodes.txt
-local WEATHER_ICONS = {
-    [113] = "󰖙",  -- Clear / Sunny            nf-weather-day_sunny
-    [116] = "󰖕",  -- Partly Cloudy            nf-weather-day_cloudy
-    [119] = "󰖐",  -- Cloudy                   nf-weather-cloudy
-    [122] = "󰖐",  -- Overcast                 nf-weather-cloudy
-    [143] = "󰖑",  -- Mist                     nf-weather-fog
-    [176] = "󰖗",  -- Patchy rain nearby       nf-weather-day_showers
-    [179] = "󰖘",  -- Patchy snow nearby       nf-weather-day_snow
-    [182] = "󰖘",  -- Patchy sleet nearby      nf-weather-day_snow
-    [185] = "󰖘",  -- Patchy freezing drizzle  nf-weather-day_snow
-    [200] = "󰖓",  -- Thundery outbreaks       nf-weather-day_thunderstorm
-    [227] = "󰖚",  -- Blowing snow             nf-weather-snow_wind
-    [230] = "󰖔",  -- Blizzard                 nf-weather-snowflake_cold
-    [248] = "󰖑",  -- Fog                      nf-weather-fog
-    [260] = "󰖑",  -- Freezing fog             nf-weather-fog
-    [263] = "󰖒",  -- Patchy light drizzle     nf-weather-sprinkle
-    [266] = "󰖒",  -- Light drizzle            nf-weather-sprinkle
-    [281] = "󰖘",  -- Freezing drizzle         nf-weather-sleet
-    [284] = "󰖘",  -- Heavy freezing drizzle   nf-weather-sleet
-    [293] = "󰖗",  -- Patchy light rain        nf-weather-day_showers
-    [296] = "󰖗",  -- Light rain               nf-weather-day_showers
-    [299] = "󰖖",  -- Moderate rain at times   nf-weather-rain
-    [302] = "󰖖",  -- Moderate rain            nf-weather-rain
-    [305] = "󰖖",  -- Heavy rain at times      nf-weather-rain
-    [308] = "󰖖",  -- Heavy rain               nf-weather-rain
-    [311] = "󰖘",  -- Light freezing rain      nf-weather-sleet
-    [314] = "󰖘",  -- Mod/heavy freezing rain  nf-weather-sleet
-    [317] = "󰖘",  -- Light sleet              nf-weather-sleet
-    [320] = "󰖘",  -- Mod/heavy sleet          nf-weather-sleet
-    [323] = "󰖙",  -- Patchy light snow        nf-weather-day_snow
-    [326] = "󰼶",  -- Light snow               nf-weather-snow
-    [329] = "󰼶",  -- Patchy moderate snow     nf-weather-snow
-    [332] = "󰼶",  -- Moderate snow            nf-weather-snow
-    [335] = "󰖔",  -- Patchy heavy snow        nf-weather-snowflake_cold
-    [338] = "󰖔",  -- Heavy snow               nf-weather-snowflake_cold
-    [350] = "󰖘",  -- Ice pellets              nf-weather-sleet
-    [353] = "󰖗",  -- Light rain shower        nf-weather-day_showers
-    [356] = "󰖖",  -- Mod/heavy rain shower    nf-weather-rain
-    [359] = "󰖖",  -- Torrential rain shower   nf-weather-rain
-    [362] = "󰖘",  -- Light sleet showers      nf-weather-sleet
-    [365] = "󰖘",  -- Mod/heavy sleet showers  nf-weather-sleet
-    [368] = "󰼶",  -- Light snow showers       nf-weather-snow
-    [371] = "󰖔",  -- Mod/heavy snow showers   nf-weather-snowflake_cold
-    [374] = "󰖘",  -- Light ice pellet showers nf-weather-sleet
-    [377] = "󰖘",  -- Mod/heavy ice pellets    nf-weather-sleet
-    [386] = "󰖓",  -- Patchy rain w/ thunder   nf-weather-day_thunderstorm
-    [389] = "󰖓",  -- Mod/heavy rain w/ thunder nf-weather-thunderstorm
-    [392] = "󰖓",  -- Patchy snow w/ thunder   nf-weather-day_thunderstorm
-    [395] = "󰖓",  -- Mod/heavy snow w/ thunder nf-weather-thunderstorm
-}
-
-local function isValidLocation(loc)
-    return type(loc) == "string"
-        and #loc >= 1 and #loc <= 64
-        and loc:match("^[%w%%%.%+%,%-/]+$") ~= nil
-end
-
-local function fetchWeather()
-    local loc = hs.settings.get("zjstatus.weatherLocation") or WEATHER_LOCATION_DEFAULT
-    if not isValidLocation(loc) then loc = WEATHER_LOCATION_DEFAULT end
-    local url = "https://wttr.in/" .. loc .. "?format=j1"
-    hs.http.asyncGet(url, nil, function(status, body, _)
-        if status ~= 200 or not body or body == "" then return end
-        local ok, data = pcall(function() return hs.json.decode(body) end)
-        if not ok or not data then return end
-        local cc = data.current_condition and data.current_condition[1]
-        if not cc then return end
-        local code = tonumber(cc.weatherCode)
-        local temp = cc.temp_C or "?"
-        local icon = WEATHER_ICONS[code] or "󰖐"
-        local sign = (tonumber(temp) or 0) >= 0 and "+" or ""
-        pushCached("weather", icon .. " " .. sign .. temp .. "°C")
-    end)
 end
 
 -- ── URL handler: new-session bootstrap ────────────────────────────────────
@@ -641,8 +460,6 @@ function M.init()
         pushCached("keyboard", keyboardLabel())
     end)
 
-    -- Wi-Fi: replaced by traffic poller below
-
     -- VPN: event-driven via reachability watcher (fires on any network change)
     M._reachWatcher = hs.network.reachability.internet()
     M._reachWatcher:setCallback(function(_, _)
@@ -650,11 +467,12 @@ function M.init()
     end)
     M._reachWatcher:start()
 
-    -- Focus Mode: event-driven via NSDistributedNotificationCenter
-    M._focusWatcher = hs.distributednotifications.new(function()
+    -- Focus Mode: polled every 5 s via AX on Control Centre menu bar item.
+    -- Distributed notifications for Focus are not reliably delivered to
+    -- non-sandboxed apps, so polling is the pragmatic fallback.
+    M._focusTimer = hs.timer.doEvery(5, function()
         pushCached("focus", focusLabel())
-    end, "com.apple.donotdisturb.state.changed")
-    M._focusWatcher:start()
+    end)
 
     -- Battery: instant via battery watcher
     M._batteryWatcher = hs.battery.watcher.new(function()
@@ -670,28 +488,15 @@ function M.init()
         pushCached("memory", memLabel())
     end)
 
-    -- Disk: polled every 60 s (changes slowly)
-    M._diskTimer = hs.timer.doEvery(60, function()
-        pushCached("disk", diskLabel())
-    end)
-
-    -- Network traffic: sampled every NET_INTERVAL_S seconds
-    updateNetwork()  -- first sample (seeds netPrevBytes, no display yet)
-    M._netTimer = hs.timer.doEvery(NET_INTERVAL_S, updateNetwork)
-
-    -- Date: polled every 60 s (changes once per day but cheap to check)
+    -- Date: polled every 60 s
     M._dateTimer = hs.timer.doEvery(60, function()
         pushCached("date", dateLabel())
     end)
 
-    -- Time: polled every 10 s (sub-minute resolution is fine for a status bar)
+    -- Time: polled every 10 s
     M._timeTimer = hs.timer.doEvery(10, function()
         pushCached("time", timeLabel())
     end)
-
-    -- Weather: fetched every 30 min; first fetch immediately
-    fetchWeather()
-    M._weatherTimer = hs.timer.doEvery(WEATHER_INTERVAL_S, fetchWeather)
 
     -- URL handler for new-session bootstrap
     setupUrlHandler()
@@ -705,7 +510,6 @@ function M.init()
         pushCached("keyboard", keyboardLabel())
         pushCached("battery",  batteryLabel())
         pushCached("memory",   memLabel())
-        pushCached("disk",     diskLabel())
         pushCached("date",     dateLabel())
         pushCached("time",     timeLabel())
         hs.timer.doAfter(2, pushAll)
@@ -720,9 +524,7 @@ function M.cleanup()
     if M._wifiWatcher      then M._wifiWatcher:stop();    M._wifiWatcher = nil end
     if M._batteryWatcher   then M._batteryWatcher:stop(); M._batteryWatcher = nil end
     if M._memTimer         then M._memTimer:stop();       M._memTimer = nil end
-    if M._diskTimer        then M._diskTimer:stop();      M._diskTimer = nil end
-    if M._netTimer         then M._netTimer:stop();       M._netTimer = nil end
-    if M._weatherTimer     then M._weatherTimer:stop();   M._weatherTimer = nil end
+    if M._focusTimer       then M._focusTimer:stop();     M._focusTimer = nil end
     if M._sessionTimer     then M._sessionTimer:stop();   M._sessionTimer = nil end
     if M._dateTimer        then M._dateTimer:stop();      M._dateTimer = nil end
     if M._timeTimer        then M._timeTimer:stop();      M._timeTimer = nil end
@@ -732,7 +534,6 @@ function M.cleanup()
     zellijBin      = nil
     lastValues     = {}
     cachedSessions = {}
-    netPrevBytes   = nil
 end
 
 return M
