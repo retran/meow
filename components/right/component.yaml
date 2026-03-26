@@ -1,4 +1,0 @@
-name: right
-depends_on:
-  - components/base
-  - components/left

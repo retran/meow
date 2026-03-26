@@ -1,3 +1,0 @@
-name: test
-depends_on:
-  - components/dependency

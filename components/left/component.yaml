@@ -1,3 +1,0 @@
-name: left
-depends_on:
-  - components/base

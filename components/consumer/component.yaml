@@ -1,3 +1,0 @@
-description: consumer
-depends_on:
-  - missing-dep
