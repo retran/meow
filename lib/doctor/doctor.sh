@@ -496,6 +496,80 @@ _doctor_audit_manager() {
 }
 
 # ---------------------------------------------------------------------------
+# doctor_check_mise_shims
+# For each tool listed in any installed component's packages/mise.list,
+# verifies that mise has a global version set so the shim works.  A missing
+# global version causes "mise ERROR No version is set for shim: <tool>" at
+# runtime even when the tool is installed.
+# Returns 1 if any errors were detected.
+# ---------------------------------------------------------------------------
+doctor_check_mise_shims() {
+  ui_step_header "Mise Shim Versions"
+  local errors_before="$MEOW_ERROR_COUNT"
+
+  if ! command -v mise >/dev/null 2>&1; then
+    ui_info "mise not found — skipping shim check."
+    return 0
+  fi
+
+  if [ ! -d "$MEOW_INSTALLED_COMPONENTS_DIR" ]; then
+    ui_info "No components installed — skipping."
+    return 0
+  fi
+
+  local ok_count=0
+  local broken_count=0
+
+  # Collect all unique tool names from installed components' mise.list files
+  local tool entry
+  declare -A seen_tools
+
+  while IFS= read -r -d '' entry; do
+    local component
+    component="$(basename "$entry")"
+    is_component_installed "$component" 2>/dev/null || continue
+
+    local list_file="${MEOW_COMPONENTS_DIR}/${component}/packages/mise.list"
+    [ -f "$list_file" ] || continue
+
+    while IFS= read -r line || [ -n "$line" ]; do
+      [[ -z "$line" || "$line" =~ ^[[:space:]]*# ]] && continue
+      line=$(printf '%s' "$line" | xargs)
+      [ -z "$line" ] && continue
+
+      # Strip version suffix to get bare tool name
+      tool="${line%%@*}"
+      [ -z "$tool" ] && continue
+
+      # Only check each tool once
+      [ "${seen_tools[$tool]+set}" = "set" ] && continue
+      seen_tools[$tool]=1
+
+      # Ask mise to resolve the version for this tool name.
+      # (mise which requires the binary name which may differ from the tool name,
+      #  e.g. github-cli -> gh, ripgrep -> rg; mise current uses the tool name directly)
+      if mise current "$tool" >/dev/null 2>&1; then
+        ok_count=$((ok_count + 1))
+        ui_verbose_action_success "$(printf "Shim OK: %s" "$tool")"
+      else
+        ui_action_error "$(printf \
+          "No global version set for mise tool '%s' — run: mise use -g %s@<version>" \
+          "$tool" "$tool")"
+        broken_count=$((broken_count + 1))
+      fi
+    done < "$list_file"
+  done < <(find "$MEOW_INSTALLED_COMPONENTS_DIR" -mindepth 1 -maxdepth 1 -print0 2>/dev/null)
+
+  if [ "$ok_count" -eq 0 ] && [ "$broken_count" -eq 0 ]; then
+    ui_info "No mise tools tracked in installed components."
+  elif [ "$broken_count" -eq 0 ]; then
+    ui_action_success "$(printf "All %d mise shims have a global version set" "$ok_count")"
+  fi
+
+  [ "$MEOW_ERROR_COUNT" -eq "$errors_before" ] && return 0 || return 1
+}
+
+# ---------------------------------------------------------------------------
 # doctor_check_packages
 # For each supported package manager, compares what is installed on the
 # system against what is tracked in any component's package list.  Reports:
@@ -1047,6 +1121,9 @@ doctor_run() {
   ui_message ""
 
   doctor_check_repositories
+  ui_message ""
+
+  doctor_check_mise_shims
   ui_message ""
 
   doctor_check_packages
