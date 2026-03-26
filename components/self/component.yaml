@@ -1,3 +1,0 @@
-name: self
-depends_on:
-  - components/self

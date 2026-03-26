@@ -1,3 +1,0 @@
-name: mid
-depends_on:
-  - components/base
