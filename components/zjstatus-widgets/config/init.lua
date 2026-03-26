@@ -141,6 +141,7 @@ local ICONS_DISCHARGING = {
 local zellijBin        = nil   -- absolute path, resolved once
 local lastValues       = {}    -- widget -> last pushed string (for re-send)
 local cachedSessions   = {}    -- list of validated session name strings
+local pendingPush      = {}    -- session name -> true when a push is already scheduled
 
 -- Watchers / timers — kept in M so cleanup() can stop them
 M._wifiWatcher      = nil
@@ -454,15 +455,25 @@ end
 -- fish calls: hs -c "ZJStatusPushAll('session-name')"
 -- (also still bound to hammerspoon:// for compatibility)
 -- We register the session, then push all current values to it.
+-- Calls for the same session are coalesced: if a push is already pending,
+-- the duplicate is silently dropped to avoid redundant zellij pipe spawns.
 
 -- Global function callable via hs IPC CLI:
 --   hs -c "ZJStatusPushAll('session-name')"
 function ZJStatusPushAll(name)
     log("ZJStatusPushAll called name=" .. tostring(name))
     if name and isValidSessionName(name) then
+        if pendingPush[name] then
+            log("ZJStatusPushAll skipped (already pending) name=" .. name)
+            return
+        end
+        pendingPush[name] = true
         registerSession(name)
         pushToSession(name)
-        hs.timer.doAfter(4, function() pushToSession(name) end)
+        hs.timer.doAfter(4, function()
+            pushToSession(name)
+            pendingPush[name] = nil
+        end)
     else
         pushAll()
         hs.timer.doAfter(4, pushAll)
@@ -589,6 +600,7 @@ function M.cleanup()
     zellijBin      = nil
     lastValues     = {}
     cachedSessions = {}
+    pendingPush    = {}
 end
 
 return M
