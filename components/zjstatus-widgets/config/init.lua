@@ -428,21 +428,11 @@ end
 -- Use hs.execute to get the date/time with explicit TZ, avoiding any
 -- potential mismatch between Hammerspoon's Lua env and the system TZ.
 local function dateLabel()
-    local out, ok = hs.execute("TZ=Europe/Amsterdam date +'%a %d %b'")
-    if not ok or not out or out == "" then
-        out = os.date("%a %d %b")
-    end
-    out = out:gsub("%s+$", "")  -- strip trailing newline
-    return colored(C_BLUE, "󰸗 " .. out)
+    return colored(C_BLUE, "󰸗 " .. os.date("%a %d %b"))
 end
 
 local function timeLabel()
-    local out, ok = hs.execute("TZ=Europe/Amsterdam date +'%H:%M'")
-    if not ok or not out or out == "" then
-        out = os.date("%H:%M")
-    end
-    out = out:gsub("%s+$", "")
-    return colored(C_GREEN, "󰥔 " .. out)
+    return colored(C_GREEN, "󰥔 " .. os.date("%H:%M"))
 end
 
 -- Recompute all widget labels (using the current C_* color variables) and push
