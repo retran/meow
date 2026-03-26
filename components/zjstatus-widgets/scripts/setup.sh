@@ -8,7 +8,6 @@
 # @author: Andrew Vasilyev
 # @license: MIT
 #
-COMPONENT_NAME="$1"
 MEOW="$2"
 
 # Only meaningful on macOS

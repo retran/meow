@@ -18,28 +18,32 @@
 #
 # Returns 1 if bg/fg cannot be resolved.
 
+# Return first non-empty palette value from an ordered list of key candidates.
+# Usage: _zjc_get <preset> <variant> <key> [<key> ...]
+_zjc_get() {
+  local preset="$1"
+  local variant="$2"
+  shift 2
+  local result=""
+  for key in "$@"; do
+    result=$(theme_get_palette_color "$preset" "$variant" "$key" 2>/dev/null || true)
+    if [[ -n "$result" && "$result" != "null" ]]; then
+      echo "$result"
+      return
+    fi
+  done
+  echo ""
+}
+
 zjstatus_build_color_block() {
   local preset="$1"
   local variant="$2"
 
-  # Return first non-empty palette value from an ordered list of key candidates.
-  _zjc_get() {
-    local result=""
-    for key in "$@"; do
-      result=$(theme_get_palette_color "$preset" "$variant" "$key" 2>/dev/null || true)
-      if [[ -n "$result" && "$result" != "null" ]]; then
-        echo "$result"
-        return
-      fi
-    done
-    echo ""
-  }
-
   # ── Semantic color roles ────────────────────────────────────────────────────
   # bar background / foreground
   local _bg _fg
-  _bg=$(_zjc_get "bg"       "base"     "bg1")
-  _fg=$(_zjc_get "fg"       "text"     "fg1")
+  _bg=$(_zjc_get "$preset" "$variant" "bg"       "base"     "bg1")
+  _fg=$(_zjc_get "$preset" "$variant" "fg"       "text"     "fg1")
 
   if [[ -z "$_bg" || -z "$_fg" ]]; then
     echo "zjstatus_build_color_block: cannot resolve bg/fg for $preset/$variant" >&2
@@ -48,52 +52,52 @@ zjstatus_build_color_block() {
 
   # selection: active tab background
   local _sel
-  _sel=$(_zjc_get "surface0" "bg_highlight" "bg_visual" "sel0" "bg1" "bg2" "mantle")
+  _sel=$(_zjc_get "$preset" "$variant" "surface0" "bg_highlight" "bg_visual" "sel0" "bg1" "bg2" "mantle")
   [[ -z "$_sel" ]] && _sel="$_bg"
 
   # dimmed: normal tab fg, normal mode indicator
   local _dim
-  _dim=$(_zjc_get "overlay1" "comment" "gray" "subtext0" "fg_gutter" "dark5")
+  _dim=$(_zjc_get "$preset" "$variant" "overlay1" "comment" "gray" "subtext0" "fg_gutter" "dark5")
   [[ -z "$_dim" ]] && _dim="$_fg"
 
-  # subtle: datetime text (slightly lighter than dim)
+  # subtle: slightly lighter than dim, used in color comments
   local _subtle
-  _subtle=$(_zjc_get "subtext1" "overlay2" "comment" "gray" "fg_gutter")
+  _subtle=$(_zjc_get "$preset" "$variant" "subtext1" "overlay2" "comment" "gray" "fg_gutter")
   [[ -z "$_subtle" ]] && _subtle="$_fg"
 
   # identity/accent: session pill — teal/cyan family
   local _teal
-  _teal=$(_zjc_get "teal" "cyan" "sapphire" "water" "foam" "pine" "sky")
+  _teal=$(_zjc_get "$preset" "$variant" "teal" "cyan" "sapphire" "water" "foam" "pine" "sky")
   [[ -z "$_teal" ]] && _teal="$_fg"
 
   # pane mode — blue family
   local _blue
-  _blue=$(_zjc_get "blue" "water" "sapphire" "sky" "blue0" "pine" "foam")
+  _blue=$(_zjc_get "$preset" "$variant" "blue" "water" "sapphire" "sky" "blue0" "pine" "foam")
   [[ -z "$_blue" ]] && _blue="$_fg"
 
   # tab mode — purple/mauve family
   local _mauve
-  _mauve=$(_zjc_get "mauve" "purple" "magenta" "blossom" "iris" "violet" "pink")
+  _mauve=$(_zjc_get "$preset" "$variant" "mauve" "purple" "magenta" "blossom" "iris" "violet" "pink")
   [[ -z "$_mauve" ]] && _mauve="$_fg"
 
   # scroll / cpu widget — green family
   local _green
-  _green=$(_zjc_get "green" "leaf" "teal" "pine" "green1")
+  _green=$(_zjc_get "$preset" "$variant" "green" "leaf" "teal" "pine" "green1")
   [[ -z "$_green" ]] && _green="$_fg"
 
   # search / resize / rename — yellow/amber family
   local _yellow
-  _yellow=$(_zjc_get "yellow" "gold" "wood" "peach" "orange" "highlight")
+  _yellow=$(_zjc_get "$preset" "$variant" "yellow" "gold" "wood" "peach" "orange" "highlight")
   [[ -z "$_yellow" ]] && _yellow="$_fg"
 
   # move mode / battery — orange family
   local _orange
-  _orange=$(_zjc_get "orange" "peach" "wood" "yellow" "gold" "highlight")
+  _orange=$(_zjc_get "$preset" "$variant" "orange" "peach" "wood" "yellow" "gold" "highlight")
   [[ -z "$_orange" ]] && _orange="$_fg"
 
   # locked mode — red family
   local _red
-  _red=$(_zjc_get "red" "love" "rose" "danger" "error" "maroon")
+  _red=$(_zjc_get "$preset" "$variant" "red" "love" "rose" "danger" "error" "maroon")
   [[ -z "$_red" ]] && _red="$_fg"
 
   # ── Emit the KDL color block ────────────────────────────────────────────────
@@ -127,7 +131,6 @@ zjstatus_build_color_block() {
     "                 pipe_battery_format      \"{output}  \"" \
     "                 pipe_date_format         \"{output}  \"" \
     "                 pipe_time_format         \"{output}\"" \
-    "                 datetime                 \"#[fg=${_subtle},bg=${_bg}] {format}\"" \
     "                 // ZJSTATUS_COLORS_END"
 }
 
@@ -138,34 +141,22 @@ zjstatus_write_lua_colors() {
   local variant="$2"
   local out_file="${3:-$HOME/.local/share/zjstatus-widgets/colors.lua}"
 
-  _zjc_get() {
-    local result=""
-    for key in "$@"; do
-      result=$(theme_get_palette_color "$preset" "$variant" "$key" 2>/dev/null || true)
-      if [[ -n "$result" && "$result" != "null" ]]; then
-        echo "$result"
-        return
-      fi
-    done
-    echo ""
-  }
-
   local _bg _green _yellow _orange _red _mauve _blue
-  _bg=$(_zjc_get     "bg"     "base"     "bg1")
-  _green=$(_zjc_get  "green"  "leaf"     "teal"   "pine"   "green1")
-  _yellow=$(_zjc_get "yellow" "gold"     "wood"   "peach"  "orange" "highlight")
-  _orange=$(_zjc_get "orange" "peach"    "wood"   "yellow" "gold"   "highlight")
-  _red=$(_zjc_get    "red"    "love"     "rose"   "danger" "error"  "maroon")
-  _mauve=$(_zjc_get  "mauve"  "purple"   "magenta" "blossom" "iris" "violet" "pink")
-  _blue=$(_zjc_get   "blue"   "water"    "sapphire" "sky"  "blue0"  "pine"   "foam")
+  _bg=$(_zjc_get     "$preset" "$variant" "bg"     "base"     "bg1")
+  _green=$(_zjc_get  "$preset" "$variant" "green"  "leaf"     "teal"   "pine"   "green1")
+  _yellow=$(_zjc_get "$preset" "$variant" "yellow" "gold"     "wood"   "peach"  "orange" "highlight")
+  _orange=$(_zjc_get "$preset" "$variant" "orange" "peach"    "wood"   "yellow" "gold"   "highlight")
+  _red=$(_zjc_get    "$preset" "$variant" "red"    "love"     "rose"   "danger" "error"  "maroon")
+  _mauve=$(_zjc_get  "$preset" "$variant" "mauve"  "purple"   "magenta" "blossom" "iris" "violet" "pink")
+  _blue=$(_zjc_get   "$preset" "$variant" "blue"   "water"    "sapphire" "sky"  "blue0"  "pine"   "foam")
 
   [[ -z "$_bg"     ]] && { echo "zjstatus_write_lua_colors: cannot resolve bg for $preset/$variant" >&2; return 1; }
+  [[ -z "$_blue"   ]] && { echo "zjstatus_write_lua_colors: cannot resolve blue for $preset/$variant" >&2; return 1; }
   [[ -z "$_green"  ]] && _green="$_blue"
   [[ -z "$_yellow" ]] && _yellow="$_blue"
   [[ -z "$_orange" ]] && _orange="$_blue"
   [[ -z "$_red"    ]] && _red="$_blue"
   [[ -z "$_mauve"  ]] && _mauve="$_blue"
-  [[ -z "$_blue"   ]] && { echo "zjstatus_write_lua_colors: cannot resolve blue for $preset/$variant" >&2; return 1; }
 
   mkdir -p "$(dirname "$out_file")"
   cat > "$out_file" <<LUA

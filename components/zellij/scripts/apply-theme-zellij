@@ -120,7 +120,7 @@ if [[ -f "$layout_kdl" ]]; then
 
   if [[ -n "$new_block" ]]; then
     python3 - "$layout_kdl" "$layout_kdl_installed" "$new_block" <<'PYEOF'
-import sys, re
+import sys, re, os
 
 layout_files = sys.argv[1:-1]
 new_block = sys.argv[-1]
@@ -128,7 +128,6 @@ new_block = sys.argv[-1]
 pattern = r'[ \t]*// ZJSTATUS_COLORS_BEGIN.*?// ZJSTATUS_COLORS_END'
 
 for layout_file in layout_files:
-    import os
     if not os.path.isfile(layout_file):
         continue
     with open(layout_file, 'r') as f:
@@ -141,14 +140,16 @@ for layout_file in layout_files:
             f.write(new_content)
         print(f"Updated zjstatus colors in {layout_file}")
 PYEOF
+  fi
 
-    # Write Lua color file for the Hammerspoon plugin so widget colors stay in sync.
-    zjstatus_write_lua_colors "$PRESET" "$VARIANT" || true
+  # Write Lua color file for the Hammerspoon plugin so widget colors stay in sync.
+  # This is independent of the layout update — if bg/fg resolved but other colors
+  # didn't, we still want Hammerspoon to reflect the new palette.
+  zjstatus_write_lua_colors "$PRESET" "$VARIANT" || true
 
-    # Notify Hammerspoon to reload colors and repush all widgets.
-    if command -v hs >/dev/null 2>&1; then
-      hs -c "if ZJStatusReloadColors then ZJStatusReloadColors() end" 2>/dev/null || true
-    fi
+  # Notify Hammerspoon to reload colors and repush all widgets.
+  if command -v hs >/dev/null 2>&1; then
+    hs -c "if ZJStatusReloadColors then ZJStatusReloadColors() end" 2>/dev/null || true
   fi
 fi
 

@@ -22,23 +22,20 @@
 --
 -- @file: components/zjstatus-widgets/config/init.lua
 -- @brief: Event-driven zjstatus pipe widgets for zellij via Hammerspoon.
---         Pushes keyboard layout, Wi-Fi SSID, battery, CPU, memory, and
---         weather to all active zellij sessions without polling or spawning
---         child processes for the fast-changing widgets.
+--         Pushes keyboard layout, VPN state, battery, CPU, memory, focus mode,
+--         date and time to all active zellij sessions.
 -- @author: Andrew Vasilyev
 -- @license: MIT
 --
 -- Architecture:
---   Hammerspoon is a signed macOS application with Location Services access,
---   so it can read the Wi-Fi SSID (unlike unsigned CLI daemons).
---
 --   Each widget uses the most appropriate update mechanism:
 --     keyboard  — hs.keycodes.inputSourceChanged (instant, zero-cost)
---     network   — hs.wifi.watcher (instant, zero-cost)
+--     vpn       — hs.network.reachability watcher (instant, zero-cost)
 --     battery   — hs.battery.watcher (instant, zero-cost)
 --     cpu       — hs.host.cpuUsage(interval, callback) non-blocking two-sample API
 --     memory    — hs.timer every 10 s, hs.host.vmStat (no spawn)
---     weather   — hs.timer every 30 min, hs.http.asyncGet (no curl spawn)
+--     focus     — hs.timer every 5 s, python3 subprocess reads DoNotDisturb DB
+--     date/time — hs.timer, os.date() (no spawn)
 --
 --   Session discovery runs asynchronously via hs.task every SESSION_INTERVAL_S
 --   seconds and on every URL-handler trigger.  Event-driven callbacks (keyboard,
@@ -66,7 +63,8 @@ local LOG_MAX  = 256 * 1024  -- rotate at 256 KiB
 
 local function log(msg)
     -- Lazy-create the log directory
-    os.execute("mkdir -p '" .. LOG_FILE:match("^(.*)/") .. "'")
+    local logDir = LOG_FILE:match("^(.*)/")
+    hs.fs.mkdir(logDir)
     local f = io.open(LOG_FILE, "a")
     if not f then return end
     f:write(os.date("[%Y-%m-%d %H:%M:%S] ") .. msg .. "\n")
@@ -144,7 +142,6 @@ local cachedSessions   = {}    -- list of validated session name strings
 local pendingPush      = {}    -- session name -> true when a push is already scheduled
 
 -- Watchers / timers — kept in M so cleanup() can stop them
-M._wifiWatcher      = nil
 M._batteryWatcher   = nil
 M._memTimer         = nil
 M._focusTimer       = nil
@@ -440,8 +437,7 @@ end
 
 -- ── Date / Time ────────────────────────────────────────────────────────────
 
--- Use hs.execute to get the date/time with explicit TZ, avoiding any
--- potential mismatch between Hammerspoon's Lua env and the system TZ.
+-- Use os.date() for date/time — no subprocess, no blocking call.
 local function dateLabel()
     return colored(C_BLUE, "󰸗 " .. os.date("%a %d %b"))
 end
@@ -468,8 +464,7 @@ local function recomputeAll()
 end
 
 -- ── URL handler: new-session bootstrap ────────────────────────────────────
--- fish calls: hs -c "ZJStatusPushAll('session-name')"
--- (also still bound to hammerspoon:// for compatibility)
+-- fish conf.d calls: hs -c "ZJStatusPushAll('session-name')"
 -- We register the session, then push all current values to it.
 -- Calls for the same session are coalesced: if a push is already pending,
 -- the duplicate is silently dropped to avoid redundant zellij pipe spawns.
@@ -531,7 +526,14 @@ function M.init()
     -- Watch for theme changes: apply-theme-zellij rewrites colors.lua, which
     -- triggers this callback.  We reload colors then recompute all widget labels
     -- so every running session reflects the new palette immediately.
-    M._colorsWatcher = hs.pathwatcher.new(COLORS_FILE, function()
+    M._colorsWatcher = hs.pathwatcher.new(COLORS_FILE, function(paths)
+        -- If COLORS_FILE doesn't exist yet, pathwatcher watches the parent
+        -- directory and fires on any change — guard against unrelated events.
+        local relevant = false
+        for _, p in ipairs(paths or {}) do
+            if p == COLORS_FILE then relevant = true; break end
+        end
+        if not relevant then return end
         log("colors file changed, reloading palette")
         if loadColors() then
             recomputeAll()
@@ -589,7 +591,7 @@ function M.init()
     -- sessions register themselves via the URL handler.
     refreshSessions(function()
         pushCached("vpn",      vpnLabel())
-        pushCached("focus",    focusLabel())
+        pushCached("focus",    focusLabelFromID(_lastFocusModeID or ""))
         pushCached("keyboard", keyboardLabel())
         pushCached("battery",  batteryLabel())
         pushCached("memory",   memLabel())
@@ -604,7 +606,6 @@ end
 
 function M.cleanup()
     hs.keycodes.inputSourceChanged()  -- clear the callback
-    if M._wifiWatcher      then M._wifiWatcher:stop();    M._wifiWatcher = nil end
     if M._batteryWatcher   then M._batteryWatcher:stop(); M._batteryWatcher = nil end
     if M._memTimer         then M._memTimer:stop();       M._memTimer = nil end
     if M._focusTimer       then M._focusTimer:stop();     M._focusTimer = nil end

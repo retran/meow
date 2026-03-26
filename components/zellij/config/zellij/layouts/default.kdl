@@ -30,8 +30,8 @@
 //   and place it at ~/.config/zellij/plugins/zjstatus.wasm
 //
 //   The zjstatus-widgets Hammerspoon plugin must be installed and Hammerspoon
-//   must be running.  It pushes all widget values (keyboard, network/SSID,
-//   battery, CPU, memory, weather) as pipe events — no polling, no daemons.
+//   must be running.  It pushes all widget values (keyboard, VPN, battery,
+//   CPU, memory, focus mode, date, time) as pipe events — no polling, no daemons.
 
 layout {
     default_tab_template {
@@ -87,7 +87,6 @@ layout {
                  pipe_battery_format      "{output}  "
                  pipe_date_format         "{output}  "
                  pipe_time_format         "{output}"
-                 datetime                 "#[fg=#bac2de,bg=#1e1e2e] {format}"
                  // ZJSTATUS_COLORS_END
             }
         }
