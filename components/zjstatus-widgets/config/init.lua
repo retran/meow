@@ -181,11 +181,13 @@ end
 
 -- Parse session names out of `zellij list-sessions --no-formatting` output.
 local function parseSessions(output)
+    local seen   = {}
     local result = {}
     for line in output:gmatch("[^\n]+") do
         local name = line:match("^([%w%-]+)")
-        if name and isValidSessionName(name) then
-            result[#result + 1] = name
+        if name and isValidSessionName(name) and not seen[name] then
+            seen[name]           = true
+            result[#result + 1]  = name
         end
     end
     return result
