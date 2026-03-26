@@ -38,8 +38,8 @@
 --     date/time — hs.timer, os.date() (no spawn)
 --
 --   Session discovery runs asynchronously via hs.task every SESSION_INTERVAL_S
---   seconds and on every URL-handler trigger.  Event-driven callbacks (keyboard,
---   battery, network) pipe directly to the cached session list — no blocking
+--   seconds and on every bootstrap trigger.  Event-driven callbacks (keyboard,
+--   battery, vpn) pipe directly to the cached session list — no blocking
 --   shell call on the hot path.
 --
 --   On every update, the new value is sent to ALL active zellij sessions via:
@@ -49,9 +49,11 @@
 --
 -- New-session bootstrap:
 --   When a new zellij session starts, fish conf.d calls:
---     open "hammerspoon://zjstatus-push-all"
---   Hammerspoon re-sends all cached widget values immediately and again after
---   4 s (to survive zjstatus's own startup latency).
+--     hs -c "ZJStatusPushAll('session-name')"
+--   Hammerspoon registers the session, re-sends all cached widget values
+--   immediately and again after 4 s (to survive zjstatus's own startup latency).
+--   A URL handler (hammerspoon://zjstatus-push-all) is also registered for
+--   compatibility but is not the primary bootstrap path.
 --
 -- Log file: ~/.local/share/zjstatus-widgets/zjstatus-widgets.log (rotates at 256 KiB)
 
@@ -62,9 +64,12 @@ local LOG_FILE = os.getenv("HOME") .. "/.local/share/zjstatus-widgets/zjstatus-w
 local LOG_MAX  = 256 * 1024  -- rotate at 256 KiB
 
 local function log(msg)
-    -- Lazy-create the log directory
-    local logDir = LOG_FILE:match("^(.*)/")
-    hs.fs.mkdir(logDir)
+    -- Lazy-create the log directory (hs.fs.mkdir does not recurse, so create
+    -- each component individually; all paths are constant, no injection risk).
+    local home = os.getenv("HOME")
+    hs.fs.mkdir(home .. "/.local")
+    hs.fs.mkdir(home .. "/.local/share")
+    hs.fs.mkdir(home .. "/.local/share/zjstatus-widgets")
     local f = io.open(LOG_FILE, "a")
     if not f then return end
     f:write(os.date("[%Y-%m-%d %H:%M:%S] ") .. msg .. "\n")
