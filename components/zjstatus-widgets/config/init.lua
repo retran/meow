@@ -152,7 +152,6 @@ M._sessionTimer     = nil
 M._dateTimer        = nil
 M._timeTimer        = nil
 M._reachWatcher     = nil
-M._focusWatcher     = nil
 M._colorsWatcher    = nil
 
 -- ── Zellij session discovery & piping ──────────────────────────────────────
@@ -241,8 +240,10 @@ local function pipeToSession(sessionName, widget, value)
 end
 
 -- Push a widget value to all sessions in the cache.
+-- No-ops if the value is identical to the last pushed value.
 local function pushCached(widget, value)
     if not zellijBin then return end
+    if lastValues[widget] == value then return end
     log("pushCached [" .. widget .. "] = " .. tostring(value) .. " (sessions=" .. #cachedSessions .. ")")
     lastValues[widget] = value
     for _, name in ipairs(cachedSessions) do
@@ -382,48 +383,59 @@ end
 
 -- ── Focus Mode ─────────────────────────────────────────────────────────────
 
--- Reads Focus state via Accessibility on the Control Centre menu bar item
--- (AXIdentifier = com.apple.menuextra.focusmode).
--- No Full Disk Access required — only Accessibility permission (already granted).
--- When Focus is OFF the item has AXValue = nil and no visible icon text.
--- When Focus is ON  the item has AXValue = "<mode name>" (e.g. "Do Not Disturb").
--- Falls back to "" (empty) on any error so the widget stays hidden.
+-- Reads the active Focus mode via an async python3 subprocess — necessary
+-- because ~/Library/DoNotDisturb/ is protected by TCC and FSEvents on that
+-- directory are suppressed for sandboxed apps even with Full Disk Access.
+-- Subprocesses launched via hs.task are not subject to the same restriction.
 
-local function readFocusMenuBarValue()
-    local cc = hs.application.find("Control Centre")
-    if not cc then return nil end
-    local ax = hs.axuielement.applicationElement(cc)
-    if not ax then return nil end
-    -- Control Centre has one child: AXMenuBar
-    local topChildren = ax:attributeValue("AXChildren") or {}
-    local menubar = topChildren[1]
-    if not menubar then return nil end
-    local children = menubar:attributeValue("AXChildren") or {}
-    for _, item in ipairs(children) do
-        local id = item:attributeValue("AXIdentifier") or ""
-        if id == "com.apple.menuextra.focusmode" then
-            return item:attributeValue("AXValue")  -- nil or string when active
-        end
-    end
-    return nil
+local ASSERTIONS_FILE = os.getenv("HOME") .. "/Library/DoNotDisturb/DB/Assertions.json"
+
+-- python3 one-liner: prints the active mode identifier or "" if Focus is off.
+local FOCUS_PY = table.concat({
+    "import json,sys;",
+    "d=json.load(open('" .. ASSERTIONS_FILE .. "'));",
+    "r=[x for i in d['data'] for x in i.get('storeAssertionRecords',[])];",
+    "print(r[0]['assertionDetails']['assertionDetailsModeIdentifier'] if r else '')",
+}, " ")
+
+local function focusLabelFromID(modeID)
+    if not modeID or modeID == "" then return "" end
+    local icons = {
+        ["com.apple.donotdisturb.mode.default"] = "󰂶",
+        ["com.apple.sleep.sleep-mode"]          = "󰒲",
+        ["com.apple.focus.work"]                = "󰢾",
+        ["com.apple.focus.personal"]            = "󱗽",
+        ["com.apple.focus.fitness"]             = "󰈿",
+        ["com.apple.focus.gaming"]              = "󰊗",
+        ["com.apple.focus.mindfulness"]         = "󰓏",
+        ["com.apple.focus.reduce-interruptions"]= "󱑙",
+    }
+    local prettyNames = {
+        ["com.apple.donotdisturb.mode.default"] = "Do Not Disturb",
+        ["com.apple.sleep.sleep-mode"]          = "Sleep",
+        ["com.apple.focus.reduce-interruptions"]= "Reduce Interruptions",
+    }
+    local name = prettyNames[modeID]
+                 or (modeID:match("%.([^%.]+)$") or modeID)
+                    :gsub("-", " "):gsub("^%l", string.upper)
+    return colored(C_MAUVE, (icons[modeID] or "󱑙") .. " " .. name)
 end
 
-local function focusLabel()
-    local val = readFocusMenuBarValue()
-    if not val or val == "" then return "" end
-    -- val is a human-readable name like "Do Not Disturb", "Work", "Personal" etc.
-    -- Pick an icon based on common names.
-    local icons = {
-        ["Do Not Disturb"] = "󰂶",
-        ["Work"]           = "󰢾",
-        ["Personal"]       = "󱗽",
-        ["Fitness"]        = "󰈿",
-        ["Gaming"]         = "󰊗",
-        ["Mindfulness"]    = "󰓏",
-        ["Sleep"]          = "󰒲",
-    }
-    local icon = icons[val] or "󱑙"
-    return colored(C_MAUVE, icon .. " " .. val)
+-- Polls Focus state asynchronously every FOCUS_INTERVAL_S seconds.
+-- Only calls pushCached when the mode actually changes.
+local FOCUS_INTERVAL_S = 5
+local _lastFocusModeID = nil   -- tracks last seen mode to detect changes
+
+local function pollFocus()
+    hs.task.new("/usr/bin/python3", function(code, out, _)
+        if code == 0 then
+            local modeID = out:gsub("%s+$", "")
+            if modeID ~= _lastFocusModeID then
+                _lastFocusModeID = modeID
+                pushCached("focus", focusLabelFromID(modeID))
+            end
+        end
+    end, {"-c", FOCUS_PY}):start()
 end
 
 -- ── Date / Time ────────────────────────────────────────────────────────────
@@ -442,12 +454,14 @@ end
 -- them to every active session.  Used after a theme/color change.
 local function recomputeAll()
     pushCached("vpn",      vpnLabel())
-    pushCached("focus",    focusLabel())
     pushCached("keyboard", keyboardLabel())
     pushCached("battery",  batteryLabel())
     pushCached("memory",   memLabel())
     pushCached("date",     dateLabel())
     pushCached("time",     timeLabel())
+    -- Force focus to recompute with new colors on next poll cycle
+    _lastFocusModeID = nil
+    lastValues["focus"] = nil
     -- CPU is self-scheduling; the next tick will pick up the new colors
     -- automatically.  Clear the cached value so no stale color flickers.
     lastValues["cpu"] = nil
@@ -502,6 +516,9 @@ end
 -- ── init / cleanup ─────────────────────────────────────────────────────────
 
 function M.init()
+    -- Pin M to a global so Lua's GC never collects it (and its timers/watchers).
+    _G._zjstatusWidgets = M
+
     zellijBin = resolveZellij()
     if not zellijBin then
         print("zjstatus-widgets: zellij not found in PATH, plugin disabled")
@@ -534,12 +551,11 @@ function M.init()
     end)
     M._reachWatcher:start()
 
-    -- Focus Mode: polled every 5 s via AX on Control Centre menu bar item.
-    -- Distributed notifications for Focus are not reliably delivered to
-    -- non-sandboxed apps, so polling is the pragmatic fallback.
-    M._focusTimer = hs.timer.doEvery(5, function()
-        pushCached("focus", focusLabel())
-    end)
+    -- Focus Mode: async poll via python3 subprocess every FOCUS_INTERVAL_S.
+    -- FSEvents on ~/Library/DoNotDisturb/ are suppressed even with Full Disk
+    -- Access, so polling is the only reliable approach.
+    M._focusTimer = hs.timer.doEvery(FOCUS_INTERVAL_S, pollFocus)
+    pollFocus()  -- immediate first poll
 
     -- Battery: instant via battery watcher
     M._batteryWatcher = hs.battery.watcher.new(function()
@@ -596,13 +612,14 @@ function M.cleanup()
     if M._dateTimer        then M._dateTimer:stop();      M._dateTimer = nil end
     if M._timeTimer        then M._timeTimer:stop();      M._timeTimer = nil end
     if M._reachWatcher     then M._reachWatcher:stop();   M._reachWatcher = nil end
-    if M._focusWatcher     then M._focusWatcher:stop();   M._focusWatcher = nil end
     if M._colorsWatcher    then M._colorsWatcher:stop();  M._colorsWatcher = nil end
     hs.urlevent.bind("zjstatus-push-all", nil)
-    zellijBin      = nil
-    lastValues     = {}
-    cachedSessions = {}
-    pendingPush    = {}
+    _G._zjstatusWidgets = nil
+    zellijBin        = nil
+    lastValues       = {}
+    cachedSessions   = {}
+    pendingPush      = {}
+    _lastFocusModeID = nil
 end
 
 return M
