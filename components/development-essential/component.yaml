@@ -6,7 +6,6 @@ platforms:
 - match:
     platform: linux
 depends_on:
-- go-task
 - node-development
 - neovim
 - tool-installers

@@ -25,5 +25,4 @@
 # @author: Andrew Vasilyev
 # @license: MIT
 #
-- source: "$MEOW/private/git/.gitconfig"
-  target: "$HOME/.gitconfig"
+# .gitconfig is managed directly by apply-theme-delta (plain file, not a symlink)

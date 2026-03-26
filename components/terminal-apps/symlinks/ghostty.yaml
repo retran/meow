@@ -25,5 +25,4 @@
 # @author: Andrew Vasilyev
 # @license: MIT
 #
-- source: "$MEOW/.installed/components/terminal-apps/config/ghostty/config"
-  target: "$HOME/.config/ghostty/config"
+# ghostty config is managed directly by apply-theme-ghostty (ensure_real_file converts symlink to plain file)

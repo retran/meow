@@ -1,0 +1,3 @@
+name: top
+depends_on:
+  - components/mid

@@ -1,4 +1,4 @@
-description: AI-powered development tools including language models, code assistants, and AI CLI tools
+description: AI-powered development tools including coding agents, code assistants, and AI CLI tools
 platforms:
 - match:
     platform: macos
@@ -6,3 +6,4 @@ platforms:
     platform: linux
 depends_on:
 - shell-essential
+- visual-studio-code

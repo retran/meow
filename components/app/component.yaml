@@ -1,0 +1,3 @@
+name: app
+depends_on:
+  - components/base

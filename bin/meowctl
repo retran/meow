@@ -868,6 +868,9 @@ cmd_help() {
     theme)
       show_theme_help
       ;;
+    doctor)
+      show_doctor_help
+      ;;
     *)
       show_main_help
       ;;
@@ -1030,6 +1033,44 @@ show_theme_help() {
   ui_message ""
 }
 
+show_doctor_help() {
+  ui_title "meowctl doctor"
+  ui_message "Check the health of your meow installation."
+  ui_message ""
+  ui_message "Usage: $0 doctor"
+  ui_message ""
+  ui_message "Checks performed:"
+  ui_message "  Environment       MEOW variable, required directories and executables"
+  ui_message "  Required Tools    yq, git, curl, and the platform package manager"
+  ui_message "  Component Tracking  Validates .installed/components symlinks"
+  ui_message "  Dependencies      Ensures installed component deps are also installed"
+  ui_message "  Dotfile Symlinks  Validates deployed dotfile symlinks in \$HOME"
+  ui_message "  Preset Tracking   Validates .installed/presets symlinks"
+  ui_message "  Package Audit     Compares installed packages against what is tracked"
+  ui_message "                    in any component's package list. Covers: homebrew"
+  ui_message "                    (formulae+casks), mas, apt/apk/pacman/dnf, snap,"
+  ui_message "                    npm, pipx, mise, cargo, gem, luarocks, vscode."
+  ui_message "                    Reports orphans (installed but untracked) and"
+  ui_message "                    missing packages (tracked but not installed)."
+  ui_message ""
+  ui_message "Exit codes:"
+  ui_message "  0  All checks passed with no errors or warnings"
+  ui_message "  1  One or more errors or warnings found"
+  ui_message ""
+  ui_message "Options:"
+  ui_message "  --verbose, -v    Show additional detail for every check"
+  ui_message ""
+  ui_message "Examples:"
+  ui_message "  $0 doctor"
+  ui_message "  $0 --verbose doctor"
+  ui_message ""
+}
+
+cmd_doctor() {
+  source "${MEOW}/lib/doctor/doctor.sh"
+  doctor_run
+}
+
 main() {
   # Handle global options and shift them away
   while [ $# -gt 0 ]; do
@@ -1091,6 +1132,9 @@ main() {
       ;;
     theme)
       cmd_theme "$@"
+      ;;
+    doctor)
+      cmd_doctor "$@"
       ;;
     help)
       cmd_help "$@"
