@@ -132,6 +132,8 @@ M._sessionTimer     = nil
 M._netTimer         = nil
 M._dateTimer        = nil
 M._timeTimer        = nil
+M._reachWatcher     = nil
+M._focusWatcher     = nil
 
 -- ── Zellij session discovery & piping ──────────────────────────────────────
 
@@ -425,6 +427,77 @@ local function diskLabel()
     return colored(fg, "󰋊 " .. string.format("%.0f", freeGiB) .. "G")
 end
 
+-- ── VPN ────────────────────────────────────────────────────────────────────
+
+-- Returns true if any utun*/ppp*/ipsec* interface has an IPv4 address.
+-- macOS always creates utun0-utun3 for iCloud/Continuity — those have only
+-- link-local IPv6, never IPv4.  A real VPN tunnel (WireGuard, OpenVPN,
+-- Tailscale split-tunnel) will have IPv4 assigned.
+local function isVpnActive()
+    local ifaces = hs.network.interfaces()
+    if not ifaces then return false end
+    for _, iface in ipairs(ifaces) do
+        if iface:match("^utun") or iface:match("^ppp") or iface:match("^ipsec") then
+            local d = hs.network.interfaceDetails(iface)
+            if d and d.IPv4 then
+                return true
+            end
+        end
+    end
+    return false
+end
+
+local function vpnLabel()
+    return isVpnActive() and colored(C_RED, "󰖂 VPN") or ""
+end
+
+-- ── Focus Mode ─────────────────────────────────────────────────────────────
+
+local ASSERTIONS_FILE = os.getenv("HOME") .. "/Library/DoNotDisturb/DB/Assertions.json"
+local SLEEP_MODE      = "com.apple.sleep.sleep-mode"
+
+-- Map Focus mode identifiers to nerd font icons.
+local FOCUS_ICONS = {
+    ["com.apple.donotdisturb.mode.default"] = "󰂶",   -- Do Not Disturb (moon)
+    ["com.apple.focus.work"]                = "󰢾",   -- Work
+    ["com.apple.focus.personal-time"]       = "󱗽",   -- Personal
+    ["com.apple.focus.fitness"]             = "󰈿",   -- Fitness
+    ["com.apple.focus.gaming"]              = "󰊗",   -- Gaming
+    ["com.apple.focus.mindfulness"]         = "󰓏",   -- Mindfulness
+    ["com.apple.focus.reduce-interruptions"]= "󱑙",   -- Reduce Interruptions
+}
+
+-- Read the currently active Focus mode identifier from Assertions.json.
+-- Returns nil when no user-visible Focus mode is active.
+local function readFocusMode()
+    local f = io.open(ASSERTIONS_FILE, "r")
+    if not f then return nil end
+    local raw = f:read("*a")
+    f:close()
+    local ok, data = pcall(hs.json.decode, raw)
+    if not ok or not data or not data.data or not data.data[1] then return nil end
+    local records = data.data[1].storeAssertionRecords or {}
+    for _, rec in ipairs(records) do
+        local d = rec.assertionDetails or {}
+        local mode = d.assertionDetailsModeIdentifier
+        if mode and mode ~= SLEEP_MODE then
+            return mode
+        end
+    end
+    return nil
+end
+
+local function focusLabel()
+    local mode = readFocusMode()
+    if not mode then return "" end
+    local icon = FOCUS_ICONS[mode] or "󱑙"
+    -- Extract a short human-readable name from the identifier tail
+    local name = mode:match("%.([^%.]+)$") or "Focus"
+    -- Capitalise first letter
+    name = name:sub(1,1):upper() .. name:sub(2)
+    return colored(C_MAUVE, icon .. " " .. name)
+end
+
 -- ── Date / Time ────────────────────────────────────────────────────────────
 
 -- Use hs.execute to get the date/time with explicit TZ, avoiding any
@@ -570,6 +643,19 @@ function M.init()
 
     -- Wi-Fi: replaced by traffic poller below
 
+    -- VPN: event-driven via reachability watcher (fires on any network change)
+    M._reachWatcher = hs.network.reachability.internet()
+    M._reachWatcher:setCallback(function(_, _)
+        pushCached("vpn", vpnLabel())
+    end)
+    M._reachWatcher:start()
+
+    -- Focus Mode: event-driven via NSDistributedNotificationCenter
+    M._focusWatcher = hs.distributednotifications.new(function()
+        pushCached("focus", focusLabel())
+    end, "com.apple.donotdisturb.state.changed")
+    M._focusWatcher:start()
+
     -- Battery: instant via battery watcher
     M._batteryWatcher = hs.battery.watcher.new(function()
         pushCached("battery", batteryLabel())
@@ -614,6 +700,8 @@ function M.init()
     -- every SESSION_INTERVAL_S. Normal operation never needs list-sessions —
     -- sessions register themselves via the URL handler.
     refreshSessions(function()
+        pushCached("vpn",      vpnLabel())
+        pushCached("focus",    focusLabel())
         pushCached("keyboard", keyboardLabel())
         pushCached("battery",  batteryLabel())
         pushCached("memory",   memLabel())
@@ -638,6 +726,8 @@ function M.cleanup()
     if M._sessionTimer     then M._sessionTimer:stop();   M._sessionTimer = nil end
     if M._dateTimer        then M._dateTimer:stop();      M._dateTimer = nil end
     if M._timeTimer        then M._timeTimer:stop();      M._timeTimer = nil end
+    if M._reachWatcher     then M._reachWatcher:stop();   M._reachWatcher = nil end
+    if M._focusWatcher     then M._focusWatcher:stop();   M._focusWatcher = nil end
     hs.urlevent.bind("zjstatus-push-all", nil)
     zellijBin      = nil
     lastValues     = {}
