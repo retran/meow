@@ -40,25 +40,24 @@ layout {
             plugin location="file:~/.config/zellij/plugins/zjstatus.wasm" {
 
                 format_center ""
-                format_right  "{pipe_weather}{pipe_cpu}{pipe_memory}{pipe_network}{pipe_keyboard}{pipe_battery}{datetime}"
+                format_right  "{pipe_weather}{pipe_cpu}{pipe_memory}{pipe_disk}{pipe_network}{pipe_keyboard}{pipe_battery}{pipe_date}{pipe_time}"
 
                 border_enabled  "false"
                 hide_frame_for_single_pane "false"
                 mode_default_to_mode "normal"
 
-                // Keyboard layout, network/SSID, battery, CPU, memory, weather
-                // — all pushed instantly or on a timer by the zjstatus-widgets
-                // Hammerspoon plugin. No command_ polling, no child processes.
+                // All widgets pushed by the zjstatus-widgets Hammerspoon plugin.
+                // cpu/memory/battery/disk/date/time use "dynamic" rendermode so that
+                // color codes embedded in the piped value are interpreted.
                 pipe_keyboard_rendermode "static"
                 pipe_network_rendermode  "static"
-                pipe_battery_rendermode  "static"
-                pipe_cpu_rendermode      "static"
-                pipe_memory_rendermode   "static"
                 pipe_weather_rendermode  "static"
-
-                // Clock + date (Amsterdam timezone) — date before time, with day-of-week
-                datetime_format    "󰸗 %a %d %b 󰥔 %H:%M"
-                datetime_timezone  "Europe/Amsterdam"
+                pipe_cpu_rendermode      "dynamic"
+                pipe_memory_rendermode   "dynamic"
+                pipe_disk_rendermode     "dynamic"
+                pipe_battery_rendermode  "dynamic"
+                pipe_date_rendermode     "dynamic"
+                pipe_time_rendermode     "dynamic"
 
                 // ZJSTATUS_COLORS_BEGIN (managed by apply-theme-zellij — do not edit manually)
                  // bg=#1e1e2e fg=#cdd6f4 sel=#313244 dim=#7f849c subtle=#bac2de
@@ -84,10 +83,12 @@ layout {
                  pipe_weather_format      "#[fg=#94e2d5,bg=#1e1e2e] {output}  "
                  pipe_keyboard_format     "#[fg=#89b4fa,bg=#1e1e2e]{output}  "
                  pipe_network_format      "#[fg=#a6e3a1,bg=#1e1e2e]{output}  "
-                 pipe_cpu_format          "#[fg=#a6e3a1,bg=#1e1e2e]{output}  "
-                 pipe_memory_format       "#[fg=#cba6f7,bg=#1e1e2e]{output}  "
-                 pipe_battery_format      "#[fg=#fab387,bg=#1e1e2e]{output}  "
-                 datetime                 "#[fg=#bac2de,bg=#1e1e2e]{format}"
+                 pipe_cpu_format          "{output}  "
+                 pipe_memory_format       "{output}  "
+                 pipe_disk_format         "{output}  "
+                 pipe_battery_format      "{output}  "
+                 pipe_date_format         "{output}  "
+                 pipe_time_format         "{output}"
                  // ZJSTATUS_COLORS_END
             }
         }

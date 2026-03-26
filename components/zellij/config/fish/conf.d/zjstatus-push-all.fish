@@ -20,7 +20,7 @@ if status is-interactive
     and test -n "$ZELLIJ"
 
     set -l _hs_cmd "ZJStatusPushAll('$ZELLIJ_SESSION_NAME')"
-    hs -c "$_hs_cmd" 2>/dev/null
+    hs -c "$_hs_cmd" 2>/dev/null &
     sleep 3 && hs -c "$_hs_cmd" 2>/dev/null &
 
 end
