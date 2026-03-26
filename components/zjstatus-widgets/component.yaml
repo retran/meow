@@ -1,0 +1,10 @@
+description: Event-driven zjstatus pipe widgets via Hammerspoon — keyboard layout,
+  VPN state, battery, CPU, memory, focus mode, date and time pushed to all active
+  zellij sessions without polling or spawning child processes.
+type: hammerspoon
+platforms:
+- match:
+    platform: macos
+depends_on:
+- hammerspoon
+- zellij

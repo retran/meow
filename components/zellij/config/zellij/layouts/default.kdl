@@ -28,6 +28,10 @@
 // Prerequisites:
 //   Download zjstatus.wasm from https://github.com/dj95/zjstatus/releases
 //   and place it at ~/.config/zellij/plugins/zjstatus.wasm
+//
+//   The zjstatus-widgets Hammerspoon plugin must be installed and Hammerspoon
+//   must be running.  It pushes all widget values (keyboard, VPN, battery,
+//   CPU, memory, focus mode, date, time) as pipe events — no polling, no daemons.
 
 layout {
     default_tab_template {
@@ -36,35 +40,23 @@ layout {
             plugin location="file:~/.config/zellij/plugins/zjstatus.wasm" {
 
                 format_center ""
-                format_right  "{command_weather} {command_cpu} {command_mem} {command_bat} {datetime}"
+                format_right  "{pipe_vpn}{pipe_focus}{pipe_cpu}{pipe_memory}{pipe_keyboard}{pipe_battery}{pipe_date}{pipe_time}"
 
                 border_enabled  "false"
                 hide_frame_for_single_pane "false"
                 mode_default_to_mode "normal"
 
-                // Weather via wttr.in (Amsterdam), refresh every 30 minutes
-                command_weather_command  "bash -c \"$HOME/.config/zellij/scripts/zjstatus-weather\""
-                command_weather_interval "1800"
-                command_weather_rendermode "static"
-
-                // CPU usage
-                command_cpu_command  "bash -c \"$HOME/.config/zellij/scripts/zjstatus-cpu\""
-                command_cpu_interval "5"
-                command_cpu_rendermode "static"
-
-                // Memory usage (macOS: vm_stat)
-                command_mem_command  "bash -c \"$HOME/.config/zellij/scripts/zjstatus-memory\""
-                command_mem_interval "10"
-                command_mem_rendermode "static"
-
-                // Battery (macOS: pmset) — dynamic icon by level and charge state
-                command_bat_command  "bash -c \"$HOME/.config/zellij/scripts/zjstatus-battery\""
-                command_bat_interval "60"
-                command_bat_rendermode "static"
-
-                // Clock + date (Amsterdam timezone) — date before time, with day-of-week
-                datetime_format    "󰸗 %a %d %b  󰥔 %H:%M"
-                datetime_timezone  "Europe/Amsterdam"
+                // All widgets pushed by the zjstatus-widgets Hammerspoon plugin.
+                // All use "dynamic" rendermode — colors are embedded in the piped
+                // value by Lua so they update immediately on theme change.
+                pipe_vpn_rendermode      "dynamic"
+                pipe_focus_rendermode    "dynamic"
+                pipe_keyboard_rendermode "dynamic"
+                pipe_cpu_rendermode      "dynamic"
+                pipe_memory_rendermode   "dynamic"
+                pipe_battery_rendermode  "dynamic"
+                pipe_date_rendermode     "dynamic"
+                pipe_time_rendermode     "dynamic"
 
                 // ZJSTATUS_COLORS_BEGIN (managed by apply-theme-zellij — do not edit manually)
                  // bg=#1e1e2e fg=#cdd6f4 sel=#313244 dim=#7f849c subtle=#bac2de
@@ -87,11 +79,14 @@ layout {
                  mode_resize              "#[fg=#1e1e2e,bg=#f9e2af,bold] RESIZE "
                  mode_rename_pane         "#[fg=#1e1e2e,bg=#f9e2af,bold] RENAME "
                  mode_rename_tab          "#[fg=#1e1e2e,bg=#f9e2af,bold] RENAME "
-                 command_weather_format   "#[fg=#94e2d5,bg=#1e1e2e] {stdout} "
-                 command_cpu_format       "#[fg=#a6e3a1,bg=#1e1e2e] 󰻠 {stdout}% "
-                 command_mem_format       "#[fg=#cba6f7,bg=#1e1e2e] {stdout} "
-                 command_bat_format       "#[fg=#fab387,bg=#1e1e2e] {stdout} "
-                 datetime                 "#[fg=#bac2de,bg=#1e1e2e] {format}"
+                 pipe_vpn_format          "{output}  "
+                 pipe_focus_format        "{output}  "
+                 pipe_keyboard_format     "{output}  "
+                 pipe_cpu_format          "{output}  "
+                 pipe_memory_format       "{output}  "
+                 pipe_battery_format      "{output}  "
+                 pipe_date_format         "{output}  "
+                 pipe_time_format         "{output}"
                  // ZJSTATUS_COLORS_END
             }
         }
