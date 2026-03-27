@@ -1,0 +1,6 @@
+description: Creative and collaboration desktop apps
+platforms:
+  - match:
+      platform: macos
+depends_on:
+  - desktop-essential

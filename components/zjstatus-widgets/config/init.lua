@@ -162,12 +162,24 @@ end
 -- so we probe known install locations directly.
 -- Never call a login shell here — it can hang during HS startup.
 local function resolveZellij()
+    local home = os.getenv("HOME") or ""
     local candidates = {
         "/opt/homebrew/bin/zellij",   -- Apple Silicon Homebrew
         "/usr/local/bin/zellij",      -- Intel Homebrew
         "/usr/bin/zellij",
         "/nix/var/nix/profiles/default/bin/zellij",
+        home .. "/.local/share/mise/shims/zellij",  -- mise shim (any platform)
     }
+    -- Probe mise versioned installs directly (no shell spawn, version-independent)
+    local miseInstallDir = home .. "/.local/share/mise/installs/zellij"
+    local dirIter, dirObj = hs.fs.dir(miseInstallDir)
+    if dirIter then
+        for ver in dirIter, dirObj do
+            if ver ~= "." and ver ~= ".." then
+                table.insert(candidates, miseInstallDir .. "/" .. ver .. "/zellij")
+            end
+        end
+    end
     for _, p in ipairs(candidates) do
         local f = io.open(p, "r")
         if f then f:close(); return p end
