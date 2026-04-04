@@ -1,0 +1,9 @@
+description: Global OpenCode configuration — skills, commands, MCP servers, and shell strategy for AI-assisted development
+platforms:
+- match:
+    platform: macos
+- match:
+    platform: linux
+depends_on:
+- ai-tools
+- development-essential
