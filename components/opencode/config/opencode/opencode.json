@@ -3,7 +3,7 @@
   "instructions": [
     "instructions/shell-strategy.md"
   ],
-  "plugin": [
+  "plugins": [
     "@franlol/opencode-md-table-formatter@0.0.6",
     "@tarquinen/opencode-dcp@3.1.7"
   ],
@@ -24,7 +24,7 @@
       "enabled": true
     }
   },
-  "permission": {
+  "permissions": {
     "bash": "allow",
     "external_directory": {
       "~/workspace/**": "allow",

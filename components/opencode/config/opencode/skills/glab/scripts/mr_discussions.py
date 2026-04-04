@@ -32,6 +32,8 @@ from pathlib import Path
 
 def load_env_file() -> dict[str, str]:
     """Walk up from cwd to find a .env file and parse it."""
+    import shlex
+
     path = Path.cwd()
     for candidate in [path, *path.parents]:
         env_file = candidate / ".env"
@@ -42,7 +44,13 @@ def load_env_file() -> dict[str, str]:
                 if not line or line.startswith("#") or "=" not in line:
                     continue
                 key, _, value = line.partition("=")
-                result[key.strip()] = value.strip().strip('"').strip("'")
+                key = key.replace("export ", "").strip()
+                try:
+                    parsed = shlex.split(value, comments=True)
+                    result[key] = parsed[0] if parsed else ""
+                except ValueError:
+                    value = value.split(" #")[0].strip()
+                    result[key] = value.strip('"').strip("'")
             return result
     return {}
 
@@ -103,19 +111,44 @@ def api_request(
     body: dict | None = None,
 ) -> dict | list:
     """Make a GitLab API request. Returns parsed JSON."""
-    url = f"https://{host}/api/v4{path}"
-    data = json.dumps(body).encode() if body else None
+    base_url = f"https://{host}/api/v4{path}"
+    if method == "GET":
+        base_url += "&per_page=100" if "?" in base_url else "?per_page=100"
+
     headers = {
         "PRIVATE-TOKEN": token,
         "Content-Type": "application/json",
     }
-    req = urllib.request.Request(url, data=data, headers=headers, method=method)
-    try:
-        with urllib.request.urlopen(req) as resp:
-            return json.loads(resp.read())
-    except urllib.error.HTTPError as e:
-        body_text = e.read().decode(errors="replace")
-        sys.exit(f"API error {e.code} {e.reason} — {url}\n{body_text}")
+
+    def _fetch(url: str) -> tuple[dict | list, str | None]:
+        data = json.dumps(body).encode() if body else None
+        req = urllib.request.Request(url, data=data, headers=headers, method=method)
+        try:
+            with urllib.request.urlopen(req) as resp:
+                return json.loads(resp.read()), resp.headers.get("X-Next-Page")
+        except urllib.error.HTTPError as e:
+            body_text = e.read().decode(errors="replace")
+            sys.exit(f"API error {e.code} {e.reason} — {url}\n{body_text}")
+
+    result, next_page = _fetch(base_url)
+
+    if isinstance(result, list) and next_page:
+        import urllib.parse
+
+        while next_page:
+            parsed = urllib.parse.urlparse(base_url)
+            query = dict(urllib.parse.parse_qsl(parsed.query))
+            query["page"] = next_page
+            next_url = urllib.parse.urlunparse(
+                parsed._replace(query=urllib.parse.urlencode(query))
+            )
+            next_result, next_page = _fetch(next_url)
+            if isinstance(next_result, list):
+                result.extend(next_result)
+            else:
+                break
+
+    return result
 
 
 def encode_project(project: str) -> str:
