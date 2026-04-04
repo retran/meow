@@ -20,9 +20,12 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #
-# @file: components/terminal-apps/symlinks/ghostty.yaml
-# @brief: Symlink configuration for Ghostty terminal emulator.
+# @file: components/shell-essential/symlinks/bat.yaml
+# @brief: Symlink configuration for bat syntax highlighter.
+#         Static config uses --theme="auto:system" so bat self-detects macOS
+#         appearance; no apply-theme-bat needed.
 # @author: Andrew Vasilyev
 # @license: MIT
 #
-# ghostty config is managed directly by apply-theme-ghostty (sed+mv via mktemp replaces the file in place; symlinks are implicitly replaced with plain files)
+- source: "$MEOW/.installed/components/shell-essential/config/bat/config"
+  target: "$HOME/.config/bat/config"
