@@ -24,5 +24,6 @@
 # @brief: Symlink configuration for tealdeer (tldr) client.
 # @author: Andrew Vasilyev
 # @license: MIT
-#
-# tealdeer config is managed directly by apply-theme-tealdeer (plain file, not a symlink)
+
+- source: "$MEOW/.installed/components/shell-essential/config/tealdeer/config.toml"
+  target: "$HOME/.config/tealdeer/config.toml"

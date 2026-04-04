@@ -24,5 +24,8 @@
 # @brief: Symlink configuration for Ghostty terminal emulator.
 # @author: Andrew Vasilyev
 # @license: MIT
-#
-# ghostty config is managed directly by apply-theme-ghostty (sed+mv via mktemp replaces the file in place; symlinks are implicitly replaced with plain files)
+
+- source: "$MEOW/.installed/components/terminal-apps/config/ghostty/config"
+  target: "$HOME/.config/ghostty/config"
+- source: "$MEOW/.installed/components/terminal-apps/config/ghostty/themes"
+  target: "$HOME/.config/ghostty/themes"

@@ -91,7 +91,7 @@ if grep -qE '^theme[[:space:]]*=' "$ghostty_config"; then
   temp_file=$(mktemp)
   trap 'rm -f "$temp_file"' EXIT
   sed -E "s|^theme[[:space:]]*=.*|${new_line_escaped}|" "$ghostty_config" > "$temp_file"
-  mv "$temp_file" "$ghostty_config"
+  cp "$temp_file" "$ghostty_config"
 else
   echo "$new_line" >> "$ghostty_config"
 fi

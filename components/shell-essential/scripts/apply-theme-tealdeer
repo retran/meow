@@ -32,6 +32,7 @@ fi
 
 # Read existing config if it exists and merge with theme
 temp_file=$(mktemp)
+trap 'rm -f "$temp_file"' EXIT
 
 if [[ -f "$tealdeer_config" ]]; then
   # Remove existing [style.*] sections
@@ -46,6 +47,6 @@ fi
 # Append theme config
 cat "$theme_file" >> "$temp_file"
 mkdir -p "$(dirname "$tealdeer_config")"
-mv "$temp_file" "$tealdeer_config"
+cp "$temp_file" "$tealdeer_config"
 
 echo "Applied tealdeer theme: $PRESET/$VARIANT"

@@ -24,5 +24,6 @@
 # @brief: Symlink configuration for ripgrep search tool.
 # @author: Andrew Vasilyev
 # @license: MIT
-#
-# ripgrep config is managed directly by apply-theme-ripgrep (plain file, not a symlink)
+
+- source: "$MEOW/.installed/components/shell-essential/config/ripgrep/.ripgreprc"
+  target: "$HOME/.ripgreprc"

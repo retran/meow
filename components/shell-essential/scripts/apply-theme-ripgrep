@@ -33,6 +33,7 @@ fi
 
 # Start with base config if it exists, otherwise start empty
 temp_file=$(mktemp)
+trap 'rm -f "$temp_file"' EXIT
 
 if [[ -f "$base_config" ]]; then
   # Copy base config, removing any color settings
@@ -41,6 +42,6 @@ fi
 
 # Append theme colors
 cat "$theme_file" >> "$temp_file"
-mv "$temp_file" "$rg_config"
+cp "$temp_file" "$rg_config"
 
 echo "Applied ripgrep theme: $PRESET/$VARIANT"
