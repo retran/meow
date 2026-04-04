@@ -44,7 +44,7 @@ mkdir -p "$OUTPUT_DIR"
 
 preset_slug=$(theme_slugify "$PRESET")
 variant_slug=$(theme_slugify "$VARIANT")
-out_file="$OUTPUT_DIR/${preset_slug}-${variant_slug}.conf"
+out_file="$OUTPUT_DIR/${preset_slug}-${variant_slug}"
 
 # ── Color resolution helpers ──────────────────────────────────────────────────
 

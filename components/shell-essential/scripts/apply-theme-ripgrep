@@ -36,8 +36,8 @@ temp_file=$(mktemp)
 trap 'rm -f "$temp_file"' EXIT
 
 if [[ -f "$base_config" ]]; then
-  # Copy base config, removing any color settings
-  grep -v "^--colors=" "$base_config" > "$temp_file" 2>/dev/null || true
+  # Copy base config, stripping everything from the generated theme marker onward
+  awk '/^# Generated from themes\.yaml/{exit} {print}' "$base_config" > "$temp_file" 2>/dev/null || true
 fi
 
 # Append theme colors

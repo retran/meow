@@ -58,8 +58,8 @@ new_theme_name="${preset_slug}-${variant_slug}"
 
 # Verify the theme file exists in the themes directory
 themes_dir="$(dirname "$ghostty_config")/themes"
-if [[ ! -f "$themes_dir/${new_theme_name}.conf" ]]; then
-  echo "Ghostty theme file not found: $themes_dir/${new_theme_name}.conf" >&2
+if [[ ! -f "$themes_dir/${new_theme_name}" ]]; then
+  echo "Ghostty theme file not found: $themes_dir/${new_theme_name}" >&2
   echo "Run: meowctl theme build --preset $PRESET --variant $VARIANT" >&2
   exit 1
 fi
