@@ -13,7 +13,9 @@
   "window.customTitleBarVisibility": "never",
   "window.commandCenter": false,
 
-  "workbench.colorTheme": "Catppuccin Macchiato",
+  "window.autoDetectColorScheme": true,
+  "workbench.preferredDarkColorTheme": "Catppuccin Macchiato",
+  "workbench.preferredLightColorTheme": "Catppuccin Latte",
   "workbench.layoutControl.enabled": false,
 
   "extensions.ignoreRecommendations": true,
