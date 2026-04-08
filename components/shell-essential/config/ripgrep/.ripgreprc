@@ -42,9 +42,9 @@
 # --context=3
 # Generated from themes.yaml
 # Ripgrep color configuration
---colors=path:fg:166,227,161
+--colors=path:fg:64,160,43
 --colors=path:style:bold
---colors=line:fg:249,226,175
---colors=match:fg:243,139,168
+--colors=line:fg:223,142,29
+--colors=match:fg:210,15,57
 --colors=match:style:bold
---colors=column:fg:148,226,213
+--colors=column:fg:23,146,153

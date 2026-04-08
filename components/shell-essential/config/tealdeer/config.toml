@@ -10,19 +10,31 @@ auto_update = true
 
 # Generated from themes.yaml
 
+# Generated from themes.yaml
+
+# Generated from themes.yaml
+
+# Generated from themes.yaml
+
+# Generated from themes.yaml
+
+# Generated from themes.yaml
+
+# Generated from themes.yaml
+
 [style.command_name]
-foreground = "#89b4fa"
+foreground = "#1e66f5"
 bold = true
 
 [style.description]
-foreground = "#cdd6f4"
+foreground = "#4c4f69"
 
 [style.example_text]
-foreground = "#94e2d5"
+foreground = "#179299"
 
 [style.example_code]
-foreground = "#a6e3a1"
+foreground = "#40a02b"
 
 [style.example_variable]
-foreground = "#94e2d5"
+foreground = "#179299"
 underline = true
