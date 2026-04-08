@@ -156,3 +156,8 @@ end
 # Theme colours (FZF_DEFAULT_OPTS, EZA_COLORS, LS_COLORS)
 # ============================================================================
 _meow_source_theme_colors 2>/dev/null; or true
+
+# Added by LM Studio CLI (lms)
+set -gx PATH $PATH /Users/retran/.lmstudio/bin
+# End of LM Studio CLI section
+
