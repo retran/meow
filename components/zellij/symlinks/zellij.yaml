@@ -32,3 +32,6 @@
 - source: "$MEOW/.installed/components/zellij/config/fish/conf.d/zjstatus-push-all.fish"
   target: "$HOME/.config/fish/conf.d/zjstatus-push-all.fish"
   os: macos
+- source: "$MEOW/.installed/components/zellij/config/fish/conf.d/zellij-tab-name.fish"
+  target: "$HOME/.config/fish/conf.d/zellij-tab-name.fish"
+  os: macos

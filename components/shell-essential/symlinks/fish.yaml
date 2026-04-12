@@ -33,8 +33,6 @@
   target: "$HOME/.config/fish/conf.d/aliases.fish"
 - source: "$MEOW/.installed/components/shell-essential/config/fish/conf.d/meow-components.fish"
   target: "$HOME/.config/fish/conf.d/meow-components.fish"
-- source: "$MEOW/.installed/components/shell-essential/config/fish/conf.d/terminal-title.fish"
-  target: "$HOME/.config/fish/conf.d/terminal-title.fish"
 - source: "$MEOW/.installed/components/shell-essential/config/fish/conf.d/theme-colors.fish"
   target: "$HOME/.config/fish/conf.d/theme-colors.fish"
 - source: "$MEOW/.installed/components/shell-essential/config/fish/themes"
