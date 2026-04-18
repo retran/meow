@@ -1,1 +1,5 @@
 luacheck
+busted
+luassert
+lua_cliargs
+say

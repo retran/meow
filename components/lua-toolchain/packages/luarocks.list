@@ -1,2 +1,7 @@
 argparse
 luafilesystem
+dkjson
+lua-term
+luasystem
+mediator_lua
+penlight

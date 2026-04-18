@@ -9,19 +9,21 @@ auto_update = true
 
 # Generated from themes.yaml
 
+# Generated from themes.yaml
+
 [style.command_name]
-foreground = "#1e66f5"
+foreground = "#89b4fa"
 bold = true
 
 [style.description]
-foreground = "#4c4f69"
+foreground = "#cdd6f4"
 
 [style.example_text]
-foreground = "#179299"
+foreground = "#94e2d5"
 
 [style.example_code]
-foreground = "#40a02b"
+foreground = "#a6e3a1"
 
 [style.example_variable]
-foreground = "#179299"
+foreground = "#94e2d5"
 underline = true
