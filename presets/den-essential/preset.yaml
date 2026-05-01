@@ -22,6 +22,5 @@ required:
 - hammerspoon
 - adaptive-keyboard-layouts
 - meowvim-keyboard-layouts
-- theme-auto-switch
 - zjstatus-widgets
 - antlr
