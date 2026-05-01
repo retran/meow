@@ -4,3 +4,5 @@ extends:
 - den-essential
 required:
 - docker-desktop
+- google-chrome
+- jira-cli

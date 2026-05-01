@@ -5,7 +5,7 @@ extends:
 - den-essential
 required:
 - game-development
-- docker-desktop
+- orbstack
 - personal-communication
 - productivity
 - creative-tools

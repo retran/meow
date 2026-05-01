@@ -1,4 +1,4 @@
-description: Docker Desktop for macOS
+description: OrbStack - lightweight Docker and Linux VMs for macOS
 platforms:
 - match:
     platform: macos

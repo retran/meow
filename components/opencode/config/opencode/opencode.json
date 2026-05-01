@@ -5,7 +5,8 @@
   ],
   "plugin": [
     "@franlol/opencode-md-table-formatter@latest",
-    "@tarquinen/opencode-dcp@latest"
+    "@tarquinen/opencode-dcp@latest",
+    "/Users/Andrew.Vasilyev/workspace/clawd-on-desk/hooks/opencode-plugin"
   ],
   "permission": {
     "bash": "allow",

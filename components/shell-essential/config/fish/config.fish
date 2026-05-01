@@ -161,3 +161,7 @@ _meow_source_theme_colors 2>/dev/null; or true
 set -gx PATH $PATH /Users/retran/.lmstudio/bin
 # End of LM Studio CLI section
 
+
+# Added by OrbStack: command-line tools and integration
+# This won't be added again if you remove it.
+source ~/.orbstack/shell/init2.fish 2>/dev/null || :

@@ -1,0 +1,6 @@
+description: Atlassian Jira CLI for issue tracking
+platforms:
+- match:
+    platform: macos
+- match:
+    platform: linux

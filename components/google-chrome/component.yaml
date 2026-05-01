@@ -1,0 +1,4 @@
+description: Google Chrome web browser
+platforms:
+- match:
+    platform: macos

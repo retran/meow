@@ -1,0 +1,6 @@
+description: ANTLR parser generator
+platforms:
+- match:
+    platform: macos
+- match:
+    platform: linux
